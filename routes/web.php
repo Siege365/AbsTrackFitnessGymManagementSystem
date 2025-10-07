@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\MembershipController;
+use App\Http\Controllers\ClientController;
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -51,6 +53,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/icons/mdi', function () {
         return view('pages.icons.mdi');
     })->name('icons.mdi');
+
+    // Memberships CRUD
+    Route::delete('memberships/bulk-delete', [MembershipController::class, 'bulkDelete'])->name('memberships.bulk-delete');
+    Route::resource('memberships', MembershipController::class);
+    
+    // Clients CRUD
+    Route::delete('clients/bulk-delete', [ClientController::class, 'bulkDelete'])->name('clients.bulk-delete');
+    Route::resource('clients', ClientController::class);
 });
 
 // Sample Pages

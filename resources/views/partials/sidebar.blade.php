@@ -31,15 +31,15 @@
     <li class="nav-item menu-items">
       <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
         <span class="menu-icon">
-          <i class="mdi mdi-laptop"></i>
+          <i class="mdi mdi-account-multiple"></i>
         </span>
         <span class="menu-title">Customers</span>
         <i class="menu-arrow"></i>
       </a>
       <div class="collapse" id="ui-basic">
         <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="{{ url('ui-features/buttons') }}">Members</a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{ url('ui-features/dropdowns') }}">Clients</a></li>
+          <li class="nav-item"> <a class="nav-link" href="{{ route('memberships.index') }}">Membership</a></li>
+          <li class="nav-item"> <a class="nav-link" href="{{ route('clients.index') }}">Clients</a></li>
           <!--<li class="nav-item"> <a class="nav-link" href="{{ url('ui-features/typography') }}">Typography</a></li>-->
         </ul>
       </div>
@@ -63,17 +63,17 @@
     <li class="nav-item menu-items">
       <a class="nav-link" href="{{ url('icons/mdi') }}">
         <span class="menu-icon">
-          <i class="mdi mdi-contacts"></i>
+          <i class="mdi mdi-contacts" style="color: #8F5FE8;"></i>
         </span>
-        <span class="menu-title">Icons</span>
+        <span class="menu-title">Inventory Supplies</span>
       </a>
     </li>
      <li class="nav-item menu-items">
       <a class="nav-link" href="{{ url('charts/chartjs') }}">
         <span class="menu-icon">
-          <i class="mdi mdi-chart-bar"></i>
+          <i class="mdi mdi-chart-bar" style="color: #00D25B;"></i>
         </span>
-        <span class="menu-title">Charts</span>
+        <span class="menu-title">Reports & Billing</span>
       </a>
     </li>
     <li class="nav-item menu-items">
@@ -81,7 +81,7 @@
         <span class="menu-icon">
           <i class="mdi mdi-security"></i>
         </span>
-        <span class="menu-title">User Pages</span>
+        <span class="menu-title">Users/Admin</span>
         <i class="menu-arrow"></i>
       </a>
       <div class="collapse" id="auth">
