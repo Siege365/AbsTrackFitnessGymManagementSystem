@@ -1,0 +1,82 @@
+/* RUBIK FONT - FORCE OVERRIDE FOR ALL ELEMENTS */
+
+/* EXCLUDE ICON FONTS - DO NOT OVERRIDE THESE! */
+.mdi,
+.mdi::before,
+[class^="mdi-"],
+[class*=" mdi-"],
+i.mdi,
+.material-icons,
+.icon,
+.menu-icon,
+.menu-icon i {
+    font-family: 'Material Design Icons' !important;
+}
+
+/* Universal selector with highest specificity */
+html *:not(.mdi):not([class^="mdi-"]):not([class*=" mdi-"]):not(.material-icons):not(i.mdi) {
+    font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+html, body {
+    font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+/* All headings */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+/* All text elements */
+p, span, a, button, input, textarea, select, label, div, li, td, th {
+    font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+/* Bootstrap and form elements */
+.form-control,
+.btn,
+.card,
+.card-title,
+.card-body,
+.table,
+.dropdown-item,
+.dropdown-menu,
+.nav-link,
+.navbar,
+.badge,
+.alert {
+    font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+/* Corona template specific overrides */
+.navbar-profile-name,
+.sidebar,
+.sidebar .nav,
+.sidebar .nav-item,
+.sidebar .nav-link,
+.main-panel,
+.content-wrapper,
+.footer,
+.page-title,
+.card-description,
+.preview-subject,
+.preview-item-content,
+.statistics-details,
+.navbar-menu-wrapper,
+.navbar-nav,
+.template-demo {
+    font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+/* Override any CSS variables */
+:root {
+    --font-family-sans-serif: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    --bs-font-sans-serif: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+/* Force override for pseudo-elements */
+*::before,
+*::after {
+    font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}

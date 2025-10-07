@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Font Comparison Test</title>
+    
+    <!-- Google Fonts - Rubik -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 42px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 18px;
+        }
+        
+        .font-section {
+            margin-bottom: 50px;
+            padding: 30px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+        
+        .font-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            display: inline-block;
+        }
+        
+        .rubik-font {
+            font-family: 'Rubik', sans-serif !important;
+        }
+        
+        .default-font {
+            font-family: "ubuntu-regular", sans-serif !important;
+        }
+        
+        .sample-text {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .weight-300 { font-weight: 300; }
+        .weight-400 { font-weight: 400; }
+        .weight-500 { font-weight: 500; }
+        .weight-600 { font-weight: 600; }
+        .weight-700 { font-weight: 700; }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .feature-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        
+        .feature-box h3 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+        }
+        
+        .feature-box p {
+            margin: 0;
+            opacity: 0.95;
+            font-size: 16px;
+        }
+        
+        .alphabet {
+            font-size: 32px;
+            letter-spacing: 2px;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .numbers {
+            font-size: 36px;
+            letter-spacing: 3px;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="rubik-font">🎨 Font Comparison Test</h1>
+        <p class="subtitle rubik-font">Compare <span class="highlight">Rubik</span> with the default Corona template font</p>
+        
+        <!-- RUBIK FONT SECTION -->
+        <div class="font-section rubik-font">
+            <div class="font-name rubik-font">
+                ✅ Rubik Font (What your app SHOULD use) <span class="badge">NEW</span>
+            </div>
+            
+            <div class="sample-text weight-300">
+                <strong>Light (300):</strong> The quick brown fox jumps over the lazy dog. ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789
+            </div>
+            
+            <div class="sample-text weight-400">
+                <strong>Regular (400):</strong> The quick brown fox jumps over the lazy dog. ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789
+            </div>
+            
+            <div class="sample-text weight-500">
+                <strong>Medium (500):</strong> The quick brown fox jumps over the lazy dog. ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789
+            </div>
+            
+            <div class="sample-text weight-600">
+                <strong>Semi-Bold (600):</strong> The quick brown fox jumps over the lazy dog. ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789
+            </div>
+            
+            <div class="sample-text weight-700">
+                <strong>Bold (700):</strong> The quick brown fox jumps over the lazy dog. ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789
+            </div>
+            
+            <div class="alphabet">
+                ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                abcdefghijklmnopqrstuvwxyz
+            </div>
+            
+            <div class="numbers">
+                0123456789 !@#$%^&*()
+            </div>
+            
+            <div class="feature-box rubik-font">
+                <h3>Open Projects</h3>
+                <p>Admin dashboard design - Broadcast web app mockup</p>
+            </div>
+            
+            <div class="feature-box rubik-font">
+                <h3>Wordpress Development</h3>
+                <p>Upload new design - Project meeting discussion</p>
+            </div>
+        </div>
+        
+        <!-- DEFAULT FONT SECTION -->
+        <div class="font-section default-font">
+            <div class="font-name default-font">
+                ❌ Default Corona Font (Ubuntu/Muli) <span class="badge" style="background: #dc3545;">OLD</span>
+            </div>
+            
+            <div class="sample-text weight-300">
+                <strong>Light (300):</strong> The quick brown fox jumps over the lazy dog. ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789
+            </div>
+            
+            <div class="sample-text weight-400">
+                <strong>Regular (400):</strong> The quick brown fox jumps over the lazy dog. ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789
+            </div>
+            
+            <div class="sample-text weight-500">
+                <strong>Medium (500):</strong> The quick brown fox jumps over the lazy dog. ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789
+            </div>
+            
+            <div class="sample-text weight-600">
+                <strong>Semi-Bold (600):</strong> The quick brown fox jumps over the lazy dog. ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789
+            </div>
+            
+            <div class="sample-text weight-700">
+                <strong>Bold (700):</strong> The quick brown fox jumps over the lazy dog. ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789
+            </div>
+            
+            <div class="alphabet">
+                ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>
+                abcdefghijklmnopqrstuvwxyz
+            </div>
+            
+            <div class="numbers">
+                0123456789 !@#$%^&*()
+            </div>
+            
+            <div class="feature-box default-font">
+                <h3>Open Projects</h3>
+                <p>Admin dashboard design - Broadcast web app mockup</p>
+            </div>
+            
+            <div class="feature-box default-font">
+                <h3>Wordpress Development</h3>
+                <p>Upload new design - Project meeting discussion</p>
+            </div>
+        </div>
+        
+        <hr style="margin: 50px 0; border: 2px solid #e0e0e0;">
+        
+        <div class="comparison">
+            <div>
+                <h2 class="rubik-font" style="color: #28a745;">✅ Rubik Characteristics</h2>
+                <ul class="rubik-font" style="font-size: 16px; line-height: 1.8;">
+                    <li><strong>Rounded corners</strong> - Soft, friendly appearance</li>
+                    <li><strong>Geometric shapes</strong> - Modern and clean</li>
+                    <li><strong>Wide letter spacing</strong> - Easy to read</li>
+                    <li><strong>Even stroke weight</strong> - Balanced look</li>
+                    <li><strong>Slightly condensed</strong> - Space efficient</li>
+                    <li><strong>Open apertures</strong> - Better legibility</li>
+                </ul>
+            </div>
+            
+            <div>
+                <h2 class="default-font" style="color: #dc3545;">❌ Ubuntu/Muli Characteristics</h2>
+                <ul class="default-font" style="font-size: 16px; line-height: 1.8;">
+                    <li><strong>Sharp corners</strong> - More traditional</li>
+                    <li><strong>Humanist style</strong> - Organic feel</li>
+                    <li><strong>Tighter spacing</strong> - More compact</li>
+                    <li><strong>Variable stroke weight</strong> - Classic serif influence</li>
+                    <li><strong>Standard width</strong> - Regular proportions</li>
+                    <li><strong>Standard apertures</strong> - Traditional design</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="margin-top: 50px; padding: 30px; background: #f0f0f0; border-radius: 10px;">
+            <h2 class="rubik-font" style="margin-top: 0;">🔍 How to Check Your Font</h2>
+            <ol class="rubik-font" style="font-size: 16px; line-height: 1.8;">
+                <li><strong>Right-click</strong> any text on your dashboard</li>
+                <li>Select <strong>"Inspect"</strong> or press <kbd>F12</kbd></li>
+                <li>Click the <strong>"Computed"</strong> tab</li>
+                <li>Scroll down to find <strong>"font-family"</strong></li>
+                <li>It should show: <code style="background: #fff; padding: 2px 8px; border-radius: 4px; color: #e83e8c;">font-family: "Rubik", sans-serif</code></li>
+            </ol>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; text-align: center;">
+            <h3 class="rubik-font" style="margin: 0 0 10px 0; color: white;">✨ Compare Side-by-Side</h3>
+            <p class="rubik-font" style="margin: 0; font-size: 18px; opacity: 0.95;">
+                Can you see the difference? Rubik has rounder, softer edges and is more modern!
+            </p>
+        </div>
+    </div>
+</body>
+</html>
