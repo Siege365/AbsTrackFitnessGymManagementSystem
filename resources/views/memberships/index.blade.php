@@ -187,6 +187,12 @@
                                             <button type="button" class="dropdown-item text-white" data-toggle="modal" data-target="#viewModal{{ $membership->id }}">
                                                 <i class="mdi mdi-eye me-2"></i> View
                                             </button>
+                                            <form action="{{ route('memberships.renew', $membership) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item text-success" onclick="return confirm('Are you sure you want to renew this membership for another month?')">
+                                                    <i class="mdi mdi-refresh me-2"></i> Renew Subscription
+                                                </button>
+                                            </form>
                                             <form action="{{ route('memberships.destroy', $membership) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')

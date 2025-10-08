@@ -56,10 +56,12 @@ Route::middleware(['auth'])->group(function () {
 
     // Memberships CRUD
     Route::delete('memberships/bulk-delete', [MembershipController::class, 'bulkDelete'])->name('memberships.bulk-delete');
+    Route::post('memberships/{membership}/renew', [MembershipController::class, 'renew'])->name('memberships.renew');
     Route::resource('memberships', MembershipController::class);
     
     // Clients CRUD
     Route::delete('clients/bulk-delete', [ClientController::class, 'bulkDelete'])->name('clients.bulk-delete');
+    Route::post('clients/{client}/renew', [ClientController::class, 'renew'])->name('clients.renew');
     Route::resource('clients', ClientController::class);
 });
 

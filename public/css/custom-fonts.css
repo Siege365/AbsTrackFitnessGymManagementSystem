@@ -157,3 +157,22 @@ body.sidebar-icon-only .main-panel {
         width: 100% !important;
     }
 }
+
+/* ===================================
+   CUSTOM LOGO SIZING
+   =================================== */
+
+/* Full Logo - Sidebar (Desktop) */
+.sidebar-brand.brand-logo img {
+    width: 300px !important;
+    height: 40px !important;
+    object-fit: contain !important;
+}
+
+/* Mini Logo - Sidebar Collapsed & Mobile Navbar */
+.sidebar-brand.brand-logo-mini img,
+.navbar-brand.brand-logo-mini img {
+    width: 130px !important;
+    height: 150px !important;
+    object-fit: contain !important;
+}

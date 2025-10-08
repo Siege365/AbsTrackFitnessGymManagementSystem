@@ -6,6 +6,7 @@ use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class ClientController extends Controller
 {
@@ -294,6 +295,35 @@ class ClientController extends Controller
             Log::error('Bulk delete error: ' . $e->getMessage());
             return redirect()->route('clients.index')
                 ->with('error', 'An error occurred while deleting clients. Please try again.');
+        }
+    }
+
+    /**
+     * Renew a client subscription
+     */
+    public function renew(Client $client)
+    {
+        try {
+            // Set the new start date to today
+            $newStartDate = Carbon::today();
+            
+            // Calculate the new due date (1 month from new start date)
+            $newDueDate = Carbon::today()->addMonth();
+            
+            // Update the client
+            $client->update([
+                'start_date' => $newStartDate,
+                'due_date' => $newDueDate,
+                'status' => $this->calculateStatus($newStartDate, $newDueDate)
+            ]);
+            
+            return redirect()->route('clients.index')
+                ->with('success', 'Client subscription renewed successfully! New due date: ' . $newDueDate->format('M d, Y'));
+                
+        } catch (\Exception $e) {
+            Log::error('Client renewal error: ' . $e->getMessage());
+            return redirect()->route('clients.index')
+                ->with('error', 'An error occurred while renewing the subscription. Please try again.');
         }
     }
 }

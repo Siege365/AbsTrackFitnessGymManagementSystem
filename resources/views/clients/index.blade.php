@@ -194,6 +194,12 @@
                                             <button type="button" class="dropdown-item text-white" data-toggle="modal" data-target="#viewModalClient{{ $client->id }}">
                                                 <i class="mdi mdi-eye me-2"></i> View
                                             </button>
+                                            <form action="{{ route('clients.renew', $client) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item text-success" onclick="return confirm('Are you sure you want to renew this subscription for another month?')">
+                                                    <i class="mdi mdi-refresh me-2"></i> Renew Subscription
+                                                </button>
+                                            </form>
                                             <form action="{{ route('clients.destroy', $client) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
@@ -310,12 +316,7 @@
                 @endforeach
 
                 <!-- Pagination -->
-                <div class="d-flex justify-content-between align-items-center p-4 border-top" style="border-color: rgba(255, 255, 255, 0.1) !important;">
-                    <div>
-                        <button class="btn btn-sm text-danger" style="background: rgba(244, 67, 54, 0.2); border: none; padding: 8px 16px; border-radius: 8px;">
-                            <i class="mdi mdi-delete"></i> Delete Selected
-                        </button>
-                    </div>
+                <div class="d-flex justify-content-end align-items-center p-4 border-top" style="border-color: rgba(255, 255, 255, 0.1) !important;">
                     <div>
                         {{ $clients->links() }}
                     </div>

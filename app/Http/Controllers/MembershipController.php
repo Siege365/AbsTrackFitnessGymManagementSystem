@@ -6,6 +6,7 @@ use App\Models\Membership;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class MembershipController extends Controller
 {
@@ -285,6 +286,35 @@ class MembershipController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('memberships.index')
                 ->with('error', 'An error occurred during bulk deletion. Please try again.');
+        }
+    }
+
+    /**
+     * Renew a membership subscription
+     */
+    public function renew(Membership $membership)
+    {
+        try {
+            // Set the new start date to today
+            $newStartDate = Carbon::today();
+            
+            // Calculate the new due date (1 month from new start date)
+            $newDueDate = Carbon::today()->addMonth();
+            
+            // Update the membership
+            $membership->update([
+                'start_date' => $newStartDate,
+                'due_date' => $newDueDate,
+                'status' => $this->calculateStatus($newStartDate, $newDueDate)
+            ]);
+            
+            return redirect()->route('memberships.index')
+                ->with('success', 'Membership renewed successfully! New due date: ' . $newDueDate->format('M d, Y'));
+                
+        } catch (\Exception $e) {
+            Log::error('Membership renewal error: ' . $e->getMessage());
+            return redirect()->route('memberships.index')
+                ->with('error', 'An error occurred while renewing the membership. Please try again.');
         }
     }
 }
