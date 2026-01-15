@@ -13,9 +13,22 @@ class MembershipController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $memberships = Membership::latest()->paginate(10);
+        $query = Membership::query();
+        
+        // Search functionality
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('contact', 'LIKE', "%{$search}%")
+                  ->orWhere('plan_type', 'LIKE', "%{$search}%")
+                  ->orWhere('status', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        $memberships = $query->latest()->paginate(10)->appends(['search' => $request->search]);
         
         // Calculate statistics
         $totalMembers = Membership::count();

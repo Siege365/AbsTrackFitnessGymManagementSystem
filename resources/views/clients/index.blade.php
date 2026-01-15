@@ -115,7 +115,17 @@
                 <div class="d-flex justify-content-between align-items-center p-4 border-bottom" style="border-color: rgba(255, 255, 255, 0.1) !important;">
                     <h4 class="text-white mb-0" style="font-weight: 500;">List Of Clients</h4>
                     <div class="d-flex gap-2">
-                        <input type="text" class="form-control" placeholder="Search" style="background: rgba(255, 255, 255, 0.1); border: none; color: white; width: 250px;">
+                        <form action="{{ route('clients.index') }}" method="GET" class="d-flex gap-2">
+                            <input type="text" name="search" class="form-control" placeholder="Search by name, contact, plan, or status..." value="{{ request('search') }}" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; width: 300px;">
+                            <button type="submit" class="btn btn-info" style="background: #17a2b8; border: none; padding: 8px 20px; border-radius: 8px;">
+                                <i class="mdi mdi-magnify"></i> Search
+                            </button>
+                            @if(request('search'))
+                                <a href="{{ route('clients.index') }}" class="btn btn-secondary" style="background: #6c757d; border: none; padding: 8px 20px; border-radius: 8px;">
+                                    <i class="mdi mdi-close"></i> Clear
+                                </a>
+                            @endif
+                        </form>
                         <button class="btn btn-primary" onclick="window.location.href='{{ route('clients.create') }}'" style="background: #4CAF50; border: none; padding: 8px 20px; border-radius: 8px;">
                             <i class="mdi mdi-plus"></i> Add Client
                         </button>
@@ -128,6 +138,16 @@
                         </form>
                     </div>
                 </div>
+
+                <!-- Search Results Info -->
+                @if(request('search'))
+                <div class="p-3 border-bottom" style="border-color: rgba(255, 255, 255, 0.1) !important; background: rgba(23, 162, 184, 0.1);">
+                    <p class="mb-0 text-white">
+                        <i class="mdi mdi-information"></i> 
+                        Showing {{ $clients->total() }} result(s) for "<strong>{{ request('search') }}</strong>"
+                    </p>
+                </div>
+                @endif
 
                 <!-- Table -->
                 <div class="table-responsive">
@@ -215,8 +235,12 @@
                             <tr>
                                 <td colspan="9" class="text-center py-5">
                                     <div class="text-white-50">
-                                        <i class="mdi mdi-account-off" style="font-size: 48px; opacity: 0.5;"></i>
-                                        <p class="mt-3">No clients found. <a href="{{ route('clients.create') }}" class="text-primary">Add your first client</a></p>
+                                        <i class="mdi mdi-{{ request('search') ? 'magnify-close' : 'account-off' }}" style="font-size: 48px; opacity: 0.5;"></i>
+                                        @if(request('search'))
+                                            <p class="mt-3">No clients found matching "{{ request('search') }}". <a href="{{ route('clients.index') }}" class="text-primary">Clear search</a></p>
+                                        @else
+                                            <p class="mt-3">No clients found. <a href="{{ route('clients.create') }}" class="text-primary">Add your first client</a></p>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
