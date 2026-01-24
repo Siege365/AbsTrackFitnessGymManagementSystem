@@ -42,7 +42,6 @@
     </style>
     
     <link rel="shortcut icon" href="assets/images/favicon.png" />
-  
 </head>
 <body>
     <div class="container-scroller">
@@ -79,5 +78,7 @@
     <!-- End custom js for this page -->
   
     @stack('scripts')
+
+    @stack('styles')
 </body>
 </html>

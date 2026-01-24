@@ -45,7 +45,7 @@
       </div>
     </li>
     <li class="nav-item menu-items">
-      <a class="nav-link" href="{{ url('tables/basic-table') }}">
+      <a class="nav-link" href="{{ route('Session') }}">
         <span class="menu-icon">
           <i class="mdi mdi-table-large"></i>
         </span>
@@ -53,7 +53,7 @@
       </a>
     </li>
     <li class="nav-item menu-items">
-      <a class="nav-link" href="{{ url('forms/basic_elements') }}">
+      <a class="nav-link" href="{{ route('PaymentAndBilling') }}">
         <span class="menu-icon">
           <i class="mdi mdi-playlist-play"></i>
         </span>
@@ -61,7 +61,7 @@
       </a>
     </li>
     <li class="nav-item menu-items">
-      <a class="nav-link" href="{{ url('icons/mdi') }}">
+      <a class="nav-link" href="{{ route('inventory.index') }}">
         <span class="menu-icon">
           <i class="mdi mdi-contacts" style="color: #8F5FE8;"></i>
         </span>
@@ -69,7 +69,7 @@
       </a>
     </li>
      <li class="nav-item menu-items">
-      <a class="nav-link" href="{{ url('charts/chartjs') }}">
+      <a class="nav-link" href="{{ route('ReportAndBilling') }}">
         <span class="menu-icon">
           <i class="mdi mdi-chart-bar" style="color: #00D25B;"></i>
         </span>
@@ -86,9 +86,9 @@
       </a>
       <div class="collapse" id="auth">
         <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="{{ url('samples/blank-page') }}"> User Management </a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{ url('samples/error-404') }}"> Trainer Management </a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{ url('samples/error-500') }}"> Cashier Activity </a></li>
+          <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.UserManagement') }}"> User Management </a></li>
+          <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.TrainerManagement') }}"> Trainer Management </a></li>
+          <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.CashierActivity') }}"> Cashier Activity </a></li>
           <!--<li class="nav-item"> <a class="nav-link" href="{{ url('samples/blank-page') }}"> Blank Page </a></li>
           <li class="nav-item"> <a class="nav-link" href="{{ url('samples/error-404') }}"> 404 </a></li>
           <li class="nav-item"> <a class="nav-link" href="{{ url('samples/error-500') }}"> 500 </a></li>

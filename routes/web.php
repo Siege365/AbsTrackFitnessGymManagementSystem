@@ -5,6 +5,15 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\InventorySupplyController;
+
+//Inventory Supply Routes
+Route::get('/inventory', [InventorySupplyController::class, 'index'])->name('inventory.index');
+Route::get('/inventory/create', [InventorySupplyController::class, 'create'])->name('inventory.create');
+Route::post('/inventory', [InventorySupplyController::class, 'store'])->name('inventory.store');
+Route::get('/inventory/{id}/edit', [InventorySupplyController::class, 'edit'])->name('inventory.edit');
+Route::put('/inventory/{id}', [InventorySupplyController::class, 'update'])->name('inventory.update');
+Route::delete('/inventory/{id}', [InventorySupplyController::class, 'destroy'])->name('inventory.destroy');
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -53,6 +62,31 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/icons/mdi', function () {
         return view('pages.icons.mdi');
     })->name('icons.mdi');
+
+    Route::get('/Session', function () {
+    return view('Sessions.Session');
+    })->name('Session');
+
+    Route::get('/PaymentAndBilling', function () {
+    return view('PaymentAndBillings.PaymentAndBilling');
+    })->name('PaymentAndBilling');
+
+    Route::get('/ReportAndBilling', function () {
+    return view('ReportAndBilling.ReportAndBilling');
+    })->name('ReportAndBilling');
+
+    // User and Admin //
+    Route::get('/UserAndAdmin/UserManagement', function () {
+    return view('UserAndAdmin.UserManagement');
+    })->name('UserAndAdmin.UserManagement');
+
+    Route::get('/UserAndAdmin/TrainerManagement', function () {
+    return view('UserAndAdmin.TrainerManagement');
+    })->name('UserAndAdmin.TrainerManagement');
+    
+    Route::get('/UserAndAdmin/CashierActivity', function () {
+    return view('UserAndAdmin.CashierActivity');
+    })->name('UserAndAdmin.CashierActivity');
 
     // Memberships CRUD
     Route::delete('memberships/bulk-delete', [MembershipController::class, 'bulkDelete'])->name('memberships.bulk-delete');
