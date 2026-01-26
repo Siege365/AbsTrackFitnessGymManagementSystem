@@ -13,18 +13,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create admin user for gym management
-        User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@abstrack.com',
-            'password' => bcrypt('password'),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@abstrack.com'],
+            [
+                'name' => 'Admin User',
+                'password' => bcrypt('password'),
+            ]
+        );
 
-        // Create test gym manager
-        User::factory()->create([
-            'name' => 'Gym Manager',
-            'email' => 'manager@abstrack.com',
-            'password' => bcrypt('password'),
+        User::updateOrCreate(
+            ['email' => 'manager@abstrack.com'],
+            [
+                'name' => 'Gym Manager',
+                'password' => bcrypt('password'),
+            ]
+        );
+
+        $this->call([
+            MembershipSeeder::class,
+            InventorySupplySeeder::class,
+            ClientSeeder::class,
         ]);
     }
 }

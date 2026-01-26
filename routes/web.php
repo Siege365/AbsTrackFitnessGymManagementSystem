@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\InventorySupplyController;
+use App\Http\Controllers\PaymentController;
 
 //Inventory Supply Routes
 Route::get('/inventory', [InventorySupplyController::class, 'index'])->name('inventory.index');
@@ -67,9 +68,10 @@ Route::middleware(['auth'])->group(function () {
     return view('Sessions.Session');
     })->name('Session');
 
-    Route::get('/PaymentAndBilling', function () {
-    return view('PaymentAndBillings.PaymentAndBilling');
-    })->name('PaymentAndBilling');
+    Route::get('/PaymentAndBilling', [PaymentController::class, 'index'])->name('PaymentAndBilling');
+
+    Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
 
     Route::get('/ReportAndBilling', function () {
     return view('ReportAndBilling.ReportAndBilling');
@@ -92,6 +94,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('memberships/bulk-delete', [MembershipController::class, 'bulkDelete'])->name('memberships.bulk-delete');
     Route::post('memberships/{membership}/renew', [MembershipController::class, 'renew'])->name('memberships.renew');
     Route::resource('memberships', MembershipController::class);
+    Route::get('/members/search', [MembershipController::class, 'search'])->name('members.search');
     
     // Clients CRUD
     Route::delete('clients/bulk-delete', [ClientController::class, 'bulkDelete'])->name('clients.bulk-delete');

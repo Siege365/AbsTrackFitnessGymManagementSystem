@@ -46,6 +46,32 @@ class MembershipController extends Controller
     }
 
     /**
+     * Search memberships for autocomplete (AJAX)
+     */
+    public function search(Request $request)
+    {
+        $q = $request->query('q', '');
+
+        if (trim($q) === '') {
+            return response()->json([]);
+        }
+
+        $results = Membership::where('name', 'LIKE', "%{$q}%")
+            ->orWhere('contact', 'LIKE', "%{$q}%")
+            ->orderBy('name')
+            // fetch a slightly larger set then dedupe in-memory to avoid returning duplicates
+            ->limit(30)
+            ->get(['id', 'name', 'contact']);
+
+        // Remove duplicate entries by normalizing name + contact, keep first occurrence
+        $unique = $results->unique(function ($item) {
+            return strtolower(trim($item->name)) . '|' . (isset($item->contact) ? trim($item->contact) : '');
+        })->values()->take(10);
+
+        return response()->json($unique);
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()

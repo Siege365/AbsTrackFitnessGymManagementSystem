@@ -112,7 +112,10 @@ class InventorySupplySeeder extends Seeder
         ];
 
         foreach ($items as $item) {
-            InventorySupply::create($item);
+            InventorySupply::updateOrCreate(
+                ['product_number' => $item['product_number']],
+                $item
+            );
         }
     }
 }
