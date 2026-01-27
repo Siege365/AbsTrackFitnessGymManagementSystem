@@ -1,0 +1,176 @@
+/* Notification Bell Styles */
+.count-indicator {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.count-indicator i {
+    font-size: 24px;
+    transition: all 0.3s ease;
+}
+
+/* Notification badge */
+.count-indicator .count {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+/* Bell shake animation on hover */
+.count-indicator:hover i {
+    animation: bellShake 0.5s ease;
+    color: #ffc107;
+}
+
+/* Pulse animation for notification badge */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    }
+}
+
+/* Bell shake animation */
+@keyframes bellShake {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: rotate(-10deg);
+    }
+    20%, 40%, 60%, 80% {
+        transform: rotate(10deg);
+    }
+}
+
+/* Dropdown animation */
+.count-indicator + .dropdown-menu {
+    animation: fadeInDown 0.3s ease;
+    min-width: 320px;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Notification item hover effect */
+.preview-item {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.preview-item:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+    transform: translateX(5px);
+}
+
+/* Preview icon animations */
+.preview-icon {
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-item:hover .preview-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Icon colors */
+.preview-icon.bg-success {
+    background-color: #00d25b !important;
+}
+
+.preview-icon.bg-info {
+    background-color: #8862e0 !important;
+}
+
+.preview-icon.bg-warning {
+    background-color: #ffc107 !important;
+}
+
+.preview-icon.bg-danger {
+    background-color: #fc424a !important;
+}
+
+.preview-icon i {
+    color: #ffffff;
+    font-size: 18px;
+}
+
+/* Text styles */
+.preview-subject {
+    font-size: 14px;
+    color: #343a40;
+    margin-bottom: 4px;
+}
+
+.small-text {
+    font-size: 12px;
+}
+
+/* Add Member/Client Button Styles */
+.add-entity-button {
+    background: transparent !important;
+    border: none !important;
+    color: #ffffff !important;
+    padding: 8px 20px !important;
+    border-radius: 4px !important;
+    transition: all 0.3s ease !important;
+    font-weight: 500 !important;
+}
+
+.add-entity-button:hover {
+    background: #ffc107 !important;
+    color: #000000 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+}
+
+.add-entity-button i {
+    font-size: 16px;
+    margin-right: 4px;
+}
+
+/* Filter Button Styles */
+.filter-button {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 6px 16px;
+    transition: all 0.3s ease;
+}
+
+.filter-button:hover {
+    background: #ffc107 !important;
+    border-color: #ffc107 !important;
+    color: #000000 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .count-indicator + .dropdown-menu {
+        min-width: 280px;
+        right: -50px !important;
+    }
+}

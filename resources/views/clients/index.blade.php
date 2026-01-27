@@ -3,320 +3,7 @@
 @section('title', 'Customers → Clients')
 
 @push('styles')
-<style>
-  .card {
-    background: #2A3038;
-    border: none;
-  }
-
-  .card-body {
-    color: #ffffff;
-  }
-
-  .stats-card {
-    background: #2A3038;
-    border: none;
-    border-radius: 8px;
-    transition: transform 0.2s;
-  }
-
-  .stats-card:hover {
-    transform: translateY(-2px);
-  }
-
-  .stats-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .table-responsive::-webkit-scrollbar {
-    height: 8px;
-  }
-
-  .table-responsive::-webkit-scrollbar-track {
-    background: #191C24;
-  }
-
-  .table-responsive::-webkit-scrollbar-thumb {
-    background-color: #555;
-    border-radius: 4px;
-  }
-
-  .table {
-    color: #ffffff;
-  }
-
-  .table thead th {
-    color: rgba(255, 255, 255, 0.7);
-    font-weight: 500;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .table tbody td {
-    color: rgba(255, 255, 255, 0.9);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  }
-
-  .table-hover tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-  }
-
-  .form-control {
-    background-color: #2A3038;
-    border: 1px solid #555;
-    color: #ffffff;
-  }
-
-  .form-control::placeholder {
-    color: rgba(255, 255, 255, 0.5);
-  }
-
-  .form-control:focus {
-    background-color: #343a46;
-    border-color: #191C24;
-    color: #ffffff;
-    box-shadow: 0 0 0 0.2rem rgba(25, 28, 36, 0.25);
-  }
-
-  .btn-primary {
-    background-color: #191C24;
-    border-color: #191C24;
-  }
-
-  .btn-primary:hover {
-    background-color: #0d0f14;
-    border-color: #0d0f14;
-  }
-
-  .btn-info {
-    background-color: #17a2b8;
-    border-color: #17a2b8;
-  }
-
-  .btn-info:hover {
-    background-color: #138496;
-    border-color: #138496;
-  }
-
-  .btn-secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
-  }
-
-  .btn-secondary:hover {
-    background-color: #5a6268;
-    border-color: #545b62;
-  }
-
-  .badge-active {
-    background: rgba(76, 175, 80, 0.2);
-    color: #4CAF50;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-weight: 500;
-  }
-
-  .badge-expired {
-    background: rgba(244, 67, 54, 0.2);
-    color: #F44336;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-weight: 500;
-  }
-
-  .badge-warning {
-    background: rgba(255, 193, 7, 0.2);
-    color: #FFC107;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-weight: 500;
-  }
-
-  .dropdown-menu {
-    background: #2A3038;
-    border: 1px solid #555;
-  }
-
-  .dropdown-item {
-    color: #ffffff;
-  }
-
-  .dropdown-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-  }
-
-  .pagination .page-item.active .page-link {
-    background-color: #191C24;
-    border-color: #191C24;
-  }
-  
-  .pagination .page-link {
-    color: #555;
-  }
-  
-  .pagination .page-link:hover {
-    background-color: #191C24;
-    border-color: #191C24;
-    color: #ffffff;
-  }
-
-  .pagination-wrapper .pagination .page-link {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
-    transition: all 0.2s ease-in-out;
-  }
-
-  .pagination-wrapper .pagination .page-item.disabled .page-link {
-    background-color: #f8f9fa;
-    border-color: #dee2e6;
-  }
-
-  .pagination-wrapper {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .modal-content {
-    background: #2A3038;
-    border: none;
-  }
-
-  .modal-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .modal-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .close {
-    color: #ffffff;
-    opacity: 0.8;
-  }
-
-  .close:hover {
-    color: #ffffff;
-    opacity: 1;
-  }
-
-  .alert {
-    border: none;
-    border-radius: 8px;
-  }
-
-  .alert-success {
-    background-color: rgba(40, 167, 69, 0.2);
-    color: #28a745;
-  }
-
-  .alert-danger {
-    background-color: rgba(220, 53, 69, 0.2);
-    color: #dc3545;
-  }
-
-  .page-header {
-    margin-bottom: 1.5rem;
-  }
-
-  .page-title {
-    color: #ffffff;
-    font-weight: 500;
-  }
-
-  .avatar-circle {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  .avatar-initial {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .btn-action {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: #ffffff;
-  }
-
-  .btn-action:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-  }
-
-  .btn-delete-selected {
-    background: rgba(244, 67, 54, 0.2);
-    border: none;
-    color: #F44336;
-  }
-
-  .btn-delete-selected:hover {
-    background: rgba(244, 67, 54, 0.3);
-    color: #F44336;
-  }
-
-  .search-info {
-    background: rgba(23, 162, 184, 0.1);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  select.form-control option {
-    background: #2A3038;
-    color: white;
-  }
-
-  .modal-body label {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 13px;
-    font-weight: 500;
-  }
-
-  .btn-update {
-    background-color: #FFA500;
-    border: none;
-    color: white;
-  }
-
-  .btn-update:hover {
-    background-color: #ff8c00;
-    color: white;
-  }
-
-  .btn-cancel {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: white;
-  }
-
-  .btn-cancel:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-  }
-
-  .btn-upload {
-    background: rgba(52, 152, 219, 0.8);
-    border: none;
-    color: white;
-  }
-
-  .btn-upload:hover {
-    background: rgba(52, 152, 219, 1);
-    color: white;
-  }
-</style>
+<link rel="stylesheet" href="{{ asset('css/clients.css') }}?v={{ time() }}">
 @endpush
 
 @section('content')
@@ -432,23 +119,36 @@
         <!-- Table Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h4 class="card-title mb-0">List Of Clients</h4>
-          <div class="d-flex">
-            <form action="{{ route('clients.index') }}" method="GET" class="d-flex mr-2">
-              <input type="text" name="search" class="form-control form-control-sm mr-2" placeholder="Search by name, contact, plan, or status..." value="{{ request('search') }}" style="width: 300px;">
-              <button type="submit" class="btn btn-sm btn-info mr-2">
-                <i class="mdi mdi-magnify"></i> Search
+          <div class="d-flex align-items-center">
+            <form action="{{ route('clients.index') }}" method="GET" class="d-flex align-items-center" id="searchFormClients">
+              <input 
+                type="text" 
+                name="search" 
+                class="form-control form-control-sm mr-2" 
+                placeholder="Search by name, contact, plan, or status..." 
+                value="{{ request('search') }}" 
+                style="width: 400px;"
+                id="searchInputClients">
+              <button type="button" class="btn btn-sm filter-button mr-2" data-toggle="modal" data-target="#filterModal">
+                <i class="mdi mdi-filter-variant"></i> Filter
               </button>
               @if(request('search'))
-                <a href="{{ route('clients.index') }}" class="btn btn-sm btn-secondary mr-2">
-                  <i class="mdi mdi-close"></i> Clear
+                <a href="{{ route('clients.index') }}" class="btn btn-sm btn-outline-secondary">
+                  <i class="mdi mdi-close"></i>
                 </a>
               @endif
             </form>
-            <button class="btn btn-sm btn-primary" onclick="window.location.href='{{ route('clients.create') }}'">
-              <i class="mdi mdi-plus"></i> Add Client
-            </button>
           </div>
         </div>
+
+        <script>
+          document.getElementById('searchInputClients').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              document.getElementById('searchFormClients').submit();
+            }
+          });
+        </script>
 
         <!-- Search Results Info -->
         @if(request('search'))

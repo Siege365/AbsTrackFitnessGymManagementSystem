@@ -21127,9 +21127,68 @@ div.tagsinput {
 
 .content-wrapper {
   background: #000000;
-  padding: 1.875rem 1.75rem;
+  padding: 1.5rem 1rem;
   width: 100%;
   -webkit-flex-grow: 1;
   flex-grow: 1; }
+
+/* CUSTOM OVERRIDES - DO NOT REMOVE */
+body, .main-panel, .content-wrapper { background: #282A36 !important; }
+.card, .modal-content { background: #191C24 !important; }
+
+/* GRAY CHECKBOXES - FORCE OVERRIDE */
+.form-check-input[type="checkbox"],
+input[type="checkbox"] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 18px !important;
+  height: 18px !important;
+  border: 2px solid #6c757d !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  position: relative !important;
+  margin: 0 !important;
+}
+
+.form-check-input[type="checkbox"]:checked,
+input[type="checkbox"]:checked {
+  background: #6c757d !important;
+  border-color: #6c757d !important;
+}
+
+.form-check-input[type="checkbox"]:checked::after,
+input[type="checkbox"]:checked::after {
+  content: '✓' !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  color: white !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+}
+
+.form-check-input[type="checkbox"]:hover,
+input[type="checkbox"]:hover {
+  border-color: #8c939d !important;
+}
+
+.form-check-input[type="checkbox"]:focus,
+input[type="checkbox"]:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* LARGER STATS CARDS */
+.stats-card { min-height: 100px !important; }
+.stats-card .card-body { padding: 20px 24px !important; }
+.stats-card h2 { font-size: 2rem !important; }
+.stats-icon { width: 56px !important; height: 56px !important; }
+.stats-icon i { font-size: 28px !important; }
+
+/* TIGHTER LAYOUT */
+.row { margin-left: -8px !important; margin-right: -8px !important; }
+.col-xl-3, .col-sm-6, .col-12 { padding-left: 8px !important; padding-right: 8px !important; }
 
 /*# sourceMappingURL=maps/style.css.map */

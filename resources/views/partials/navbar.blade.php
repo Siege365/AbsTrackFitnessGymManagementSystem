@@ -6,56 +6,136 @@
     <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
       <span class="mdi mdi-menu"></span>
     </button>
-    <ul class="navbar-nav w-100">
-      <li class="nav-item w-100">
-        <form class="nav-link mt-2 mt-md-0 d-none d-lg-flex search">
-          <input type="text" class="form-control" placeholder="Search products">
-        </form>
-      </li>
-    </ul>
     <ul class="navbar-nav navbar-nav-right">
-      <li class="nav-item dropdown d-none d-lg-block">
-        <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown" data-toggle="dropdown" aria-expanded="false" href="#">+ Create</a>
-        <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="createbuttonDropdown">
-          <h6 class="p-3 mb-0">Create New Entry</h6>
+      <!-- Conditional Button Logic -->
+      @if(request()->is('memberships*'))
+        <!-- Add Member Button (appears only on membership pages) -->
+        <li class="nav-item d-none d-lg-block">
+          <a class="nav-link btn add-entity-button" href="{{ route('memberships.create') }}">
+            <i class="mdi mdi-plus"></i> Add Member
+          </a>
+        </li>
+      @elseif(request()->is('clients*'))
+        <!-- Add Client Button (appears only on client pages) -->
+        <li class="nav-item d-none d-lg-block">
+          <a class="nav-link btn add-entity-button" href="{{ route('clients.create') }}">
+            <i class="mdi mdi-plus"></i> Add Client
+          </a>
+        </li>
+      @else
+        <!-- Create Dropdown (appears on all other pages) -->
+        <li class="nav-item dropdown d-none d-lg-block">
+          <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown" data-toggle="dropdown" aria-expanded="false" href="#">+ Create</a>
+          <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="createbuttonDropdown">
+            <h6 class="p-3 mb-0">Create New Entry</h6>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item preview-item" href="{{ route('memberships.create') }}">
+              <div class="preview-thumbnail">
+                <div class="preview-icon bg-dark rounded-circle">
+                  <i class="mdi mdi-file-outline text-primary"></i>
+                </div>
+              </div>
+              <div class="preview-item-content">
+                <p class="preview-subject ellipsis mb-1">Add Member</p>
+              </div>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item preview-item" href="{{ route('clients.create') }}">
+              <div class="preview-thumbnail">
+                <div class="preview-icon bg-dark rounded-circle">
+                  <i class="mdi mdi-web text-info"></i>
+                </div>
+              </div>
+              <div class="preview-item-content">
+                <p class="preview-subject ellipsis mb-1">Add Client</p>
+              </div>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item preview-item">
+              <div class="preview-thumbnail">
+                <div class="preview-icon bg-dark rounded-circle">
+                  <i class="mdi mdi-layers text-danger"></i>
+                </div>
+              </div>
+              <div class="preview-item-content">
+                <p class="preview-subject ellipsis mb-1">Add Schedule</p>
+              </div>
+            </a>
+            <div class="dropdown-divider"></div>
+            <p class="p-3 mb-0 text-center">See all projects</p>
+          </div>
+        </li>
+      @endif
+    
+      <!-- Notification Bell Dropdown -->
+      <li class="nav-item dropdown">
+        <a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" href="#" data-toggle="dropdown">
+          <i class="mdi mdi-bell"></i>
+          <span class="count bg-danger"></span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="notificationDropdown">
+          <h6 class="p-3 mb-0">Notifications</h6>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item preview-item">
             <div class="preview-thumbnail">
-              <div class="preview-icon bg-dark rounded-circle">
-                <i class="mdi mdi-file-outline text-primary"></i>
+              <div class="preview-icon bg-success">
+                <i class="mdi mdi-account-plus"></i>
               </div>
             </div>
             <div class="preview-item-content">
-              <p class="preview-subject ellipsis mb-1">Add Member</p>
+              <h6 class="preview-subject font-weight-normal mb-1">New Member Registration</h6>
+              <p class="font-weight-light small-text mb-0 text-muted">
+                John Doe registered
+              </p>
             </div>
           </a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item preview-item">
             <div class="preview-thumbnail">
-              <div class="preview-icon bg-dark rounded-circle">
-                <i class="mdi mdi-web text-info"></i>
+              <div class="preview-icon bg-info">
+                <i class="mdi mdi-clock"></i>
               </div>
             </div>
             <div class="preview-item-content">
-              <p class="preview-subject ellipsis mb-1">Add Client</p>
+              <h6 class="preview-subject font-weight-normal mb-1">Membership Expiring Soon</h6>
+              <p class="font-weight-light small-text mb-0 text-muted">
+                5 members expiring this week
+              </p>
             </div>
           </a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item preview-item">
             <div class="preview-thumbnail">
-              <div class="preview-icon bg-dark rounded-circle">
-                <i class="mdi mdi-layers text-danger"></i>
+              <div class="preview-icon bg-warning">
+                <i class="mdi mdi-credit-card"></i>
               </div>
             </div>
             <div class="preview-item-content">
-              <p class="preview-subject ellipsis mb-1">Add Schedule</p>
+              <h6 class="preview-subject font-weight-normal mb-1">Payment Received</h6>
+              <p class="font-weight-light small-text mb-0 text-muted">
+                $150 from Jane Smith
+              </p>
             </div>
           </a>
           <div class="dropdown-divider"></div>
-          <p class="p-3 mb-0 text-center">See all projects</p>
+          <a class="dropdown-item preview-item">
+            <div class="preview-thumbnail">
+              <div class="preview-icon bg-danger">
+                <i class="mdi mdi-package-variant"></i>
+              </div>
+            </div>
+            <div class="preview-item-content">
+              <h6 class="preview-subject font-weight-normal mb-1">Low Inventory Alert</h6>
+              <p class="font-weight-light small-text mb-0 text-muted">
+                Protein Powder stock is low
+              </p>
+            </div>
+          </a>
+          <div class="dropdown-divider"></div>
+          <p class="p-3 mb-0 text-center">View all notifications</p>
         </div>
       </li>
-    
+
       <li class="nav-item dropdown">
         <a class="nav-link" id="profileDropdown" href="#" data-toggle="dropdown">
           <div class="navbar-profile">

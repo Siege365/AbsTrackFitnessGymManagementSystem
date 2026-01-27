@@ -25,18 +25,19 @@
     <!-- inject:css -->
     <!-- endinject -->
     <!-- Layout styles -->
-    <link rel="stylesheet" href="{{ asset('template/assets/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('template/assets/css/style.css') }}?v={{ time() }}">
     <!-- End layout styles -->
     
-    <!-- Custom Rubik Font Override -->
-    <link rel="stylesheet" href="{{ asset('css/custom-fonts.css') }}">
+    <!-- Template Customizations -->
+    <link rel="stylesheet" href="{{ asset('css/template-overrides.css') }}?v={{ time() }}">
     
-    <!-- Inline Style Override for Maximum Priority -->
-    <style>
-        * {
-            font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-        }
-    </style>
+    <!-- Custom Rubik Font Override -->
+    <link rel="stylesheet" href="{{ asset('css/custom-fonts.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/notification-bell.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/global-theme.css') }}?v={{ time() }}">
+    
+    <!-- Page-specific styles (loaded AFTER global theme to override) -->
+    @stack('styles')
     
     <link rel="shortcut icon" href="assets/images/favicon.png" />
 </head>
@@ -75,7 +76,5 @@
     <!-- End custom js for this page -->
   
     @stack('scripts')
-
-    @stack('styles')
 </body>
 </html>
