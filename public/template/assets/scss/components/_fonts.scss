@@ -1,5 +1,9 @@
 /* Fonts */
 
+/* Local Rubik font files are commented out to avoid duplicate loading.
+   We use Google Fonts (centralized partial) to import Rubik across the app.
+*/
+/*
 //PT_Sans
 @font-face {
   font-family: 'Rubik';
@@ -21,3 +25,4 @@
   font-weight: 700;
   src: url('../fonts/Rubik/Rubik-Bold.ttf'); /* IE9 Compat Modes */
 }
+*/
