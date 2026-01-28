@@ -10,10 +10,9 @@ use App\Http\Controllers\PaymentController;
 
 //Inventory Supply Routes
 Route::get('/inventory', [InventorySupplyController::class, 'index'])->name('inventory.index');
-Route::get('/inventory/create', [InventorySupplyController::class, 'create'])->name('inventory.create');
 Route::post('/inventory', [InventorySupplyController::class, 'store'])->name('inventory.store');
-Route::get('/inventory/{id}/edit', [InventorySupplyController::class, 'edit'])->name('inventory.edit');
 Route::put('/inventory/{id}', [InventorySupplyController::class, 'update'])->name('inventory.update');
+Route::delete('/inventory/bulk-delete', [InventorySupplyController::class, 'bulkDelete'])->name('inventory.bulk-delete');
 Route::delete('/inventory/{id}', [InventorySupplyController::class, 'destroy'])->name('inventory.destroy');
 
 // Authentication Routes
@@ -65,29 +64,33 @@ Route::middleware(['auth'])->group(function () {
     })->name('icons.mdi');
 
     Route::get('/Session', function () {
-    return view('Sessions.Session');
+        return view('Sessions.Session');
     })->name('Session');
-
+    
+    // Payment Routes (consolidated)
     Route::get('/PaymentAndBilling', [PaymentController::class, 'index'])->name('PaymentAndBilling');
-
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
+    Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt'])->name('payments.receipt');
+    Route::get('/payments/{payment}/receipt-data', [PaymentController::class, 'receiptData'])->name('payments.receiptData');
+    Route::delete('/payments/bulk-delete', [PaymentController::class, 'bulkDelete'])->name('payments.bulkDelete');
+    Route::delete('/payments/{payment}', [PaymentController::class, 'destroy'])->name('payments.destroy');
 
     Route::get('/ReportAndBilling', function () {
-    return view('ReportAndBilling.ReportAndBilling');
+        return view('ReportAndBilling.ReportAndBilling');
     })->name('ReportAndBilling');
 
     // User and Admin //
     Route::get('/UserAndAdmin/UserManagement', function () {
-    return view('UserAndAdmin.UserManagement');
+        return view('UserAndAdmin.UserManagement');
     })->name('UserAndAdmin.UserManagement');
 
     Route::get('/UserAndAdmin/TrainerManagement', function () {
-    return view('UserAndAdmin.TrainerManagement');
+        return view('UserAndAdmin.TrainerManagement');
     })->name('UserAndAdmin.TrainerManagement');
     
     Route::get('/UserAndAdmin/CashierActivity', function () {
-    return view('UserAndAdmin.CashierActivity');
+        return view('UserAndAdmin.CashierActivity');
     })->name('UserAndAdmin.CashierActivity');
 
     // Memberships CRUD
@@ -95,7 +98,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('memberships/{membership}/renew', [MembershipController::class, 'renew'])->name('memberships.renew');
     Route::resource('memberships', MembershipController::class);
     Route::get('/members/search', [MembershipController::class, 'search'])->name('members.search');
-    
+
     // Clients CRUD
     Route::delete('clients/bulk-delete', [ClientController::class, 'bulkDelete'])->name('clients.bulk-delete');
     Route::post('clients/{client}/renew', [ClientController::class, 'renew'])->name('clients.renew');
