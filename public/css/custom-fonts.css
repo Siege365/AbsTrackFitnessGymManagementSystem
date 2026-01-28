@@ -123,17 +123,15 @@ p, span, a, button, input, textarea, select, label, div, li, td, th {
     overflow-y: auto;
 }
 
-/* Make main panel adjust for fixed sidebar */
+/* Main panel fills the page-body-wrapper without extra margin */
 .main-panel {
-    margin-left: 255px !important;
-    width: calc(100% - 255px) !important;
+    width: 100% !important;
     min-height: 100vh;
 }
 
 /* Adjust for when sidebar is minimized */
 body.sidebar-icon-only .main-panel {
-    margin-left: 70px !important;
-    width: calc(100% - 70px) !important;
+    width: 100% !important;
 }
 
 /* Responsive: Full width on mobile */

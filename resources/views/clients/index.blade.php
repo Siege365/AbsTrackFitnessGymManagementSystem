@@ -7,13 +7,6 @@
 @endpush
 
 @section('content')
-<div class="row">
-  <div class="col-12">
-    <div class="page-header">
-      <h3 class="page-title">Customers → Clients</h3>
-    </div>
-  </div>
-</div>
 
 <!-- Success/Error Alerts -->
 @if(session('success'))
@@ -127,7 +120,7 @@
                 class="form-control form-control-sm mr-2" 
                 placeholder="Search by name, contact, plan, or status..." 
                 value="{{ request('search') }}" 
-                style="width: 400px;"
+                style="width: 450px;"
                 id="searchInputClients">
               <button type="button" class="btn btn-sm filter-button mr-2" data-toggle="modal" data-target="#filterModal">
                 <i class="mdi mdi-filter-variant"></i> Filter

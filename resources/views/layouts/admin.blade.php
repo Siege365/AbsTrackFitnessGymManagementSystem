@@ -3,43 +3,28 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>@yield('title', 'Corona Admin')</title>
-    
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Corona Admin</title>
+    <title>@yield('title', 'AbsTrack Fitness')</title>
     
     @include('partials.fonts')
     
-    <!-- plugins:css -->
+    <!-- MDI Icons -->
     <link rel="stylesheet" href="{{ asset('template/assets/vendors/mdi/css/materialdesignicons.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('template/assets/vendors/css/vendor.bundle.base.css') }}">
-    <!-- endinject -->
-    <!-- Plugin css for this page -->
-    <link rel="stylesheet" href="{{ asset('template/assets/vendors/jvectormap/jquery-jvectormap.css') }}">
-    <link rel="stylesheet" href="{{ asset('template/assets/vendors/flag-icon-css/css/flag-icon.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('template/assets/vendors/owl-carousel-2/owl.carousel.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('template/assets/vendors/owl-carousel-2/owl.theme.default.min.css') }}">
-    <!-- End plugin css for this page -->
-    <!-- inject:css -->
-    <!-- endinject -->
-    <!-- Layout styles -->
-    <link rel="stylesheet" href="{{ asset('template/assets/css/style.css') }}?v={{ time() }}">
-    <!-- End layout styles -->
     
-    <!-- Template Customizations -->
-    <link rel="stylesheet" href="{{ asset('css/template-overrides.css') }}?v={{ time() }}">
+    <!-- Core CSS (Replaces Bootstrap + Template) -->
+    <link rel="stylesheet" href="{{ asset('css/core.css') }}?v={{ time() }}">
     
-    <!-- Custom Rubik Font Override -->
+    <!-- Sidebar Styles -->
+    <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}?v={{ time() }}">
+    
+    <!-- Custom Styles -->
     <link rel="stylesheet" href="{{ asset('css/custom-fonts.css') }}?v={{ time() }}">
     <link rel="stylesheet" href="{{ asset('css/notification-bell.css') }}?v={{ time() }}">
     <link rel="stylesheet" href="{{ asset('css/global-theme.css') }}?v={{ time() }}">
     
-    <!-- Page-specific styles (loaded AFTER global theme to override) -->
+    <!-- Page-specific styles -->
     @stack('styles')
     
-    <link rel="shortcut icon" href="assets/images/favicon.png" />
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" />
 </head>
 <body>
     <div class="container-scroller">
@@ -65,16 +50,94 @@
     <script src="{{ asset('template/assets/vendors/owl-carousel-2/owl.carousel.min.js') }}"></script>
     <!-- End plugin js for this page -->
     <!-- inject:js -->
-    <script src="{{ asset('template/assets/js/off-canvas.js') }}"></script>
-    <script src="{{ asset('template/assets/js/hoverable-collapse.js') }}"></script>
-    <script src="{{ asset('template/assets/js/misc.js') }}"></script>
-    <script src="{{ asset('template/assets/js/settings.js') }}"></script>
-    <script src="{{ asset('template/assets/js/todolist.js') }}"></script>
-    <!-- endinject -->
-    <!-- Custom js for this page -->
-    <script src="{{ asset('template/assets/js/dashboard.js') }}"></script>
-    <!-- End custom js for this page -->
-  
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle (collapse/expand)
+            const sidebarToggler = document.querySelector('.navbar-toggler');
+            const body = document.body;
+            
+            // Check if sidebar state is saved in localStorage
+            if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                body.classList.add('sidebar-icon-only');
+            }
+            
+            if (sidebarToggler) {
+                sidebarToggler.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    body.classList.toggle('sidebar-icon-only');
+                    localStorage.setItem('sidebarCollapsed', body.classList.contains('sidebar-icon-only'));
+                });
+            }
+            
+            // Sidebar submenu toggle
+            const toggleLinks = document.querySelectorAll('.sidebar .nav-link[data-toggle="collapse"]');
+            
+            toggleLinks.forEach(function(element) {
+                element.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const targetSelector = this.getAttribute('href');
+                    const target = document.querySelector(targetSelector);
+                    const parent = this.closest('.menu-items');
+                    
+                    if (!target) return;
+                    
+                    // Toggle collapse
+                    if (target.classList.contains('show')) {
+                        target.classList.remove('show');
+                        parent.classList.remove('active');
+                    } else {
+                        // Close other open menus first
+                        document.querySelectorAll('.sidebar .collapse.show').forEach(function(openMenu) {
+                            openMenu.classList.remove('show');
+                            const parentItem = openMenu.closest('.menu-items');
+                            if (parentItem && !parentItem.querySelector('.sub-menu .nav-item.active')) {
+                                parentItem.classList.remove('active');
+                            }
+                        });
+                        
+                        target.classList.add('show');
+                        parent.classList.add('active');
+                    }
+                });
+            });
+            
+            // Set active menu based on current URL
+            const currentPath = window.location.pathname;
+            
+            // Find and mark the active page
+            document.querySelectorAll('.sidebar .nav-link:not([data-toggle="collapse"])').forEach(function(link) {
+                const href = link.getAttribute('href');
+                if (!href || href === '#') return;
+                
+                try {
+                    const linkPath = new URL(href, window.location.origin).pathname;
+                    const isActive = currentPath === linkPath || 
+                                    (linkPath !== '/' && currentPath.startsWith(linkPath));
+                    
+                    if (isActive) {
+                        const navItem = link.closest('.nav-item');
+                        if (navItem) {
+                            navItem.classList.add('active');
+                        }
+                        
+                        // If it's inside a submenu, open the parent collapse (but don't mark parent as active)
+                        const subMenu = link.closest('.sub-menu');
+                        if (subMenu) {
+                            const collapse = subMenu.closest('.collapse');
+                            if (collapse) {
+                                collapse.classList.add('show');
+                            }
+                        }
+                    }
+                } catch (e) {
+                    // Skip invalid URLs
+                }
+            });
+        });
+    </script>
+    
     @stack('scripts')
 </body>
 </html>

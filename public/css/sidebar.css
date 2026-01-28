@@ -1,0 +1,611 @@
+/* 
+ * SIDEBAR STYLES
+ * AbsTrack Fitness Gym Management System
+ * Figma Design System - Elevated Collapsible Sidebar
+ */
+
+/* =====================================================
+   SIDEBAR CONTAINER
+   ===================================================== */
+.sidebar {
+  width: 260px;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a1d26 0%, #191C24 100%);
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+  font-family: 'Rubik', sans-serif;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 0;
+  display: none;
+}
+
+/* =====================================================
+   SIDEBAR BRAND/LOGO
+   ===================================================== */
+.sidebar-brand-wrapper {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+}
+
+.brand-logo img {
+  max-height: 50px;
+  transition: all 0.3s ease;
+}
+
+.brand-logo-mini {
+  display: none;
+}
+
+.brand-logo-mini img {
+  max-height: 40px;
+}
+
+/* =====================================================
+   NAVIGATION
+   ===================================================== */
+.sidebar .nav {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* Navigation Category Header */
+.nav-category {
+  padding: 1.5rem 1.5rem 0.75rem;
+}
+
+.nav-category .nav-link {
+  padding: 0;
+  color: #0ABAB5 !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: none !important;
+}
+
+.nav-category .nav-link:hover {
+  background: none !important;
+}
+
+/* =====================================================
+   MENU ITEMS
+   ===================================================== */
+.menu-items {
+  padding: 0.125rem 0.875rem;
+  margin-bottom: 0;
+}
+
+.menu-items > .nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.6875rem 0.875rem;
+  color: #8e8e8e;
+  border-radius: 10px;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  position: relative;
+}
+
+.menu-items > .nav-link:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Active state for parent menu with open submenu */
+.menu-items.active > .nav-link[data-toggle="collapse"] {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Active state for direct link menu items (NOT parent menus) */
+.menu-items.active > .nav-link:not([data-toggle="collapse"]) {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Active indicator bar - ONLY for direct links, NOT parent menus */
+.menu-items.active > .nav-link:not([data-toggle="collapse"])::before {
+  content: '';
+  position: absolute;
+  left: -0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 70%;
+  background: linear-gradient(180deg, #ffc107 0%, #ff9800 100%);
+  border-radius: 0 3px 3px 0;
+}
+
+/* =====================================================
+   MENU ICONS - Circular with Colors
+   ===================================================== */
+.menu-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 0.875rem;
+  transition: transform 0.2s ease;
+}
+
+.menu-items:hover .menu-icon {
+  transform: scale(1.05);
+}
+
+.menu-icon i {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* Icon Colors per Menu Item */
+/* Dashboard - Purple */
+.menu-items:nth-child(2) .menu-icon {
+  background: rgba(124, 77, 255, 0.15);
+}
+.menu-items:nth-child(2) .menu-icon i {
+  color: #7c4dff;
+}
+.menu-items:nth-child(2):hover .menu-icon,
+.menu-items:nth-child(2).active .menu-icon {
+  background: rgba(124, 77, 255, 0.25);
+}
+
+/* Customers - Orange/Yellow */
+.menu-items:nth-child(3) .menu-icon {
+  background: rgba(255, 193, 7, 0.15);
+}
+.menu-items:nth-child(3) .menu-icon i {
+  color: #ffc107;
+}
+.menu-items:nth-child(3):hover .menu-icon,
+.menu-items:nth-child(3).active .menu-icon {
+  background: rgba(255, 193, 7, 0.25);
+}
+
+/* Sessions - Blue */
+.menu-items:nth-child(4) .menu-icon {
+  background: rgba(33, 150, 243, 0.15);
+}
+.menu-items:nth-child(4) .menu-icon i {
+  color: #2196f3;
+}
+.menu-items:nth-child(4):hover .menu-icon,
+.menu-items:nth-child(4).active .menu-icon {
+  background: rgba(33, 150, 243, 0.25);
+}
+
+/* Payments & Billing - Red */
+.menu-items:nth-child(5) .menu-icon {
+  background: rgba(244, 67, 54, 0.15);
+}
+.menu-items:nth-child(5) .menu-icon i {
+  color: #f44336;
+}
+.menu-items:nth-child(5):hover .menu-icon,
+.menu-items:nth-child(5).active .menu-icon {
+  background: rgba(244, 67, 54, 0.25);
+}
+
+/* Inventory Supplies - Green */
+.menu-items:nth-child(6) .menu-icon {
+  background: rgba(76, 175, 80, 0.15);
+}
+.menu-items:nth-child(6) .menu-icon i {
+  color: #4caf50;
+}
+.menu-items:nth-child(6):hover .menu-icon,
+.menu-items:nth-child(6).active .menu-icon {
+  background: rgba(76, 175, 80, 0.25);
+}
+
+/* Reports & Analytics - Green */
+.menu-items:nth-child(7) .menu-icon {
+  background: rgba(0, 210, 91, 0.15);
+}
+.menu-items:nth-child(7) .menu-icon i {
+  color: #00d25b;
+}
+.menu-items:nth-child(7):hover .menu-icon,
+.menu-items:nth-child(7).active .menu-icon {
+  background: rgba(0, 210, 91, 0.25);
+}
+
+/* Users/Admin - Yellow/Orange */
+.menu-items:nth-child(8) .menu-icon {
+  background: rgba(255, 152, 0, 0.15);
+}
+.menu-items:nth-child(8) .menu-icon i {
+  color: #ff9800;
+}
+.menu-items:nth-child(8):hover .menu-icon,
+.menu-items:nth-child(8).active .menu-icon {
+  background: rgba(255, 152, 0, 0.25);
+}
+
+/* Documentation - Red/Pink */
+.menu-items:nth-child(9) .menu-icon {
+  background: rgba(233, 30, 99, 0.15);
+}
+.menu-items:nth-child(9) .menu-icon i {
+  color: #e91e63;
+}
+.menu-items:nth-child(9):hover .menu-icon,
+.menu-items:nth-child(9).active .menu-icon {
+  background: rgba(233, 30, 99, 0.25);
+}
+
+/* =====================================================
+   MENU TITLE & ARROW
+   ===================================================== */
+.menu-title {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu-arrow {
+  margin-left: auto;
+  font-size: 1.125rem;
+  opacity: 0.5;
+  transition: transform 0.3s ease, opacity 0.2s ease;
+}
+
+.menu-arrow::before {
+  content: '\F0140';
+  font-family: 'Material Design Icons';
+}
+
+.menu-items:hover .menu-arrow {
+  opacity: 0.8;
+}
+
+.menu-items.active > .nav-link .menu-arrow {
+  transform: rotate(90deg);
+  opacity: 1;
+}
+
+/* =====================================================
+   SUBMENU / COLLAPSE
+   ===================================================== */
+.sidebar .collapse {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+              opacity 0.3s ease;
+}
+
+.sidebar .collapse.show {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.sub-menu {
+  padding: 0.5rem 0;
+  margin: 0;
+  list-style: none;
+  background: transparent;
+  border-radius: 0;
+}
+
+.sub-menu .nav-item {
+  padding: 0;
+  position: relative;
+}
+
+.sub-menu .nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: #8e8e8e;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  position: relative;
+  margin: 0.125rem 0;
+}
+
+.sub-menu .nav-link::before {
+  content: '•';
+  position: absolute;
+  left: 0.5rem;
+  color: #6c7293;
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.sub-menu .nav-link:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  padding-left: 1.25rem;
+}
+
+.sub-menu .nav-link:hover::before {
+  color: #ffc107;
+}
+
+.sub-menu .nav-item.active .nav-link {
+  color: #fff;
+  background: rgba(255, 193, 7, 0.15);
+  font-weight: 500;
+  padding-left: 1.25rem;
+}
+
+.sub-menu .nav-item.active .nav-link::before {
+  color: #ffc107;
+  content: '▸';
+  font-size: 1rem;
+}
+
+/* Active indicator bar for submenu items */
+.sub-menu .nav-item.active .nav-link::after {
+  content: '';
+  position: absolute;
+  left: -0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: linear-gradient(180deg, #ffc107 0%, #ff9800 100%);
+  border-radius: 0 2px 2px 0;
+}
+
+/* =====================================================
+   SIDEBAR COLLAPSED STATE
+   ===================================================== */
+.sidebar-icon-only .sidebar {
+  width: 70px;
+}
+
+.sidebar-icon-only .page-body-wrapper {
+  width: calc(100% - 70px);
+}
+
+.sidebar-icon-only .navbar {
+  left: 70px;
+}
+
+.sidebar-icon-only .brand-logo {
+  display: none;
+}
+
+.sidebar-icon-only .brand-logo-mini {
+  display: flex;
+}
+
+.sidebar-icon-only .menu-title,
+.sidebar-icon-only .menu-arrow,
+.sidebar-icon-only .nav-category {
+  display: none;
+}
+
+.sidebar-icon-only .menu-items {
+  padding: 0.125rem 0.5rem;
+}
+
+.sidebar-icon-only .menu-items > .nav-link {
+  justify-content: center;
+  padding: 0.6875rem;
+}
+
+.sidebar-icon-only .menu-icon {
+  margin-right: 0;
+}
+
+.sidebar-icon-only .collapse,
+.sidebar-icon-only .sub-menu {
+  display: none !important;
+}
+
+.sidebar-icon-only .menu-items.active > .nav-link::before {
+  left: -0.5rem;
+}
+
+/* Hover expand in collapsed mode */
+.sidebar-icon-only .sidebar:hover {
+  width: 260px;
+  box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar-icon-only .sidebar:hover .brand-logo {
+  display: flex;
+}
+
+.sidebar-icon-only .sidebar:hover .brand-logo-mini {
+  display: none;
+}
+
+.sidebar-icon-only .sidebar:hover .menu-title,
+.sidebar-icon-only .sidebar:hover .menu-arrow,
+.sidebar-icon-only .sidebar:hover .nav-category {
+  display: block;
+}
+
+.sidebar-icon-only .sidebar:hover .menu-items {
+  padding: 0.125rem 0.875rem;
+}
+
+.sidebar-icon-only .sidebar:hover .menu-items > .nav-link {
+  justify-content: flex-start;
+  padding: 0.6875rem 0.875rem;
+}
+
+.sidebar-icon-only .sidebar:hover .menu-icon {
+  margin-right: 0.875rem;
+}
+
+.sidebar-icon-only .sidebar:hover .collapse.show,
+.sidebar-icon-only .sidebar:hover .sub-menu {
+  display: block !important;
+}
+
+.sidebar-icon-only .sidebar:hover .menu-items.active > .nav-link::before {
+  left: -0.875rem;
+}
+
+/* =====================================================
+   NAVBAR (Top Bar)
+   ===================================================== */
+.navbar {
+  background: #191C24;
+  height: 75px;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 260px;
+  z-index: 99;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-icon-only .navbar {
+  left: 70px;
+}
+
+.navbar-brand-wrapper {
+  display: none;
+}
+
+.navbar-menu-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-nav-right {
+  margin-left: auto;
+}
+
+.navbar-toggler {
+  border: none;
+  background: rgba(255, 255, 255, 0.05);
+  color: #6c7293;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem 0.625rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  margin-right: 1rem;
+}
+
+.navbar-toggler:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-profile {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.navbar-profile:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.navbar-profile img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  margin-right: 0.75rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar-profile-name {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.navbar-profile i {
+  font-size: 1.25rem;
+}
+
+/* =====================================================
+   NOTIFICATION BELL & DROPDOWNS
+   ===================================================== */
+.navbar .count-indicator {
+  position: relative;
+}
+
+.navbar .count-indicator .count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f44336 0%, #e91e63 100%);
+  color: #fff;
+  font-size: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.navbar-dropdown {
+  position: relative;
+}
+
+.navbar .dropdown-menu {
+  min-width: 360px;
+}
+
+/* =====================================================
+   PAGE BODY WRAPPER ADJUSTMENT
+   ===================================================== */
+.page-body-wrapper {
+  width: calc(100% - 260px);
+  margin-left: auto;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-panel {
+  padding-top: 75px;
+}

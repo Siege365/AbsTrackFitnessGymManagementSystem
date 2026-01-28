@@ -27,14 +27,13 @@
         <ul class="nav flex-column sub-menu">
           <li class="nav-item"> <a class="nav-link" href="{{ route('memberships.index') }}">Membership</a></li>
           <li class="nav-item"> <a class="nav-link" href="{{ route('clients.index') }}">Clients</a></li>
-          <!--<li class="nav-item"> <a class="nav-link" href="{{ url('ui-features/typography') }}">Typography</a></li>-->
         </ul>
       </div>
     </li>
     <li class="nav-item menu-items">
       <a class="nav-link" href="{{ route('Session') }}">
         <span class="menu-icon">
-          <i class="mdi mdi-table-large"></i>
+          <i class="mdi mdi-calendar-clock"></i>
         </span>
         <span class="menu-title">Sessions</span>
       </a>
@@ -42,7 +41,7 @@
     <li class="nav-item menu-items">
       <a class="nav-link" href="{{ route('PaymentAndBilling') }}">
         <span class="menu-icon">
-          <i class="mdi mdi-playlist-play"></i>
+          <i class="mdi mdi-credit-card"></i>
         </span>
         <span class="menu-title">Payments & Billing</span>
       </a>
@@ -50,23 +49,23 @@
     <li class="nav-item menu-items">
       <a class="nav-link" href="{{ route('inventory.index') }}">
         <span class="menu-icon">
-          <i class="mdi mdi-contacts" style="color: #8F5FE8;"></i>
+          <i class="mdi mdi-package-variant-closed"></i>
         </span>
         <span class="menu-title">Inventory Supplies</span>
       </a>
     </li>
-     <li class="nav-item menu-items">
+    <li class="nav-item menu-items">
       <a class="nav-link" href="{{ route('ReportAndBilling') }}">
         <span class="menu-icon">
-          <i class="mdi mdi-chart-bar" style="color: #00D25B;"></i>
+          <i class="mdi mdi-chart-bar"></i>
         </span>
-        <span class="menu-title">Reports & Billing</span>
+        <span class="menu-title">Reports & Analytics</span>
       </a>
     </li>
     <li class="nav-item menu-items">
       <a class="nav-link" data-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">
         <span class="menu-icon">
-          <i class="mdi mdi-security"></i>
+          <i class="mdi mdi-account-key"></i>
         </span>
         <span class="menu-title">Users/Admin</span>
         <i class="menu-arrow"></i>
@@ -76,11 +75,6 @@
           <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.UserManagement') }}"> User Management </a></li>
           <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.TrainerManagement') }}"> Trainer Management </a></li>
           <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.CashierActivity') }}"> Cashier Activity </a></li>
-          <!--<li class="nav-item"> <a class="nav-link" href="{{ url('samples/blank-page') }}"> Blank Page </a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{ url('samples/error-404') }}"> 404 </a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{ url('samples/error-500') }}"> 500 </a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{ url('samples/login') }}"> Login </a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{ url('samples/register') }}"> Register </a></li>-->
         </ul>
       </div>
     </li>

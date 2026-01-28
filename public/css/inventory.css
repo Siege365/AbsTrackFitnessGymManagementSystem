@@ -1,0 +1,195 @@
+/* Inventory Page Specific Styles */
+
+/* Figma Design System Colors - HIGH PRIORITY */
+body {
+  background: #282A36 !important;
+}
+
+.container-fluid.page-body-wrapper {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.page-body-wrapper {
+  min-height: 100vh !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Row and column spacing */
+.row {
+  margin-left: -15px !important;
+  margin-right: -15px !important;
+}
+
+.col-12, .col-md-3, .col-md-6, .col-sm-6, .col-lg-3, .col-xl-3 {
+  padding-left: 15px !important;
+  padding-right: 15px !important;
+}
+
+/* KPI Cards - Full width distribution */
+.stats-row {
+  margin-bottom: 15px !important;
+}
+
+/* Table card - stretch to edges */
+.card {
+  background: #191C24 !important;
+  border: none;
+  margin-bottom: 15px !important;
+  border-radius: 8px !important;
+}
+
+.card-body {
+  padding: 24px 28px !important;
+}
+
+/* Table Scrollbar */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #191C24;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background-color: #3a3f4b;
+  border-radius: 4px;
+}
+
+/* Table Styles */
+.table {
+  color: #ffffff;
+  background: transparent;
+}
+
+.table thead th {
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 700;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 1rem;
+  padding: 20px 18px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.table tbody td {
+  color: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 20px 18px;
+  font-size: 1.125rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Pagination */
+.pagination .page-item.active .page-link {
+  background-color: #191C24;
+  border-color: #191C24;
+}
+
+.pagination .page-link {
+  color: #555;
+}
+
+.pagination .page-link:hover {
+  background-color: #191C24;
+  border-color: #191C24;
+  color: #ffffff;
+}
+
+.pagination-wrapper .pagination .page-link {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.pagination-wrapper .pagination .page-item.disabled .page-link {
+  background-color: #f8f9fa;
+  border-color: #dee2e6;
+}
+
+.pagination-wrapper {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Form Controls */
+.form-control {
+  background-color: #282A36;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  padding: 0.75rem 1.25rem;
+  font-size: 1.125rem;
+  min-height: 48px;
+}
+
+.form-control::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.form-control:focus {
+  background-color: #282A36;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.form-control[readonly] {
+  background-color: #2A3038 !important;
+  color: #495057 !important;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: #191C24;
+  border-color: #191C24;
+}
+
+.btn-primary:hover {
+  background-color: #0d0f14;
+  border-color: #0d0f14;
+}
+
+.btn-outline-secondary {
+  color: rgba(255, 255, 255, 0.6);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-outline-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+/* Badges */
+.badge-success {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.badge-danger {
+  background: rgba(244, 67, 54, 0.2);
+  color: #F44336;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.badge-warning {
+  background: rgba(255, 193, 7, 0.2);
+  color: #FFC107;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 1rem;
+}

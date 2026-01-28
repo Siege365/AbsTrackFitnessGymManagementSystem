@@ -7,17 +7,17 @@
 }
 
 .count-indicator i {
-    font-size: 24px;
+    font-size: 28px;
     transition: all 0.3s ease;
 }
 
 /* Notification badge */
 .count-indicator .count {
     position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 10px;
-    height: 10px;
+    top: -4px;
+    right: -4px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     animation: pulse 2s infinite;
 }
@@ -57,7 +57,7 @@
 /* Dropdown animation */
 .count-indicator + .dropdown-menu {
     animation: fadeInDown 0.3s ease;
-    min-width: 320px;
+    min-width: 360px;
 }
 
 @keyframes fadeInDown {
@@ -113,18 +113,18 @@
 
 .preview-icon i {
     color: #ffffff;
-    font-size: 18px;
+    font-size: 22px;
 }
 
 /* Text styles */
 .preview-subject {
-    font-size: 14px;
+    font-size: 1rem;
     color: #343a40;
     margin-bottom: 4px;
 }
 
 .small-text {
-    font-size: 12px;
+    font-size: 0.875rem;
 }
 
 /* Add Member/Client Button Styles */
@@ -132,10 +132,11 @@
     background: transparent !important;
     border: none !important;
     color: #ffffff !important;
-    padding: 8px 20px !important;
+    padding: 10px 24px !important;
     border-radius: 4px !important;
     transition: all 0.3s ease !important;
     font-weight: 500 !important;
+    font-size: 1rem !important;
 }
 
 .add-entity-button:hover {
@@ -146,8 +147,8 @@
 }
 
 .add-entity-button i {
-    font-size: 16px;
-    margin-right: 4px;
+    font-size: 18px;
+    margin-right: 6px;
 }
 
 /* Filter Button Styles */
@@ -155,8 +156,14 @@
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: rgba(255, 255, 255, 0.8);
-    padding: 6px 16px;
+    padding: 0.75rem 1.25rem;
     transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.filter-button i {
+    font-size: 1.25rem;
+    margin-right: 0.5rem;
 }
 
 .filter-button:hover {

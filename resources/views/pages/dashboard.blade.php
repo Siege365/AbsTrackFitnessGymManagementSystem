@@ -2,6 +2,10 @@
 
 @section('title', 'Dashboard')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/dashboard.css') }}?v={{ time() }}">
+@endpush
+
 @section('content')
 
             <div class="row">

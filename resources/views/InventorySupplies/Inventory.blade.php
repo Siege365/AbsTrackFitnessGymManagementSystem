@@ -3,60 +3,7 @@
 @section('title', 'Inventory Supplies')
 
 @push('styles')
-<style>
-  .table-responsive::-webkit-scrollbar {
-    height: 8px;
-  }
-  
-  .table-responsive::-webkit-scrollbar-track {
-    background: #191C24;
-  }
-  
-  .table-responsive::-webkit-scrollbar-thumb {
-    background-color: #555;
-    border-radius: 4px;
-  }
-
-  .pagination .page-item.active .page-link {
-    background-color: #191C24;
-    border-color: #191C24;
-  }
-  
-  .pagination .page-link {
-    color: #555;
-  }
-  
-  .pagination .page-link:hover {
-    background-color: #191C24;
-    border-color: #191C24;
-    color: #ffffff;
-  }
-
-  .form-control[readonly] {
-    background-color: #2A3038 !important;
-    color: #495057 !important;
-  }
-
-  .table thead th,
-  .table tbody td {
-    color: #ffffff !important;
-  }
-
-  .table-hover tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-  }
-
-  .pagination-wrapper .pagination .page-link {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
-    transition: all 0.2s ease-in-out;
-  }
-
-  .pagination-wrapper .pagination .page-item.disabled .page-link {
-    background-color: #f8f9fa;
-    border-color: #dee2e6;
-  }
-</style>
+<link rel="stylesheet" href="{{ asset('css/inventory.css') }}?v={{ time() }}">
 @endpush
 
 @section('content')
@@ -134,7 +81,7 @@
                         <button class="btn btn-sm btn-outline-secondary mr-2">
                           <i class="mdi mdi-filter-variant"></i> Filter
                         </button>
-                        <input type="text" class="form-control form-control-sm" placeholder="Search" style="width: 200px;">
+                        <input type="text" class="form-control form-control-sm" placeholder="Search" style="width: 450px;">
                       </div>
                     </div>
                     <div class="table-responsive" style="min-height: 600px;">
