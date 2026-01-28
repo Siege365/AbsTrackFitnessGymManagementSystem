@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Customers → Clients')
+@section('title', 'Clients Management - AbsTrack Fitness Gym')
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/clients.css') }}?v={{ time() }}">
@@ -134,14 +134,7 @@
           </div>
         </div>
 
-        <script>
-          document.getElementById('searchInputClients').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              document.getElementById('searchFormClients').submit();
-            }
-          });
-        </script>
+        {{-- Search enter key handled by ClientsPage.init() --}}
 
         <!-- Search Results Info -->
         @if(request('search'))
@@ -306,18 +299,28 @@
                   <!-- Start Date -->
                   <div class="form-group">
                     <label>Start Date</label>
-                    <input type="date" name="start_date" class="form-control" value="{{ $client->start_date->format('Y-m-d') }}" required>
+                    <input type="date" name="start_date" id="editClientStartDate{{ $client->id }}" class="form-control" value="{{ $client->start_date->format('Y-m-d') }}" onchange="calculateEditClientEndDate({{ $client->id }})" required>
                   </div>
 
                   <!-- End Date -->
                   <div class="form-group">
                     <label>End Date</label>
-                    <input type="date" name="due_date" class="form-control" value="{{ $client->due_date->format('Y-m-d') }}" required>
+                    <input type="date" name="due_date" id="editClientEndDate{{ $client->id }}" class="form-control" value="{{ $client->due_date->format('Y-m-d') }}" readonly>
                   </div>
 
                   <!-- Avatar (optional) -->
                   <div class="form-group">
                     <label>Avatar (optional)</label>
+                    <div class="mb-2">
+                      <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-sm btn-outline-primary active">
+                          <input type="radio" name="editClientAvatarInputType{{ $client->id }}" value="file" checked onclick="toggleEditClientAvatarInput({{ $client->id }}, 'file')"> Upload File
+                        </label>
+                        <label class="btn btn-sm btn-outline-primary">
+                          <input type="radio" name="editClientAvatarInputType{{ $client->id }}" value="url" onclick="toggleEditClientAvatarInput({{ $client->id }}, 'url')"> Enter URL
+                        </label>
+                      </div>
+                    </div>
                     <div class="text-center">
                       <div id="avatarPreview{{ $client->id }}" class="mb-2">
                         @if($client->avatar)
@@ -328,10 +331,8 @@
                           </div>
                         @endif
                       </div>
-                      <input type="file" name="avatar" id="avatarInput{{ $client->id }}" accept="image/*" style="display: none;" onchange="previewAvatar({{ $client->id }})">
-                      <button type="button" class="btn btn-sm btn-upload" onclick="document.getElementById('avatarInput{{ $client->id }}').click()">
-                        Upload
-                      </button>
+                      <input type="file" name="avatar" id="avatarInput{{ $client->id }}" class="form-control mb-2" accept="image/*" onchange="previewAvatar({{ $client->id }})">
+                      <input type="text" name="avatar_url" id="avatarUrl{{ $client->id }}" class="form-control" placeholder="https://example.com/avatar.jpg" style="display: none;" oninput="previewClientAvatarUrl({{ $client->id }})">
                     </div>
                   </div>
                 </div>
@@ -370,88 +371,211 @@
     </div>
   </div>
 </div>
+
+<!-- Add Client Modal -->
+<div class="modal fade" id="addClientModal" tabindex="-1" role="dialog" aria-labelledby="addClientModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addClientModalLabel">Add Client</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="addClientForm">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" name="name" id="newClientName" class="form-control" placeholder="John Doe" required>
+          </div>
+
+          <div class="form-group">
+            <label>Age</label>
+            <input type="number" name="age" id="newClientAge" class="form-control" placeholder="24" min="1" max="120" required>
+          </div>
+
+          <div class="form-group">
+            <label>Contact Number</label>
+            <input type="text" name="contact" id="newClientContact" class="form-control" placeholder="09123456789" required>
+          </div>
+
+          <div class="form-group">
+            <label>Membership Plan</label>
+            <select name="plan_type" id="newClientPlan" class="form-control" required>
+              <option value="">Select Plan</option>
+              <option value="Monthly">Monthly</option>
+              <option value="Session">Session</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" name="start_date" id="newClientStartDate" class="form-control" onchange="calculateClientEndDate()" required>
+          </div>
+
+          <div class="form-group">
+            <label>End Date</label>
+            <input type="date" name="due_date" id="newClientEndDate" class="form-control" readonly>
+          </div>
+
+          <div class="form-group">
+            <label>Avatar (optional)</label>
+            <div class="mb-2">
+              <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-sm btn-outline-primary active">
+                  <input type="radio" name="clientAvatarInputType" value="file" checked onclick="toggleClientAvatarInput('file')"> Upload File
+                </label>
+                <label class="btn btn-sm btn-outline-primary">
+                  <input type="radio" name="clientAvatarInputType" value="url" onclick="toggleClientAvatarInput('url')"> Enter URL
+                </label>
+              </div>
+            </div>
+            <input type="file" name="avatar" id="newClientAvatar" class="form-control" accept="image/*" onchange="previewNewClientAvatar()">
+            <input type="text" name="avatar_url" id="newClientAvatarUrl" class="form-control" placeholder="https://example.com/avatar.jpg" style="display: none;" oninput="previewNewClientAvatar()">
+            <div id="newClientAvatarPreview" class="mt-3 text-center"></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-update" onclick="showClientConfirmModal()">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmClientModal" tabindex="-1" role="dialog" aria-labelledby="confirmClientModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmClientModalLabel">Add Client</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Name</label>
+          <div class="form-control" id="confirmClientName" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff; display: flex; align-items: center;">
+            <span id="confirmClientNameText"></span>
+            <img id="confirmClientAvatarSmall" src="" alt="" style="width: 30px; height: 30px; border-radius: 50%; margin-left: auto; display: none;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Age</label>
+          <div class="form-control" id="confirmClientAge" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Contact Number</label>
+          <div class="form-control" id="confirmClientContact" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Membership Plan</label>
+          <div class="form-control" id="confirmClientPlan" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Start Date</label>
+          <div class="form-control" id="confirmClientStartDate" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+        </div>
+
+        <div class="form-group">
+          <label>End Date</label>
+          <div class="form-control" id="confirmClientEndDate" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Avatar (optional)</label>
+          <div class="text-center">
+            <img id="confirmClientAvatarLarge" src="" alt="Avatar Preview" style="max-width: 200px; max-height: 200px; border-radius: 10px; display: none;">
+            <p id="noClientAvatarText" style="color: rgba(255, 255, 255, 0.6);">No avatar selected</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-cancel" onclick="backToClientAddForm()">Cancel</button>
+        <button type="button" class="btn btn-update" onclick="submitClientForm()">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
 @endsection
 
 @push('scripts')
+<!-- Common Utilities -->
+<script src="{{ asset('js/common/avatar-utils.js') }}?v={{ time() }}"></script>
+<script src="{{ asset('js/common/form-utils.js') }}?v={{ time() }}"></script>
+<script src="{{ asset('js/common/bulk-selection.js') }}?v={{ time() }}"></script>
+<!-- Page Module -->
+<script src="{{ asset('js/pages/clients.js') }}?v={{ time() }}"></script>
 <script>
-  function previewAvatar(clientId) {
-    const input = document.getElementById('avatarInput' + clientId);
-    const preview = document.getElementById('avatarPreview' + clientId);
-    
-    if (input.files && input.files[0]) {
-      const reader = new FileReader();
-      
-      reader.onload = function(e) {
-        preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview" style="width: 120px; height: 120px; object-fit: cover; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.2);">';
-      }
-      
-      reader.readAsDataURL(input.files[0]);
-    }
-  }
-
-  // Bulk Delete Functionality
+  // Initialize clients page with Laravel data
   document.addEventListener('DOMContentLoaded', function() {
-    const selectAllCheckbox = document.getElementById('selectAll');
-    const clientCheckboxes = document.querySelectorAll('.client-checkbox');
-    const selectedCountSpan = document.getElementById('selectedCount');
-
-    // Select/Deselect All
-    if (selectAllCheckbox) {
-      selectAllCheckbox.addEventListener('change', function() {
-        clientCheckboxes.forEach(checkbox => {
-          checkbox.checked = this.checked;
-        });
-        updateSelectedCount();
-      });
-    }
-
-    // Update count when individual checkboxes change
-    clientCheckboxes.forEach(checkbox => {
-      checkbox.addEventListener('change', function() {
-        updateSelectedCount();
-        // Update select all checkbox state
-        if (selectAllCheckbox) {
-          const allChecked = Array.from(clientCheckboxes).every(cb => cb.checked);
-          const someChecked = Array.from(clientCheckboxes).some(cb => cb.checked);
-          selectAllCheckbox.checked = allChecked;
-          selectAllCheckbox.indeterminate = someChecked && !allChecked;
+    ClientsPage.init({
+      csrfToken: '{{ csrf_token() }}',
+      storeUrl: '{{ route("clients.store") }}'
+    });
+    
+    // Setup client search enter key (uses different IDs than memberships)
+    const searchInput = document.getElementById('searchInputClients');
+    const searchForm = document.getElementById('searchFormClients');
+    if (searchInput && searchForm) {
+      searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          searchForm.submit();
         }
       });
-    });
-
-    function updateSelectedCount() {
-      const count = document.querySelectorAll('.client-checkbox:checked').length;
-      if (selectedCountSpan) {
-        selectedCountSpan.textContent = count;
-      }
     }
   });
 
-  function bulkDelete() {
-    const checkedBoxes = document.querySelectorAll('.client-checkbox:checked');
-    
-    if (checkedBoxes.length === 0) {
-      alert('Please select at least one client to delete.');
-      return;
-    }
+  // Global function wrappers for onclick handlers in HTML
+  function toggleClientAvatarInput(type) {
+    ClientsPage.toggleClientAvatarInput(type);
+  }
 
-    const count = checkedBoxes.length;
-    const confirmation = confirm(`Are you sure you want to delete ${count} client(s)? This action cannot be undone.`);
-    
-    if (confirmation) {
-      const form = document.getElementById('bulkDeleteForm');
-      
-      // Add selected IDs to form
-      checkedBoxes.forEach(checkbox => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'client_ids[]';
-        input.value = checkbox.value;
-        form.appendChild(input);
-      });
-      
-      form.submit();
-    }
+  function calculateClientEndDate() {
+    ClientsPage.calculateClientEndDate();
+  }
+
+  function previewNewClientAvatar() {
+    ClientsPage.previewNewClientAvatar();
+  }
+
+  function showClientConfirmModal() {
+    ClientsPage.showClientConfirmModal();
+  }
+
+  function backToClientAddForm() {
+    ClientsPage.backToClientAddForm();
+  }
+
+  function submitClientForm() {
+    ClientsPage.submitClientForm();
+  }
+
+  function toggleEditClientAvatarInput(clientId, type) {
+    ClientsPage.toggleEditClientAvatarInput(clientId, type);
+  }
+
+  function calculateEditClientEndDate(clientId) {
+    ClientsPage.calculateEditClientEndDate(clientId);
+  }
+
+  function previewAvatar(clientId) {
+    ClientsPage.previewAvatar(clientId);
+  }
+
+  function previewClientAvatarUrl(clientId) {
+    ClientsPage.previewClientAvatarUrl(clientId);
+  }
+
+  function bulkDelete() {
+    ClientsPage.bulkDelete();
   }
 </script>
 @endpush

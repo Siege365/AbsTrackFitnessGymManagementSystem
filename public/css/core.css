@@ -679,6 +679,9 @@ select.form-control {
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 12px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
 .input-group {
@@ -1295,16 +1298,16 @@ select.form-control {
 }
 
 .preview-list h6 {
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   color: #fff;
   margin: 0;
-  padding: 1rem 1.25rem;
+  padding: 0.875rem 1rem;
 }
 
 .preview-list p.text-center {
-  font-size: 0.9375rem;
-  padding: 1rem 1.25rem;
+  font-size: 0.875rem;
+  padding: 0.875rem 1rem;
   margin: 0;
 }
 .preview-list {
@@ -1316,7 +1319,7 @@ select.form-control {
 .preview-item {
   display: flex;
   align-items: flex-start;
-  padding: 1rem 1.25rem;
+  padding: 0.875rem 1rem;
   border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
@@ -1329,8 +1332,8 @@ select.form-control {
 }
 
 .preview-icon {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;

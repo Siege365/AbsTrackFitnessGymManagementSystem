@@ -649,8 +649,3 @@
           
 @endsection
 
-@push('scripts')
-<script>
-// Dashboard specific scripts can go here
-</script>
-@endpush

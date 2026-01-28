@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Customers → Membership')
+@section('title', 'Memberships Management - AbsTrack Fitness Gym')
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/memberships.css') }}?v={{ time() }}">
@@ -134,14 +134,7 @@
           </div>
         </div>
 
-        <script>
-          document.getElementById('searchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              document.getElementById('searchForm').submit();
-            }
-          });
-        </script>
+        {{-- Search enter key handled by MembershipsPage.init() --}}
 
         <!-- Search Results Info -->
         @if(request('search'))
@@ -306,18 +299,28 @@
                   <!-- Start Date -->
                   <div class="form-group">
                     <label>Start Date</label>
-                    <input type="date" name="start_date" class="form-control" value="{{ $membership->start_date->format('Y-m-d') }}" required>
+                    <input type="date" name="start_date" id="editStartDate{{ $membership->id }}" class="form-control" value="{{ $membership->start_date->format('Y-m-d') }}" onchange="calculateEditEndDate({{ $membership->id }})" required>
                   </div>
 
                   <!-- End Date -->
                   <div class="form-group">
                     <label>End Date</label>
-                    <input type="date" name="due_date" class="form-control" value="{{ $membership->due_date->format('Y-m-d') }}" required>
+                    <input type="date" name="due_date" id="editEndDate{{ $membership->id }}" class="form-control" value="{{ $membership->due_date->format('Y-m-d') }}" readonly>
                   </div>
 
                   <!-- Avatar (optional) -->
                   <div class="form-group">
                     <label>Avatar (optional)</label>
+                    <div class="mb-2">
+                      <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-sm btn-outline-primary active">
+                          <input type="radio" name="editAvatarInputType{{ $membership->id }}" value="file" checked onclick="toggleEditAvatarInput({{ $membership->id }}, 'file')"> Upload File
+                        </label>
+                        <label class="btn btn-sm btn-outline-primary">
+                          <input type="radio" name="editAvatarInputType{{ $membership->id }}" value="url" onclick="toggleEditAvatarInput({{ $membership->id }}, 'url')"> Enter URL
+                        </label>
+                      </div>
+                    </div>
                     <div class="text-center">
                       <div id="avatarPreview{{ $membership->id }}" class="mb-2">
                         @if($membership->avatar)
@@ -328,10 +331,8 @@
                           </div>
                         @endif
                       </div>
-                      <input type="file" name="avatar" id="avatarInput{{ $membership->id }}" accept="image/*" style="display: none;" onchange="previewAvatar({{ $membership->id }})">
-                      <button type="button" class="btn btn-sm btn-upload" onclick="document.getElementById('avatarInput{{ $membership->id }}').click()">
-                        Upload
-                      </button>
+                      <input type="file" name="avatar" id="avatarInput{{ $membership->id }}" class="form-control mb-2" accept="image/*" onchange="previewAvatar({{ $membership->id }})">
+                      <input type="text" name="avatar_url" id="avatarUrl{{ $membership->id }}" class="form-control" placeholder="https://example.com/avatar.jpg" style="display: none;" oninput="previewAvatarUrl({{ $membership->id }})">
                     </div>
                   </div>
                 </div>
@@ -370,88 +371,199 @@
     </div>
   </div>
 </div>
+
+<!-- Add Member Modal -->
+<div class="modal fade" id="addMemberModal" tabindex="-1" role="dialog" aria-labelledby="addMemberModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addMemberModalLabel">Add Member</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="addMemberForm">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" name="name" id="newMemberName" class="form-control" placeholder="John Doe" required>
+          </div>
+
+          <div class="form-group">
+            <label>Age</label>
+            <input type="number" name="age" id="newMemberAge" class="form-control" placeholder="24" min="1" max="120" required>
+          </div>
+
+          <div class="form-group">
+            <label>Contact Number</label>
+            <input type="text" name="contact" id="newMemberContact" class="form-control" placeholder="09123456789" required>
+          </div>
+
+          <div class="form-group">
+            <label>Membership Plan</label>
+            <select name="plan_type" id="newMemberPlan" class="form-control" required>
+              <option value="">Select Plan</option>
+              <option value="Monthly">Monthly</option>
+              <option value="Session">Session</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" name="start_date" id="newMemberStartDate" class="form-control" onchange="calculateEndDate()" required>
+          </div>
+
+          <div class="form-group">
+            <label>End Date</label>
+            <input type="date" name="due_date" id="newMemberEndDate" class="form-control" readonly>
+          </div>
+
+          <div class="form-group">
+            <label>Avatar (optional)</label>
+            <div class="mb-2">
+              <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-sm btn-outline-primary active">
+                  <input type="radio" name="avatarInputType" value="file" checked onclick="toggleAvatarInput('file')"> Upload File
+                </label>
+                <label class="btn btn-sm btn-outline-primary">
+                  <input type="radio" name="avatarInputType" value="url" onclick="toggleAvatarInput('url')"> Enter URL
+                </label>
+              </div>
+            </div>
+            <input type="file" name="avatar" id="newMemberAvatar" class="form-control" accept="image/*" onchange="previewNewAvatar()">
+            <input type="text" name="avatar_url" id="newMemberAvatarUrl" class="form-control" placeholder="https://example.com/avatar.jpg" style="display: none;" oninput="previewNewAvatar()">
+            <div id="newAvatarPreview" class="mt-3 text-center"></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-update" onclick="showConfirmModal()">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmMemberModal" tabindex="-1" role="dialog" aria-labelledby="confirmMemberModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmMemberModalLabel">Add Member</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Name</label>
+          <div class="form-control" id="confirmName" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff; display: flex; align-items: center;">
+            <span id="confirmNameText"></span>
+            <img id="confirmAvatarSmall" src="" alt="" style="width: 30px; height: 30px; border-radius: 50%; margin-left: auto; display: none;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Age</label>
+          <div class="form-control" id="confirmAge" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Contact Number</label>
+          <div class="form-control" id="confirmContact" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Membership Plan</label>
+          <div class="form-control" id="confirmPlan" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Start Date</label>
+          <div class="form-control" id="confirmStartDate" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+        </div>
+
+        <div class="form-group">
+          <label>End Date</label>
+          <div class="form-control" id="confirmEndDate" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Avatar (optional)</label>
+          <div class="text-center">
+            <img id="confirmAvatarLarge" src="" alt="Avatar Preview" style="max-width: 200px; max-height: 200px; border-radius: 10px; display: none;">
+            <p id="noAvatarText" style="color: rgba(255, 255, 255, 0.6);">No avatar selected</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-cancel" onclick="backToAddForm()">Cancel</button>
+        <button type="button" class="btn btn-update" onclick="submitMemberForm()">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
 @endsection
 
 @push('scripts')
+<!-- Common Utilities -->
+<script src="{{ asset('js/common/avatar-utils.js') }}?v={{ time() }}"></script>
+<script src="{{ asset('js/common/form-utils.js') }}?v={{ time() }}"></script>
+<script src="{{ asset('js/common/bulk-selection.js') }}?v={{ time() }}"></script>
+<!-- Page Module -->
+<script src="{{ asset('js/pages/memberships.js') }}?v={{ time() }}"></script>
 <script>
-  function previewAvatar(membershipId) {
-    const input = document.getElementById('avatarInput' + membershipId);
-    const preview = document.getElementById('avatarPreview' + membershipId);
-    
-    if (input.files && input.files[0]) {
-      const reader = new FileReader();
-      
-      reader.onload = function(e) {
-        preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview" style="width: 120px; height: 120px; object-fit: cover; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.2);">';
-      }
-      
-      reader.readAsDataURL(input.files[0]);
-    }
-  }
-
-  // Bulk Delete Functionality
+  // Initialize memberships page with Laravel data
   document.addEventListener('DOMContentLoaded', function() {
-    const selectAllCheckbox = document.getElementById('selectAll');
-    const membershipCheckboxes = document.querySelectorAll('.membership-checkbox');
-    const selectedCountSpan = document.getElementById('selectedCount');
-
-    // Select/Deselect All
-    if (selectAllCheckbox) {
-      selectAllCheckbox.addEventListener('change', function() {
-        membershipCheckboxes.forEach(checkbox => {
-          checkbox.checked = this.checked;
-        });
-        updateSelectedCount();
-      });
-    }
-
-    // Update count when individual checkboxes change
-    membershipCheckboxes.forEach(checkbox => {
-      checkbox.addEventListener('change', function() {
-        updateSelectedCount();
-        // Update select all checkbox state
-        if (selectAllCheckbox) {
-          const allChecked = Array.from(membershipCheckboxes).every(cb => cb.checked);
-          const someChecked = Array.from(membershipCheckboxes).some(cb => cb.checked);
-          selectAllCheckbox.checked = allChecked;
-          selectAllCheckbox.indeterminate = someChecked && !allChecked;
-        }
-      });
+    MembershipsPage.init({
+      csrfToken: '{{ csrf_token() }}',
+      storeUrl: '{{ route("memberships.store") }}'
     });
-
-    function updateSelectedCount() {
-      const count = document.querySelectorAll('.membership-checkbox:checked').length;
-      if (selectedCountSpan) {
-        selectedCountSpan.textContent = count;
-      }
-    }
   });
 
-  function bulkDelete() {
-    const checkedBoxes = document.querySelectorAll('.membership-checkbox:checked');
-    
-    if (checkedBoxes.length === 0) {
-      alert('Please select at least one membership to delete.');
-      return;
-    }
+  // Global function wrappers for onclick handlers in HTML
+  function toggleAvatarInput(type) {
+    MembershipsPage.toggleAvatarInput(type);
+  }
 
-    const count = checkedBoxes.length;
-    const confirmation = confirm(`Are you sure you want to delete ${count} membership(s)? This action cannot be undone.`);
-    
-    if (confirmation) {
-      const form = document.getElementById('bulkDeleteForm');
-      
-      // Add selected IDs to form
-      checkedBoxes.forEach(checkbox => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'membership_ids[]';
-        input.value = checkbox.value;
-        form.appendChild(input);
-      });
-      
-      form.submit();
-    }
+  function calculateEndDate() {
+    MembershipsPage.calculateEndDate();
+  }
+
+  function previewNewAvatar() {
+    MembershipsPage.previewNewAvatar();
+  }
+
+  function showConfirmModal() {
+    MembershipsPage.showConfirmModal();
+  }
+
+  function backToAddForm() {
+    MembershipsPage.backToAddForm();
+  }
+
+  function submitMemberForm() {
+    MembershipsPage.submitMemberForm();
+  }
+
+  function toggleEditAvatarInput(membershipId, type) {
+    MembershipsPage.toggleEditAvatarInput(membershipId, type);
+  }
+
+  function calculateEditEndDate(membershipId) {
+    MembershipsPage.calculateEditEndDate(membershipId);
+  }
+
+  function previewAvatar(membershipId) {
+    MembershipsPage.previewAvatar(membershipId);
+  }
+
+  function previewAvatarUrl(membershipId) {
+    MembershipsPage.previewAvatarUrl(membershipId);
+  }
+
+  function bulkDelete() {
+    MembershipsPage.bulkDelete();
   }
 </script>
 @endpush

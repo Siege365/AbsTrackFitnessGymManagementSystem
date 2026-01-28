@@ -11,16 +11,16 @@
       @if(request()->is('memberships*'))
         <!-- Add Member Button (appears only on membership pages) -->
         <li class="nav-item d-none d-lg-block">
-          <a class="nav-link btn add-entity-button" href="{{ route('memberships.create') }}">
+          <button class="nav-link btn add-entity-button" data-toggle="modal" data-target="#addMemberModal" style="border: none; background: transparent;">
             <i class="mdi mdi-plus"></i> Add Member
-          </a>
+          </button>
         </li>
       @elseif(request()->is('clients*'))
         <!-- Add Client Button (appears only on client pages) -->
         <li class="nav-item d-none d-lg-block">
-          <a class="nav-link btn add-entity-button" href="{{ route('clients.create') }}">
+          <button class="nav-link btn add-entity-button" data-toggle="modal" data-target="#addClientModal" style="border: none; background: transparent;">
             <i class="mdi mdi-plus"></i> Add Client
-          </a>
+          </button>
         </li>
       @else
         <!-- Create Dropdown (appears on all other pages) -->

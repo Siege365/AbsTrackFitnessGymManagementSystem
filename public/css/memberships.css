@@ -163,6 +163,18 @@ body {
   box-shadow: none;
 }
 
+.form-control[readonly] {
+  background-color: #1a1c24;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-control[readonly] {
+  background-color: #1a1c24;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 /* Buttons */
 .btn-primary {
   background-color: #191C24;
@@ -380,16 +392,65 @@ body {
 }
 
 /* Select Options */
+select.form-control {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
 select.form-control option {
   background: #191C24;
   color: white;
 }
 
+/* Modal Specific Styles */
+.modal-dialog {
+  max-width: 600px;
+}
+
+.modal-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-title {
+  font-size: 1.5rem !important;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.modal-body {
+  padding: 2rem !important;
+}
+
+.modal-body .form-group {
+  margin-bottom: 1.5rem !important;
+}
+
 /* Modal Labels */
 .modal-body label {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 13px;
+  color: #ffffff;
+  font-size: 1.125rem !important;
   font-weight: 500;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.modal-body .form-control {
+  font-size: 1.125rem !important;
+  padding: 0.875rem 1.25rem;
+  min-height: 52px;
+}
+
+.modal-footer {
+  padding: 1.25rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-footer .btn {
+  font-size: 1.125rem !important;
+  padding: 0.875rem 2rem;
+  min-width: 130px;
 }
 
 /* Custom Buttons */

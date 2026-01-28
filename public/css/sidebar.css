@@ -594,7 +594,26 @@
 }
 
 .navbar .dropdown-menu {
-  min-width: 360px;
+  min-width: 280px;
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  margin-top: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.navbar .dropdown-menu-right {
+  right: 0;
+  left: auto;
+  margin-right: 0.5rem;
+}
+
+/* Ensure navbar items have proper positioning context */
+.navbar .nav-item {
+  position: relative;
+}
+
+.navbar .nav-item.dropdown {
+  position: relative;
 }
 
 /* =====================================================

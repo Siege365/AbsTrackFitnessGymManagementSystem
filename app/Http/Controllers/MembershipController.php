@@ -89,6 +89,7 @@ class MembershipController extends Controller
                 'name' => 'required|string|max:255',
                 'age' => 'nullable|integer|min:1|max:120',
                 'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
+                'avatar_url' => 'nullable|url',
                 'plan_type' => 'required|in:Monthly,Session',
                 'start_date' => 'required|date',
                 'due_date' => 'required|date|after:start_date',
@@ -98,27 +99,57 @@ class MembershipController extends Controller
             // Calculate status automatically based on dates
             $validated['status'] = $this->calculateStatus($validated['start_date'], $validated['due_date']);
 
+            // Handle avatar upload (file or URL)
             if ($request->hasFile('avatar')) {
                 try {
                     $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
                 } catch (\Exception $e) {
-                    return redirect()->back()
-                        ->withInput()
-                        ->with('error', 'Failed to upload avatar. Please try again.');
+                    return response()->json(['success' => false, 'message' => 'Failed to upload avatar. Please try again.'], 400);
+                }
+            } elseif ($request->filled('avatar_url')) {
+                try {
+                    // Download image from URL and save it
+                    $imageContent = @file_get_contents($validated['avatar_url']);
+                    if ($imageContent !== false) {
+                        $extension = pathinfo(parse_url($validated['avatar_url'], PHP_URL_PATH), PATHINFO_EXTENSION);
+                        if (!in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif'])) {
+                            $extension = 'jpg';
+                        }
+                        $filename = 'avatars/' . uniqid() . '.' . $extension;
+                        Storage::disk('public')->put($filename, $imageContent);
+                        $validated['avatar'] = $filename;
+                    }
+                } catch (\Exception $e) {
+                    // If URL download fails, continue without avatar
+                    Log::warning('Failed to download avatar from URL: ' . $validated['avatar_url']);
                 }
             }
 
+            // Remove avatar_url from validated data as it's not in the database
+            unset($validated['avatar_url']);
+
             Membership::create($validated);
+
+            // Return JSON response for AJAX requests
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Membership created successfully!']);
+            }
 
             return redirect()->route('memberships.index')
                 ->with('success', 'Membership created successfully!');
                 
         } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $e->errors()], 422);
+            }
             return redirect()->back()
                 ->withErrors($e->validator)
                 ->withInput()
                 ->with('error', 'Please check the form for errors.');
         } catch (\Exception $e) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'An error occurred while creating the membership.'], 500);
+            }
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'An error occurred while creating the membership. Please try again.');
@@ -200,6 +231,7 @@ class MembershipController extends Controller
                 'name' => 'required|string|max:255',
                 'age' => 'nullable|integer|min:1|max:120',
                 'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
+                'avatar_url' => 'nullable|url',
                 'plan_type' => 'required|in:Monthly,Session',
                 'start_date' => 'required|date',
                 'due_date' => 'required|date|after:start_date',
@@ -209,6 +241,7 @@ class MembershipController extends Controller
             // Recalculate status automatically based on updated dates
             $validated['status'] = $this->calculateStatus($validated['start_date'], $validated['due_date']);
 
+            // Handle avatar upload (file or URL)
             if ($request->hasFile('avatar')) {
                 try {
                     // Delete old avatar
@@ -221,7 +254,30 @@ class MembershipController extends Controller
                         ->withInput()
                         ->with('error', 'Failed to upload new avatar. Please try again.');
                 }
+            } elseif ($request->filled('avatar_url')) {
+                try {
+                    // Download image from URL and save it
+                    $imageContent = @file_get_contents($validated['avatar_url']);
+                    if ($imageContent !== false) {
+                        // Delete old avatar
+                        if ($membership->avatar && Storage::disk('public')->exists($membership->avatar)) {
+                            Storage::disk('public')->delete($membership->avatar);
+                        }
+                        $extension = pathinfo(parse_url($validated['avatar_url'], PHP_URL_PATH), PATHINFO_EXTENSION);
+                        if (!in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif'])) {
+                            $extension = 'jpg';
+                        }
+                        $filename = 'avatars/' . uniqid() . '.' . $extension;
+                        Storage::disk('public')->put($filename, $imageContent);
+                        $validated['avatar'] = $filename;
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('Failed to download avatar from URL: ' . $validated['avatar_url']);
+                }
             }
+
+            // Remove avatar_url from validated data as it's not in the database
+            unset($validated['avatar_url']);
 
             $membership->update($validated);
 

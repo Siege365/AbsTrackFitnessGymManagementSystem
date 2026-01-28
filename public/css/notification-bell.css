@@ -57,7 +57,7 @@
 /* Dropdown animation */
 .count-indicator + .dropdown-menu {
     animation: fadeInDown 0.3s ease;
-    min-width: 360px;
+    min-width: 320px;
 }
 
 @keyframes fadeInDown {
@@ -113,18 +113,18 @@
 
 .preview-icon i {
     color: #ffffff;
-    font-size: 22px;
+    font-size: 20px;
 }
 
 /* Text styles */
 .preview-subject {
-    font-size: 1rem;
+    font-size: 0.9375rem;
     color: #343a40;
     margin-bottom: 4px;
 }
 
 .small-text {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
 }
 
 /* Add Member/Client Button Styles */
