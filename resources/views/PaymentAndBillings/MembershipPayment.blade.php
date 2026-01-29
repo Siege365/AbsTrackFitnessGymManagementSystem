@@ -84,7 +84,6 @@
 
   /* Card Styles */
   .card {
-    border: 1px solid #555;
     border-radius: 8px;
     margin-bottom: 2rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -130,7 +129,7 @@
 
   .form-control:focus, .form-select:focus {
     outline: none;
-    border-color: #17a2b8;
+    border-color: #198754;
     box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
     background: #282A36;
   }
@@ -190,7 +189,7 @@
   }
 
   .btn-primary {
-    background: #17a2b8;
+    background: #0d6efd;
     color: white;
   }
 
@@ -241,14 +240,13 @@
   }
 
   .payment-type-pill:hover {
-    border-color: #17a2b8;
+    border-color: #198754;
     transform: translateY(-3px);
   }
 
   .payment-type-pill.active {
     background: #282A36;
-    border-color: #17a2b8;
-    box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+    border-color: #198754;
   }
 
   .payment-type-pill .icon {
@@ -281,14 +279,13 @@
   }
 
   .plan-type-card:hover {
-    border-color: #17a2b8;
+    border-color: #198754;
     transform: translateY(-3px);
   }
 
   .plan-type-card.active {
     background: #282A36;
-    border-color: #17a2b8;
-    box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+    border-color: #198754;
   }
 
   .plan-type-card .plan-name {
@@ -359,7 +356,7 @@
   }
 
   .badge-info {
-    background: #17a2b8;
+    background: #0d6efd;
     color: white;
   }
 
@@ -742,7 +739,7 @@
     width: 20px;
     height: 20px;
     border: 3px solid #555;
-    border-top-color: #17a2b8;
+    border-top-color: #0d6efd;
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }
@@ -768,7 +765,7 @@
 
   .filter-btn:hover {
     background: #191C24;
-    border-color: #17a2b8;
+    border-color: #198754;
   }
 
   .filter-menu {
@@ -817,7 +814,7 @@
 
   .filter-menu-item.active {
     background: rgba(23, 162, 184, 0.2);
-    color: #17a2b8;
+    color: #198754;
   }
 
   .filter-menu-divider {
@@ -984,18 +981,26 @@
         
         <!-- Payment Type Selector -->
         <div class="payment-type-selector">
-            <div class="payment-type-pill" data-type="new">
-            <span class="icon">🆕</span>
+        <div class="payment-type-pill" data-type="new">
+            <span class="icon">
+            <i class="mdi mdi-account-plus"></i>
+            </span>
             <span class="label">New Membership</span>
-            </div>
-            <div class="payment-type-pill active" data-type="renewal">
-            <span class="icon">🔄</span>
+        </div>
+
+        <div class="payment-type-pill active" data-type="renewal">
+            <span class="icon">
+            <i class="mdi mdi-autorenew"></i>
+            </span>
             <span class="label">Renewal</span>
-            </div>
-            <div class="payment-type-pill" data-type="extension" id="extensionPill">
-            <span class="icon">➕</span>
+        </div>
+
+        <div class="payment-type-pill" data-type="extension" id="extensionPill">
+            <span class="icon">
+            <i class="mdi mdi-calendar-plus"></i>
+            </span>
             <span class="label">Extension</span>
-            </div>
+        </div>
         </div>
         
         <input type="hidden" name="payment_type" id="paymentType" value="renewal">
@@ -1055,43 +1060,46 @@
         <input type="hidden" name="plan_type" id="planType" value="Monthly">
 
         <!-- Payment Details -->
-        <div class="form-grid">
-            <div class="form-group">
-            <label class="form-label">Payment Method</label>
-            <select class="form-select" name="payment_method" id="paymentMethod" required>
-                <option value="Cash">Cash</option>
-                <option value="Credit Card">Credit Card</option>
-                <option value="Debit Card">Debit Card</option>
-                <option value="GCash">GCash</option>
-                <option value="PayMaya">PayMaya</option>
-                <option value="Bank Transfer">Bank Transfer</option>
-            </select>
-            </div>
+        <div class="row">
+            <div class="col-12 grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-2">
+                            <label class="form-label">Payment Method</label>
+                            <select class="form-select" name="payment_method" id="paymentMethod" required>
+                                <option value="Cash">Cash</option>
+                                <option value="Credit Card">Credit Card</option>
+                                <option value="Debit Card">Debit Card</option>
+                                <option value="GCash">GCash</option>
+                                <option value="PayMaya">PayMaya</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                            </select>
+                            </div>
 
-            <div class="form-group">
-            <label class="form-label">Amount</label>
-            <input type="number" class="form-control" name="amount" id="amount" placeholder="₱0.00" step="0.01" value="500.00" readonly>
-            </div>
+                            <div class="col-md-2">
+                            <label class="form-label">Amount</label>
+                            <input type="number" class="form-control" name="amount" id="amount" placeholder="₱0.00" step="0.01" value="500.00" readonly>
+                            </div>
 
-            <div class="form-group">
-            <label class="form-label">Current Due Date</label>
-            <input type="text" class="form-control" id="currentDueDate" readonly placeholder="N/A">
-            </div>
+                            <div class="col-md-3">
+                            <label class="form-label">Current Due Date</label>
+                            <input type="text" class="form-control" id="currentDueDate" readonly placeholder="N/A">
+                            </div>
 
-            <div class="form-group">
-            <label class="form-label">New Due Date</label>
-            <input type="text" class="form-control" name="new_due_date" id="newDueDate" readonly placeholder="Will be calculated">
-            </div>
+                            <div class="col-md-3">
+                            <label class="form-label">New Due Date</label>
+                            <input type="text" class="form-control" name="new_due_date" id="newDueDate" readonly placeholder="Will be calculated">
+                            </div>
 
-            <div class="form-group">
-            <label class="form-label">Additional Days</label>
-            <input type="number" class="form-control" id="additionalDays" readonly placeholder="0" value="30">
+                            <div class="col-md-2">
+                            <label class="form-label">Additional Days</label>
+                            <input type="number" class="form-control" id="additionalDays" readonly placeholder="0" value="30">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Notes (Optional)</label>
-            <textarea class="form-control" name="notes" id="notes" rows="3" placeholder="Add any additional notes..."></textarea>
         </div>
 
         <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
@@ -1192,7 +1200,6 @@
                 class="form-control" 
                 name="search" 
                 placeholder="Search transactions..." 
-                style="width: 250px;"
                 value="{{ request('search') }}"
             >
             <button type="submit" class="btn btn-primary">
@@ -1342,7 +1349,7 @@
 </div>
 
 <!-- Receipt Modal -->
-<div id="receiptModal" class="modal-overlay">
+<div id="receiptModal" class="modal-overlay modal-overlay-centered" role="document">
   <div class="modal-content">
     <div class="modal-header">
       <h3 class="modal-title">Payment Receipt</h3>

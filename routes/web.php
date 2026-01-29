@@ -90,6 +90,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/payments/{payment}', [PaymentController::class, 'destroy'])->name('payments.destroy');
     Route::get('/payments/membership', [PaymentController::class, 'membership'])
     ->name('payments.membership');
+    
     Route::middleware(['auth'])->group(function () {
     // Payment routes
     Route::get('/membership-payment', [MembershipPaymentController::class, 'index'])

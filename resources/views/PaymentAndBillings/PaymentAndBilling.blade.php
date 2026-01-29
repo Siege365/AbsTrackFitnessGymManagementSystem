@@ -4,6 +4,7 @@
 
 @push('styles')
 <style>
+  /* CONSISTENT COLOR SCHEME MATCHING MEMBERSHIP PAYMENT */
   .table-responsive::-webkit-scrollbar {
     height: 8px;
   }
@@ -25,7 +26,7 @@
   
   .pagination .page-link {
     color: #ffffff;
-    background-color: #2A3038;
+    background-color: #282A36;
     border-color: #555;
     padding: 8px 12px;
     margin: 0 2px;
@@ -54,7 +55,7 @@
   }
 
   .form-control[readonly] {
-    background-color: #2A3038 !important;
+    background-color: #282A36 !important;
     color: #495057 !important;
   }
 
@@ -67,28 +68,73 @@
     background-color: rgba(255, 255, 255, 0.1) !important;
   }
 
-  #itemsTableBody tr {
-    height: 53px;
+  /* Stats Cards - Consistent Style */
+  .stat-change {
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
   }
 
-  #searchClearBtn {
-    min-width: 80px;
-    white-space: nowrap;
+  .stat-change.positive {
+    color: #28a745;
   }
 
-  #addItemBtn {
-    min-width: 80px;
-    white-space: nowrap;
+  .stat-change.negative {
+    color: #dc3545;
   }
 
-  #addItemBtn:hover {
-    background-color: #138496;
-    border-color: #117a8b;
+  /* Card Styles */
+  .card {
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 
+  .card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Form Styles */
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #999;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-control, .form-select {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: #191C24;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #ffffff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus, .form-select:focus {
+    outline: none;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    background: #282A36;
+  }
+
+  .form-control::placeholder {
+    color: #666;
+  }
+
+  /* Search Results */
   .search-results {
     position: absolute;
-    background: #2A3038;
+    background: #282A36;
     border: 1px solid #555;
     max-height: 200px;
     overflow-y: auto;
@@ -111,6 +157,104 @@
 
   .search-result-item:last-child {
     border-bottom: none;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 0.875rem 2rem;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .btn-primary {
+    background: #0d6efd;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #0b5ed7;
+  }
+
+  .btn-secondary {
+    background: #6c757d;
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    background: #5a6268;
+  }
+
+  .btn-warning {
+    background: #ffc107;
+    color: #000;
+  }
+
+  .btn-warning:hover {
+    background: #e0a800;
+  }
+
+  .btn-danger {
+    background: #dc3545;
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background: #c82333;
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  .btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  /* Table Styles */
+  .table-responsive {
+    overflow-x: auto;
+    min-height: 600px;
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #ffffff !important;
+    border-bottom: 2px solid #555;
+  }
+
+  .table tbody tr {
+    transition: all 0.3s ease;
+    height: 53px;
+  }
+
+  .table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .table td {
+    padding: 1rem;
+    border-bottom: 1px solid #555;
+    color: #ffffff !important;
   }
 
   /* Custom Checkbox Styling */
@@ -152,9 +296,81 @@
     outline: none;
   }
 
-  #bulkDeleteBtn.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  /* Action Dropdown */
+  .btn-action {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #ffffff;
+    padding: 0.25rem 0.5rem;
+    transition: all 0.2s;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .btn-action:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+  }
+
+  .dropdown-menu {
+    min-width: 180px;
+    background: #282A36;
+    border: 1px solid #555;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    padding: 8px 0;
+    z-index: 10000 !important;
+  }
+
+  .dropdown-item {
+    padding: 12px 20px;
+    font-size: 14px;
+    color: #ffffff;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+  }
+
+  .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+
+  .dropdown-item i {
+    margin-right: 0.5rem;
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+  }
+
+  .dropdown-item.text-danger {
+    color: #ff6b6b !important;
+  }
+
+  .dropdown-item.text-danger:hover {
+    background-color: rgba(255, 107, 107, 0.1);
+  }
+
+  /* Pagination */
+  .pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #555;
+  }
+
+  .pagination {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .page-item {
+    display: inline-block;
   }
 
   /* Receipt Modal Styles */
@@ -167,23 +383,27 @@
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.7);
+    background-color: rgba(0,0,0,0.8);
+    backdrop-filter: blur(5px);
     animation: fadeIn 0.3s;
+    align-items: center;
+    justify-content: center;
   }
 
   .receipt-modal.show {
-    display: block;
+    display: flex;
   }
 
   .receipt-modal-content {
     background-color: #ffffff;
-    margin: 2% auto;
     padding: 0;
-    width: 90%;
     max-width: 800px;
+    width: 90%;
     border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    animation: slideDown 0.3s;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    animation: modalSlideIn 0.3s;
+    max-height: 90vh;
+    overflow-y: auto;
   }
 
   @keyframes fadeIn {
@@ -191,13 +411,13 @@
     to { opacity: 1; }
   }
 
-  @keyframes slideDown {
+  @keyframes modalSlideIn {
     from {
-      transform: translateY(-50px);
+      transform: scale(0.9) translateY(-50px);
       opacity: 0;
     }
     to {
-      transform: translateY(0);
+      transform: scale(1) translateY(0);
       opacity: 1;
     }
   }
@@ -230,17 +450,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s;
+    transition: all 0.3s ease;
   }
 
   .receipt-modal-close:hover {
-    transform: scale(1.2);
+    color: #dc3545;
+    transform: rotate(90deg);
   }
 
   .receipt-modal-body {
     padding: 30px;
-    max-height: 70vh;
-    overflow-y: auto;
   }
 
   .receipt-container {
@@ -370,570 +589,523 @@
     margin: 0 5px;
   }
 
-  /* Dropdown Styles (Updated to match membership) */
-  .btn-action {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: #ffffff;
-    padding: 0.25rem 0.5rem;
-    transition: all 0.2s;
+  /* Responsive */
+  @media (max-width: 768px) {
+    .pagination-container {
+      flex-direction: column;
+      gap: 1rem;
+    }
   }
 
-  .btn-action:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-  }
-
-  .dropdown-menu {
-    min-width: 180px;
-    background: #2A3038;
-    border: 1px solid #555;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    padding: 8px 0;
-  }
-
-  .dropdown-item {
-    padding: 12px 20px;
-    font-size: 14px;
-    color: #ffffff;
-    transition: background-color 0.2s;
-    display: flex;
-    align-items: center;
-  }
-
-  .dropdown-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-  }
-
-  .dropdown-item i {
-    margin-right: 0.5rem;
-    font-size: 16px;
-    width: 20px;
-    text-align: center;
-  }
-
-  .dropdown-item.text-danger {
-    color: #ff6b6b !important;
-  }
-
-  .dropdown-item.text-danger:hover {
-    background-color: rgba(255, 107, 107, 0.1);
-  }
-
+  /* Print Styles */
   @media print {
+    @page {
+      margin: 0.5in;
+    }
+
     body * {
       visibility: hidden;
     }
+
     .receipt-modal-content,
     .receipt-modal-content * {
       visibility: visible;
     }
+
     .receipt-modal-content {
       position: absolute;
       left: 0;
       top: 0;
       width: 100%;
+      background: white;
+      color: black;
       margin: 0;
       box-shadow: none;
     }
+
     .receipt-modal-header,
     .receipt-modal-footer {
       display: none !important;
     }
+
     .receipt-modal-body {
       padding: 20px;
       max-height: none;
+    }
+
+    .receipt-table th {
+      background: #333 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .receipt-info-item {
+      background: #f5f5f5 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
   }
 </style>
 @endpush
 
 @section('content')
-<div class="row">
-  <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-    <div class="card">
-      <div class="card-body">
-        <div class="row">
-          <div class="col-9">
-            <div class="d-flex align-items-center align-self-start">
-              <h3 class="mb-0">₱{{ number_format($totalRevenueMonth ?? 0, 2) }}</h3>
-              <p class="text-success ml-2 mb-0 font-weight-medium">+3.5%</p>
+<div class="container-fluid">
+  <!-- Stats Grid -->
+  <div class="row">
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h2 class="mb-0">₱{{ number_format($totalRevenueMonth ?? 0, 2) }}</h2>
+              <p class="text-muted mb-0">Total Revenue This Month</p>
             </div>
-          </div>
-          <div class="col-3">
-            <div class="icon icon-box-success ">
-              <span class="mdi mdi-arrow-top-right icon-item"></span>
-            </div>
-          </div>
-        </div>
-        <h6 class="text-muted font-weight-normal">Total Revenue This Month</h6>
-      </div>
-    </div>
-  </div>
-  <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-    <div class="card">
-      <div class="card-body">
-        <div class="row">
-          <div class="col-9">
-            <div class="d-flex align-items-center align-self-start">
-              <h3 class="mb-0">₱{{ number_format($retailSalesRevenue ?? 0, 2) }}</h3>
-              <p class="text-success ml-2 mb-0 font-weight-medium">+11%</p>
-            </div>
-          </div>
-          <div class="col-3">
-            <div class="icon icon-box-success">
-              <span class="mdi mdi-arrow-top-right icon-item"></span>
+            <div class="stat-change positive">
+              <i class="mdi mdi-arrow-up"></i> +3.5%
             </div>
           </div>
         </div>
-        <h6 class="text-muted font-weight-normal">Retail Sales Revenue</h6>
       </div>
     </div>
-  </div>
-  <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-    <div class="card">
-      <div class="card-body">
-        <div class="row">
-          <div class="col-9">
-            <div class="d-flex align-items-center align-self-start">
-              <h3 class="mb-0">₱{{ number_format($dailyIncome ?? 0, 2) }}</h3>
-              <p class="text-danger ml-2 mb-0 font-weight-medium">-2.4%</p>
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h2 class="mb-0">₱{{ number_format($retailSalesRevenue ?? 0, 2) }}</h2>
+              <p class="text-muted mb-0">Retail Sales Revenue</p>
             </div>
-          </div>
-          <div class="col-3">
-            <div class="icon icon-box-danger">
-              <span class="mdi mdi-arrow-bottom-left icon-item"></span>
+            <div class="stat-change positive">
+              <i class="mdi mdi-arrow-up"></i> +11%
             </div>
           </div>
         </div>
-        <h6 class="text-muted font-weight-normal">Daily Income</h6>
       </div>
     </div>
-  </div>
-  <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-    <div class="card">
-      <div class="card-body">
-        <div class="row">
-          <div class="col-9">
-            <div class="d-flex align-items-center align-self-start">
-              <h3 class="mb-0">₱{{ number_format($weeklyIncome ?? 0, 2) }}</h3>
-              <p class="text-success ml-2 mb-0 font-weight-medium">+3.5%</p>
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h2 class="mb-0">₱{{ number_format($dailyIncome ?? 0, 2) }}</h2>
+              <p class="text-muted mb-0">Daily Income</p>
             </div>
-          </div>
-          <div class="col-3">
-            <div class="icon icon-box-success ">
-              <span class="mdi mdi-arrow-top-right icon-item"></span>
+            <div class="stat-change negative">
+              <i class="mdi mdi-arrow-down"></i> -2.4%
             </div>
           </div>
         </div>
-        <h6 class="text-muted font-weight-normal">Weekly Income</h6>
+      </div>
+    </div>
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h2 class="mb-0">₱{{ number_format($weeklyIncome ?? 0, 2) }}</h2>
+              <p class="text-muted mb-0">Weekly Income</p>
+            </div>
+            <div class="stat-change positive">
+              <i class="mdi mdi-arrow-up"></i> +3.5%
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<div class="row">
-  <div class="col-12 grid-margin">
-    <div class="card">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h4 class="card-title mb-0">Payment Details Form -> Product Payment</h4>
-          <div class="d-flex" style="position: relative; width: 420px;">
-            <input type="text" id="searchItem" class="form-control form-control-sm mr-2" placeholder="Search items...">
-            <button type="button" class="btn btn-sm btn-primary mr-2" id="addItemBtn">
-              Add Item
-            </button>
-            <button type="button" class="btn btn-sm btn-warning" id="searchClearBtn">
-              Clear
-            </button>
-            <div id="searchResults" class="search-results" style="display: none;"></div>
-          </div>
+  <!-- Payment Form Card -->
+  <div class="card">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="card-title mb-0">Payment Details Form</h4>
+        <div class="d-flex" style="position: relative; width: 420px;">
+          <input type="text" id="searchItem" class="form-control form-control-sm mr-2" placeholder="Search items...">
+          <button type="button" class="btn btn-sm btn-primary mr-2" id="addItemBtn">
+            Add Item
+          </button>
+          <button type="button" class="btn btn-sm btn-warning" id="searchClearBtn">
+            Clear
+          </button>
+          <div id="searchResults" class="search-results" style="display: none;"></div>
         </div>
-        <form action="{{ route('payments.store') }}" method="POST" id="paymentForm">
-          @csrf
-
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="customerName">Customer Name</label>
-                <div style="position: relative;">
-                  <input type="text" class="form-control" id="customerName" name="customer_name" placeholder="Name" autocomplete="off" required>
-                  <input type="hidden" id="customerId" name="customer_id">
-                  <div id="customerResults" class="search-results" style="display:none;"></div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="totalAmount">Total Amount</label>
-                <input type="number" class="form-control" id="totalAmount" name="total_amount" placeholder="₱0.00" readonly>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="transactionType">Transaction Type</label>
-                <select class="form-control" id="transactionType" name="transaction_type">
-                  <option>Mixed</option>
-                  <option>Cash</option>
-                  <option>Credit Card</option>
-                  <option>Online Payment</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="paidAmount">Paid Amount</label>
-                <input type="number" class="form-control" id="paidAmount" name="paid_amount" placeholder="₱0.00" step="0.01">
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="paymentMethod">Payment Method</label>
-                <select class="form-control" id="paymentMethod" name="payment_method">
-                  <option>Cash</option>
-                  <option>Credit Card</option>
-                  <option>Debit Card</option>
-                  <option>GCash</option>
-                  <option>Online Payment</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="returnAmount">Return Amount</label>
-                <input type="number" class="form-control readonly-field" id="returnAmount" placeholder="₱0.00" readonly>
-              </div>
-            </div>
-          </div>
-          
-          <div class="row mt-3">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0">Items</h5>
-              </div>
-              <div class="table-responsive">
-                <table class="table table-bordered" id="itemsTable">
-                  <thead>
-                    <tr>
-                      <th style="min-width: 200px;">Item</th>
-                      <th style="min-width: 80px;">Qty</th>
-                      <th style="min-width: 120px;">Unit Price (₱)</th>
-                      <th style="min-width: 120px;">Subtotal (₱)</th>
-                      <th style="min-width: 100px;">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody id="itemsTableBody">
-                    <tr><td colspan="5" class="text-center text-muted">No items added</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-          
-          <input type="hidden" id="itemsData" name="items_data">
-          
-          <div class="row mt-3">
-            <div class="col-12">
-              <button type="button" class="btn btn-secondary mr-2" id="clearBtn">Clear</button>
-              <button type="submit" class="btn btn-primary">Submit</button>
-            </div>
-          </div>
-        </form>
       </div>
-    </div>
-  </div>
-</div>
 
-<div class="row">
-  <div class="col-12 grid-margin">
-    <div class="card">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h4 class="card-title mb-0">Transaction History</h4>
-          <div class="d-flex align-items-center">
-            <!-- Filter Dropdown -->
-            <div class="dropdown mr-2">
-              <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdownBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="mdi mdi-filter-variant"></i> Filter
-              </button>
-              <div class="dropdown-menu" aria-labelledby="filterDropdownBtn">
-                <h6 class="dropdown-header">Sort By</h6>
-                <a class="dropdown-item filter-option {{ request('filter') == 'date_newest' ? 'active' : '' }}" 
-                   href="{{ route('payments.index', ['filter' => 'date_newest', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
-                  <i class="mdi mdi-calendar-clock"></i> Date (Newest)
-                </a>
-                <a class="dropdown-item filter-option {{ request('filter') == 'date_oldest' ? 'active' : '' }}" 
-                   href="{{ route('payments.index', ['filter' => 'date_oldest', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
-                  <i class="mdi mdi-calendar"></i> Date (Oldest)
-                </a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item filter-option {{ request('filter') == 'name_asc' ? 'active' : '' }}" 
-                   href="{{ route('payments.index', ['filter' => 'name_asc', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
-                  <i class="mdi mdi-sort-alphabetical-ascending"></i> Customer (A-Z)
-                </a>
-                <a class="dropdown-item filter-option {{ request('filter') == 'name_desc' ? 'active' : '' }}" 
-                   href="{{ route('payments.index', ['filter' => 'name_desc', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
-                  <i class="mdi mdi-sort-alphabetical-descending"></i> Customer (Z-A)
-                </a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item filter-option {{ request('filter') == 'amount_asc' ? 'active' : '' }}" 
-                   href="{{ route('payments.index', ['filter' => 'amount_asc', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
-                  <i class="mdi mdi-sort-numeric-ascending"></i> Amount (Low to High)
-                </a>
-                <a class="dropdown-item filter-option {{ request('filter') == 'amount_desc' ? 'active' : '' }}" 
-                   href="{{ route('payments.index', ['filter' => 'amount_desc', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
-                  <i class="mdi mdi-sort-numeric-descending"></i> Amount (High to Low)
-                </a>
-                <div class="dropdown-divider"></div>
-                <h6 class="dropdown-header">Payment Method</h6>
-                <a class="dropdown-item filter-option {{ request('payment_method') == 'Cash' ? 'active' : '' }}" 
-                   href="{{ route('payments.index', ['payment_method' => 'Cash', 'filter' => request('filter'), 'search' => request('search')]) }}">
-                  <i class="mdi mdi-cash"></i> Cash
-                </a>
-                <a class="dropdown-item filter-option {{ request('payment_method') == 'Credit Card' ? 'active' : '' }}" 
-                   href="{{ route('payments.index', ['payment_method' => 'Credit Card', 'filter' => request('filter'), 'search' => request('search')]) }}">
-                  <i class="mdi mdi-credit-card"></i> Credit Card
-                </a>
-                <a class="dropdown-item filter-option {{ request('payment_method') == 'Debit Card' ? 'active' : '' }}" 
-                   href="{{ route('payments.index', ['payment_method' => 'Debit Card', 'filter' => request('filter'), 'search' => request('search')]) }}">
-                  <i class="mdi mdi-credit-card-outline"></i> Debit Card
-                </a>
-                <a class="dropdown-item filter-option {{ request('payment_method') == 'GCash' ? 'active' : '' }}" 
-                   href="{{ route('payments.index', ['payment_method' => 'GCash', 'filter' => request('filter'), 'search' => request('search')]) }}">
-                  <i class="mdi mdi-cellphone"></i> GCash
-                </a>
-                <a class="dropdown-item filter-option {{ request('payment_method') == 'Online Payment' ? 'active' : '' }}" 
-                   href="{{ route('payments.index', ['payment_method' => 'Online Payment', 'filter' => request('filter'), 'search' => request('search')]) }}">
-                  <i class="mdi mdi-web"></i> Online Payment
-                </a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item filter-option text-danger" 
-                   href="{{ route('payments.index') }}">
-                  <i class="mdi mdi-close-circle"></i> Clear Filter
-                </a>
+      <form action="{{ route('payments.store') }}" method="POST" id="paymentForm">
+        @csrf
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="customerName" class="form-label">Customer Name</label>
+              <div style="position: relative;">
+                <input type="text" class="form-control" id="customerName" name="customer_name" placeholder="Name" autocomplete="off" required>
+                <input type="hidden" id="customerId" name="customer_id">
+                <div id="customerResults" class="search-results" style="display:none;"></div>
               </div>
             </div>
-            
-            <!-- Search Bar -->
-            <form action="{{ route('payments.index') }}" method="GET" id="transactionSearchForm" class="mb-0">
-              <input type="hidden" name="filter" value="{{ request('filter') }}">
-              <input type="hidden" name="payment_method" value="{{ request('payment_method') }}">
-              <input type="text" 
-                     id="transactionSearchInput" 
-                     name="search" 
-                     class="form-control form-control-sm" 
-                     placeholder="Search transactions..." 
-                     style="width: 200px;" 
-                     value="{{ request('search') }}">
-            </form>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="totalAmount" class="form-label">Total Amount</label>
+              <input type="number" class="form-control" id="totalAmount" name="total_amount" placeholder="₱0.00" readonly>
+            </div>
           </div>
         </div>
-        <div class="table-responsive" style="min-height: 600px;">
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th style="min-width: 50px;">
-                  <div class="form-check form-check-muted m-0">
-                    <label class="form-check-label">
-                      <input type="checkbox" class="form-check-input" id="selectAllTransactions">
-                    </label>
-                  </div>
-                </th>
-                <th style="min-width: 80px;">Receipt#</th>
-                <th style="min-width: 180px;">Customer Name</th>
-                <th style="min-width: 150px;">Date & Time</th>
-                <th style="min-width: 120px;">Payment Type</th>
-                <th style="min-width: 80px;">Quantity</th>
-                <th style="min-width: 120px;">Total Price (₱)</th>
-                <th style="min-width: 150px;">Cashier</th>
-                <th style="min-width: 80px;">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              @php
-                $transactionCount = isset($transactions) ? $transactions->count() : 0;
-                $maxRows = 10;
-              @endphp
-              
-              @if(isset($transactions) && $transactions->count() > 0)
-                @foreach($transactions as $transaction)
-                <tr>
-                  <td>
-                    <div class="form-check form-check-muted m-0">
-                      <label class="form-check-label">
-                        <input type="checkbox" class="form-check-input transaction-checkbox" value="{{ $transaction->id }}">
-                      </label>
-                    </div>
-                  </td>
-                  <td>{{ $transaction->receipt_number }}</td>
-                  <td>{{ $transaction->customer_name }}</td>
-                  <td>{{ $transaction->created_at->format('Y-m-d, H:i') }}</td>
-                  <td>{{ $transaction->payment_method }}</td>
-                  <td>{{ $transaction->total_quantity }}</td>
-                  <td>₱{{ number_format($transaction->total_amount, 2) }}</td>
-                  <td>{{ $transaction->cashier_name }}</td>
-                  <td>
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown">
-                            <i class="mdi mdi-dots-vertical"></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <button type="button" 
-                                    class="dropdown-item" 
-                                    onclick="loadReceiptModal({{ $transaction->id }})">
-                                <i class="mdi mdi-eye mr-2"></i> View
-                            </button>
-                            <form action="{{ route('payments.destroy', $transaction->id) }}" method="POST" class="d-inline delete-form-payment">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="dropdown-item text-danger">
-                                    <i class="mdi mdi-delete mr-2"></i> Delete
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </td>
-                </tr>
-                @endforeach
-              @endif
-              
-              @for($i = $transactionCount; $i < $maxRows; $i++)
-              <tr>
-                <td style="height: 53px;">&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>
-                  @if($i == 0)
-                    <span class="text-muted">No transactions found</span>
-                  @endif
-                </td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-              </tr>
-              @endfor
-            </tbody>
-          </table>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="transactionType" class="form-label">Transaction Type</label>
+              <select class="form-control" id="transactionType" name="transaction_type">
+                <option>Mixed</option>
+                <option>Cash</option>
+                <option>Credit Card</option>
+                <option>Online Payment</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paidAmount" class="form-label">Paid Amount</label>
+              <input type="number" class="form-control" id="paidAmount" name="paid_amount" placeholder="₱0.00" step="0.01">
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paymentMethod" class="form-label">Payment Method</label>
+              <select class="form-control" id="paymentMethod" name="payment_method">
+                <option>Cash</option>
+                <option>Credit Card</option>
+                <option>Debit Card</option>
+                <option>GCash</option>
+                <option>Online Payment</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="returnAmount" class="form-label">Return Amount</label>
+              <input type="number" class="form-control" id="returnAmount" placeholder="₱0.00" readonly>
+            </div>
+          </div>
         </div>
         
-        @if(isset($transactions) && $transactions->total() > 0)
-        <div class="d-flex justify-content-between align-items-center mt-4">
-          <button class="btn btn-danger btn-sm" id="bulkDeleteBtn" disabled>
-            <i class="mdi mdi-delete"></i> Delete Selected (<span id="selectedCount">0</span>)
-          </button>
-          <div class="d-flex flex-column align-items-center">
-            <nav aria-label="Page navigation">
-              <ul class="pagination mb-2">
-                @if ($transactions->onFirstPage())
-                  <li class="page-item disabled">
-                    <span class="page-link">‹</span>
-                  </li>
-                @else
-                  <li class="page-item">
-                    <a class="page-link" href="{{ $transactions->appends(request()->query())->previousPageUrl() }}" rel="prev">‹</a>
-                  </li>
-                @endif
+        <div class="row mt-3">
+          <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="mb-0">Items</h5>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-bordered" id="itemsTable">
+                <thead>
+                  <tr>
+                    <th style="min-width: 200px;">Item</th>
+                    <th style="min-width: 80px;">Qty</th>
+                    <th style="min-width: 120px;">Unit Price (₱)</th>
+                    <th style="min-width: 120px;">Subtotal (₱)</th>
+                    <th style="min-width: 100px;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="itemsTableBody">
+                  <tr><td colspan="5" class="text-center text-muted">No items added</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <input type="hidden" id="itemsData" name="items_data">
+        
+        <div class="row mt-3">
+          <div class="col-12">
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+              <button type="button" class="btn btn-secondary" id="clearBtn">
+                <i class="mdi mdi-close"></i> Clear
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <i class="mdi mdi-check"></i> Process Payment
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 
-                @php
-                  $currentPage = $transactions->currentPage();
-                  $lastPage = $transactions->lastPage();
-                  
-                  if ($lastPage <= 3) {
+  <!-- Transaction History Card -->
+  <div class="card">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="card-title mb-0">Transaction History</h4>
+        <div class="d-flex align-items-center">
+          <!-- Filter Dropdown -->
+          <div class="dropdown mr-2">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdownBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="mdi mdi-filter-variant"></i> Filter
+            </button>
+            <div class="dropdown-menu" aria-labelledby="filterDropdownBtn">
+              <h6 class="dropdown-header">Sort By</h6>
+              <a class="dropdown-item filter-option {{ request('filter') == 'date_newest' ? 'active' : '' }}" 
+                 href="{{ route('payments.index', ['filter' => 'date_newest', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
+                <i class="mdi mdi-calendar-clock"></i> Date (Newest)
+              </a>
+              <a class="dropdown-item filter-option {{ request('filter') == 'date_oldest' ? 'active' : '' }}" 
+                 href="{{ route('payments.index', ['filter' => 'date_oldest', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
+                <i class="mdi mdi-calendar"></i> Date (Oldest)
+              </a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item filter-option {{ request('filter') == 'name_asc' ? 'active' : '' }}" 
+                 href="{{ route('payments.index', ['filter' => 'name_asc', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
+                <i class="mdi mdi-sort-alphabetical-ascending"></i> Customer (A-Z)
+              </a>
+              <a class="dropdown-item filter-option {{ request('filter') == 'name_desc' ? 'active' : '' }}" 
+                 href="{{ route('payments.index', ['filter' => 'name_desc', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
+                <i class="mdi mdi-sort-alphabetical-descending"></i> Customer (Z-A)
+              </a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item filter-option {{ request('filter') == 'amount_asc' ? 'active' : '' }}" 
+                 href="{{ route('payments.index', ['filter' => 'amount_asc', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
+                <i class="mdi mdi-sort-numeric-ascending"></i> Amount (Low to High)
+              </a>
+              <a class="dropdown-item filter-option {{ request('filter') == 'amount_desc' ? 'active' : '' }}" 
+                 href="{{ route('payments.index', ['filter' => 'amount_desc', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
+                <i class="mdi mdi-sort-numeric-descending"></i> Amount (High to Low)
+              </a>
+              <div class="dropdown-divider"></div>
+              <h6 class="dropdown-header">Payment Method</h6>
+              <a class="dropdown-item filter-option {{ request('payment_method') == 'Cash' ? 'active' : '' }}" 
+                 href="{{ route('payments.index', ['payment_method' => 'Cash', 'filter' => request('filter'), 'search' => request('search')]) }}">
+                <i class="mdi mdi-cash"></i> Cash
+              </a>
+              <a class="dropdown-item filter-option {{ request('payment_method') == 'Credit Card' ? 'active' : '' }}" 
+                 href="{{ route('payments.index', ['payment_method' => 'Credit Card', 'filter' => request('filter'), 'search' => request('search')]) }}">
+                <i class="mdi mdi-credit-card"></i> Credit Card
+              </a>
+              <a class="dropdown-item filter-option {{ request('payment_method') == 'Debit Card' ? 'active' : '' }}" 
+                 href="{{ route('payments.index', ['payment_method' => 'Debit Card', 'filter' => request('filter'), 'search' => request('search')]) }}">
+                <i class="mdi mdi-credit-card-outline"></i> Debit Card
+              </a>
+              <a class="dropdown-item filter-option {{ request('payment_method') == 'GCash' ? 'active' : '' }}" 
+                 href="{{ route('payments.index', ['payment_method' => 'GCash', 'filter' => request('filter'), 'search' => request('search')]) }}">
+                <i class="mdi mdi-cellphone"></i> GCash
+              </a>
+              <a class="dropdown-item filter-option {{ request('payment_method') == 'Online Payment' ? 'active' : '' }}" 
+                 href="{{ route('payments.index', ['payment_method' => 'Online Payment', 'filter' => request('filter'), 'search' => request('search')]) }}">
+                <i class="mdi mdi-web"></i> Online Payment
+              </a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item filter-option text-danger" 
+                 href="{{ route('payments.index') }}">
+                <i class="mdi mdi-close-circle"></i> Clear Filter
+              </a>
+            </div>
+          </div>
+          
+          <!-- Search Bar -->
+          <form action="{{ route('payments.index') }}" method="GET" id="transactionSearchForm" class="mb-0">
+            <input type="hidden" name="filter" value="{{ request('filter') }}">
+            <input type="hidden" name="payment_method" value="{{ request('payment_method') }}">
+            <input type="text" 
+                   id="transactionSearchInput" 
+                   name="search" 
+                   class="form-control form-control-sm" 
+                   placeholder="Search transactions..." 
+                   style="width: 200px;" 
+                   value="{{ request('search') }}">
+          </form>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th style="min-width: 50px;">
+                <div class="form-check form-check-muted m-0">
+                  <label class="form-check-label">
+                    <input type="checkbox" class="form-check-input" id="selectAllTransactions">
+                  </label>
+                </div>
+              </th>
+              <th style="min-width: 80px;">Receipt#</th>
+              <th style="min-width: 180px;">Customer Name</th>
+              <th style="min-width: 150px;">Date & Time</th>
+              <th style="min-width: 120px;">Payment Type</th>
+              <th style="min-width: 80px;">Quantity</th>
+              <th style="min-width: 120px;">Total Price (₱)</th>
+              <th style="min-width: 150px;">Cashier</th>
+              <th style="min-width: 80px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @php
+              $transactionCount = isset($transactions) ? $transactions->count() : 0;
+              $maxRows = 10;
+            @endphp
+            
+            @if(isset($transactions) && $transactions->count() > 0)
+              @foreach($transactions as $transaction)
+              <tr>
+                <td>
+                  <div class="form-check form-check-muted m-0">
+                    <label class="form-check-label">
+                      <input type="checkbox" class="form-check-input transaction-checkbox" value="{{ $transaction->id }}">
+                    </label>
+                  </div>
+                </td>
+                <td>{{ $transaction->receipt_number }}</td>
+                <td>{{ $transaction->customer_name }}</td>
+                <td>{{ $transaction->created_at->format('Y-m-d, H:i') }}</td>
+                <td>{{ $transaction->payment_method }}</td>
+                <td>{{ $transaction->total_quantity }}</td>
+                <td>₱{{ number_format($transaction->total_amount, 2) }}</td>
+                <td>{{ $transaction->cashier_name }}</td>
+                <td>
+                  <div class="dropdown">
+                    <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown">
+                      <i class="mdi mdi-dots-vertical"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                      <button type="button" 
+                              class="dropdown-item" 
+                              onclick="loadReceiptModal({{ $transaction->id }})">
+                        <i class="mdi mdi-eye mr-2"></i> View
+                      </button>
+                      <form action="{{ route('payments.destroy', $transaction->id) }}" method="POST" class="d-inline delete-form-payment">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="dropdown-item text-danger">
+                          <i class="mdi mdi-delete mr-2"></i> Delete
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              @endforeach
+            @endif
+            
+            @for($i = $transactionCount; $i < $maxRows; $i++)
+            <tr>
+              <td colspan="9" style="height: 53px; text-align: center;">
+                @if($i == 0)
+                  <span class="text-muted">No transactions found</span>
+                @endif
+              </td>
+            </tr>
+            @endfor
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Pagination -->
+      <div class="pagination-container">
+        <button class="btn btn-danger btn-sm" id="bulkDeleteBtn" disabled>
+          <i class="mdi mdi-delete"></i> Delete Selected (<span id="selectedCount">0</span>)
+        </button>
+        
+        @if(isset($transactions) && $transactions->total() > 0)
+        <div class="d-flex flex-column align-items-center">
+          <nav aria-label="Page navigation">
+            <ul class="pagination mb-2">
+              @if ($transactions->onFirstPage())
+                <li class="page-item disabled">
+                  <span class="page-link">‹</span>
+                </li>
+              @else
+                <li class="page-item">
+                  <a class="page-link" href="{{ $transactions->appends(request()->query())->previousPageUrl() }}" rel="prev">‹</a>
+                </li>
+              @endif
+
+              @php
+                $currentPage = $transactions->currentPage();
+                $lastPage = $transactions->lastPage();
+                
+                if ($lastPage <= 3) {
+                  $start = 1;
+                  $end = $lastPage;
+                } else {
+                  if ($currentPage <= 2) {
                     $start = 1;
+                    $end = 3;
+                  } elseif ($currentPage >= $lastPage - 1) {
+                    $start = $lastPage - 2;
                     $end = $lastPage;
                   } else {
-                    if ($currentPage <= 2) {
-                      $start = 1;
-                      $end = 3;
-                    } elseif ($currentPage >= $lastPage - 1) {
-                      $start = $lastPage - 2;
-                      $end = $lastPage;
-                    } else {
-                      $start = $currentPage - 1;
-                      $end = $currentPage + 1;
-                    }
+                    $start = $currentPage - 1;
+                    $end = $currentPage + 1;
                   }
-                @endphp
+                }
+              @endphp
 
-                @if ($start > 1)
-                  <li class="page-item">
-                    <a class="page-link" href="{{ $transactions->appends(request()->query())->url(1) }}">1</a>
-                  </li>
-                  @if ($start > 2)
-                    <li class="page-item disabled">
-                      <span class="page-link">...</span>
-                    </li>
-                  @endif
-                @endif
-
-                @for ($page = $start; $page <= $end; $page++)
-                  @if ($page == $currentPage)
-                    <li class="page-item active">
-                      <span class="page-link">{{ $page }}</span>
-                    </li>
-                  @else
-                    <li class="page-item">
-                      <a class="page-link" href="{{ $transactions->appends(request()->query())->url($page) }}">{{ $page }}</a>
-                    </li>
-                  @endif
-                @endfor
-
-                @if ($end < $lastPage)
-                  @if ($end < $lastPage - 1)
-                    <li class="page-item disabled">
-                      <span class="page-link">...</span>
-                    </li>
-                  @endif
-                  <li class="page-item">
-                    <a class="page-link" href="{{ $transactions->appends(request()->query())->url($lastPage) }}">{{ $lastPage }}</a>
+              @if ($start > 1)
+                <li class="page-item">
+                  <a class="page-link" href="{{ $transactions->appends(request()->query())->url(1) }}">1</a>
+                </li>
+                @if ($start > 2)
+                  <li class="page-item disabled">
+                    <span class="page-link">...</span>
                   </li>
                 @endif
+              @endif
 
-                @if ($transactions->hasMorePages())
-                  <li class="page-item">
-                    <a class="page-link" href="{{ $transactions->appends(request()->query())->nextPageUrl() }}" rel="next">›</a>
+              @for ($page = $start; $page <= $end; $page++)
+                @if ($page == $currentPage)
+                  <li class="page-item active">
+                    <span class="page-link">{{ $page }}</span>
                   </li>
                 @else
-                  <li class="page-item disabled">
-                    <span class="page-link">›</span>
+                  <li class="page-item">
+                    <a class="page-link" href="{{ $transactions->appends(request()->query())->url($page) }}">{{ $page }}</a>
                   </li>
                 @endif
-              </ul>
-            </nav>
-            <span class="pagination-info">
-              Showing {{ $from }} to {{ $to }} of {{ $total }} entries
-            </span>
-          </div>
-          <div style="width: 150px;"></div>
+              @endfor
+
+              @if ($end < $lastPage)
+                @if ($end < $lastPage - 1)
+                  <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                  </li>
+                @endif
+                <li class="page-item">
+                  <a class="page-link" href="{{ $transactions->appends(request()->query())->url($lastPage) }}">{{ $lastPage }}</a>
+                </li>
+              @endif
+
+              @if ($transactions->hasMorePages())
+                <li class="page-item">
+                  <a class="page-link" href="{{ $transactions->appends(request()->query())->nextPageUrl() }}" rel="next">›</a>
+                </li>
+              @else
+                <li class="page-item disabled">
+                  <span class="page-link">›</span>
+                </li>
+              @endif
+            </ul>
+          </nav>
+          <span class="pagination-info">
+            Showing {{ $transactions->firstItem() ?? 0 }} to {{ $transactions->lastItem() ?? 0 }} of {{ $transactions->total() }} entries
+          </span>
         </div>
         @else
-        <div class="d-flex justify-content-between align-items-center mt-4">
-          <button class="btn btn-danger btn-sm" id="bulkDeleteBtn" disabled>
-            <i class="mdi mdi-delete"></i> Delete Selected (<span id="selectedCount">0</span>)
-          </button>
-          <div class="d-flex flex-column align-items-center">
-            <nav aria-label="Page navigation">
-              <ul class="pagination mb-2">
-                <li class="page-item disabled"><span class="page-link">‹</span></li>
-                <li class="page-item active"><span class="page-link">1</span></li>
-                <li class="page-item disabled"><span class="page-link">2</span></li>
-                <li class="page-item disabled"><span class="page-link">3</span></li>
-                <li class="page-item disabled"><span class="page-link">›</span></li>
-              </ul>
-            </nav>
-            <span class="pagination-info">Showing 0 to 0 of 0 entries</span>
-          </div>
-          <div style="width: 150px;"></div>
-        </div>
+        <nav aria-label="Page navigation">
+          <ul class="pagination mb-2">
+            <li class="page-item disabled"><span class="page-link">‹</span></li>
+            <li class="page-item active"><span class="page-link">1</span></li>
+            <li class="page-item disabled"><span class="page-link">2</span></li>
+            <li class="page-item disabled"><span class="page-link">3</span></li>
+            <li class="page-item disabled"><span class="page-link">›</span></li>
+          </ul>
+        </nav>
+        <span class="pagination-info">Showing 0 to 0 of 0 entries</span>
         @endif
+        
+        <div style="width: 150px;"></div>
       </div>
     </div>
   </div>
@@ -954,7 +1126,6 @@
       <button class="receipt-modal-close" onclick="closeReceiptModal()">&times;</button>
     </div>
     <div class="receipt-modal-body" id="receiptModalBody">
-      <!-- Receipt content will be loaded here -->
       <div class="text-center" style="padding: 40px; color: #666;">
         <i class="mdi mdi-loading mdi-spin" style="font-size: 48px;"></i>
         <p>Loading receipt...</p>
@@ -1228,6 +1399,12 @@
     if (sr) sr.style.display = 'none';
     selectedSearchItem = null;
   });
+
+  document.getElementById('searchClearBtn').addEventListener('click', function() {
+    document.getElementById('searchItem').value = '';
+    document.getElementById('searchResults').style.display = 'none';
+    selectedSearchItem = null;
+  });
   
   document.getElementById('paymentForm').addEventListener('submit', function(e) {
     if (cartItems.length === 0) {
@@ -1258,12 +1435,6 @@
     if (!e.target.closest('#customerName') && !e.target.closest('#customerResults')) {
       const cr = document.getElementById('customerResults');
       if (cr) cr.style.display = 'none';
-    }
-    
-    // Close filter dropdown
-    if (!e.target.closest('#filterBtn') && !e.target.closest('#filterDropdown')) {
-      const filterDropdown = document.getElementById('filterDropdown');
-      if (filterDropdown) filterDropdown.classList.remove('show');
     }
   });
 
@@ -1333,15 +1504,12 @@
       });
   }
 
-  // ===== TRANSACTION HISTORY CONTROLS =====
+  // Transaction History Controls
   function initializeTransactionControls() {
     const selectAllCheckbox = document.getElementById('selectAllTransactions');
     const transactionCheckboxes = document.querySelectorAll('.transaction-checkbox');
     const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
-    const filterBtn = document.getElementById('filterBtn');
-    const filterDropdown = document.getElementById('filterDropdown');
 
-    // Select All functionality
     if (selectAllCheckbox) {
       selectAllCheckbox.addEventListener('change', function() {
         transactionCheckboxes.forEach(checkbox => {
@@ -1351,12 +1519,10 @@
       });
     }
 
-    // Individual checkbox change
     transactionCheckboxes.forEach(checkbox => {
       checkbox.addEventListener('change', function() {
         updateBulkDeleteButton();
         
-        // Update select all checkbox state
         const allChecked = Array.from(transactionCheckboxes).every(cb => cb.checked);
         const someChecked = Array.from(transactionCheckboxes).some(cb => cb.checked);
         
@@ -1367,7 +1533,6 @@
       });
     });
 
-    // Update bulk delete button visibility
     function updateBulkDeleteButton() {
       const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
       const selectedCount = checkedBoxes.length;
@@ -1386,7 +1551,6 @@
       }
     }
 
-    // Bulk delete action WITH CONFIRMATION
     if (bulkDeleteBtn) {
       bulkDeleteBtn.addEventListener('click', function() {
         const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
@@ -1397,7 +1561,6 @@
           return;
         }
 
-        // CONFIRMATION DIALOG
         if (confirm(`Are you sure you want to delete ${ids.length} transaction(s)? This action cannot be undone.`)) {
           document.getElementById('bulkDeleteIds').value = JSON.stringify(ids);
           document.getElementById('bulkDeleteForm').submit();
@@ -1405,24 +1568,14 @@
       });
     }
 
-    // Delete form confirmation for individual deletions WITH CONFIRMATION
     document.querySelectorAll('.delete-form-payment').forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            // CONFIRMATION DIALOG
             if (confirm('Are you sure you want to delete this transaction? This action cannot be undone.')) {
                 this.submit();
             }
         });
     });
-
-    // Filter button
-    if (filterBtn) {
-      filterBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        filterDropdown.classList.toggle('show');
-      });
-    }
   }
 
   // Receipt Modal Functions
@@ -1430,7 +1583,6 @@
     const modal = document.getElementById('receiptModal');
     const modalBody = document.getElementById('receiptModalBody');
     
-    // Show modal with loading state
     modal.classList.add('show');
     modalBody.innerHTML = `
       <div class="text-center" style="padding: 40px; color: #666;">
@@ -1439,7 +1591,6 @@
       </div>
     `;
     
-    // Fetch receipt data
     fetch(`/payments/${paymentId}/receipt-data`)
       .then(response => response.json())
       .then(data => {
@@ -1550,7 +1701,6 @@
     window.print();
   }
 
-  // Close modal when clicking outside
   window.onclick = function(event) {
     const modal = document.getElementById('receiptModal');
     if (event.target === modal) {
