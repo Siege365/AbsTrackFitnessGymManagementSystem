@@ -7,6 +7,8 @@ use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\InventorySupplyController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\MembershipPaymentController;
+use App\Http\Controllers\Api\MemberApiController;
 
 //Inventory Supply Routes
 Route::get('/inventory', [InventorySupplyController::class, 'index'])->name('inventory.index');
@@ -14,6 +16,17 @@ Route::post('/inventory', [InventorySupplyController::class, 'store'])->name('in
 Route::put('/inventory/{id}', [InventorySupplyController::class, 'update'])->name('inventory.update');
 Route::delete('/inventory/bulk-delete', [InventorySupplyController::class, 'bulkDelete'])->name('inventory.bulk-delete');
 Route::delete('/inventory/{id}', [InventorySupplyController::class, 'destroy'])->name('inventory.destroy');
+Route::prefix('inventory')->name('inventory.')->group(function () {
+Route::get('/', [InventorySupplyController::class, 'index'])->name('index');
+Route::post('/', [InventorySupplyController::class, 'store'])->name('store');
+Route::put('/{id}', [InventorySupplyController::class, 'update'])->name('update');
+Route::delete('/{id}', [InventorySupplyController::class, 'destroy'])->name('destroy');
+Route::delete('/', [InventorySupplyController::class, 'bulkDelete'])->name('bulk-delete');
+
+// Stock transaction routes
+Route::post('/{id}/stock-transaction', [InventorySupplyController::class, 'stockTransaction'])->name('stock-transaction');
+Route::get('/{id}/transaction-history', [InventorySupplyController::class, 'transactionHistory'])->name('transaction-history');
+});
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -75,7 +88,26 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/payments/{payment}/receipt-data', [PaymentController::class, 'receiptData'])->name('payments.receiptData');
     Route::delete('/payments/bulk-delete', [PaymentController::class, 'bulkDelete'])->name('payments.bulkDelete');
     Route::delete('/payments/{payment}', [PaymentController::class, 'destroy'])->name('payments.destroy');
-
+    Route::get('/payments/membership', [PaymentController::class, 'membership'])
+    ->name('payments.membership');
+    Route::middleware(['auth'])->group(function () {
+    // Payment routes
+    Route::get('/membership-payment', [MembershipPaymentController::class, 'index'])
+        ->name('membership.payment.index');
+    Route::post('/membership-payment', [MembershipPaymentController::class, 'store'])
+        ->name('membership.payment.store');
+    Route::get('/membership-payment/{id}/receipt', [MembershipPaymentController::class, 'receiptData'])
+        ->name('membership.payment.receipt');
+    Route::delete('/membership-payment/{id}', [MembershipPaymentController::class, 'destroy'])
+        ->name('membership.payment.destroy');
+    Route::delete('/membership-payment-bulk', [MembershipPaymentController::class, 'bulkDelete'])
+        ->name('membership.payment.bulkDelete');
+    
+    // Member search API
+    Route::get('/api/members/search', [MemberApiController::class, 'search']);
+    Route::get('/api/members/{id}', [MemberApiController::class, 'show']);
+    });
+    
     Route::get('/ReportAndBilling', function () {
         return view('ReportAndBilling.ReportAndBilling');
     })->name('ReportAndBilling');

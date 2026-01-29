@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Payments & Billing')
+@section('title', 'Payments & Billing -> Product Payment')
+
 @push('styles')
 <style>
   .table-responsive::-webkit-scrollbar {
@@ -538,7 +539,7 @@
     <div class="card">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-4">
-          <h4 class="card-title mb-0">Payment Details Form</h4>
+          <h4 class="card-title mb-0">Payment Details Form -> Product Payment</h4>
           <div class="d-flex" style="position: relative; width: 420px;">
             <input type="text" id="searchItem" class="form-control form-control-sm mr-2" placeholder="Search items...">
             <button type="button" class="btn btn-sm btn-primary mr-2" id="addItemBtn">

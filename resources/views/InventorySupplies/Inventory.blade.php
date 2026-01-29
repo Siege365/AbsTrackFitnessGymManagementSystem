@@ -1,223 +1,55 @@
 @extends('layouts.admin')
 
-@section('title', 'Inventory Supplies')
+@section('title', 'Inventory Management')
 
 @push('styles')
+<link rel="stylesheet" href="{{ asset('css/inventory.css') }}?v={{ time() }}">
 <style>
-  .table-responsive::-webkit-scrollbar {
-    height: 8px;
-  }
-  
-  .table-responsive::-webkit-scrollbar-track {
-    background: #191C24;
-  }
-  
-  .table-responsive::-webkit-scrollbar-thumb {
-    background-color: #555;
-    border-radius: 4px;
-  }
-
-  .pagination .page-item.active .page-link {
-    background-color: #ffffff;
-    border-color: #ffffff;
-    color: #000000;
-  }
-  
-  .pagination .page-link {
-    color: #ffffff;
-    background-color: #2A3038;
-    border-color: #555;
-    padding: 8px 12px;
-    margin: 0 2px;
-    border-radius: 4px;
-  }
-  
-  .pagination .page-link:hover {
-    background-color: #ffffff;
-    border-color: #000000;
-    color: #000000;
-  }
-
-  .pagination .page-link:focus {
-    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-  }
-
-  .pagination .page-item.disabled .page-link {
-    background-color: #1a1d24;
-    border-color: #333;
-    color: #666;
-  }
-
-  .pagination-info {
-    color: #999;
-    font-size: 14px;
-  }
-
-  .form-control[readonly] {
-    background-color: #2A3038 !important;
-    color: #495057 !important;
-  }
-
-  .table thead th,
-  .table tbody td {
-    color: #ffffff !important;
-  }
-
-  .table-hover tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-  }
-
-  /* Dropdown Styles (Updated to match membership) */
-  .btn-action {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: #ffffff;
-    padding: 0.25rem 0.5rem;
-    transition: all 0.2s;
-  }
-
-  .btn-action:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-  }
-
-  .dropdown-menu {
-    min-width: 180px;
-    background: #2A3038;
-    border: 1px solid #555;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    padding: 8px 0;
-  }
-
-  .dropdown-item {
-    padding: 12px 20px;
-    font-size: 14px;
-    color: #ffffff;
-    transition: background-color 0.2s;
-    display: flex;
-    align-items: center;
-  }
-
-  .dropdown-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-  }
-
-  .dropdown-item i {
-    margin-right: 0.5rem;
-    font-size: 16px;
-    width: 20px;
-    text-align: center;
-  }
-
-  .dropdown-item.text-danger {
-    color: #ff6b6b !important;
-  }
-
-  .dropdown-item.text-danger:hover {
-    background-color: rgba(255, 107, 107, 0.1);
-  }
-
-  /* Bulk action button */
-  #bulkActionBtn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* Modal styles */
-  .modal-content {
-    background-color: #2A3038;
-    color: #ffffff;
-  }
-
-  .modal-header {
-    border-bottom: 1px solid #444;
-  }
-
-  .modal-footer {
-    border-top: 1px solid #444;
-  }
-
-  .modal-header .close {
-    color: #ffffff;
-    opacity: 0.8;
-  }
-
-  .modal-header .close:hover {
-    opacity: 1;
-  }
-
-  .form-control {
-    background-color: #191C24;
-    border-color: #444;
-    color: #ffffff;
-  }
-
-  .form-control:focus {
-    background-color: #191C24;
-    border-color: #666;
-    color: #ffffff;
-  }
-
-  .form-control:disabled {
-    background-color: #1a1d24;
-    color: #888;
-  }
-
-  .form-label {
-    color: #cccccc;
-    font-weight: 500;
-  }
-
-  #editModeToggle {
-    cursor: pointer;
-  }
-
-  /* Filter dropdown styles */
-  .dropdown-header {
-    color: #999;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .filter-option {
-    font-size: 0.875rem;
-    transition: all 0.2s;
-  }
-
-  .filter-option i {
-    width: 20px;
-  }
-
-  .filter-option.active {
-    background-color: #191C24;
-    color: #ffffff;
-  }
-
-  /* Alert styles */
-  .alert {
-    border-radius: 4px;
-    margin-bottom: 1.5rem;
-  }
-
-  .invalid-feedback {
-    display: block !important;
-    color: #dc3545;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-  }
-
-  .form-control.is-invalid {
-    border-color: #dc3545;
-  }
-
-  .modal-body .alert {
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-    color: #721c24;
-  }
+    .stock-modal .info-card {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .stock-modal .info-row {
+        margin-bottom: 0.5rem;
+    }
+    .stock-modal .info-label {
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+    .stock-modal .info-value {
+        font-weight: 500;
+        color: #000000;
+    }
+    .stock-modal .quantity-input {
+        font-size: 1.25rem;
+        height: 50px;
+        text-align: center;
+    }
+    .stock-modal .preview-box {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    .stock-modal .preview-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+    }
+    .stock-modal .preview-row:not(:last-child) {
+        border-bottom: 1px solid #dee2e6;
+    }
+    .stock-modal .preview-label {
+        color: #6c757d;
+    }
+    .stock-modal .preview-value {
+        font-weight: 500;
+        font-size: 1.125rem;
+        color: #000000;
+    }
 </style>
 @endpush
 
@@ -226,6 +58,15 @@
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <strong>Success!</strong> {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error!</strong> {{ session('error') }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
@@ -393,7 +234,7 @@
                     <th> Unit Price </th>
                     <th> Stock Qty</th>
                     <th> Status </th>
-                    <th> Last Restocked </th>
+                    <th> Transaction History </th>
                     <th> Actions </th>
                   </tr>
                 </thead>
@@ -421,7 +262,11 @@
                         <span class="badge badge-success">In Stock</span>
                         @endif
                     </td>
-                    <td>{{ $item->last_restocked ? $item->last_restocked->format('M d, Y') : 'N/A' }}</td>
+                    <td>
+                        <a href="{{ route('inventory.transaction-history', $item->id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="mdi mdi-history"></i> View History
+                        </a>
+                    </td>
                     <td>
                         <div class="dropdown">
                           <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown">
@@ -429,19 +274,32 @@
                           </button>
                           <div class="dropdown-menu dropdown-menu-right">
                               <button type="button" 
-                                      class="dropdown-item view-item"
+                                      class="dropdown-item text-success stock-in-btn"
                                       data-id="{{ $item->id }}"
                                       data-product-number="{{ $item->product_number }}"
                                       data-product-name="{{ $item->product_name }}"
                                       data-category="{{ $item->category }}"
-                                      data-unit-price="{{ $item->unit_price }}"
                                       data-stock-qty="{{ $item->stock_qty }}"
-                                      data-low-stock-threshold="{{ $item->low_stock_threshold }}"
-                                      data-last-restocked="{{ $item->last_restocked ? $item->last_restocked->format('Y-m-d') : '' }}"
+                                      data-status="{{ $item->stock_qty == 0 ? 'Out of Stock' : ($item->stock_qty < $item->low_stock_threshold ? 'Low Stock' : 'In Stock') }}"
+                                      data-status-class="{{ $item->stock_qty == 0 ? 'badge-danger' : ($item->stock_qty < $item->low_stock_threshold ? 'badge-warning' : 'badge-success') }}"
                                       data-toggle="modal" 
-                                      data-target="#viewEditModal">
-                                  <i class="mdi mdi-eye mr-2"></i> View
+                                      data-target="#stockInModal">
+                                  <i class="mdi mdi-plus-circle mr-2"></i> Stock In
                               </button>
+                              <button type="button" 
+                                      class="dropdown-item text-warning stock-out-btn"
+                                      data-id="{{ $item->id }}"
+                                      data-product-number="{{ $item->product_number }}"
+                                      data-product-name="{{ $item->product_name }}"
+                                      data-category="{{ $item->category }}"
+                                      data-stock-qty="{{ $item->stock_qty }}"
+                                      data-status="{{ $item->stock_qty == 0 ? 'Out of Stock' : ($item->stock_qty < $item->low_stock_threshold ? 'Low Stock' : 'In Stock') }}"
+                                      data-status-class="{{ $item->stock_qty == 0 ? 'badge-danger' : ($item->stock_qty < $item->low_stock_threshold ? 'badge-warning' : 'badge-success') }}"
+                                      data-toggle="modal" 
+                                      data-target="#stockOutModal">
+                                  <i class="mdi mdi-minus-circle mr-2"></i> Stock Out
+                              </button>
+                              <div class="dropdown-divider"></div>
                               <form action="{{ route('inventory.destroy', $item->id) }}" method="POST" class="d-inline delete-form">
                                   @csrf
                                   @method('DELETE')
@@ -661,13 +519,13 @@
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label class="form-label">Stock Quantity <span class="text-danger">*</span></label>
+                    <label class="form-label">Initial Stock Quantity <span class="text-danger">*</span></label>
                     <input type="number" 
                           min="0" 
                           class="form-control @error('stock_qty') is-invalid @enderror" 
                           name="stock_qty" 
                           placeholder="0" 
-                          value="{{ old('stock_qty') }}" 
+                          value="{{ old('stock_qty', 0) }}" 
                           required>
                     @error('stock_qty')
                       <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -691,21 +549,6 @@
                   </div>
                 </div>
               </div>
-
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label class="form-label">Last Restocked</label>
-                    <input type="date" 
-                          class="form-control @error('last_restocked') is-invalid @enderror" 
-                          name="last_restocked" 
-                          value="{{ old('last_restocked') }}">
-                    @error('last_restocked')
-                      <div class="invalid-feedback d-block">{{ $message }}</div>
-                    @enderror
-                  </div>
-                </div>
-              </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -718,98 +561,187 @@
       </div>
     </div>
 
-    <!-- View/Edit Modal -->
-    <div class="modal fade" id="viewEditModal" tabindex="-1" role="dialog" aria-labelledby="viewEditModalLabel" aria-hidden="true">
+    <!-- Stock In Modal -->
+    <div class="modal fade" id="stockInModal" tabindex="-1" role="dialog" aria-labelledby="stockInModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="viewEditModalLabel">
-              <span id="modalTitle">Product Details</span>
+        <div class="modal-content stock-modal">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title" id="stockInModalLabel">
+              <i class="mdi mdi-plus-circle"></i> Stock In
             </h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <form id="editForm" method="POST">
+          <form id="stockInForm" method="POST">
             @csrf
-            @method('PUT')
+            <input type="hidden" name="transaction_type" value="stock_in">
             <div class="modal-body">
-              <div class="d-flex justify-content-end mb-3">
-                <button type="button" class="btn btn-sm btn-outline-primary" id="editModeToggle">
-                  <i class="mdi mdi-pencil"></i> <span id="editButtonText">Edit</span>
-                </button>
-              </div>
-
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label class="form-label">Product Number</label>
-                    <input type="text" class="form-control" id="productNumber" name="product_number" readonly required>
-                  </div>
+              <!-- Product Information -->
+              <div class="info-card">
+                <div class="info-row">
+                  <span class="info-label">Product Number:</span>
+                  <span class="info-value" id="stockInProductNumber"></span>
                 </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label class="form-label">Product Name</label>
-                    <input type="text" class="form-control" id="productName" name="product_name" readonly required>
-                  </div>
+                <div class="info-row">
+                  <span class="info-label">Product Name:</span>
+                  <span class="info-value" id="stockInProductName"></span>
                 </div>
-              </div>
-
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label class="form-label">Category</label>
-                    <input type="text" class="form-control" id="category" name="category" readonly required>
-                  </div>
+                <div class="info-row">
+                  <span class="info-label">Category:</span>
+                  <span class="info-value" id="stockInCategory"></span>
                 </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label class="form-label">Unit Price (₱)</label>
-                    <input type="number" step="0.01" class="form-control" id="unitPrice" name="unit_price" readonly required>
-                  </div>
+                <div class="info-row">
+                  <span class="info-label">Current Stock:</span>
+                  <span class="info-value"><span class="badge badge-info" id="stockInCurrentStock"></span></span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Status:</span>
+                  <span class="info-value"><span class="badge" id="stockInStatus"></span></span>
                 </div>
               </div>
 
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label class="form-label">Stock Quantity</label>
-                    <input type="number" class="form-control" id="stockQty" name="stock_qty" readonly required>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label class="form-label">Low Stock Threshold</label>
-                    <input type="number" class="form-control" id="lowStockThreshold" name="low_stock_threshold" readonly required>
-                  </div>
-                </div>
+              <!-- Quantity Input -->
+              <div class="form-group">
+                <label>Quantity to Add <span class="text-danger">*</span></label>
+                <input type="number" 
+                      class="form-control quantity-input" 
+                      name="quantity" 
+                      id="stockInQuantity"
+                      placeholder="0" 
+                      min="1"
+                      required>
               </div>
 
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label class="form-label">Last Restocked</label>
-                    <input type="date" class="form-control" id="lastRestocked" name="last_restocked" readonly>
-                  </div>
+              <!-- Notes -->
+              <div class="form-group">
+                <label>Notes (Optional)</label>
+                <textarea class="form-control" 
+                          name="notes" 
+                          rows="2" 
+                          placeholder="e.g., Supplier name, purchase order #"></textarea>
+              </div>
+
+              <!-- Preview -->
+              <div class="preview-box" id="stockInPreview" style="display: none;">
+                <div class="preview-row">
+                  <span class="preview-label">Current Stock</span>
+                  <span class="preview-value" id="previewCurrentIn">0</span>
                 </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label class="form-label">Status</label>
-                    <div class="pt-2">
-                      <span class="badge" id="statusBadge"></span>
-                    </div>
-                  </div>
+                <div class="preview-row">
+                  <span class="preview-label">Adding</span>
+                  <span class="preview-value text-success" id="previewAddQuantity">+0</span>
+                </div>
+                <div class="preview-row">
+                  <span class="preview-label">New Stock</span>
+                  <span class="preview-value text-success" id="previewNewIn">0</span>
                 </div>
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary" id="saveButton" style="display: none;">Save Changes</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-success">
+                <i class="mdi mdi-check"></i> Confirm Stock In
+              </button>
             </div>
           </form>
         </div>
       </div>
-    </div>       
+    </div>
+
+    <!-- Stock Out Modal -->
+    <div class="modal fade" id="stockOutModal" tabindex="-1" role="dialog" aria-labelledby="stockOutModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content stock-modal">
+          <div class="modal-header bg-warning text-white">
+            <h5 class="modal-title" id="stockOutModalLabel">
+              <i class="mdi mdi-minus-circle"></i> Stock Out
+            </h5>
+            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <form id="stockOutForm" method="POST">
+            @csrf
+            <input type="hidden" name="transaction_type" value="stock_out">
+            <div class="modal-body">
+              <!-- Product Information -->
+              <div class="info-card">
+                <div class="info-row">
+                  <span class="info-label">Product Number:</span>
+                  <span class="info-value" id="stockOutProductNumber"></span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Product Name:</span>
+                  <span class="info-value" id="stockOutProductName"></span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Category:</span>
+                  <span class="info-value" id="stockOutCategory"></span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Current Stock:</span>
+                  <span class="info-value"><span class="badge badge-info" id="stockOutCurrentStock"></span></span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Status:</span>
+                  <span class="info-value"><span class="badge" id="stockOutStatus"></span></span>
+                </div>
+              </div>
+
+              <!-- Quantity Input -->
+              <div class="form-group">
+                <label>Quantity to Remove <span class="text-danger">*</span></label>
+                <input type="number" 
+                      class="form-control quantity-input" 
+                      name="quantity" 
+                      id="stockOutQuantity"
+                      placeholder="0" 
+                      min="1"
+                      required>
+                <small class="text-muted">Available: <span id="availableStock"></span></small>
+              </div>
+
+              <!-- Notes -->
+              <div class="form-group">
+                <label>Notes (Optional)</label>
+                <textarea class="form-control" 
+                          name="notes" 
+                          rows="2" 
+                          placeholder="e.g., Sales order #, department"></textarea>
+              </div>
+
+              <!-- Preview -->
+              <div class="preview-box" id="stockOutPreview" style="display: none;">
+                <div class="preview-row">
+                  <span class="preview-label">Current Stock</span>
+                  <span class="preview-value" id="previewCurrentOut">0</span>
+                </div>
+                <div class="preview-row">
+                  <span class="preview-label">Removing</span>
+                  <span class="preview-value text-warning" id="previewRemoveQuantity">-0</span>
+                </div>
+                <div class="preview-row">
+                  <span class="preview-label">New Stock</span>
+                  <span class="preview-value text-warning" id="previewNewOut">0</span>
+                </div>
+              </div>
+
+              <!-- Warning -->
+              <div class="alert alert-danger" id="insufficientStockWarning" style="display: none;">
+                <i class="mdi mdi-alert"></i> Insufficient stock! Please enter a valid quantity.
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-warning" id="confirmStockOut">
+                <i class="mdi mdi-check"></i> Confirm Stock Out
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -819,15 +751,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const itemCheckboxes = document.querySelectorAll('.item-checkbox');
     const bulkActionBtn = document.getElementById('bulkActionBtn');
     const selectedCount = document.getElementById('selectedCount');
-    const editModeToggle = document.getElementById('editModeToggle');
-    const editButtonText = document.getElementById('editButtonText');
-    const saveButton = document.getElementById('saveButton');
-    const editForm = document.getElementById('editForm');
-    const modalTitle = document.getElementById('modalTitle');
-    let isEditMode = false;
-    let currentItemId = null;
 
-    // Real-time search with debounce (NEW - REPLACES OLD SEARCH)
+    // Real-time search with debounce
     let searchTimeout;
     const searchInput = document.getElementById('searchInput');
     const searchForm = document.getElementById('searchForm');
@@ -862,30 +787,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Update bulk action button visibility and count
+    // Update bulk action button
     function updateBulkActionButton() {
         const checkedCount = document.querySelectorAll('.item-checkbox:checked').length;
         selectedCount.textContent = checkedCount;
-        
-        if (checkedCount > 0) {
-            bulkActionBtn.disabled = false;
-        } else {
-            bulkActionBtn.disabled = true;
-        }
+        bulkActionBtn.disabled = checkedCount === 0;
     }
 
     // Bulk delete action
     bulkActionBtn.addEventListener('click', function() {
-        if (this.disabled) {
-            return;
-        }
+        if (this.disabled) return;
         
         const checkedItems = Array.from(document.querySelectorAll('.item-checkbox:checked'))
             .map(cb => cb.value);
         
-        if (checkedItems.length === 0) {
-            return;
-        }
+        if (checkedItems.length === 0) return;
 
         if (confirm(`Are you sure you want to delete ${checkedItems.length} item(s)?`)) {
             const form = document.createElement('form');
@@ -917,80 +833,98 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // View item modal
-    document.querySelectorAll('.view-item').forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Reset to view mode
-            isEditMode = false;
-            setEditMode(false);
-            
-            // Get data attributes
-            currentItemId = this.dataset.id;
+    // Stock In Modal
+    document.querySelectorAll('.stock-in-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const itemId = this.dataset.id;
             const productNumber = this.dataset.productNumber;
             const productName = this.dataset.productName;
             const category = this.dataset.category;
-            const unitPrice = this.dataset.unitPrice;
-            const stockQty = this.dataset.stockQty;
-            const lowStockThreshold = this.dataset.lowStockThreshold;
-            const lastRestocked = this.dataset.lastRestocked;
+            const stockQty = parseInt(this.dataset.stockQty);
+            const status = this.dataset.status;
+            const statusClass = this.dataset.statusClass;
             
-            // Populate form
-            document.getElementById('productNumber').value = productNumber;
-            document.getElementById('productName').value = productName;
-            document.getElementById('category').value = category;
-            document.getElementById('unitPrice').value = unitPrice;
-            document.getElementById('stockQty').value = stockQty;
-            document.getElementById('lowStockThreshold').value = lowStockThreshold;
-            document.getElementById('lastRestocked').value = lastRestocked;
+            document.getElementById('stockInProductNumber').textContent = productNumber;
+            document.getElementById('stockInProductName').textContent = productName;
+            document.getElementById('stockInCategory').textContent = category;
+            document.getElementById('stockInCurrentStock').textContent = stockQty;
+            document.getElementById('stockInStatus').textContent = status;
+            document.getElementById('stockInStatus').className = 'badge ' + statusClass;
             
-            // Update status badge
-            const statusBadge = document.getElementById('statusBadge');
-            if (stockQty == 0) {
-                statusBadge.className = 'badge badge-danger';
-                statusBadge.textContent = 'Out of Stock';
-            } else if (stockQty < lowStockThreshold) {
-                statusBadge.className = 'badge badge-warning';
-                statusBadge.textContent = 'Low Stock';
-            } else {
-                statusBadge.className = 'badge badge-success';
-                statusBadge.textContent = 'In Stock';
-            }
-            
-            // Set form action
-            editForm.action = `/inventory/${currentItemId}`;
+            document.getElementById('stockInForm').action = `/inventory/${itemId}/stock-transaction`;
+            document.getElementById('stockInQuantity').value = '';
+            document.getElementById('stockInPreview').style.display = 'none';
         });
     });
 
-    // Toggle edit mode
-    editModeToggle.addEventListener('click', function() {
-        isEditMode = !isEditMode;
-        setEditMode(isEditMode);
-    });
-
-    // Set edit mode
-    function setEditMode(enabled) {
-        const inputs = editForm.querySelectorAll('input[type="text"], input[type="number"], input[type="date"]');
+    // Stock In Quantity Preview
+    document.getElementById('stockInQuantity').addEventListener('input', function() {
+        const quantity = parseInt(this.value) || 0;
+        const currentStock = parseInt(document.getElementById('stockInCurrentStock').textContent);
+        const newStock = currentStock + quantity;
         
-        inputs.forEach(input => {
-            input.readOnly = !enabled;
-        });
-        
-        if (enabled) {
-            editButtonText.textContent = 'Cancel';
-            editModeToggle.classList.remove('btn-outline-primary');
-            editModeToggle.classList.add('btn-outline-secondary');
-            saveButton.style.display = 'inline-block';
-            modalTitle.textContent = 'Edit Product';
+        if (quantity > 0) {
+            document.getElementById('previewCurrentIn').textContent = currentStock;
+            document.getElementById('previewAddQuantity').textContent = '+' + quantity;
+            document.getElementById('previewNewIn').textContent = newStock;
+            document.getElementById('stockInPreview').style.display = 'block';
         } else {
-            editButtonText.textContent = 'Edit';
-            editModeToggle.classList.remove('btn-outline-secondary');
-            editModeToggle.classList.add('btn-outline-primary');
-            saveButton.style.display = 'none';
-            modalTitle.textContent = 'Product Details';
+            document.getElementById('stockInPreview').style.display = 'none';
         }
-    }
+    });
+
+    // Stock Out Modal
+    document.querySelectorAll('.stock-out-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const itemId = this.dataset.id;
+            const productNumber = this.dataset.productNumber;
+            const productName = this.dataset.productName;
+            const category = this.dataset.category;
+            const stockQty = parseInt(this.dataset.stockQty);
+            const status = this.dataset.status;
+            const statusClass = this.dataset.statusClass;
+            
+            document.getElementById('stockOutProductNumber').textContent = productNumber;
+            document.getElementById('stockOutProductName').textContent = productName;
+            document.getElementById('stockOutCategory').textContent = category;
+            document.getElementById('stockOutCurrentStock').textContent = stockQty;
+            document.getElementById('availableStock').textContent = stockQty;
+            document.getElementById('stockOutStatus').textContent = status;
+            document.getElementById('stockOutStatus').className = 'badge ' + statusClass;
+            
+            document.getElementById('stockOutForm').action = `/inventory/${itemId}/stock-transaction`;
+            document.getElementById('stockOutQuantity').max = stockQty;
+            document.getElementById('stockOutQuantity').value = '';
+            document.getElementById('stockOutPreview').style.display = 'none';
+            document.getElementById('insufficientStockWarning').style.display = 'none';
+        });
+    });
+
+    // Stock Out Quantity Preview
+    document.getElementById('stockOutQuantity').addEventListener('input', function() {
+        const quantity = parseInt(this.value) || 0;
+        const currentStock = parseInt(document.getElementById('stockOutCurrentStock').textContent);
+        const newStock = currentStock - quantity;
+        
+        if (quantity > 0) {
+            if (quantity > currentStock) {
+                document.getElementById('insufficientStockWarning').style.display = 'block';
+                document.getElementById('stockOutPreview').style.display = 'none';
+                document.getElementById('confirmStockOut').disabled = true;
+            } else {
+                document.getElementById('insufficientStockWarning').style.display = 'none';
+                document.getElementById('previewCurrentOut').textContent = currentStock;
+                document.getElementById('previewRemoveQuantity').textContent = '-' + quantity;
+                document.getElementById('previewNewOut').textContent = newStock;
+                document.getElementById('stockOutPreview').style.display = 'block';
+                document.getElementById('confirmStockOut').disabled = false;
+            }
+        } else {
+            document.getElementById('stockOutPreview').style.display = 'none';
+            document.getElementById('insufficientStockWarning').style.display = 'none';
+            document.getElementById('confirmStockOut').disabled = false;
+        }
+    });
 
     // Delete form confirmation
     document.querySelectorAll('.delete-form').forEach(form => {
@@ -1002,20 +936,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Reset modal on close
-    $('#viewEditModal').on('hidden.bs.modal', function () {
-        isEditMode = false;
-        setEditMode(false);
-        editForm.reset();
-    });
-
-    // Reset add item form when modal closes
+    // Reset modals on close
     $('#addItemModal').on('hidden.bs.modal', function () {
         document.getElementById('addItemForm').reset();
-        // Remove error styling and messages
         $('.is-invalid').removeClass('is-invalid');
         $('.invalid-feedback').remove();
         $('.alert').remove();
+    });
+
+    $('#stockInModal').on('hidden.bs.modal', function () {
+        document.getElementById('stockInForm').reset();
+        document.getElementById('stockInPreview').style.display = 'none';
+    });
+
+    $('#stockOutModal').on('hidden.bs.modal', function () {
+        document.getElementById('stockOutForm').reset();
+        document.getElementById('stockOutPreview').style.display = 'none';
+        document.getElementById('insufficientStockWarning').style.display = 'none';
+        document.getElementById('confirmStockOut').disabled = false;
     });
 
     // Show add item modal if there are validation errors

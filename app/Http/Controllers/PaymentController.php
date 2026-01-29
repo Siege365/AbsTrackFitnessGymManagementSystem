@@ -239,4 +239,10 @@ class PaymentController extends Controller
             return back()->withErrors(['error' => 'Failed to delete transactions: ' . $e->getMessage()]);
         }
     }
+    public function membership()
+    {
+        // You can later preload members, active memberships, etc.
+        return view('PaymentAndBillings.MembershipPayment');
+    }
+
 }

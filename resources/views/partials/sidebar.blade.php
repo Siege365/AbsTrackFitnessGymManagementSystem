@@ -16,17 +16,22 @@
       </a>
     </li>
     <li class="nav-item menu-items">
-      <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
+      <a class="nav-link" data-toggle="collapse" href="#customers-menu" aria-expanded="false" aria-controls="customers-menu">
         <span class="menu-icon">
           <i class="mdi mdi-account-multiple"></i>
         </span>
         <span class="menu-title">Customers</span>
         <i class="menu-arrow"></i>
       </a>
-      <div class="collapse" id="ui-basic">
+
+      <div class="collapse" id="customers-menu">
         <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="{{ route('memberships.index') }}">Membership</a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{ route('clients.index') }}">Clients</a></li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('memberships.index') }}">Membership</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('clients.index') }}">Clients</a>
+          </li>
         </ul>
       </div>
     </li>
@@ -39,12 +44,23 @@
       </a>
     </li>
     <li class="nav-item menu-items">
-      <a class="nav-link" href="{{ route('PaymentAndBilling') }}">
+      <a class="nav-link" data-toggle="collapse" href="#payments-menu" aria-expanded="false" aria-controls="payments-menu">
         <span class="menu-icon">
           <i class="mdi mdi-credit-card"></i>
         </span>
         <span class="menu-title">Payments & Billing</span>
+        <i class="menu-arrow"></i>
       </a>
+      <div class="collapse" id="payments-menu">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('membership.payment.index') }}">Membership Payment</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('payments.index') }}">Product Payment</a>
+          </li>
+        </ul>
+      </div>
     </li>
     <li class="nav-item menu-items">
       <a class="nav-link" href="{{ route('inventory.index') }}">
