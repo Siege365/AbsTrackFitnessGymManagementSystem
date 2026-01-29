@@ -11,20 +11,20 @@
     <link rel="stylesheet" href="{{ asset('template/assets/vendors/mdi/css/materialdesignicons.min.css') }}">
     
     <!-- Core CSS (Replaces Bootstrap + Template) -->
-    <link rel="stylesheet" href="{{ asset('css/core.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/core.css') }}?v={{ filemtime(public_path('css/core.css')) }}">
     
     <!-- Sidebar Styles -->
-    <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}?v={{ filemtime(public_path('css/sidebar.css')) }}">
     
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="{{ asset('css/custom-fonts.css') }}?v={{ time() }}">
-    <link rel="stylesheet" href="{{ asset('css/notification-bell.css') }}?v={{ time() }}">
-    <link rel="stylesheet" href="{{ asset('css/global-theme.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/custom-fonts.css') }}?v={{ filemtime(public_path('css/custom-fonts.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/notification-bell.css') }}?v={{ filemtime(public_path('css/notification-bell.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/global-theme.css') }}?v={{ filemtime(public_path('css/global-theme.css')) }}">
     
     <!-- Page-specific styles -->
     @stack('styles')
     
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" />
+    <link rel="shortcut icon" href="{{ asset('template/assets/images/abstractlogotransparent.svg') }}" />
 </head>
 <body>
     <div class="container-scroller">
@@ -52,7 +52,7 @@
     
     <!-- Common JS Utilities -->
     <script src="{{ asset('js/common/toast-utils.js') }}?v={{ time() }}"></script>
-    <script src="{{ asset('js/common/sidebar.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('template/assets/js/misc.js') }}?v={{ time() }}"></script>
     
     <!-- Session Flash Messages as Toasts -->
     @if(session('success'))

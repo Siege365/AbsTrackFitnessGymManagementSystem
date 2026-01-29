@@ -43,10 +43,12 @@ body {
   border: none;
   margin-bottom: 15px !important;
   border-radius: 8px !important;
+  overflow: visible !important;
 }
 
 .card-body {
   padding: 24px 28px !important;
+  overflow: visible !important;
 }
 
 .card-title {
@@ -113,7 +115,8 @@ body {
 
 /* Allow dropdowns to overflow table container */
 .table-responsive {
-  overflow: visible !important;
+  overflow-x: auto;
+  overflow-y: visible;
 }
 
 .table {
@@ -248,26 +251,22 @@ body {
   background: #191C24;
   border: 1px solid rgba(255, 255, 255, 0.1);
   animation: fadeInDown 0.2s ease;
-  transform-origin: top right;
-  position: absolute;
   z-index: 1050;
+  min-width: 10rem;
 }
 
 /* Table action dropdown - opens to left */
 .table .dropdown {
-  position: static;
+  position: relative;
 }
 
 .table .dropdown-menu {
-  right: 20px !important;
-  left: auto !important;
-  top: auto !important;
-  transform-origin: top right;
+  z-index: 1060 !important;
 }
 
 .dropdown-menu-right {
-  right: 0 !important;
-  left: auto !important;
+  /* Let Bootstrap handle positioning */
+}
 }
 
 @keyframes fadeInDown {

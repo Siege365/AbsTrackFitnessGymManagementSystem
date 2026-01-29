@@ -191,21 +191,21 @@ canvas {
   border-color: #0d0f14;
 }
 
-/* Custom scrollbars */
-::-webkit-scrollbar {
+/* Custom scrollbars - Exclude sidebar */
+:not(.sidebar)::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-::-webkit-scrollbar-track {
+:not(.sidebar)::-webkit-scrollbar-track {
   background: #191C24;
 }
 
-::-webkit-scrollbar-thumb {
+:not(.sidebar)::-webkit-scrollbar-thumb {
   background-color: #3a3f4b;
   border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover {
+:not(.sidebar)::-webkit-scrollbar-thumb:hover {
   background-color: #555;
 }

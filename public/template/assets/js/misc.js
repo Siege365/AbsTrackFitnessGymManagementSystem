@@ -7,6 +7,12 @@
     var footer = $('.footer');
     var sidebar = $('.sidebar');
 
+    // Restore sidebar state from localStorage on page load
+    var sidebarState = localStorage.getItem('sidebar-state');
+    if (sidebarState === 'collapsed') {
+      body.addClass('sidebar-icon-only');
+    }
+
     //Add active class to nav-link based on url dynamically
     //Active class can be hard coded directly in html file also as required
 
@@ -76,6 +82,12 @@
         body.toggleClass('sidebar-hidden');
       } else {
         body.toggleClass('sidebar-icon-only');
+        // Save sidebar state to localStorage
+        if (body.hasClass('sidebar-icon-only')) {
+          localStorage.setItem('sidebar-state', 'collapsed');
+        } else {
+          localStorage.setItem('sidebar-state', 'expanded');
+        }
       }
     });
 

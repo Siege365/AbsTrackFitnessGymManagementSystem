@@ -94,7 +94,7 @@
                 style="width: 450px;"
                 id="searchInputClients">
               <div class="dropdown d-inline-block mr-2">
-                <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="filterDropdownClients" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="filterDropdownClients" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                   <i class="mdi mdi-filter-variant"></i> Filter
                 </button>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="filterDropdownClients">
@@ -202,7 +202,7 @@
                 <td>@formatContact($client->contact)</td>
                 <td>
                   <div class="dropdown">
-                    <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown">
+                    <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
                       <i class="mdi mdi-dots-horizontal"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">
@@ -271,8 +271,8 @@
                     <!-- Contact Number -->
                     <div class="form-group">
                       <label>Contact Number</label>
-                      <input type="text" name="contact" id="editClientContact{{ $client->id }}" class="form-control" value="{{ $client->contact }}" required pattern="^[+]?[0-9() ]+$" title="Please enter a valid contact number (only numbers, +, (), and spaces allowed. NO minus signs!)">
-                    </div>
+                      <input type="text" name="contact" id="editClientContact{{ $client->id }}" class="form-control contact-input" value="{{ $client->contact }}" required maxlength="13" pattern="^(\+63|0)[0-9]{10}$" title="Enter 11 digits (e.g., 09123456789) or +63 format (e.g., +639123456789)" oninput="validateContactInput(this)">
+                      <small class="form-text text-muted">Format: 09XX-XXX-XXXX or +639XX-XXX-XXXX</small>                      <div id="editClientContact{{ $client->id }}Error" class="invalid-feedback" style="display: none;"></div>                    </div>
 
                     <!-- Plan Type -->
                     <div class="form-group">
@@ -420,8 +420,8 @@
 
             <div class="form-group">
               <label>Contact Number</label>
-              <input type="text" name="contact" id="newClientContact" class="form-control" placeholder="09123456789" required>
-            </div>
+              <input type="text" name="contact" id="newClientContact" class="form-control contact-input" placeholder="09123456789" required maxlength="13" pattern="^(\+63|0)[0-9]{10}$" title="Enter 11 digits (e.g., 09123456789) or +63 format (e.g., +639123456789)" oninput="validateContactInput(this)">
+              <small class="form-text text-muted">Format: 09XX-XXX-XXXX or +639XX-XXX-XXXX</small>              <div id="newClientContactError" class="invalid-feedback" style="display: none;"></div>            </div>
 
             <div class="form-group">
               <label>Membership Plan</label>
@@ -635,7 +635,31 @@
     </div>
   </div>
 </div>
-
+<!-- Bulk Delete Confirmation Modal -->
+<div class="modal fade" id="bulkDeleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="bulkDeleteConfirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="bulkDeleteConfirmModalLabel">Confirm Bulk Delete</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger" style="background-color: rgba(239, 83, 80, 0.1); border: 1px solid rgba(239, 83, 80, 0.3); color: #EF5350;">
+          <i class="mdi mdi-alert-circle"></i> <strong>Warning:</strong> This action cannot be undone!
+        </div>
+        <p class="mb-0" style="font-size: 1rem;">
+          Are you sure you want to delete <strong><span id="bulkDeleteCount">0</span> selected client(s)</strong>?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" onclick="confirmBulkDelete()">Delete Selected</button>
+      </div>
+    </div>
+  </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -683,6 +707,30 @@
   }
 
   function showClientConfirmModal() {
+    // Validate contact number before showing confirmation
+    const contactInput = document.getElementById('newClientContact');
+    const contactValue = contactInput.value.trim();
+    
+    // Check if contact is valid
+    if (contactValue.startsWith('+63')) {
+      if (contactValue.replace(/\D/g, '').length !== 12) {
+        ToastUtils.showError('Phone number with +63 must have exactly 12 digits', 'Invalid Contact');
+        contactInput.focus();
+        return;
+      }
+    } else {
+      if (contactValue.length !== 11) {
+        ToastUtils.showError('Phone number must have exactly 11 digits', 'Invalid Contact');
+        contactInput.focus();
+        return;
+      }
+      if (!contactValue.startsWith('09')) {
+        ToastUtils.showError('Phone number must start with 09', 'Invalid Contact');
+        contactInput.focus();
+        return;
+      }
+    }
+    
     ClientsPage.showClientConfirmModal();
   }
 
@@ -711,7 +759,42 @@
   }
 
   function bulkDelete() {
-    ClientsPage.bulkDelete();
+    const checkedBoxes = document.querySelectorAll('.client-checkbox:checked');
+    
+    if (checkedBoxes.length === 0) {
+      ToastUtils.showWarning('Please select at least one client to delete.', 'Warning');
+      return false;
+    }
+    
+    // Update count in modal
+    document.getElementById('bulkDeleteCount').textContent = checkedBoxes.length;
+    
+    // Show confirmation modal
+    $('#bulkDeleteConfirmModal').modal('show');
+  }
+  
+  /**
+   * Confirm and execute bulk delete
+   */
+  function confirmBulkDelete() {
+    const form = document.getElementById('bulkDeleteForm');
+    const checkedBoxes = document.querySelectorAll('.client-checkbox:checked');
+    
+    // Remove any existing hidden inputs
+    form.querySelectorAll('input[name="client_ids[]"]').forEach(el => el.remove());
+    
+    // Add selected IDs to form
+    checkedBoxes.forEach(checkbox => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'client_ids[]';
+      input.value = checkbox.value;
+      form.appendChild(input);
+    });
+    
+    // Close modal and submit form
+    $('#bulkDeleteConfirmModal').modal('hide');
+    form.submit();
   }
 
   function openRenewClientModal(clientId, clientName, planType, startDate, dueDate) {
@@ -735,6 +818,30 @@
   }
 
   function showEditClientConfirmModal(clientId) {
+    // Validate contact number before showing confirmation
+    const contactInput = document.getElementById('editClientContact' + clientId);
+    const contactValue = contactInput.value.trim();
+    
+    // Check if contact is valid
+    if (contactValue.startsWith('+63')) {
+      if (contactValue.replace(/\D/g, '').length !== 12) {
+        ToastUtils.showError('Phone number with +63 must have exactly 12 digits', 'Invalid Contact');
+        contactInput.focus();
+        return;
+      }
+    } else {
+      if (contactValue.length !== 11) {
+        ToastUtils.showError('Phone number must have exactly 11 digits', 'Invalid Contact');
+        contactInput.focus();
+        return;
+      }
+      if (!contactValue.startsWith('09')) {
+        ToastUtils.showError('Phone number must start with 09', 'Invalid Contact');
+        contactInput.focus();
+        return;
+      }
+    }
+    
     ClientsPage.showEditClientConfirmModal(clientId);
   }
 
@@ -752,6 +859,66 @@
 
   function confirmDeleteClient() {
     ClientsPage.confirmDeleteClient();
+  }
+
+  // Contact number validation
+  function validateContactInput(input) {
+    // Remove non-numeric characters except + at start
+    let value = input.value;
+    if (value.startsWith('+63')) {
+      value = '+63' + value.substring(3).replace(/\D/g, '');
+      if (value.length > 13) value = value.substring(0, 13);
+    } else {
+      value = value.replace(/\D/g, '');
+      if (value.length > 11) value = value.substring(0, 11);
+    }
+    input.value = value;
+
+    // Get error message element
+    const errorDiv = document.getElementById(input.id + 'Error');
+    let errorMessage = '';
+
+    // Validate length
+    const numericLength = value.replace(/\D/g, '').length;
+    if (value.startsWith('+63')) {
+      if (numericLength !== 12) {
+        errorMessage = 'Phone number with +63 must have exactly 12 digits (e.g., +639123456789)';
+        input.setCustomValidity(errorMessage);
+      } else {
+        input.setCustomValidity('');
+      }
+    } else {
+      if (numericLength === 0) {
+        // Empty - required validation will handle this
+        input.setCustomValidity('');
+      } else if (numericLength < 11) {
+        errorMessage = `Phone number must have exactly 11 digits. Current: ${numericLength} digit${numericLength !== 1 ? 's' : ''}`;
+        input.setCustomValidity(errorMessage);
+      } else if (!value.startsWith('09')) {
+        errorMessage = 'Phone number must start with 09';
+        input.setCustomValidity(errorMessage);
+      } else {
+        input.setCustomValidity('');
+      }
+    }
+
+    // Show/hide error message
+    if (errorDiv) {
+      if (errorMessage) {
+        errorDiv.textContent = errorMessage;
+        errorDiv.style.display = 'block';
+        input.classList.add('is-invalid');
+        input.classList.remove('is-valid');
+      } else {
+        errorDiv.style.display = 'none';
+        input.classList.remove('is-invalid');
+        if (numericLength > 0) {
+          input.classList.add('is-valid');
+        } else {
+          input.classList.remove('is-valid');
+        }
+      }
+    }
   }
 </script>
 @endpush

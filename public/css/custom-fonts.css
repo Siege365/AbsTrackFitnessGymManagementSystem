@@ -120,7 +120,7 @@ p, span, a, button, input, textarea, select, label, div, li, td, th {
 /* Ensure sidebar nav takes full height */
 .sidebar .nav {
     height: 100%;
-    overflow-y: auto;
+    overflow: visible;
 }
 
 /* Main panel fills the page-body-wrapper without extra margin */
@@ -158,15 +158,17 @@ body.sidebar-icon-only .main-panel {
 
 /* Full Logo - Sidebar (Desktop) */
 .sidebar-brand.brand-logo img {
-    width: 300px !important;
-    height: 40px !important;
-    object-fit: contain !important;
+    max-width: 100%;
+    height: auto;
+    max-height: 75px;
+    object-fit: contain;
 }
 
 /* Mini Logo - Sidebar Collapsed & Mobile Navbar */
 .sidebar-brand.brand-logo-mini img,
 .navbar-brand.brand-logo-mini img {
-    width: 130px !important;
-    height: 150px !important;
-    object-fit: contain !important;
+    max-width: 100%;
+    height: auto;
+    max-height: 55px;
+    object-fit: contain;
 }

@@ -114,8 +114,8 @@ p { margin-bottom: 1rem; }
 
 /* Expand when sidebar is collapsed */
 body.sidebar-icon-only .page-body-wrapper {
-  width: calc(100% - 70px);
-  max-width: calc(100% - 70px);
+  width: calc(100% - 60px);
+  max-width: calc(100% - 60px);
 }
 
 .main-panel {

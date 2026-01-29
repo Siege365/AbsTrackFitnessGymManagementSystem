@@ -1,13 +1,13 @@
 <nav class="sidebar sidebar-offcanvas" id="sidebar">
   <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
-    <a class="sidebar-brand brand-logo" href="{{ url('/') }}"><img src="{{ asset('template/assets/images/navbar logo.png') }}" alt="logo" /></a>
-    <a class="sidebar-brand brand-logo-mini" href="{{ url('/') }}"><img src="{{ asset('template/assets/images/navbar logo mini.png') }}" alt="logo" /></a>
+    <a class="sidebar-brand brand-logo" href="{{ url('/') }}"><img src="{{ asset('template/assets/images/logohorizontal.svg') }}" alt="logo" /></a>
+    <a class="sidebar-brand brand-logo-mini" href="{{ url('/') }}"><img src="{{ asset('template/assets/images/abstractlogotransparent.svg') }}" alt="logo" /></a>
   </div>
   <ul class="nav">
     <li class="nav-item nav-category">
       <span class="nav-link">Navigation</span>
     </li>
-    <li class="nav-item menu-items">
+    <li class="nav-item menu-items {{ request()->is('/') ? 'active' : '' }}">
       <a class="nav-link" href="{{ url('/') }}">
         <span class="menu-icon">
           <i class="mdi mdi-speedometer"></i>
@@ -99,7 +99,7 @@
         <span class="menu-icon">
           <i class="mdi mdi-file-document-box"></i>
         </span>
-        <span class="menu-title">Documentation</span>
+        <span class="menu-title">Guides</span>
       </a>
     </li>
   </ul>

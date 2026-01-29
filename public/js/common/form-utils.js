@@ -136,10 +136,10 @@ const FormUtils = (function() {
    * @param {HTMLElement} button - Button element
    * @param {string} loadingText - Loading text to display
    */
-  function setButtonLoading(button, loadingText = 'Submitting...') {
+  function setButtonLoading(button, loadingText = 'Processing...') {
     button.disabled = true;
     button.dataset.originalText = button.innerHTML;
-    button.innerHTML = `<i class="mdi mdi-loading mdi-spin"></i> ${loadingText}`;
+    button.innerHTML = `<i class="mdi mdi-loading mdi-spin"></i> Processing...`;
   }
 
   /**
