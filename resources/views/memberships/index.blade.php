@@ -8,39 +8,10 @@
 
 @section('content')
 
-<!-- Success/Error Alerts -->
-@if(session('success'))
-<div class="row">
-  <div class="col-12">
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-      <i class="mdi mdi-check-circle mr-2"></i>
-      <strong>Success!</strong> {{ session('success') }}
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-  </div>
-</div>
-@endif
-
-@if(session('error'))
-<div class="row">
-  <div class="col-12">
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-      <i class="mdi mdi-alert-circle mr-2"></i>
-      <strong>Error!</strong> {{ session('error') }}
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-  </div>
-</div>
-@endif
-
 <!-- Statistics Cards -->
 <div class="row">
   <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-    <div class="card stats-card">
+    <div class="card stats-card" data-filter="all">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
           <div>
@@ -56,7 +27,7 @@
   </div>
 
   <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-    <div class="card stats-card">
+    <div class="card stats-card" data-filter="active">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
           <div>
@@ -72,7 +43,7 @@
   </div>
 
   <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-    <div class="card stats-card">
+    <div class="card stats-card" data-filter="expiring">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
           <div>
@@ -88,7 +59,7 @@
   </div>
 
   <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-    <div class="card stats-card">
+    <div class="card stats-card" data-filter="new">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
           <div>
@@ -122,9 +93,26 @@
                 value="{{ request('search') }}" 
                 style="width: 450px;"
                 id="searchInput">
-              <button type="button" class="btn btn-sm filter-button mr-2" data-toggle="modal" data-target="#filterModal">
-                <i class="mdi mdi-filter-variant"></i> Filter
-              </button>
+              <div class="dropdown d-inline-block mr-2">
+                <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="filterDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="mdi mdi-filter-variant"></i> Filter
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="filterDropdown">
+                  <h6 class="dropdown-header">Filter by Status</h6>
+                  <a class="dropdown-item" href="javascript:void(0)" onclick="MembershipsPage.applyStatusFilter('all')">
+                    <i class="mdi mdi-account-multiple mr-2"></i> All Members
+                  </a>
+                  <a class="dropdown-item" href="javascript:void(0)" onclick="MembershipsPage.applyStatusFilter('active')">
+                    <i class="mdi mdi-check-circle mr-2 text-success"></i> Active Only
+                  </a>
+                  <a class="dropdown-item" href="javascript:void(0)" onclick="MembershipsPage.applyStatusFilter('expired')">
+                    <i class="mdi mdi-close-circle mr-2 text-danger"></i> Expired Only
+                  </a>
+                  <a class="dropdown-item" href="javascript:void(0)" onclick="MembershipsPage.applyStatusFilter('due_soon')">
+                    <i class="mdi mdi-clock-alert mr-2 text-warning"></i> Due Soon Only
+                  </a>
+                </div>
+              </div>
               @if(request('search'))
                 <a href="{{ route('memberships.index') }}" class="btn btn-sm btn-outline-secondary">
                   <i class="mdi mdi-close"></i>
@@ -170,7 +158,9 @@
             </thead>
             <tbody>
               @forelse($memberships as $membership)
-              <tr>
+              <tr data-status="{{ $membership->status }}" 
+                  data-created="{{ $membership->created_at->format('Y-m') }}" 
+                  data-expiring="{{ $membership->status == 'Due soon' ? 'yes' : 'no' }}">
                 <td>
                   <div class="form-check">
                     <label class="form-check-label">
@@ -209,7 +199,7 @@
                     </span>
                   @endif
                 </td>
-                <td>{{ $membership->contact }}</td>
+                <td>@formatContact($membership->contact)</td>
                 <td>
                   <div class="dropdown">
                     <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown">
@@ -219,19 +209,14 @@
                       <button type="button" class="dropdown-item" data-toggle="modal" data-target="#viewModal{{ $membership->id }}">
                         <i class="mdi mdi-eye mr-2"></i> View Details
                       </button>
-                      <form action="{{ route('memberships.renew', $membership) }}" method="POST" class="d-inline">
-                        @csrf
-                        <button type="submit" class="dropdown-item text-success" onclick="return confirm('Are you sure you want to renew this membership for another month?')">
-                          <i class="mdi mdi-refresh mr-2"></i> Renew Subscription
-                        </button>
-                      </form>
-                      <form action="{{ route('memberships.destroy', $membership) }}" method="POST" class="d-inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Are you sure you want to delete this membership?')">
-                          <i class="mdi mdi-delete mr-2"></i> Delete
-                        </button>
-                      </form>
+                      <button type="button" class="dropdown-item text-success" 
+                        onclick="openRenewModal({{ $membership->id }}, '{{ $membership->name }}', '{{ $membership->plan_type }}', '{{ $membership->start_date->format('Y-m-d') }}', '{{ $membership->due_date->format('Y-m-d') }}')">
+                        <i class="mdi mdi-refresh mr-2"></i> Renew Subscription
+                      </button>
+                      <button type="button" class="dropdown-item text-danger" 
+                        onclick="openDeleteModal({{ $membership->id }}, '{{ $membership->name }}', '{{ $membership->plan_type }}', '{{ $membership->status }}')">
+                        <i class="mdi mdi-delete mr-2"></i> Delete
+                      </button>
                     </div>
                   </div>
                 </td>
@@ -258,91 +243,130 @@
         @foreach($memberships as $membership)
         <div class="modal fade" id="viewModal{{ $membership->id }}" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel{{ $membership->id }}" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-              <form action="{{ route('memberships.update', $membership) }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-                <div class="modal-header">
-                  <h5 class="modal-title" id="viewModalLabel{{ $membership->id }}">Edit Member</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <!-- Name -->
-                  <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" name="name" class="form-control" value="{{ $membership->name }}" required>
+            <div class="modal-content" style="position: relative;">
+              <!-- Main Form Content -->
+              <div id="editFormContent{{ $membership->id }}">
+                <form id="editMemberForm{{ $membership->id }}" data-membership-id="{{ $membership->id }}" data-action="{{ route('memberships.update', $membership) }}">
+                  @csrf
+                  @method('PUT')
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="viewModalLabel{{ $membership->id }}">Edit Member</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
                   </div>
+                  <div class="modal-body">
+                    <!-- Name -->
+                    <div class="form-group">
+                      <label>Name</label>
+                      <input type="text" name="name" id="editName{{ $membership->id }}" class="form-control" value="{{ $membership->name }}" required>
+                    </div>
 
-                  <!-- Age -->
-                  <div class="form-group">
-                    <label>Age</label>
-                    <input type="number" name="age" class="form-control" value="{{ $membership->age }}" min="1" max="120">
-                  </div>
+                    <!-- Age -->
+                    <div class="form-group">
+                      <label>Age</label>
+                      <input type="number" name="age" id="editAge{{ $membership->id }}" class="form-control" value="{{ $membership->age }}" min="1" max="120">
+                    </div>
 
-                  <!-- Contact Number -->
-                  <div class="form-group">
-                    <label>Contact Number</label>
-                    <input type="text" name="contact" class="form-control" value="{{ $membership->contact }}" required pattern="^[+]?[0-9() ]+$" title="Please enter a valid contact number (only numbers, +, (), and spaces allowed. NO minus signs!)">
-                  </div>
+                    <!-- Contact Number -->
+                    <div class="form-group">
+                      <label>Contact Number</label>
+                      <input type="text" name="contact" id="editContact{{ $membership->id }}" class="form-control" value="{{ $membership->contact }}" required pattern="^[+]?[0-9() ]+$" title="Please enter a valid contact number (only numbers, +, (), and spaces allowed. NO minus signs!)">
+                    </div>
 
-                  <!-- Membership Plan -->
-                  <div class="form-group">
-                    <label>Membership Plan</label>
-                    <select name="plan_type" class="form-control" required>
-                      <option value="Monthly" {{ $membership->plan_type == 'Monthly' ? 'selected' : '' }}>Monthly</option>
-                      <option value="Session" {{ $membership->plan_type == 'Session' ? 'selected' : '' }}>Session</option>
-                    </select>
-                  </div>
+                    <!-- Membership Plan -->
+                    <div class="form-group">
+                      <label>Membership Plan</label>
+                      <select name="plan_type" id="editPlanType{{ $membership->id }}" class="form-control" required>
+                        <option value="Monthly" {{ $membership->plan_type == 'Monthly' ? 'selected' : '' }}>Monthly</option>
+                        <option value="Session" {{ $membership->plan_type == 'Session' ? 'selected' : '' }}>Session</option>
+                      </select>
+                    </div>
 
-                  <!-- Start Date -->
-                  <div class="form-group">
-                    <label>Start Date</label>
-                    <input type="date" name="start_date" id="editStartDate{{ $membership->id }}" class="form-control" value="{{ $membership->start_date->format('Y-m-d') }}" onchange="calculateEditEndDate({{ $membership->id }})" required>
-                  </div>
+                    <!-- Start Date -->
+                    <div class="form-group">
+                      <label>Start Date</label>
+                      <input type="date" name="start_date" id="editStartDate{{ $membership->id }}" class="form-control" value="{{ $membership->start_date->format('Y-m-d') }}" onchange="calculateEditEndDate({{ $membership->id }})" required>
+                    </div>
 
-                  <!-- End Date -->
-                  <div class="form-group">
-                    <label>End Date</label>
-                    <input type="date" name="due_date" id="editEndDate{{ $membership->id }}" class="form-control" value="{{ $membership->due_date->format('Y-m-d') }}" readonly>
-                  </div>
+                    <!-- End Date -->
+                    <div class="form-group">
+                      <label>End Date</label>
+                      <input type="date" name="due_date" id="editEndDate{{ $membership->id }}" class="form-control" value="{{ $membership->due_date->format('Y-m-d') }}" readonly>
+                    </div>
 
-                  <!-- Avatar (optional) -->
-                  <div class="form-group">
-                    <label>Avatar (optional)</label>
-                    <div class="mb-2">
-                      <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                        <label class="btn btn-sm btn-outline-primary active">
-                          <input type="radio" name="editAvatarInputType{{ $membership->id }}" value="file" checked onclick="toggleEditAvatarInput({{ $membership->id }}, 'file')"> Upload File
-                        </label>
-                        <label class="btn btn-sm btn-outline-primary">
-                          <input type="radio" name="editAvatarInputType{{ $membership->id }}" value="url" onclick="toggleEditAvatarInput({{ $membership->id }}, 'url')"> Enter URL
-                        </label>
+                    <!-- Avatar (optional) -->
+                    <div class="form-group">
+                      <label>Avatar (optional)</label>
+                      <div class="mb-2">
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                          <label class="btn btn-sm btn-outline-primary active">
+                            <input type="radio" name="editAvatarInputType{{ $membership->id }}" value="file" checked onclick="toggleEditAvatarInput({{ $membership->id }}, 'file')"> Upload File
+                          </label>
+                          <label class="btn btn-sm btn-outline-primary">
+                            <input type="radio" name="editAvatarInputType{{ $membership->id }}" value="url" onclick="toggleEditAvatarInput({{ $membership->id }}, 'url')"> Enter URL
+                          </label>
+                        </div>
+                      </div>
+                      <div class="text-center">
+                        <div id="avatarPreview{{ $membership->id }}" class="mb-2">
+                          @if($membership->avatar)
+                            <img src="{{ asset('storage/' . $membership->avatar) }}" alt="{{ $membership->name }}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.2);">
+                          @else
+                            <div style="width: 120px; height: 120px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 48px; color: white; font-weight: 600;">
+                              {{ strtoupper(substr($membership->name, 0, 1)) }}
+                            </div>
+                          @endif
+                        </div>
+                        <input type="file" name="avatar" id="avatarInput{{ $membership->id }}" class="form-control mb-2" accept="image/*" onchange="previewAvatar({{ $membership->id }})">
+                        <input type="text" name="avatar_url" id="avatarUrl{{ $membership->id }}" class="form-control" placeholder="https://example.com/avatar.jpg" style="display: none;" oninput="previewAvatarUrl({{ $membership->id }})">
                       </div>
                     </div>
-                    <div class="text-center">
-                      <div id="avatarPreview{{ $membership->id }}" class="mb-2">
-                        @if($membership->avatar)
-                          <img src="{{ asset('storage/' . $membership->avatar) }}" alt="{{ $membership->name }}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.2);">
-                        @else
-                          <div style="width: 120px; height: 120px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 48px; color: white; font-weight: 600;">
-                            {{ strtoupper(substr($membership->name, 0, 1)) }}
-                          </div>
-                        @endif
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-update" onclick="showEditConfirmModal({{ $membership->id }})">
+                      <i class="mdi mdi-pencil"></i> Update
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Confirmation Overlay -->
+              <div id="editConfirmOverlay{{ $membership->id }}" class="confirm-overlay" style="display: none;">
+                <div class="confirm-overlay-content">
+                  <div class="confirm-overlay-header">
+                    <i class="mdi mdi-pencil-outline"></i>
+                    <h5>Confirm Update</h5>
+                    <button type="button" class="close" onclick="backToEditForm({{ $membership->id }})">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="confirm-overlay-body">
+                    <p class="mb-3">Are you sure you want to update this member?</p>
+                    <div class="confirm-details">
+                      <div class="confirm-row">
+                        <span class="confirm-label">Name:</span>
+                        <span class="confirm-value" id="confirmEditName{{ $membership->id }}"></span>
                       </div>
-                      <input type="file" name="avatar" id="avatarInput{{ $membership->id }}" class="form-control mb-2" accept="image/*" onchange="previewAvatar({{ $membership->id }})">
-                      <input type="text" name="avatar_url" id="avatarUrl{{ $membership->id }}" class="form-control" placeholder="https://example.com/avatar.jpg" style="display: none;" oninput="previewAvatarUrl({{ $membership->id }})">
+                      <div class="confirm-row">
+                        <span class="confirm-label">Plan:</span>
+                        <span class="confirm-value" id="confirmEditPlan{{ $membership->id }}"></span>
+                      </div>
+                      <div class="confirm-row">
+                        <span class="confirm-label">Duration:</span>
+                        <span class="confirm-value" id="confirmEditDuration{{ $membership->id }}"></span>
+                      </div>
                     </div>
                   </div>
+                  <div class="confirm-overlay-footer">
+                    <button type="button" class="btn btn-cancel" onclick="backToEditForm({{ $membership->id }})">Cancel</button>
+                    <button type="button" class="btn btn-update" onclick="submitEditForm({{ $membership->id }})">
+                      <i class="mdi mdi-check"></i> Confirm
+                    </button>
+                  </div>
                 </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
-                  <button type="submit" class="btn btn-update">
-                    <i class="mdi mdi-pencil"></i> Update
-                  </button>
-                </div>
-              </form>
+              </div>
             </div>
           </div>
         </div>
@@ -361,9 +385,7 @@
               </form>
             </div>
             <div class="col-md-6 col-sm-12">
-              <nav aria-label="Page navigation">
-                {{ $memberships->links('pagination::bootstrap-4') }}
-              </nav>
+              {{ $memberships->links('vendor.pagination.custom') }}
             </div>
           </div>
         </div>
@@ -375,134 +397,245 @@
 <!-- Add Member Modal -->
 <div class="modal fade" id="addMemberModal" tabindex="-1" role="dialog" aria-labelledby="addMemberModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addMemberModalLabel">Add Member</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+    <div class="modal-content" style="position: relative;">
+      <!-- Main Form Content -->
+      <div id="addMemberFormContent">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addMemberModalLabel">Add Member</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="addMemberForm">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" name="name" id="newMemberName" class="form-control" placeholder="John Doe" required>
+            </div>
+
+            <div class="form-group">
+              <label>Age</label>
+              <input type="number" name="age" id="newMemberAge" class="form-control" placeholder="24" min="1" max="120" required>
+            </div>
+
+            <div class="form-group">
+              <label>Contact Number</label>
+              <input type="text" name="contact" id="newMemberContact" class="form-control" placeholder="09123456789" required>
+            </div>
+
+            <div class="form-group">
+              <label>Membership Plan</label>
+              <select name="plan_type" id="newMemberPlan" class="form-control" required>
+                <option value="">Select Plan</option>
+                <option value="Monthly">Monthly</option>
+                <option value="Session">Session</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Start Date</label>
+              <input type="date" name="start_date" id="newMemberStartDate" class="form-control" onchange="calculateEndDate()" required>
+            </div>
+
+            <div class="form-group">
+              <label>End Date</label>
+              <input type="date" name="due_date" id="newMemberEndDate" class="form-control" readonly>
+            </div>
+
+            <div class="form-group">
+              <label>Avatar (optional)</label>
+              <div class="mb-2">
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                  <label class="btn btn-sm btn-outline-primary active">
+                    <input type="radio" name="avatarInputType" value="file" checked onclick="toggleAvatarInput('file')"> Upload File
+                  </label>
+                  <label class="btn btn-sm btn-outline-primary">
+                    <input type="radio" name="avatarInputType" value="url" onclick="toggleAvatarInput('url')"> Enter URL
+                  </label>
+                </div>
+              </div>
+              <input type="file" name="avatar" id="newMemberAvatar" class="form-control" accept="image/*" onchange="previewNewAvatar()">
+              <input type="text" name="avatar_url" id="newMemberAvatarUrl" class="form-control" placeholder="https://example.com/avatar.jpg" style="display: none;" oninput="previewNewAvatar()">
+              <div id="newAvatarPreview" class="mt-3 text-center"></div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-update" onclick="showConfirmModal()">Submit</button>
+        </div>
       </div>
-      <div class="modal-body">
-        <form id="addMemberForm">
-          <div class="form-group">
-            <label>Name</label>
-            <input type="text" name="name" id="newMemberName" class="form-control" placeholder="John Doe" required>
-          </div>
 
-          <div class="form-group">
-            <label>Age</label>
-            <input type="number" name="age" id="newMemberAge" class="form-control" placeholder="24" min="1" max="120" required>
+      <!-- Confirmation Overlay -->
+      <div id="addMemberConfirmOverlay" class="confirm-overlay" style="display: none;">
+        <div class="confirm-overlay-content">
+          <div class="confirm-overlay-header">
+            <i class="mdi mdi-check-circle-outline"></i>
+            <h5>Confirm Member</h5>
+            <button type="button" class="close" onclick="backToAddForm()">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
-
-          <div class="form-group">
-            <label>Contact Number</label>
-            <input type="text" name="contact" id="newMemberContact" class="form-control" placeholder="09123456789" required>
-          </div>
-
-          <div class="form-group">
-            <label>Membership Plan</label>
-            <select name="plan_type" id="newMemberPlan" class="form-control" required>
-              <option value="">Select Plan</option>
-              <option value="Monthly">Monthly</option>
-              <option value="Session">Session</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Start Date</label>
-            <input type="date" name="start_date" id="newMemberStartDate" class="form-control" onchange="calculateEndDate()" required>
-          </div>
-
-          <div class="form-group">
-            <label>End Date</label>
-            <input type="date" name="due_date" id="newMemberEndDate" class="form-control" readonly>
-          </div>
-
-          <div class="form-group">
-            <label>Avatar (optional)</label>
-            <div class="mb-2">
-              <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                <label class="btn btn-sm btn-outline-primary active">
-                  <input type="radio" name="avatarInputType" value="file" checked onclick="toggleAvatarInput('file')"> Upload File
-                </label>
-                <label class="btn btn-sm btn-outline-primary">
-                  <input type="radio" name="avatarInputType" value="url" onclick="toggleAvatarInput('url')"> Enter URL
-                </label>
+          <div class="confirm-overlay-body">
+            <p class="mb-3">Are you sure you want to add this member?</p>
+            <div class="confirm-details">
+              <div class="confirm-row">
+                <span class="confirm-label">Name:</span>
+                <span class="confirm-value" id="confirmNameText"></span>
+              </div>
+              <div class="confirm-row">
+                <span class="confirm-label">Plan:</span>
+                <span class="confirm-value" id="confirmPlanText"></span>
+              </div>
+              <div class="confirm-row">
+                <span class="confirm-label">Duration:</span>
+                <span class="confirm-value" id="confirmDurationText"></span>
               </div>
             </div>
-            <input type="file" name="avatar" id="newMemberAvatar" class="form-control" accept="image/*" onchange="previewNewAvatar()">
-            <input type="text" name="avatar_url" id="newMemberAvatarUrl" class="form-control" placeholder="https://example.com/avatar.jpg" style="display: none;" oninput="previewNewAvatar()">
-            <div id="newAvatarPreview" class="mt-3 text-center"></div>
           </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-update" onclick="showConfirmModal()">Submit</button>
+          <div class="confirm-overlay-footer">
+            <button type="button" class="btn btn-cancel" onclick="backToAddForm()">Cancel</button>
+            <button type="button" class="btn btn-update" onclick="submitMemberForm()">
+              <i class="mdi mdi-check"></i> Confirm
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Confirmation Modal -->
-<div class="modal fade" id="confirmMemberModal" tabindex="-1" role="dialog" aria-labelledby="confirmMemberModalLabel" aria-hidden="true">
+<!-- Renew Subscription Modal -->
+<div class="modal fade" id="renewMembershipModal" tabindex="-1" role="dialog" aria-labelledby="renewMembershipModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content" style="position: relative;">
+      <!-- Main Form Content -->
+      <div id="renewFormContent">
+        <div class="modal-header">
+          <h5 class="modal-title" id="renewMembershipModalLabel">Renew Subscription</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="renewMembershipForm">
+            <input type="hidden" id="renewMembershipId" name="membership_id">
+            <input type="hidden" id="renewMembershipName" name="membership_name">
+            <input type="hidden" id="renewPlanType" name="plan_type">
+
+            <div class="form-group">
+              <label>Member Name</label>
+              <input type="text" class="form-control" id="renewMemberNameDisplay" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+            </div>
+
+            <div class="form-group">
+              <label>Current Plan</label>
+              <input type="text" class="form-control" id="renewPlanTypeDisplay" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+            </div>
+
+            <div class="form-group">
+              <label>Start Date <span class="text-danger">*</span></label>
+              <input type="date" name="start_date" id="renewStartDate" class="form-control" required onchange="calculateRenewEndDate()">
+            </div>
+
+            <div class="form-group">
+              <label>End Date <span class="text-danger">*</span></label>
+              <input type="date" name="due_date" id="renewEndDate" class="form-control" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+            </div>
+
+            <div class="alert alert-info" style="background-color: rgba(66, 165, 245, 0.1); border: 1px solid rgba(66, 165, 245, 0.3); color: #42A5F5;">
+              <i class="mdi mdi-information"></i> The end date will be automatically calculated based on the membership plan type.
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-update" onclick="showRenewConfirmModal()">Submit</button>
+        </div>
+      </div>
+
+      <!-- Confirmation Overlay -->
+      <div id="renewConfirmOverlay" class="confirm-overlay" style="display: none;">
+        <div class="confirm-overlay-content">
+          <div class="confirm-overlay-header">
+            <i class="mdi mdi-refresh"></i>
+            <h5>Confirm Renewal</h5>
+            <button type="button" class="close" onclick="backToRenewForm()">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="confirm-overlay-body">
+            <p class="mb-3">Are you sure you want to renew this subscription?</p>
+            <div class="confirm-details">
+              <div class="confirm-row">
+                <span class="confirm-label">Member:</span>
+                <span class="confirm-value" id="confirmRenewNameText"></span>
+              </div>
+              <div class="confirm-row">
+                <span class="confirm-label">Plan:</span>
+                <span class="confirm-value" id="confirmRenewPlanText"></span>
+              </div>
+              <div class="confirm-row">
+                <span class="confirm-label">Duration:</span>
+                <span class="confirm-value" id="confirmRenewDurationText"></span>
+              </div>
+            </div>
+          </div>
+          <div class="confirm-overlay-footer">
+            <button type="button" class="btn btn-cancel" onclick="backToRenewForm()">Cancel</button>
+            <button type="button" class="btn btn-update" onclick="submitRenewForm()">
+              <i class="mdi mdi-check"></i> Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="confirmMemberModalLabel">Add Member</h5>
+        <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Delete</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        <div class="form-group">
-          <label>Name</label>
-          <div class="form-control" id="confirmName" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff; display: flex; align-items: center;">
-            <span id="confirmNameText"></span>
-            <img id="confirmAvatarSmall" src="" alt="" style="width: 30px; height: 30px; border-radius: 50%; margin-left: auto; display: none;">
-          </div>
+        <div class="alert alert-danger" style="background-color: rgba(239, 83, 80, 0.1); border: 1px solid rgba(239, 83, 80, 0.3); color: #EF5350;">
+          <i class="mdi mdi-alert-circle"></i> Are you sure you want to delete this member? This action cannot be undone.
         </div>
 
         <div class="form-group">
-          <label>Age</label>
-          <div class="form-control" id="confirmAge" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
-        </div>
-
-        <div class="form-group">
-          <label>Contact Number</label>
-          <div class="form-control" id="confirmContact" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+          <label>Member Name</label>
+          <div class="form-control" id="deleteMemberName" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
         </div>
 
         <div class="form-group">
           <label>Membership Plan</label>
-          <div class="form-control" id="confirmPlan" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+          <div class="form-control" id="deleteMemberPlan" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
         </div>
 
         <div class="form-group">
-          <label>Start Date</label>
-          <div class="form-control" id="confirmStartDate" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+          <label>Status</label>
+          <div class="form-control" id="deleteMemberStatus" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
         </div>
 
-        <div class="form-group">
-          <label>End Date</label>
-          <div class="form-control" id="confirmEndDate" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
-        </div>
-
-        <div class="form-group">
-          <label>Avatar (optional)</label>
-          <div class="text-center">
-            <img id="confirmAvatarLarge" src="" alt="Avatar Preview" style="max-width: 200px; max-height: 200px; border-radius: 10px; display: none;">
-            <p id="noAvatarText" style="color: rgba(255, 255, 255, 0.6);">No avatar selected</p>
-          </div>
-        </div>
+        <form id="deleteForm" method="POST" style="display: none;">
+          @csrf
+          @method('DELETE')
+        </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-cancel" onclick="backToAddForm()">Cancel</button>
-        <button type="button" class="btn btn-update" onclick="submitMemberForm()">Submit</button>
+        <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" onclick="confirmDelete()">Delete Member</button>
       </div>
     </div>
   </div>
 </div>
+
 @endsection
 
 @push('scripts')
@@ -519,6 +652,9 @@
       csrfToken: '{{ csrf_token() }}',
       storeUrl: '{{ route("memberships.store") }}'
     });
+    
+    // Setup midnight auto-refresh for KPIs
+    MembershipsPage.setupMidnightRefresh();
   });
 
   // Global function wrappers for onclick handlers in HTML
@@ -564,6 +700,34 @@
 
   function bulkDelete() {
     MembershipsPage.bulkDelete();
+  }
+
+  function openRenewModal(membershipId, memberName, planType, startDate, dueDate) {
+    MembershipsPage.openRenewModal(membershipId, memberName, planType, startDate, dueDate);
+  }
+
+  function calculateRenewEndDate() {
+    MembershipsPage.calculateRenewEndDate();
+  }
+
+  function showRenewConfirmModal() {
+    MembershipsPage.showRenewConfirmModal();
+  }
+
+  function backToRenewForm() {
+    MembershipsPage.backToRenewForm();
+  }
+
+  function submitRenewForm() {
+    MembershipsPage.submitRenewForm();
+  }
+
+  function openDeleteModal(membershipId, memberName, planType, status) {
+    MembershipsPage.openDeleteModal(membershipId, memberName, planType, status);
+  }
+
+  function confirmDelete() {
+    MembershipsPage.confirmDelete();
   }
 </script>
 @endpush

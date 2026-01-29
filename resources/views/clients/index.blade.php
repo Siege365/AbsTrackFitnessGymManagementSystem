@@ -8,39 +8,10 @@
 
 @section('content')
 
-<!-- Success/Error Alerts -->
-@if(session('success'))
-<div class="row">
-  <div class="col-12">
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-      <i class="mdi mdi-check-circle mr-2"></i>
-      <strong>Success!</strong> {{ session('success') }}
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-  </div>
-</div>
-@endif
-
-@if(session('error'))
-<div class="row">
-  <div class="col-12">
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-      <i class="mdi mdi-alert-circle mr-2"></i>
-      <strong>Error!</strong> {{ session('error') }}
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-  </div>
-</div>
-@endif
-
 <!-- Statistics Cards -->
 <div class="row">
   <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-    <div class="card stats-card">
+    <div class="card stats-card" data-filter="all">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
           <div>
@@ -56,7 +27,7 @@
   </div>
 
   <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-    <div class="card stats-card">
+    <div class="card stats-card" data-filter="active">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
           <div>
@@ -72,7 +43,7 @@
   </div>
 
   <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-    <div class="card stats-card">
+    <div class="card stats-card" data-filter="expiring">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
           <div>
@@ -88,7 +59,7 @@
   </div>
 
   <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-    <div class="card stats-card">
+    <div class="card stats-card" data-filter="new">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
           <div>
@@ -122,9 +93,26 @@
                 value="{{ request('search') }}" 
                 style="width: 450px;"
                 id="searchInputClients">
-              <button type="button" class="btn btn-sm filter-button mr-2" data-toggle="modal" data-target="#filterModal">
-                <i class="mdi mdi-filter-variant"></i> Filter
-              </button>
+              <div class="dropdown d-inline-block mr-2">
+                <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="filterDropdownClients" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="mdi mdi-filter-variant"></i> Filter
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="filterDropdownClients">
+                  <h6 class="dropdown-header">Filter by Status</h6>
+                  <a class="dropdown-item" href="javascript:void(0)" onclick="ClientsPage.applyStatusFilter('all')">
+                    <i class="mdi mdi-account-multiple mr-2"></i> All Clients
+                  </a>
+                  <a class="dropdown-item" href="javascript:void(0)" onclick="ClientsPage.applyStatusFilter('active')">
+                    <i class="mdi mdi-check-circle mr-2 text-success"></i> Active Only
+                  </a>
+                  <a class="dropdown-item" href="javascript:void(0)" onclick="ClientsPage.applyStatusFilter('expired')">
+                    <i class="mdi mdi-close-circle mr-2 text-danger"></i> Expired Only
+                  </a>
+                  <a class="dropdown-item" href="javascript:void(0)" onclick="ClientsPage.applyStatusFilter('due_soon')">
+                    <i class="mdi mdi-clock-alert mr-2 text-warning"></i> Due Soon Only
+                  </a>
+                </div>
+              </div>
               @if(request('search'))
                 <a href="{{ route('clients.index') }}" class="btn btn-sm btn-outline-secondary">
                   <i class="mdi mdi-close"></i>
@@ -170,7 +158,9 @@
             </thead>
             <tbody>
               @forelse($clients as $client)
-              <tr>
+              <tr data-status="{{ $client->status }}" 
+                  data-created="{{ $client->created_at->format('Y-m') }}" 
+                  data-expiring="{{ $client->status == 'Due soon' ? 'yes' : 'no' }}">
                 <td>
                   <div class="form-check">
                     <label class="form-check-label">
@@ -209,7 +199,7 @@
                     </span>
                   @endif
                 </td>
-                <td>{{ $client->contact }}</td>
+                <td>@formatContact($client->contact)</td>
                 <td>
                   <div class="dropdown">
                     <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown">
@@ -219,19 +209,14 @@
                       <button type="button" class="dropdown-item" data-toggle="modal" data-target="#viewModal{{ $client->id }}">
                         <i class="mdi mdi-eye mr-2"></i> View
                       </button>
-                      <form action="{{ route('clients.renew', $client) }}" method="POST" class="d-inline">
-                        @csrf
-                        <button type="submit" class="dropdown-item text-success" onclick="return confirm('Are you sure you want to renew this subscription for another month?')">
-                          <i class="mdi mdi-refresh mr-2"></i> Renew Subscription
-                        </button>
-                      </form>
-                      <form action="{{ route('clients.destroy', $client) }}" method="POST" class="d-inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Are you sure you want to delete this client?')">
-                          <i class="mdi mdi-delete mr-2"></i> Delete
-                        </button>
-                      </form>
+                      <button type="button" class="dropdown-item text-success" 
+                        onclick="openRenewClientModal({{ $client->id }}, '{{ $client->name }}', '{{ $client->plan_type }}', '{{ $client->start_date->format('Y-m-d') }}', '{{ $client->due_date->format('Y-m-d') }}')">
+                        <i class="mdi mdi-refresh mr-2"></i> Renew Subscription
+                      </button>
+                      <button type="button" class="dropdown-item text-danger" 
+                        onclick="openDeleteClientModal({{ $client->id }}, '{{ $client->name }}', '{{ $client->plan_type }}', '{{ $client->status }}')">
+                        <i class="mdi mdi-delete mr-2"></i> Delete
+                      </button>
                     </div>
                   </div>
                 </td>
@@ -258,91 +243,130 @@
         @foreach($clients as $client)
         <div class="modal fade" id="viewModal{{ $client->id }}" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel{{ $client->id }}" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-              <form action="{{ route('clients.update', $client) }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-                <div class="modal-header">
-                  <h5 class="modal-title" id="viewModalLabel{{ $client->id }}">Edit Client</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <!-- Name -->
-                  <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" name="name" class="form-control" value="{{ $client->name }}" required>
+            <div class="modal-content" style="position: relative;">
+              <!-- Main Form Content -->
+              <div id="editClientFormContent{{ $client->id }}">
+                <form id="editClientForm{{ $client->id }}" data-action="{{ route('clients.update', $client) }}">
+                  @csrf
+                  @method('PUT')
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="viewModalLabel{{ $client->id }}">Edit Client</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
                   </div>
+                  <div class="modal-body">
+                    <!-- Name -->
+                    <div class="form-group">
+                      <label>Name</label>
+                      <input type="text" name="name" id="editClientName{{ $client->id }}" class="form-control" value="{{ $client->name }}" required>
+                    </div>
 
-                  <!-- Age -->
-                  <div class="form-group">
-                    <label>Age</label>
-                    <input type="number" name="age" class="form-control" value="{{ $client->age }}" min="1" max="120">
-                  </div>
+                    <!-- Age -->
+                    <div class="form-group">
+                      <label>Age</label>
+                      <input type="number" name="age" id="editClientAge{{ $client->id }}" class="form-control" value="{{ $client->age }}" min="1" max="120">
+                    </div>
 
-                  <!-- Contact Number -->
-                  <div class="form-group">
-                    <label>Contact Number</label>
-                    <input type="text" name="contact" class="form-control" value="{{ $client->contact }}" required pattern="^[+]?[0-9() ]+$" title="Please enter a valid contact number (only numbers, +, (), and spaces allowed. NO minus signs!)">
-                  </div>
+                    <!-- Contact Number -->
+                    <div class="form-group">
+                      <label>Contact Number</label>
+                      <input type="text" name="contact" id="editClientContact{{ $client->id }}" class="form-control" value="{{ $client->contact }}" required pattern="^[+]?[0-9() ]+$" title="Please enter a valid contact number (only numbers, +, (), and spaces allowed. NO minus signs!)">
+                    </div>
 
-                  <!-- Plan Type -->
-                  <div class="form-group">
-                    <label>Plan Type</label>
-                    <select name="plan_type" class="form-control" required>
-                      <option value="Monthly" {{ $client->plan_type == 'Monthly' ? 'selected' : '' }}>Monthly</option>
-                      <option value="Session" {{ $client->plan_type == 'Session' ? 'selected' : '' }}>Session</option>
-                    </select>
-                  </div>
+                    <!-- Plan Type -->
+                    <div class="form-group">
+                      <label>Plan Type</label>
+                      <select name="plan_type" id="editClientPlanType{{ $client->id }}" class="form-control" required>
+                        <option value="Monthly" {{ $client->plan_type == 'Monthly' ? 'selected' : '' }}>Monthly</option>
+                        <option value="Session" {{ $client->plan_type == 'Session' ? 'selected' : '' }}>Session</option>
+                      </select>
+                    </div>
 
-                  <!-- Start Date -->
-                  <div class="form-group">
-                    <label>Start Date</label>
-                    <input type="date" name="start_date" id="editClientStartDate{{ $client->id }}" class="form-control" value="{{ $client->start_date->format('Y-m-d') }}" onchange="calculateEditClientEndDate({{ $client->id }})" required>
-                  </div>
+                    <!-- Start Date -->
+                    <div class="form-group">
+                      <label>Start Date</label>
+                      <input type="date" name="start_date" id="editClientStartDate{{ $client->id }}" class="form-control" value="{{ $client->start_date->format('Y-m-d') }}" onchange="calculateEditClientEndDate({{ $client->id }})" required>
+                    </div>
 
-                  <!-- End Date -->
-                  <div class="form-group">
-                    <label>End Date</label>
-                    <input type="date" name="due_date" id="editClientEndDate{{ $client->id }}" class="form-control" value="{{ $client->due_date->format('Y-m-d') }}" readonly>
-                  </div>
+                    <!-- End Date -->
+                    <div class="form-group">
+                      <label>End Date</label>
+                      <input type="date" name="due_date" id="editClientEndDate{{ $client->id }}" class="form-control" value="{{ $client->due_date->format('Y-m-d') }}" readonly>
+                    </div>
 
-                  <!-- Avatar (optional) -->
-                  <div class="form-group">
-                    <label>Avatar (optional)</label>
-                    <div class="mb-2">
-                      <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                        <label class="btn btn-sm btn-outline-primary active">
-                          <input type="radio" name="editClientAvatarInputType{{ $client->id }}" value="file" checked onclick="toggleEditClientAvatarInput({{ $client->id }}, 'file')"> Upload File
-                        </label>
-                        <label class="btn btn-sm btn-outline-primary">
-                          <input type="radio" name="editClientAvatarInputType{{ $client->id }}" value="url" onclick="toggleEditClientAvatarInput({{ $client->id }}, 'url')"> Enter URL
-                        </label>
+                    <!-- Avatar (optional) -->
+                    <div class="form-group">
+                      <label>Avatar (optional)</label>
+                      <div class="mb-2">
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                          <label class="btn btn-sm btn-outline-primary active">
+                            <input type="radio" name="editClientAvatarInputType{{ $client->id }}" value="file" checked onclick="toggleEditClientAvatarInput({{ $client->id }}, 'file')"> Upload File
+                          </label>
+                          <label class="btn btn-sm btn-outline-primary">
+                            <input type="radio" name="editClientAvatarInputType{{ $client->id }}" value="url" onclick="toggleEditClientAvatarInput({{ $client->id }}, 'url')"> Enter URL
+                          </label>
+                        </div>
+                      </div>
+                      <div class="text-center">
+                        <div id="avatarPreview{{ $client->id }}" class="mb-2">
+                          @if($client->avatar)
+                            <img src="{{ asset('storage/' . $client->avatar) }}" alt="{{ $client->name }}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.2);">
+                          @else
+                            <div style="width: 120px; height: 120px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 48px; color: white; font-weight: 600;">
+                              {{ strtoupper(substr($client->name, 0, 1)) }}
+                            </div>
+                          @endif
+                        </div>
+                        <input type="file" name="avatar" id="avatarInput{{ $client->id }}" class="form-control mb-2" accept="image/*" onchange="previewAvatar({{ $client->id }})">
+                        <input type="text" name="avatar_url" id="avatarUrl{{ $client->id }}" class="form-control" placeholder="https://example.com/avatar.jpg" style="display: none;" oninput="previewClientAvatarUrl({{ $client->id }})">
                       </div>
                     </div>
-                    <div class="text-center">
-                      <div id="avatarPreview{{ $client->id }}" class="mb-2">
-                        @if($client->avatar)
-                          <img src="{{ asset('storage/' . $client->avatar) }}" alt="{{ $client->name }}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.2);">
-                        @else
-                          <div style="width: 120px; height: 120px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 48px; color: white; font-weight: 600;">
-                            {{ strtoupper(substr($client->name, 0, 1)) }}
-                          </div>
-                        @endif
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-update" onclick="showEditClientConfirmModal({{ $client->id }})">
+                      <i class="mdi mdi-pencil"></i> Update
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Confirmation Overlay -->
+              <div id="editClientConfirmOverlay{{ $client->id }}" class="confirm-overlay" style="display: none;">
+                <div class="confirm-overlay-content">
+                  <div class="confirm-overlay-header">
+                    <i class="mdi mdi-pencil-outline"></i>
+                    <h5>Confirm Update</h5>
+                    <button type="button" class="close" onclick="backToEditClientForm({{ $client->id }})">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="confirm-overlay-body">
+                    <p class="mb-3">Are you sure you want to update this client?</p>
+                    <div class="confirm-details">
+                      <div class="confirm-row">
+                        <span class="confirm-label">Name:</span>
+                        <span class="confirm-value" id="confirmEditClientName{{ $client->id }}"></span>
                       </div>
-                      <input type="file" name="avatar" id="avatarInput{{ $client->id }}" class="form-control mb-2" accept="image/*" onchange="previewAvatar({{ $client->id }})">
-                      <input type="text" name="avatar_url" id="avatarUrl{{ $client->id }}" class="form-control" placeholder="https://example.com/avatar.jpg" style="display: none;" oninput="previewClientAvatarUrl({{ $client->id }})">
+                      <div class="confirm-row">
+                        <span class="confirm-label">Plan:</span>
+                        <span class="confirm-value" id="confirmEditClientPlan{{ $client->id }}"></span>
+                      </div>
+                      <div class="confirm-row">
+                        <span class="confirm-label">Duration:</span>
+                        <span class="confirm-value" id="confirmEditClientDuration{{ $client->id }}"></span>
+                      </div>
                     </div>
                   </div>
+                  <div class="confirm-overlay-footer">
+                    <button type="button" class="btn btn-cancel" onclick="backToEditClientForm({{ $client->id }})">Cancel</button>
+                    <button type="button" class="btn btn-update" onclick="submitEditClientForm({{ $client->id }})">
+                      <i class="mdi mdi-check"></i> Confirm
+                    </button>
+                  </div>
                 </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
-                  <button type="submit" class="btn btn-update">
-                    <i class="mdi mdi-pencil"></i> Update
-                  </button>
-                </div>
-              </form>
+              </div>
             </div>
           </div>
         </div>
@@ -361,9 +385,7 @@
               </form>
             </div>
             <div class="col-md-6 col-sm-12">
-              <nav aria-label="Page navigation">
-                {{ $clients->links('pagination::bootstrap-4') }}
-              </nav>
+              {{ $clients->links('vendor.pagination.custom') }}
             </div>
           </div>
         </div>
@@ -374,135 +396,246 @@
 
 <!-- Add Client Modal -->
 <div class="modal fade" id="addClientModal" tabindex="-1" role="dialog" aria-labelledby="addClientModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content" style="position: relative;">
+      <!-- Main Form Content -->
+      <div id="addClientFormContent">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addClientModalLabel">Add Client</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="addClientForm">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" name="name" id="newClientName" class="form-control" placeholder="John Doe" required>
+            </div>
+
+            <div class="form-group">
+              <label>Age</label>
+              <input type="number" name="age" id="newClientAge" class="form-control" placeholder="24" min="1" max="120" required>
+            </div>
+
+            <div class="form-group">
+              <label>Contact Number</label>
+              <input type="text" name="contact" id="newClientContact" class="form-control" placeholder="09123456789" required>
+            </div>
+
+            <div class="form-group">
+              <label>Membership Plan</label>
+              <select name="plan_type" id="newClientPlan" class="form-control" required>
+                <option value="">Select Plan</option>
+                <option value="Monthly">Monthly</option>
+                <option value="Session">Session</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Start Date</label>
+              <input type="date" name="start_date" id="newClientStartDate" class="form-control" onchange="calculateClientEndDate()" required>
+            </div>
+
+            <div class="form-group">
+              <label>End Date</label>
+              <input type="date" name="due_date" id="newClientEndDate" class="form-control" readonly>
+            </div>
+
+            <div class="form-group">
+              <label>Avatar (optional)</label>
+              <div class="mb-2">
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                  <label class="btn btn-sm btn-outline-primary active">
+                    <input type="radio" name="clientAvatarInputType" value="file" checked onclick="toggleClientAvatarInput('file')"> Upload File
+                  </label>
+                  <label class="btn btn-sm btn-outline-primary">
+                    <input type="radio" name="clientAvatarInputType" value="url" onclick="toggleClientAvatarInput('url')"> Enter URL
+                  </label>
+                </div>
+              </div>
+              <input type="file" name="avatar" id="newClientAvatar" class="form-control" accept="image/*" onchange="previewNewClientAvatar()">
+              <input type="text" name="avatar_url" id="newClientAvatarUrl" class="form-control" placeholder="https://example.com/avatar.jpg" style="display: none;" oninput="previewNewClientAvatar()">
+              <div id="newClientAvatarPreview" class="mt-3 text-center"></div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-update" onclick="showClientConfirmModal()">Submit</button>
+        </div>
+      </div>
+
+      <!-- Confirmation Overlay -->
+      <div id="addClientConfirmOverlay" class="confirm-overlay" style="display: none;">
+        <div class="confirm-overlay-content">
+          <div class="confirm-overlay-header">
+            <i class="mdi mdi-check-circle-outline"></i>
+            <h5>Confirm Client</h5>
+            <button type="button" class="close" onclick="backToClientAddForm()">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="confirm-overlay-body">
+            <p class="mb-3">Are you sure you want to add this client?</p>
+            <div class="confirm-details">
+              <div class="confirm-row">
+                <span class="confirm-label">Name:</span>
+                <span class="confirm-value" id="confirmClientNameText"></span>
+              </div>
+              <div class="confirm-row">
+                <span class="confirm-label">Plan:</span>
+                <span class="confirm-value" id="confirmClientPlanText"></span>
+              </div>
+              <div class="confirm-row">
+                <span class="confirm-label">Duration:</span>
+                <span class="confirm-value" id="confirmClientDurationText"></span>
+              </div>
+            </div>
+          </div>
+          <div class="confirm-overlay-footer">
+            <button type="button" class="btn btn-cancel" onclick="backToClientAddForm()">Cancel</button>
+            <button type="button" class="btn btn-update" onclick="submitClientForm()">
+              <i class="mdi mdi-check"></i> Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Renew Subscription Modal -->
+<div class="modal fade" id="renewClientModal" tabindex="-1" role="dialog" aria-labelledby="renewClientModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content" style="position: relative;">
+      <!-- Main Form Content -->
+      <div id="renewClientFormContent">
+        <div class="modal-header">
+          <h5 class="modal-title" id="renewClientModalLabel">Renew Subscription</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="renewClientForm">
+            <input type="hidden" id="renewClientId" name="client_id">
+            <input type="hidden" id="renewClientName" name="client_name">
+            <input type="hidden" id="renewClientPlanType" name="plan_type">
+
+            <div class="form-group">
+              <label>Client Name</label>
+              <input type="text" class="form-control" id="renewClientNameDisplay" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+            </div>
+
+            <div class="form-group">
+              <label>Current Plan</label>
+              <input type="text" class="form-control" id="renewClientPlanTypeDisplay" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+            </div>
+
+            <div class="form-group">
+              <label>Start Date <span class="text-danger">*</span></label>
+              <input type="date" name="start_date" id="renewClientStartDate" class="form-control" required onchange="calculateRenewClientEndDate()">
+            </div>
+
+            <div class="form-group">
+              <label>End Date <span class="text-danger">*</span></label>
+              <input type="date" name="due_date" id="renewClientEndDate" class="form-control" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+            </div>
+
+            <div class="alert alert-info" style="background-color: rgba(66, 165, 245, 0.1); border: 1px solid rgba(66, 165, 245, 0.3); color: #42A5F5;">
+              <i class="mdi mdi-information"></i> The end date will be automatically calculated based on the subscription plan type.
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-update" onclick="showRenewClientConfirmModal()">Submit</button>
+        </div>
+      </div>
+
+      <!-- Confirmation Overlay -->
+      <div id="renewClientConfirmOverlay" class="confirm-overlay" style="display: none;">
+        <div class="confirm-overlay-content">
+          <div class="confirm-overlay-header">
+            <i class="mdi mdi-refresh"></i>
+            <h5>Confirm Renewal</h5>
+            <button type="button" class="close" onclick="backToRenewClientForm()">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="confirm-overlay-body">
+            <p class="mb-3">Are you sure you want to renew this subscription?</p>
+            <div class="confirm-details">
+              <div class="confirm-row">
+                <span class="confirm-label">Client:</span>
+                <span class="confirm-value" id="confirmRenewClientNameText"></span>
+              </div>
+              <div class="confirm-row">
+                <span class="confirm-label">Plan:</span>
+                <span class="confirm-value" id="confirmRenewClientPlanText"></span>
+              </div>
+              <div class="confirm-row">
+                <span class="confirm-label">Duration:</span>
+                <span class="confirm-value" id="confirmRenewClientDurationText"></span>
+              </div>
+            </div>
+          </div>
+          <div class="confirm-overlay-footer">
+            <button type="button" class="btn btn-cancel" onclick="backToRenewClientForm()">Cancel</button>
+            <button type="button" class="btn btn-update" onclick="submitRenewClientForm()">
+              <i class="mdi mdi-check"></i> Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteClientConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteClientConfirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="addClientModalLabel">Add Client</h5>
+        <h5 class="modal-title" id="deleteClientConfirmModalLabel">Confirm Delete</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        <form id="addClientForm">
-          <div class="form-group">
-            <label>Name</label>
-            <input type="text" name="name" id="newClientName" class="form-control" placeholder="John Doe" required>
-          </div>
+        <div class="alert alert-danger" style="background-color: rgba(239, 83, 80, 0.1); border: 1px solid rgba(239, 83, 80, 0.3); color: #EF5350;">
+          <i class="mdi mdi-alert-circle"></i> Are you sure you want to delete this client? This action cannot be undone.
+        </div>
 
-          <div class="form-group">
-            <label>Age</label>
-            <input type="number" name="age" id="newClientAge" class="form-control" placeholder="24" min="1" max="120" required>
-          </div>
+        <div class="form-group">
+          <label>Client Name</label>
+          <div class="form-control" id="deleteClientName" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+        </div>
 
-          <div class="form-group">
-            <label>Contact Number</label>
-            <input type="text" name="contact" id="newClientContact" class="form-control" placeholder="09123456789" required>
-          </div>
+        <div class="form-group">
+          <label>Subscription Plan</label>
+          <div class="form-control" id="deleteClientPlan" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+        </div>
 
-          <div class="form-group">
-            <label>Membership Plan</label>
-            <select name="plan_type" id="newClientPlan" class="form-control" required>
-              <option value="">Select Plan</option>
-              <option value="Monthly">Monthly</option>
-              <option value="Session">Session</option>
-            </select>
-          </div>
+        <div class="form-group">
+          <label>Status</label>
+          <div class="form-control" id="deleteClientStatus" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+        </div>
 
-          <div class="form-group">
-            <label>Start Date</label>
-            <input type="date" name="start_date" id="newClientStartDate" class="form-control" onchange="calculateClientEndDate()" required>
-          </div>
-
-          <div class="form-group">
-            <label>End Date</label>
-            <input type="date" name="due_date" id="newClientEndDate" class="form-control" readonly>
-          </div>
-
-          <div class="form-group">
-            <label>Avatar (optional)</label>
-            <div class="mb-2">
-              <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                <label class="btn btn-sm btn-outline-primary active">
-                  <input type="radio" name="clientAvatarInputType" value="file" checked onclick="toggleClientAvatarInput('file')"> Upload File
-                </label>
-                <label class="btn btn-sm btn-outline-primary">
-                  <input type="radio" name="clientAvatarInputType" value="url" onclick="toggleClientAvatarInput('url')"> Enter URL
-                </label>
-              </div>
-            </div>
-            <input type="file" name="avatar" id="newClientAvatar" class="form-control" accept="image/*" onchange="previewNewClientAvatar()">
-            <input type="text" name="avatar_url" id="newClientAvatarUrl" class="form-control" placeholder="https://example.com/avatar.jpg" style="display: none;" oninput="previewNewClientAvatar()">
-            <div id="newClientAvatarPreview" class="mt-3 text-center"></div>
-          </div>
+        <form id="deleteClientForm" method="POST" style="display: none;">
+          @csrf
+          @method('DELETE')
         </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-update" onclick="showClientConfirmModal()">Submit</button>
+        <button type="button" class="btn btn-danger" onclick="confirmDeleteClient()">Delete Client</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Confirmation Modal -->
-<div class="modal fade" id="confirmClientModal" tabindex="-1" role="dialog" aria-labelledby="confirmClientModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="confirmClientModalLabel">Add Client</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label>Name</label>
-          <div class="form-control" id="confirmClientName" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff; display: flex; align-items: center;">
-            <span id="confirmClientNameText"></span>
-            <img id="confirmClientAvatarSmall" src="" alt="" style="width: 30px; height: 30px; border-radius: 50%; margin-left: auto; display: none;">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Age</label>
-          <div class="form-control" id="confirmClientAge" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
-        </div>
-
-        <div class="form-group">
-          <label>Contact Number</label>
-          <div class="form-control" id="confirmClientContact" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
-        </div>
-
-        <div class="form-group">
-          <label>Membership Plan</label>
-          <div class="form-control" id="confirmClientPlan" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
-        </div>
-
-        <div class="form-group">
-          <label>Start Date</label>
-          <div class="form-control" id="confirmClientStartDate" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
-        </div>
-
-        <div class="form-group">
-          <label>End Date</label>
-          <div class="form-control" id="confirmClientEndDate" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
-        </div>
-
-        <div class="form-group">
-          <label>Avatar (optional)</label>
-          <div class="text-center">
-            <img id="confirmClientAvatarLarge" src="" alt="Avatar Preview" style="max-width: 200px; max-height: 200px; border-radius: 10px; display: none;">
-            <p id="noClientAvatarText" style="color: rgba(255, 255, 255, 0.6);">No avatar selected</p>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-cancel" onclick="backToClientAddForm()">Cancel</button>
-        <button type="button" class="btn btn-update" onclick="submitClientForm()">Submit</button>
-      </div>
-    </div>
-  </div>
-</div>
 @endsection
 
 @push('scripts')
@@ -519,6 +652,9 @@
       csrfToken: '{{ csrf_token() }}',
       storeUrl: '{{ route("clients.store") }}'
     });
+    
+    // Setup midnight auto-refresh for KPIs
+    ClientsPage.setupMidnightRefresh();
     
     // Setup client search enter key (uses different IDs than memberships)
     const searchInput = document.getElementById('searchInputClients');
@@ -576,6 +712,46 @@
 
   function bulkDelete() {
     ClientsPage.bulkDelete();
+  }
+
+  function openRenewClientModal(clientId, clientName, planType, startDate, dueDate) {
+    ClientsPage.openRenewClientModal(clientId, clientName, planType, startDate, dueDate);
+  }
+
+  function calculateRenewClientEndDate() {
+    ClientsPage.calculateRenewClientEndDate();
+  }
+
+  function showRenewClientConfirmModal() {
+    ClientsPage.showRenewClientConfirmModal();
+  }
+
+  function backToRenewClientForm() {
+    ClientsPage.backToRenewClientForm();
+  }
+
+  function submitRenewClientForm() {
+    ClientsPage.submitRenewClientForm();
+  }
+
+  function showEditClientConfirmModal(clientId) {
+    ClientsPage.showEditClientConfirmModal(clientId);
+  }
+
+  function backToEditClientForm(clientId) {
+    ClientsPage.backToEditClientForm(clientId);
+  }
+
+  function submitEditClientForm(clientId) {
+    ClientsPage.submitEditClientForm(clientId);
+  }
+
+  function openDeleteClientModal(clientId, clientName, planType, status) {
+    ClientsPage.openDeleteClientModal(clientId, clientName, planType, status);
+  }
+
+  function confirmDeleteClient() {
+    ClientsPage.confirmDeleteClient();
   }
 </script>
 @endpush

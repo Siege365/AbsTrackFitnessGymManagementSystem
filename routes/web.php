@@ -91,12 +91,14 @@ Route::middleware(['auth'])->group(function () {
     })->name('UserAndAdmin.CashierActivity');
 
     // Memberships CRUD
+    Route::get('memberships/kpis', [MembershipController::class, 'getKpis'])->name('memberships.kpis');
     Route::delete('memberships/bulk-delete', [MembershipController::class, 'bulkDelete'])->name('memberships.bulk-delete');
     Route::post('memberships/{membership}/renew', [MembershipController::class, 'renew'])->name('memberships.renew');
     Route::resource('memberships', MembershipController::class);
     Route::get('/members/search', [MembershipController::class, 'search'])->name('members.search');
     
     // Clients CRUD
+    Route::get('clients/kpis', [ClientController::class, 'getKpis'])->name('clients.kpis');
     Route::delete('clients/bulk-delete', [ClientController::class, 'bulkDelete'])->name('clients.bulk-delete');
     Route::post('clients/{client}/renew', [ClientController::class, 'renew'])->name('clients.renew');
     Route::resource('clients', ClientController::class);

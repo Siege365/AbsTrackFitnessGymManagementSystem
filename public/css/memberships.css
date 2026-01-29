@@ -58,11 +58,17 @@ body {
   background: #191C24 !important;
   border: none;
   border-radius: 10px;
-  transition: transform 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .stats-card:hover {
-  transform: translateY(-2px);
+  transform: none;
+  box-shadow: none;
+}
+
+.stats-card.active {
+  border: 2px solid #007bff;
+  box-shadow: 0 4px 16px rgba(0, 123, 255, 0.4);
 }
 
 .stats-card .card-body {
@@ -103,6 +109,15 @@ body {
 .table-responsive::-webkit-scrollbar-thumb {
   background-color: #3a3f4b;
   border-radius: 4px;
+}
+
+/* Allow dropdowns to overflow table container */
+.table-responsive {
+  overflow: visible !important;
+}
+
+.table {
+  position: relative;
 }
 
 /* Table Styles */
@@ -238,12 +253,45 @@ body {
 .dropdown-menu {
   background: #191C24;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: fadeInDown 0.2s ease;
+  transform-origin: top right;
+  position: absolute;
+  z-index: 1050;
+}
+
+/* Table action dropdown - opens to left */
+.table .dropdown {
+  position: static;
+}
+
+.table .dropdown-menu {
+  right: 20px !important;
+  left: auto !important;
+  top: auto !important;
+  transform-origin: top right;
+}
+
+.dropdown-menu-right {
+  right: 0 !important;
+  left: auto !important;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .dropdown-item {
   color: #ffffff;
   font-size: 1rem;
   padding: 0.625rem 1.25rem;
+  white-space: nowrap;
 }
 
 .dropdown-item:hover {
@@ -251,7 +299,25 @@ body {
   color: #ffffff;
 }
 
+/* Modal kebab menu proper sizing */
+.modal-body .dropdown-menu {
+  min-width: 200px;
+}
+
+.modal-body .dropdown-item {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
 /* Pagination */
+.pagination-custom {
+  display: flex;
+  justify-content: flex-end;
+  padding-left: 0;
+  list-style: none;
+  border-radius: 0.25rem;
+}
+
 .pagination .page-item.active .page-link {
   background-color: #191C24;
   border-color: #191C24;
@@ -529,4 +595,158 @@ input[type="checkbox"]:hover {
 .col-12 {
   padding-left: 15px;
   padding-right: 15px;
+}
+
+/* Confirmation Overlay Styles */
+.confirm-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1060;
+  border-radius: 0.3rem;
+  backdrop-filter: blur(2px);
+}
+
+.confirm-overlay-content {
+  background: #191C24;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  animation: confirmSlideIn 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes confirmSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.confirm-overlay-header {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.confirm-overlay-header i {
+  font-size: 1.5rem;
+  color: #6366f1;
+  margin-right: 0.75rem;
+}
+
+.confirm-overlay-header h5 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.confirm-overlay-header .close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+}
+
+.confirm-overlay-header .close:hover {
+  color: #ffffff;
+}
+
+.confirm-overlay-body {
+  padding: 1.25rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.confirm-overlay-body p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+}
+
+.confirm-details {
+  background: #282A36;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.confirm-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.confirm-row:last-child {
+  border-bottom: none;
+}
+
+.confirm-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+}
+
+.confirm-value {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 0.9rem;
+}
+
+.confirm-overlay-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.confirm-overlay-footer .btn-cancel {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+}
+
+.confirm-overlay-footer .btn-cancel:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.confirm-overlay-footer .btn-update {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+}
+
+.confirm-overlay-footer .btn-update:hover {
+  background: linear-gradient(135deg, #5558e3, #7c4fe0);
+}
+
+/* Modal scrollbar prevention */
+body.modal-open {
+  overflow: hidden !important;
+  padding-right: 0 !important;
+}
+
+.modal-open .modal {
+  overflow-x: hidden;
+  overflow-y: auto;
 }

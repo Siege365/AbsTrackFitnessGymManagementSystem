@@ -51,7 +51,41 @@
     <!-- End plugin js for this page -->
     
     <!-- Common JS Utilities -->
+    <script src="{{ asset('js/common/toast-utils.js') }}?v={{ time() }}"></script>
     <script src="{{ asset('js/common/sidebar.js') }}?v={{ time() }}"></script>
+    
+    <!-- Session Flash Messages as Toasts -->
+    @if(session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            ToastUtils.showSuccess('{{ session('success') }}', 'Success');
+        });
+    </script>
+    @endif
+    
+    @if(session('error'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            ToastUtils.showError('{{ session('error') }}', 'Error');
+        });
+    </script>
+    @endif
+    
+    @if(session('warning'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            ToastUtils.showWarning('{{ session('warning') }}', 'Warning');
+        });
+    </script>
+    @endif
+    
+    @if(session('info'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            ToastUtils.showInfo('{{ session('info') }}', 'Info');
+        });
+    </script>
+    @endif
     
     @stack('scripts')
 </body>

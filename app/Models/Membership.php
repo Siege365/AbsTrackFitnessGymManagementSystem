@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Membership extends Model
 {
@@ -13,7 +14,6 @@ class Membership extends Model
         'plan_type',
         'start_date',
         'due_date',
-        'status',
         'contact',
     ];
 
@@ -21,4 +21,42 @@ class Membership extends Model
         'start_date' => 'date',
         'due_date' => 'date',
     ];
+
+    /**
+     * Always append the status accessor to array/JSON output
+     */
+    protected $appends = ['status'];
+
+    /**
+     * Get the status attribute - automatically calculated based on due_date
+     * This ensures status is always accurate and real-time
+     * 
+     * @return string
+     */
+    public function getStatusAttribute()
+    {
+        // If there's a stored status value, we'll override it with the calculated one
+        // This accessor runs on every model load, ensuring real-time accuracy
+        
+        if (!$this->due_date) {
+            return 'Active'; // Default if no due date
+        }
+
+        $today = Carbon::today();
+        $dueDate = Carbon::parse($this->due_date);
+        
+        // Check if expired (past due date)
+        if ($dueDate->lt($today)) {
+            return 'Expired';
+        }
+        
+        // Check if due soon (within 7 days)
+        $sevenDaysFromNow = $today->copy()->addDays(7);
+        if ($dueDate->lte($sevenDaysFromNow)) {
+            return 'Due soon';
+        }
+        
+        // Otherwise, it's active
+        return 'Active';
+    }
 }
