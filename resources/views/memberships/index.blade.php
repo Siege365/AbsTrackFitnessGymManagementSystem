@@ -217,7 +217,7 @@
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">
                       <button type="button" class="dropdown-item" data-toggle="modal" data-target="#viewModal{{ $membership->id }}">
-                        <i class="mdi mdi-eye mr-2"></i> View
+                        <i class="mdi mdi-eye mr-2"></i> View Details
                       </button>
                       <form action="{{ route('memberships.renew', $membership) }}" method="POST" class="d-inline">
                         @csrf
@@ -257,7 +257,7 @@
         <!-- Edit Member Modals -->
         @foreach($memberships as $membership)
         <div class="modal fade" id="viewModal{{ $membership->id }}" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel{{ $membership->id }}" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
               <form action="{{ route('memberships.update', $membership) }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -374,7 +374,7 @@
 
 <!-- Add Member Modal -->
 <div class="modal fade" id="addMemberModal" tabindex="-1" role="dialog" aria-labelledby="addMemberModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="addMemberModalLabel">Add Member</h5>
@@ -446,7 +446,7 @@
 
 <!-- Confirmation Modal -->
 <div class="modal fade" id="confirmMemberModal" tabindex="-1" role="dialog" aria-labelledby="confirmMemberModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="confirmMemberModalLabel">Add Member</h5>
