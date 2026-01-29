@@ -3,22 +3,66 @@
 namespace App\Http\Controllers;
 
 use App\Models\InventorySupply;
+use App\Models\InventoryTransaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class InventorySupplyController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Get inventory items with pagination (10 per page)
-        $inventoryItems = InventorySupply::paginate(10);
+        // Start query
+        $query = InventorySupply::query();
         
-        // Calculate statistics
+        // Apply search filter
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('product_number', 'LIKE', "%{$search}%")
+                ->orWhere('product_name', 'LIKE', "%{$search}%")
+                ->orWhere('category', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        // Apply sorting filter
+        if ($request->has('filter') && $request->filter != '') {
+            switch($request->filter) {
+                case 'name_asc':
+                    $query->orderBy('product_name', 'asc');
+                    break;
+                case 'name_desc':
+                    $query->orderBy('product_name', 'desc');
+                    break;
+                case 'date_newest':
+                    $query->orderBy('created_at', 'desc');
+                    break;
+                case 'date_oldest':
+                    $query->orderBy('created_at', 'asc');
+                    break;
+                case 'stock_asc':
+                    $query->orderBy('stock_qty', 'asc');
+                    break;
+                case 'stock_desc':
+                    $query->orderBy('stock_qty', 'desc');
+                    break;
+                default:
+                    $query->orderBy('created_at', 'desc');
+            }
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+        
+        // Get paginated results
+        $inventoryItems = $query->paginate(10)->withQueryString();
+        
+        // Calculate statistics (based on all items)
         $totalProducts = InventorySupply::count();
         $lowStockItems = InventorySupply::whereColumn('stock_qty', '<', 'low_stock_threshold')
-                                       ->where('stock_qty', '>', 0)
-                                       ->count();
+                                    ->where('stock_qty', '>', 0)
+                                    ->count();
         $outOfStockItems = InventorySupply::where('stock_qty', 0)->count();
-        $stockValue = InventorySupply::sum(\DB::raw('unit_price * stock_qty'));
+        $stockValue = InventorySupply::sum(DB::raw('unit_price * stock_qty'));
         
         return view('inventorySupplies.inventory', compact(
             'inventoryItems',
@@ -29,53 +73,60 @@ class InventorySupplyController extends Controller
         ));
     }
 
-    public function create()
-    {
-        return view('inventorySupplies.create');
-    }
-
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'product_number' => 'required|unique:inventory_supplies',
-            'product_name' => 'required',
-            'category' => 'required',
-            'unit_price' => 'required|numeric|min:0',
-            'stock_qty' => 'required|integer|min:0',
-            'low_stock_threshold' => 'required|integer|min:0',
-            'last_restocked' => 'nullable|date',
-        ]);
+        try {
+            $validated = $request->validate([
+                'product_number' => 'required|unique:inventory_supplies,product_number',
+                'product_name' => 'required|string|max:255',
+                'category' => 'required|string|max:255',
+                'unit_price' => 'required|numeric|min:0',
+                'stock_qty' => 'required|integer|min:0',
+                'low_stock_threshold' => 'required|integer|min:0',
+            ], [
+                'product_number.required' => 'Product number is required.',
+                'product_number.unique' => 'This product number already exists.',
+                'product_name.required' => 'Product name is required.',
+                'category.required' => 'Category is required.',
+                'unit_price.required' => 'Unit price is required.',
+                'unit_price.numeric' => 'Unit price must be a number.',
+                'unit_price.min' => 'Unit price must be at least 0.',
+                'stock_qty.required' => 'Stock quantity is required.',
+                'stock_qty.integer' => 'Stock quantity must be a whole number.',
+                'stock_qty.min' => 'Stock quantity must be at least 0.',
+                'low_stock_threshold.required' => 'Low stock threshold is required.',
+                'low_stock_threshold.integer' => 'Low stock threshold must be a whole number.',
+                'low_stock_threshold.min' => 'Low stock threshold must be at least 0.',
+            ]);
 
-        InventorySupply::create($validated);
+            // Set last_restocked to current Philippines time if stock_qty > 0
+            if ($validated['stock_qty'] > 0) {
+                $validated['last_restocked'] = Carbon::now('Asia/Manila');
+            }
 
-        return redirect()->route('inventory.index')
-                        ->with('success', 'Product added successfully!');
-    }
+            $item = InventorySupply::create($validated);
 
-    public function edit($id)
-    {
-        $item = InventorySupply::findOrFail($id);
-        return view('inventorySupplies.edit', compact('item'));
-    }
+            // Create initial transaction record if stock qty > 0
+            if ($validated['stock_qty'] > 0) {
+                InventoryTransaction::create([
+                    'inventory_supply_id' => $item->id,
+                    'transaction_type' => 'stock_in',
+                    'quantity' => $validated['stock_qty'],
+                    'previous_stock' => 0,
+                    'new_stock' => $validated['stock_qty'],
+                    'notes' => 'Initial stock',
+                    'performed_by' => auth()->user()->name ?? 'System',
+                ]);
+            }
 
-    public function update(Request $request, $id)
-    {
-        $item = InventorySupply::findOrFail($id);
-        
-        $validated = $request->validate([
-            'product_number' => 'required|unique:inventory_supplies,product_number,' . $id,
-            'product_name' => 'required',
-            'category' => 'required',
-            'unit_price' => 'required|numeric|min:0',
-            'stock_qty' => 'required|integer|min:0',
-            'low_stock_threshold' => 'required|integer|min:0',
-            'last_restocked' => 'nullable|date',
-        ]);
-
-        $item->update($validated);
-
-        return redirect()->route('inventory.index')
-                        ->with('success', 'Product updated successfully!');
+            return redirect()->route('inventory.index')
+                            ->with('success', 'Product added successfully!');
+                            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                            ->withErrors($e->validator)
+                            ->withInput();
+        }
     }
 
     public function destroy($id)
@@ -85,5 +136,92 @@ class InventorySupplyController extends Controller
 
         return redirect()->route('inventory.index')
                         ->with('success', 'Product deleted successfully!');
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:inventory_supplies,id'
+        ]);
+
+        $deletedCount = InventorySupply::whereIn('id', $request->ids)->delete();
+
+        return redirect()->route('inventory.index')
+                        ->with('success', "$deletedCount product(s) deleted successfully!");
+    }
+
+    public function stockTransaction(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'transaction_type' => 'required|in:stock_in,stock_out',
+            'quantity' => 'required|integer|min:1',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        $item = InventorySupply::findOrFail($id);
+        $previousStock = $item->stock_qty;
+
+        // Calculate new stock based on transaction type
+        if ($validated['transaction_type'] === 'stock_in') {
+            $newStock = $previousStock + $validated['quantity'];
+        } else {
+            // Stock out
+            if ($previousStock < $validated['quantity']) {
+                return redirect()->back()
+                    ->with('error', 'Insufficient stock! Current stock: ' . $previousStock);
+            }
+            $newStock = $previousStock - $validated['quantity'];
+        }
+
+        // Start database transaction
+        DB::beginTransaction();
+        try {
+            // Update inventory stock with Philippines timezone
+            $updateData = [
+                'stock_qty' => $newStock,
+            ];
+            
+            // Update last_restocked to Philippines time only for stock_in
+            if ($validated['transaction_type'] === 'stock_in') {
+                $updateData['last_restocked'] = Carbon::now('Asia/Manila');
+            }
+            
+            $item->update($updateData);
+
+            // Create transaction record
+            InventoryTransaction::create([
+                'inventory_supply_id' => $item->id,
+                'transaction_type' => $validated['transaction_type'],
+                'quantity' => $validated['quantity'],
+                'previous_stock' => $previousStock,
+                'new_stock' => $newStock,
+                'notes' => $validated['notes'],
+                'performed_by' => auth()->user()->name ?? 'System',
+            ]);
+
+            DB::commit();
+
+            $message = $validated['transaction_type'] === 'stock_in' 
+                ? 'Stock added successfully!' 
+                : 'Stock removed successfully!';
+
+            return redirect()->route('inventory.index')
+                            ->with('success', $message);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                            ->with('error', 'Transaction failed: ' . $e->getMessage());
+        }
+    }
+
+    public function transactionHistory($id)
+    {
+        $item = InventorySupply::with(['transactions' => function($query) {
+            $query->orderBy('created_at', 'desc');
+        }])->findOrFail($id);
+
+        return view('inventorySupplies.transaction-history', compact('item'));
     }
 }
