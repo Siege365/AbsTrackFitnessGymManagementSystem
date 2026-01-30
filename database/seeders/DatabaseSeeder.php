@@ -33,6 +33,8 @@ class DatabaseSeeder extends Seeder
             MembershipSeeder::class,
             InventorySupplySeeder::class,
             ClientSeeder::class,
+            PTScheduleSeeder::class,
+            AttendanceSeeder::class,
         ]);
     }
 }

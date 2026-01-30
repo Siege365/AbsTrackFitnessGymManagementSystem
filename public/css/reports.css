@@ -1,0 +1,372 @@
+/**
+ * Reports & Analytics Page Styles
+ * Dark theme styling for reports dashboard
+ */
+
+/* Page Layout */
+.content-wrapper {
+    background-color: #282A36 !important;
+}
+
+/* Stats Cards */
+.stats-card {
+    background-color: #191C24 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.stats-card .card-body {
+    padding: 1.25rem;
+}
+
+.stats-card h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.25rem;
+}
+
+.stats-card p {
+    font-size: 0.85rem;
+    color: #8b92a7;
+    margin-bottom: 0;
+}
+
+/* KPI Icon Box */
+.icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.icon-box.text-success {
+    background-color: rgba(102, 187, 106, 0.15);
+    color: #66BB6A;
+}
+
+.icon-box.text-danger {
+    background-color: rgba(239, 83, 80, 0.15);
+    color: #EF5350;
+}
+
+/* KPI Badges */
+.stats-card .badge {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.badge-success {
+    background-color: rgba(102, 187, 106, 0.2) !important;
+    color: #66BB6A !important;
+}
+
+.badge-danger {
+    background-color: rgba(239, 83, 80, 0.2) !important;
+    color: #EF5350 !important;
+}
+
+/* Chart Cards */
+.chart-card {
+    background-color: #191C24 !important;
+    border: none !important;
+    border-radius: 8px !important;
+}
+
+.chart-card .card-body {
+    padding: 1.5rem;
+}
+
+.chart-card .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0;
+}
+
+/* Filter Button */
+.btn-filter {
+    background-color: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #8b92a7 !important;
+    font-size: 0.85rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-filter:hover,
+.btn-filter:focus {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #fff !important;
+}
+
+.btn-filter .mdi {
+    font-size: 1rem;
+    margin-right: 0.25rem;
+}
+
+/* Filter Dropdown */
+.filter-dropdown {
+    background-color: #1E2129 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 0;
+    min-width: 160px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.filter-dropdown .dropdown-header {
+    color: #8b92a7;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.5rem 1rem;
+}
+
+.filter-dropdown .filter-option {
+    color: #fff;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    transition: all 0.15s ease;
+}
+
+.filter-dropdown .filter-option:hover {
+    background-color: rgba(255, 167, 38, 0.1);
+    color: #FFA726;
+}
+
+.filter-dropdown .filter-option.active {
+    background-color: rgba(255, 167, 38, 0.15);
+    color: #FFA726;
+}
+
+.filter-dropdown .filter-option.active::before {
+    content: '✓';
+    margin-right: 0.5rem;
+}
+
+/* Custom Legend */
+.chart-legend {
+    padding-left: 1rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.legend-label {
+    color: #fff;
+    font-size: 0.875rem;
+    flex: 1;
+}
+
+.legend-value {
+    color: #8b92a7;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Export Button */
+.btn-warning {
+    background-color: #FFA726 !important;
+    border-color: #FFA726 !important;
+    color: #000 !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-warning:hover {
+    background-color: #FFB74D !important;
+    border-color: #FFB74D !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 167, 38, 0.3);
+}
+
+.btn-warning .mdi {
+    margin-right: 0.25rem;
+}
+
+/* Export Modal */
+#exportReportModal .modal-content {
+    background-color: #191C24;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+}
+
+#exportReportModal .modal-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.25rem 1.5rem;
+}
+
+#exportReportModal .modal-title {
+    color: #fff;
+    font-weight: 600;
+}
+
+#exportReportModal .modal-header .close {
+    color: #8b92a7;
+    opacity: 1;
+    text-shadow: none;
+}
+
+#exportReportModal .modal-header .close:hover {
+    color: #fff;
+}
+
+#exportReportModal .modal-body {
+    padding: 1.5rem;
+}
+
+#exportReportModal .modal-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem 1.5rem;
+}
+
+#exportReportModal label {
+    color: #fff;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+#exportReportModal .form-control {
+    background-color: #282A36;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+}
+
+#exportReportModal .form-control:focus {
+    background-color: #282A36;
+    border-color: #FFA726;
+    color: #fff;
+    box-shadow: 0 0 0 2px rgba(255, 167, 38, 0.2);
+}
+
+#exportReportModal select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%238b92a7' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+    padding-right: 2.5rem;
+}
+
+/* Format Options */
+.format-options {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.format-option {
+    display: inline-flex;
+    margin: 0;
+    cursor: pointer;
+}
+
+.format-option input[type="radio"] {
+    display: none;
+}
+
+.format-label {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    background-color: #282A36;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #8b92a7;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.format-option input[type="radio"]:checked + .format-label {
+    background-color: rgba(255, 167, 38, 0.15);
+    border-color: #FFA726;
+    color: #FFA726;
+}
+
+.format-option:hover .format-label {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+/* Secondary Button */
+.btn-secondary {
+    background-color: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #8b92a7 !important;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    color: #fff !important;
+}
+
+/* Loading State */
+.mdi-loading.mdi-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .stats-card h2 {
+        font-size: 1.5rem;
+    }
+    
+    .chart-legend {
+        padding-left: 0;
+        padding-top: 1rem;
+    }
+    
+    .format-options {
+        gap: 0.5rem;
+    }
+    
+    .format-label {
+        padding: 0.4rem 1rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Ensure charts have proper height */
+canvas {
+    max-height: 300px;
+}
+
+#revenueOverTimeChart {
+    max-height: 200px;
+}

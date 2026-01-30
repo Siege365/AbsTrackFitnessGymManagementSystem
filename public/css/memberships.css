@@ -270,11 +270,6 @@ body {
   z-index: 1060 !important;
 }
 
-.dropdown-menu-right {
-  /* Let Bootstrap handle positioning */
-}
-}
-
 @keyframes fadeInDown {
   from {
     opacity: 0;

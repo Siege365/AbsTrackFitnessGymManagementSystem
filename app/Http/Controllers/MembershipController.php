@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Membership;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
@@ -317,7 +318,7 @@ class MembershipController extends Controller
     public function update(Request $request, string $id)
     {
         try {
-            return \DB::transaction(function () use ($request, $id) {
+            return DB::transaction(function () use ($request, $id) {
                 $membership = Membership::lockForUpdate()->findOrFail($id);
 
                 $validated = $request->validate([
@@ -401,7 +402,7 @@ class MembershipController extends Controller
     public function destroy(Request $request, string $id)
     {
         try {
-            return \DB::transaction(function () use ($request, $id) {
+            return DB::transaction(function () use ($request, $id) {
                 $membership = Membership::lockForUpdate()->findOrFail($id);
                 
                 // Delete avatar if exists
@@ -507,7 +508,7 @@ class MembershipController extends Controller
     public function renew(Request $request, Membership $membership)
     {
         try {
-            return \DB::transaction(function () use ($request, $membership) {
+            return DB::transaction(function () use ($request, $membership) {
                 // Lock the record to prevent race conditions
                 $membership = Membership::lockForUpdate()->findOrFail($membership->id);
                 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
@@ -326,7 +327,7 @@ class ClientController extends Controller
     public function destroy(Request $request, string $id)
     {
         try {
-            return \DB::transaction(function () use ($request, $id) {
+            return DB::transaction(function () use ($request, $id) {
                 $client = Client::lockForUpdate()->findOrFail($id);
             
             // Delete avatar if exists
@@ -441,7 +442,7 @@ class ClientController extends Controller
     public function renew(Request $request, Client $client)
     {
         try {
-            return \DB::transaction(function () use ($request, $client) {
+            return DB::transaction(function () use ($request, $client) {
                 // Lock the record to prevent race conditions
                 $client = Client::lockForUpdate()->findOrFail($client->id);
                 

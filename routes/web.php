@@ -9,6 +9,8 @@ use App\Http\Controllers\InventorySupplyController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MembershipPaymentController;
 use App\Http\Controllers\Api\MemberApiController;
+use App\Http\Controllers\SessionController;
+use App\Http\Controllers\ReportController;
 
 //Inventory Supply Routes
 Route::get('/inventory', [InventorySupplyController::class, 'index'])->name('inventory.index');
@@ -76,9 +78,31 @@ Route::middleware(['auth'])->group(function () {
         return view('pages.icons.mdi');
     })->name('icons.mdi');
 
-    Route::get('/Session', function () {
-        return view('Sessions.Session');
-    })->name('Session');
+    Route::get('/Session', [SessionController::class, 'index'])->name('Session');
+    
+    // Session Routes - PT Schedules
+    Route::prefix('sessions')->name('sessions.')->group(function () {
+        // KPI refresh route
+        Route::get('/kpis', [SessionController::class, 'getKPIs'])->name('kpis');
+        
+        // PT Schedule routes
+        Route::post('/pt-schedule', [SessionController::class, 'storePTSchedule'])->name('pt.store');
+        Route::get('/pt-schedule/{id}', [SessionController::class, 'getPTSchedule'])->name('pt.show');
+        Route::put('/pt-schedule/{id}', [SessionController::class, 'updatePTSchedule'])->name('pt.update');
+        Route::delete('/pt-schedule/{id}', [SessionController::class, 'destroyPTSchedule'])->name('pt.destroy');
+        Route::patch('/pt-schedule/{id}/status', [SessionController::class, 'updatePTStatus'])->name('pt.status');
+        Route::post('/pt-schedule/book-next', [SessionController::class, 'bookNextSession'])->name('pt.book-next');
+        
+        // Attendance routes
+        Route::post('/attendance', [SessionController::class, 'storeAttendance'])->name('attendance.store');
+        Route::get('/attendance/{id}', [SessionController::class, 'getAttendance'])->name('attendance.show');
+        Route::put('/attendance/{id}', [SessionController::class, 'updateAttendance'])->name('attendance.update');
+        Route::delete('/attendance/{id}', [SessionController::class, 'destroyAttendance'])->name('attendance.destroy');
+        Route::delete('/attendance/bulk-delete', [SessionController::class, 'bulkDeleteAttendance'])->name('attendance.bulk-delete');
+        
+        // PT Schedule bulk delete
+        Route::delete('/pt-schedule/bulk-delete', [SessionController::class, 'bulkDeletePT'])->name('pt.bulk-delete');
+    });
     
     // Payment Routes (consolidated)
     Route::get('/PaymentAndBilling', [PaymentController::class, 'index'])->name('PaymentAndBilling');
@@ -109,9 +133,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/members/{id}', [MemberApiController::class, 'show']);
     });
     
-    Route::get('/ReportAndBilling', function () {
-        return view('ReportAndBilling.ReportAndBilling');
-    })->name('ReportAndBilling');
+    // Reports & Analytics Routes
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('/kpis', [ReportController::class, 'getKPIs'])->name('kpis');
+        Route::get('/revenue-over-time', [ReportController::class, 'getRevenueOverTime'])->name('revenue-over-time');
+        Route::get('/top-selling', [ReportController::class, 'getTopSellingProducts'])->name('top-selling');
+        Route::get('/revenue-breakdown', [ReportController::class, 'getRevenueBreakdown'])->name('revenue-breakdown');
+        Route::get('/transaction-history', [ReportController::class, 'getTransactionHistory'])->name('transaction-history');
+        Route::get('/attendance-trend', [ReportController::class, 'getCustomerAttendance'])->name('attendance-trend');
+        Route::post('/export', [ReportController::class, 'exportReport'])->name('export');
+    });
+    
+    // Legacy route (redirect to new reports route)
+    Route::get('/ReportAndBilling', [ReportController::class, 'index'])->name('ReportAndBilling');
 
     // User and Admin //
     Route::get('/UserAndAdmin/UserManagement', function () {

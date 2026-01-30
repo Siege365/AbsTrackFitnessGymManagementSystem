@@ -1,180 +1,124 @@
 @extends('layouts.admin')
 
-@section('title', 'Report & Billing')
+@section('title', 'Reports & Analytics - AbsTrack Fitness Gym')
 
 @push('styles')
-<style>
-    .icon-box-success,
-    .icon-box-danger {
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .icon-box-success {
-        background: rgba(102, 187, 106, 0.2);
-        color: #66BB6A;
-    }
-
-    .icon-box-danger {
-        background: rgba(239, 83, 80, 0.2);
-        color: #EF5350;
-    }
-
-    .icon-box-success .mdi,
-    .icon-box-danger .mdi {
-        font-size: 1.5rem;
-    }
-
-    .chart-card {
-        background: #191C24;
-        border: 1px solid #3a4048;
-        border-radius: 8px;
-    }
-
-    .chart-card .card-title {
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: #fff;
-    }
-
-    .btn-filter {
-        background: transparent;
-        border: 1px solid #3a4048;
-        color: #8b92a7;
-        padding: 6px 16px;
-        border-radius: 6px;
-        font-size: 0.875rem;
-        transition: all 0.3s ease;
-    }
-
-    .btn-filter:hover {
-        border-color: #42A5F5;
-        color: #42A5F5;
-        background: rgba(66, 165, 245, 0.1);
-    }
-
-    .btn-filter i {
-        font-size: 1rem;
-        margin-right: 4px;
-    }
-
-    .badge-success {
-        background: rgba(102, 187, 106, 0.2);
-        color: #66BB6A;
-        border: none;
-    }
-
-    .badge-danger {
-        background: rgba(239, 83, 80, 0.2);
-        color: #EF5350;
-        border: none;
-    }
-
-    canvas {
-        max-height: 300px;
-    }
-
-    /* Custom scrollbar for dark theme */
-    ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-        background: #191C24;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        background: #3a4048;
-        border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        background: #4a5058;
-    }
-</style>
+    <link rel="stylesheet" href="{{ asset('css/reports.css') }}?v={{ time() }}">
 @endpush
 
 @section('content')
+    <!-- Page Header with Export Button -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0 text-white">Reports & Analytics</h4>
+            <p class="text-muted mb-0">Monitor your gym's performance and revenue</p>
+        </div>
+        <button class="btn btn-warning" data-toggle="modal" data-target="#exportReportModal">
+            <i class="mdi mdi-plus"></i> Export Report
+        </button>
+    </div>
+
+    <!-- KPI Statistics Cards -->
     <div class="row">
-            <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-            <div class="card">
+        <!-- Monthly Revenue -->
+        <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+            <div class="card stats-card">
                 <div class="card-body">
-                <div class="row">
-                    <div class="col-9">
-                    <div class="d-flex align-items-center align-self-start">
-                        <h3 class="mb-0">₱0.00</h3>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-0" id="kpi_monthly_revenue">₱0.00</h2>
+                            <p class="text-muted mb-0">Monthly Revenue</p>
+                        </div>
+                        <div class="icon-box" id="kpi_revenue_icon">
+                            <span class="mdi mdi-arrow-top-right"></span>
+                        </div>
                     </div>
-                    </div>
-                </div>
-                <h6 class="text-muted font-weight-normal">Total Products</h6>
-                </div>
-            </div>
-            </div>
-            <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-            <div class="card">
-                <div class="card-body">
-                <div class="row">
-                    <div class="col-9">
-                    <div class="d-flex align-items-center align-self-start">
-                        <h3 class="mb-0">₱0.00</h3>
-                    </div>
+                    <div class="mt-2">
+                        <span class="badge" id="kpi_revenue_badge">+0%</span>
                     </div>
                 </div>
-                <h6 class="text-muted font-weight-normal">Low Stock Items</h6>
-                </div>
-            </div>
-            </div>
-            <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-            <div class="card">
-                <div class="card-body">
-                <div class="row">
-                    <div class="col-9">
-                    <div class="d-flex align-items-center align-self-start">
-                        <h3 class="mb-0">₱0.00</h3>
-                    </div>
-                    </div>
-                </div>
-                <h6 class="text-muted font-weight-normal">Out Of Stock Items</h6>
-                </div>
-            </div>
-            </div>
-            <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-            <div class="card">
-                <div class="card-body">
-                <div class="row">
-                    <div class="col-9">
-                    <div class="d-flex align-items-center align-self-start">
-                        <h3 class="mb-0">₱0.00</h3>
-                        <p class="text-success ml-2 mb-0 font-weight-medium">+3.5%</p>
-                    </div>
-                    </div>
-                    <div class="col-3">
-                    <div class="icon icon-box-success ">
-                        <span class="mdi mdi-arrow-top-right icon-item"></span>
-                    </div>
-                    </div>
-                </div>
-                <h6 class="text-muted font-weight-normal">Stock Value</h6>
-                </div>
-            </div>
             </div>
         </div>
+
+        <!-- Monthly Retail Sales -->
+        <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-0" id="kpi_retail_sales">₱0.00</h2>
+                            <p class="text-muted mb-0">Monthly Retail Sales</p>
+                        </div>
+                        <div class="icon-box" id="kpi_retail_icon">
+                            <span class="mdi mdi-arrow-top-right"></span>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge" id="kpi_retail_badge">+0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Membership Revenue -->
+        <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-0" id="kpi_membership_revenue">₱0.00</h2>
+                            <p class="text-muted mb-0">Monthly Membership Revenue</p>
+                        </div>
+                        <div class="icon-box" id="kpi_membership_icon">
+                            <span class="mdi mdi-arrow-top-right"></span>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge" id="kpi_membership_badge">+0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly PT Revenue -->
+        <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-0" id="kpi_pt_revenue">₱0.00</h2>
+                            <p class="text-muted mb-0">Monthly PT Revenue</p>
+                        </div>
+                        <div class="icon-box" id="kpi_pt_icon">
+                            <span class="mdi mdi-arrow-top-right"></span>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge" id="kpi_pt_badge">+0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Revenue Over Time Chart -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card chart-card text-white border-0">
+            <div class="card chart-card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title mb-0">Revenue Over Time</h5>
-                        <button class="btn btn-filter">
-                            <i class="mdi mdi-filter-variant"></i> Filter
-                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-filter dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="mdi mdi-filter-variant"></i> Filter
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right filter-dropdown">
+                                <h6 class="dropdown-header">Time Period</h6>
+                                <a class="dropdown-item filter-option active" href="#" data-chart="revenueOverTime" data-period="this_year">This Year</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="revenueOverTime" data-period="last_3_months">Last 3 Months</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="revenueOverTime" data-period="this_month">This Month</a>
+                            </div>
+                        </div>
                     </div>
                     <canvas id="revenueOverTimeChart" height="80"></canvas>
                 </div>
@@ -186,30 +130,53 @@
     <div class="row mb-4">
         <!-- Top Selling Products -->
         <div class="col-xl-6 mb-3">
-            <div class="card chart-card text-white border-0 h-100">
+            <div class="card chart-card h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="card-title mb-0">Top Selling Products</h5>
-                        <button class="btn btn-filter">
-                            <i class="mdi mdi-filter-variant"></i> Filter
-                        </button>
+                        <h5 class="card-title mb-0">Top-Selling Products</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-filter dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="mdi mdi-filter-variant"></i> Filter
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right filter-dropdown">
+                                <h6 class="dropdown-header">Time Period</h6>
+                                <a class="dropdown-item filter-option active" href="#" data-chart="topSelling" data-period="this_week">This Week</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="topSelling" data-period="this_month">This Month</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="topSelling" data-period="last_month">Last Month</a>
+                            </div>
+                        </div>
                     </div>
-                    <canvas id="topSellingProductsChart" height="100"></canvas>
+                    <canvas id="topSellingProductsChart" height="200"></canvas>
                 </div>
             </div>
         </div>
 
         <!-- Revenue Breakdown -->
         <div class="col-xl-6 mb-3">
-            <div class="card chart-card text-white border-0 h-100">
+            <div class="card chart-card h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title mb-0">Revenue Breakdown</h5>
-                        <button class="btn btn-filter">
-                            <i class="mdi mdi-filter-variant"></i> Filter
-                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-filter dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="mdi mdi-filter-variant"></i> Filter
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right filter-dropdown">
+                                <h6 class="dropdown-header">Time Period</h6>
+                                <a class="dropdown-item filter-option active" href="#" data-chart="revenueBreakdown" data-period="this_month">This Month</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="revenueBreakdown" data-period="last_month">Last Month</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="revenueBreakdown" data-period="this_year">This Year</a>
+                            </div>
+                        </div>
                     </div>
-                    <canvas id="revenueBreakdownChart" height="100"></canvas>
+                    <div class="row">
+                        <div class="col-md-7">
+                            <canvas id="revenueBreakdownChart" height="200"></canvas>
+                        </div>
+                        <div class="col-md-5 d-flex align-items-center">
+                            <div id="revenueBreakdownLegend" class="chart-legend"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -219,30 +186,114 @@
     <div class="row">
         <!-- Transaction History -->
         <div class="col-xl-6 mb-3">
-            <div class="card chart-card text-white border-0 h-100">
+            <div class="card chart-card h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title mb-0">Transaction History</h5>
-                        <button class="btn btn-filter">
-                            <i class="mdi mdi-filter-variant"></i> Filter
-                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-filter dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="mdi mdi-filter-variant"></i> Filter
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right filter-dropdown">
+                                <h6 class="dropdown-header">Time Period</h6>
+                                <a class="dropdown-item filter-option active" href="#" data-chart="transactionHistory" data-period="this_month">This Month</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="transactionHistory" data-period="last_month">Last Month</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="transactionHistory" data-period="this_year">This Year</a>
+                            </div>
+                        </div>
                     </div>
-                    <canvas id="transactionHistoryChart" height="100"></canvas>
+                    <div class="row">
+                        <div class="col-md-7">
+                            <canvas id="transactionHistoryChart" height="200"></canvas>
+                        </div>
+                        <div class="col-md-5 d-flex align-items-center">
+                            <div id="transactionHistoryLegend" class="chart-legend"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Customer Attendance Trend -->
         <div class="col-xl-6 mb-3">
-            <div class="card chart-card text-white border-0 h-100">
+            <div class="card chart-card h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title mb-0">Customer Attendance Trend</h5>
-                        <button class="btn btn-filter">
-                            <i class="mdi mdi-filter-variant"></i> Filter
-                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-filter dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="mdi mdi-filter-variant"></i> Filter
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right filter-dropdown">
+                                <h6 class="dropdown-header">Time Period</h6>
+                                <a class="dropdown-item filter-option active" href="#" data-chart="attendance" data-period="today">Today</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="attendance" data-period="this_week">This Week</a>
+                            </div>
+                        </div>
                     </div>
-                    <canvas id="customerAttendanceChart" height="100"></canvas>
+                    <canvas id="customerAttendanceChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Report Modal -->
+    <div class="modal fade" id="exportReportModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Export Report</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>File Format</label>
+                        <div class="format-options">
+                            <label class="format-option">
+                                <input type="radio" name="export_format" value="pdf" checked>
+                                <span class="format-label">PDF</span>
+                            </label>
+                            <label class="format-option">
+                                <input type="radio" name="export_format" value="excel">
+                                <span class="format-label">Excel</span>
+                            </label>
+                            <label class="format-option">
+                                <input type="radio" name="export_format" value="csv">
+                                <span class="format-label">CSV</span>
+                            </label>
+                            <label class="format-option">
+                                <input type="radio" name="export_format" value="png">
+                                <span class="format-label">PNG</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Date Range</label>
+                        <select name="export_date_range" class="form-control">
+                            <option value="this_month">This Month</option>
+                            <option value="last_month">Last Month</option>
+                            <option value="last_3_months">Last 3 Months</option>
+                            <option value="this_year">This Year</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Scope</label>
+                        <select name="export_scope" class="form-control">
+                            <option value="all">All Charts</option>
+                            <option value="kpis">KPIs Only</option>
+                            <option value="revenue">Revenue Over Time</option>
+                            <option value="products">Top Selling Products</option>
+                            <option value="breakdown">Revenue Breakdown</option>
+                            <option value="transactions">Transaction History</option>
+                            <option value="attendance">Customer Attendance</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" onclick="ReportsPage.exportReport()">Export</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>

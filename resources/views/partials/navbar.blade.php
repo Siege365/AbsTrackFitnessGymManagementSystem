@@ -22,6 +22,22 @@
             <i class="mdi mdi-plus"></i> Add Client
           </button>
         </li>
+      @elseif(request()->is('Session*'))
+        <!-- Add Schedule Dropdown (appears only on Sessions page) -->
+        <li class="nav-item dropdown d-none d-lg-block">
+          <a class="nav-link btn btn-warning create-new-button" id="addScheduleDropdown" data-toggle="dropdown" aria-expanded="false" href="#">
+            <i class="mdi mdi-plus"></i> Add Schedule
+          </a>
+          <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="addScheduleDropdown">
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addAttendanceModal">
+              <i class="mdi mdi-account-check mr-2 text-success"></i> Customer Attendance
+            </a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPTScheduleModal">
+              <i class="mdi mdi-calendar-plus mr-2 text-primary"></i> PT Session Schedule
+            </a>
+          </div>
+        </li>
       @else
         <!-- Create Dropdown (appears on all other pages) -->
         <li class="nav-item dropdown d-none d-lg-block">
