@@ -9,6 +9,7 @@ use App\Http\Controllers\InventorySupplyController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MembershipPaymentController;
 use App\Http\Controllers\Api\MemberApiController;
+use App\Http\Controllers\RefundsController;
 
 //Inventory Supply Routes
 Route::get('/inventory', [InventorySupplyController::class, 'index'])->name('inventory.index');
@@ -107,6 +108,20 @@ Route::middleware(['auth'])->group(function () {
     // Member search API
     Route::get('/api/members/search', [MemberApiController::class, 'search']);
     Route::get('/api/members/{id}', [MemberApiController::class, 'show']);
+    
+    // Refunds Routes
+    Route::get('/refunds', [RefundsController::class, 'index'])->name('refunds.index');
+    Route::get('/refunds/search-customer', [RefundsController::class, 'searchCustomer'])->name('refunds.search-customer');
+    Route::get('/refunds/details', [RefundsController::class, 'getPaymentDetails'])->name('refunds.get-details');
+    Route::get('/refunds/summary', [RefundsController::class, 'getSummary'])->name('refunds.get-summary');
+    Route::get('/refunds/audit/{type}/{paymentId}', [RefundsController::class, 'auditHistory'])->name('refunds.audit-history');
+    Route::get('/refunds/{payment}/transactions', [RefundsController::class, 'getTransactions'])->name('refunds.transactions');
+    Route::post('/refunds', [RefundsController::class, 'store'])->name('refunds.store');
+    Route::post('/refunds/{payment}/process-refund', [RefundsController::class, 'processRefund'])->name('refunds.process-refund');
+    Route::post('/refunds/{refund}/cancel', [RefundsController::class, 'cancel'])->name('refunds.cancel');
+    Route::get('/refunds/{id}/show', [RefundsController::class, 'show'])->name('refunds.show');
+    Route::delete('/refunds/{refund}', [RefundsController::class, 'destroy'])->name('refunds.destroy');
+    Route::delete('/refunds-bulk-delete', [RefundsController::class, 'bulkDelete'])->name('refunds.bulk-delete');
     });
     
     Route::get('/ReportAndBilling', function () {

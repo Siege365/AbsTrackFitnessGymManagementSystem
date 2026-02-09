@@ -212,7 +212,7 @@
                 </form>
 
                 <!-- Add Item Button -->
-                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addItemModal">
+                <button type="button" class="btn btn-lg btn-primary" data-toggle="modal" data-target="#addItemModal">
                   <i class="mdi mdi-plus"></i> Add Item
                 </button>
               </div>
@@ -438,7 +438,7 @@
             @csrf
             <div class="modal-body">
               <!-- Show validation errors inside modal -->
-              @if($errors->any() && old('product_number'))
+              @if($errors->any() && old('product_name'))
               <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <strong>Please fix the following errors:</strong>
                 <ul class="mb-0 mt-2">
@@ -453,21 +453,7 @@
               @endif
 
               <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label class="form-label">Product Number <span class="text-danger">*</span></label>
-                    <input type="text" 
-                          class="form-control @error('product_number') is-invalid @enderror" 
-                          name="product_number" 
-                          placeholder="e.g., PRD-001" 
-                          value="{{ old('product_number') }}" 
-                          required>
-                    @error('product_number')
-                      <div class="invalid-feedback d-block">{{ $message }}</div>
-                    @enderror
-                  </div>
-                </div>
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
                     <label class="form-label">Product Name <span class="text-danger">*</span></label>
                     <input type="text" 
@@ -487,12 +473,14 @@
                 <div class="col-md-6">
                   <div class="form-group">
                     <label class="form-label">Category <span class="text-danger">*</span></label>
-                    <input type="text" 
-                          class="form-control @error('category') is-invalid @enderror" 
-                          name="category" 
-                          placeholder="e.g., Supplements" 
-                          value="{{ old('category') }}" 
-                          required>
+                    <select class="form-control @error('category') is-invalid @enderror" 
+                            name="category" 
+                            required>
+                      <option value="" selected disabled>Select a category</option>
+                      <option value="Supplements" {{ old('category') == 'Supplements' ? 'selected' : '' }}>Supplements</option>
+                      <option value="Accessories" {{ old('category') == 'Accessories' ? 'selected' : '' }}>Accessories</option>
+                      <option value="Equipment" {{ old('category') == 'Equipment' ? 'selected' : '' }}>Equipment</option>
+                    </select>
                     @error('category')
                       <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
@@ -957,7 +945,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Show add item modal if there are validation errors
-    @if($errors->any() && old('product_number'))
+    @if($errors->any() && old('product_name'))
         $(document).ready(function() {
             $('#addItemModal').modal('show');
         });

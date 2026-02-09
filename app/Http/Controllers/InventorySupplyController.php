@@ -77,17 +77,15 @@ class InventorySupplyController extends Controller
     {
         try {
             $validated = $request->validate([
-                'product_number' => 'required|unique:inventory_supplies,product_number',
                 'product_name' => 'required|string|max:255',
-                'category' => 'required|string|max:255',
+                'category' => 'required|in:Supplements,Accessories,Equipment',
                 'unit_price' => 'required|numeric|min:0',
                 'stock_qty' => 'required|integer|min:0',
                 'low_stock_threshold' => 'required|integer|min:0',
             ], [
-                'product_number.required' => 'Product number is required.',
-                'product_number.unique' => 'This product number already exists.',
                 'product_name.required' => 'Product name is required.',
                 'category.required' => 'Category is required.',
+                'category.in' => 'Please select a valid category.',
                 'unit_price.required' => 'Unit price is required.',
                 'unit_price.numeric' => 'Unit price must be a number.',
                 'unit_price.min' => 'Unit price must be at least 0.',
