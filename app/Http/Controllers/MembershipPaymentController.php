@@ -17,26 +17,34 @@ class MembershipPaymentController extends Controller
      */
     public function index(Request $request)
     {
-        // FIXED: Set timezone to Philippine Time
+        // Set timezone to Philippine Time
         date_default_timezone_set('Asia/Manila');
 
         // Calculate statistics
-        $monthlyRevenue = MembershipPayment::whereMonth('created_at', now()->month)
+        $monthlyRevenue = MembershipPayment::whereNull('refunded_at')
+            ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->sum('amount');
 
-        $activeMemberships = Membership::where('status', 'Active')
-            ->where('due_date', '>', now())
+        // Refunded Today Stats
+        $refundedToday = MembershipPayment::whereNotNull('refunded_at')
+            ->whereDate('refunded_at', today())
+            ->sum('amount');
+
+        $refundedTodayCount = MembershipPayment::whereNotNull('refunded_at')
+            ->whereDate('refunded_at', today())
             ->count();
 
-        $expiringSoon = Membership::where('status', 'Due soon')
-            ->orWhere(function($query) {
-                $query->where('status', 'Active')
-                      ->whereBetween('due_date', [now(), now()->addDays(7)]);
-            })
+        // Total Refunded Stats
+        $totalRefunded = MembershipPayment::whereNotNull('refunded_at')
+            ->sum('amount');
+
+        $totalRefundedCount = MembershipPayment::whereNotNull('refunded_at')
             ->count();
 
-        $todayRevenue = MembershipPayment::whereDate('created_at', today())->sum('amount');
+        $todayRevenue = MembershipPayment::whereNull('refunded_at')
+            ->whereDate('created_at', today())
+            ->sum('amount');
 
         // Get transaction history with search and filters
         $query = MembershipPayment::with('membership');
@@ -53,17 +61,17 @@ class MembershipPaymentController extends Controller
             });
         }
 
-        // FIXED: Apply plan type filter
+        // Apply plan type filter
         if ($request->has('filter_plan') && $request->filter_plan != '') {
             $query->where('plan_type', $request->filter_plan);
         }
 
-        // FIXED: Apply payment method filter
+        // Apply payment method filter
         if ($request->has('filter_method') && $request->filter_method != '') {
             $query->where('payment_method', $request->filter_method);
         }
 
-        // FIXED: Apply sorting
+        // Apply sorting
         $sort = $request->get('sort', 'date_newest');
         switch($sort) {
             case 'date_oldest':
@@ -85,8 +93,10 @@ class MembershipPaymentController extends Controller
 
         return view('PaymentAndBillings.MembershipPayment', compact(
             'monthlyRevenue',
-            'activeMemberships',
-            'expiringSoon',
+            'refundedToday',
+            'refundedTodayCount',
+            'totalRefunded',
+            'totalRefundedCount',
             'todayRevenue',
             'transactions'
         ));
@@ -97,7 +107,7 @@ class MembershipPaymentController extends Controller
      */
     public function store(Request $request)
     {
-        // FIXED: Set timezone to Philippine Time
+        // Set timezone to Philippine Time
         date_default_timezone_set('Asia/Manila');
 
         // Validation rules based on payment type
@@ -112,7 +122,6 @@ class MembershipPaymentController extends Controller
         // Add conditional validation based on payment type
         if ($request->payment_type === 'new') {
             $rules['new_member_name'] = 'required|string|max:255';
-            // FIXED: Validate contact number format (09XXXXXXXXX or +639XXXXXXXXX)
             $rules['new_member_contact'] = ['required', 'regex:/^(09\d{9}|\+639\d{9})$/'];
             $rules['new_member_avatar'] = 'nullable|image|max:2048';
         } else {
@@ -175,7 +184,7 @@ class MembershipPaymentController extends Controller
                 $previousDueDate = $member->due_date;
                 $previousPlanType = $member->plan_type;
 
-                // FIXED: Prevent renewal if member is active
+                // Prevent renewal if member is active
                 if ($request->payment_type === 'renewal') {
                     if ($member->status === 'Active' && $member->due_date && Carbon::parse($member->due_date)->isFuture()) {
                         throw new \Exception('Member is active. Please use Extension instead of Renewal.');
@@ -277,12 +286,81 @@ class MembershipPaymentController extends Controller
     }
 
     /**
+     * Process a refund for a payment
+     */
+    public function refund(Request $request, $id)
+    {
+        date_default_timezone_set('Asia/Manila');
+
+        try {
+            DB::beginTransaction();
+
+            $payment = MembershipPayment::findOrFail($id);
+
+            // Check if already refunded
+            if ($payment->refunded_at) {
+                throw new \Exception('This payment has already been refunded.');
+            }
+
+            $member = Membership::find($payment->membership_id);
+
+            if ($member) {
+                // Reverse the membership due date
+                if ($payment->previous_due_date) {
+                    $member->update([
+                        'due_date' => $payment->previous_due_date,
+                        'status' => Carbon::parse($payment->previous_due_date)->isFuture() 
+                            ? 'Active' 
+                            : 'Expired',
+                    ]);
+                } else {
+                    // If there was no previous due date (new member), set as expired
+                    $member->update([
+                        'status' => 'Expired',
+                        'due_date' => null,
+                    ]);
+                }
+            }
+
+            // Mark payment as refunded
+            $payment->update([
+                'refunded_at' => now(),
+                'refund_reason' => $request->input('reason'),
+                'refunded_by' => Auth::user()->name ?? 'Admin',
+            ]);
+
+            DB::commit();
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Refund processed successfully. Membership due date has been reversed.',
+                ]);
+            }
+
+            return redirect()->route('membership.payment.index')
+                ->with('success', 'Refund processed successfully. Membership due date has been reversed.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ], 500);
+            }
+
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
      * Get receipt data for a specific payment
      */
     public function receiptData($id)
     {
         try {
-            // FIXED: Set timezone to Philippine Time
             date_default_timezone_set('Asia/Manila');
 
             $payment = MembershipPayment::with('membership')->findOrFail($id);
@@ -305,6 +383,10 @@ class MembershipPaymentController extends Controller
                     : null,
                 'notes' => $payment->notes,
                 'formatted_date' => Carbon::parse($payment->created_at)->setTimezone('Asia/Manila')->format('F d, Y - h:i A'),
+                'refunded_at' => $payment->refunded_at 
+                    ? Carbon::parse($payment->refunded_at)->format('F d, Y - h:i A') 
+                    : null,
+                'refund_reason' => $payment->refund_reason,
             ]);
 
         } catch (\Exception $e) {
@@ -327,8 +409,10 @@ class MembershipPaymentController extends Controller
             $member = Membership::find($payment->membership_id);
 
             if ($member) {
+                // Find the latest non-deleted, non-refunded payment
                 $latestPayment = MembershipPayment::where('membership_id', $member->id)
                     ->where('id', '!=', $payment->id)
+                    ->whereNull('refunded_at')
                     ->orderBy('created_at', 'desc')
                     ->first();
 
@@ -382,6 +466,7 @@ class MembershipPaymentController extends Controller
                     if ($member) {
                         $latestPayment = MembershipPayment::where('membership_id', $member->id)
                             ->where('id', '!=', $payment->id)
+                            ->whereNull('refunded_at')
                             ->orderBy('created_at', 'desc')
                             ->first();
 

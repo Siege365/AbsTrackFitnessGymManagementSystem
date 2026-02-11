@@ -7,9 +7,21 @@
 <style>
     .timeline {
         position: relative;
+        /* padding-left moved to inner wrapper so the vertical line
+           can expand with the full content height */
+        padding-right: 8px;
+        /* allow maximum of 3 timeline items before scrolling */
+        max-height: calc(3 * 160px + 30px);
+        overflow-y: auto;
+    }
+    .timeline-inner {
+        position: relative;
         padding-left: 30px;
     }
-    .timeline::before {
+
+    /* Move the vertical line to the inner wrapper so its height
+       equals the total content height (not the scroll viewport) */
+    .timeline-inner::before {
         content: '';
         position: absolute;
         left: 8px;
@@ -21,6 +33,8 @@
     .timeline-item {
         position: relative;
         padding-bottom: 30px;
+        /* give each item a sensible minimum height so 3 items fit consistently */
+        min-height: 160px;
     }
     .timeline-item::before {
         content: '';
@@ -39,6 +53,28 @@
     .timeline-item.stock-out::before {
         border-color: #ffc107;
     }
+    /* Timeline scrollbar width */
+    .timeline::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    /* Scrollbar track (background) */
+    .timeline::-webkit-scrollbar-track {
+        background: #f1f1f1; /* light gray */
+        border-radius: 10px;
+    }
+
+    /* Scrollbar thumb (the draggable part) */
+    .timeline::-webkit-scrollbar-thumb {
+        background: #6c757d; /* Bootstrap gray */
+        border-radius: 10px;
+    }
+
+    /* Hover effect */
+    .timeline::-webkit-scrollbar-thumb:hover {
+        background: #495057; /* darker gray */
+    }
+
 </style>
 @endpush
 
@@ -112,7 +148,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="card-title mb-0">Transaction History</h4>
+                        <h4 class="card-title mb-0">Stock History</h4>
                         <span class="text-muted">{{ $item->transactions->count() }} transaction(s)</span>
                     </div>
 
@@ -123,6 +159,7 @@
                         </div>
                     @else
                         <div class="timeline">
+                            <div class="timeline-inner">
                             @foreach($item->transactions as $transaction)
                                 <div class="timeline-item {{ $transaction->transaction_type }}">
                                     <div class="card">
@@ -186,6 +223,7 @@
                                     </div>
                                 </div>
                             @endforeach
+                            </div>
                         </div>
                     @endif
                 </div>

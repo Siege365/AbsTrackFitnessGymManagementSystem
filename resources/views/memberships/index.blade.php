@@ -203,7 +203,7 @@
                 <td>
                   <div class="dropdown">
                     <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
-                      <i class="mdi mdi-dots-horizontal"></i>
+                      <i class="mdi mdi-dots-vertical"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">
                       <button type="button" class="dropdown-item" data-toggle="modal" data-target="#viewModal{{ $membership->id }}">

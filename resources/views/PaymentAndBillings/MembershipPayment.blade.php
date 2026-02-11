@@ -4,7 +4,6 @@
 
 @push('styles')
 <style>
-  /* CONSISTENT COLOR SCHEME FROM PRODUCT PAYMENT */
   .table-responsive::-webkit-scrollbar {
     height: 8px;
   }
@@ -68,7 +67,6 @@
     background-color: rgba(255, 255, 255, 0.1) !important;
   }
 
-  /* Stats Cards - Consistent Style */
   .stat-change {
     font-size: 0.875rem;
     margin-top: 0.5rem;
@@ -82,7 +80,10 @@
     color: #dc3545;
   }
 
-  /* Card Styles */
+  .stat-change.neutral {
+    color: #ffc107;
+  }
+
   .card {
     border-radius: 8px;
     margin-bottom: 2rem;
@@ -96,7 +97,6 @@
     margin-bottom: 1.5rem;
   }
 
-  /* Form Styles */
   .form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -129,7 +129,7 @@
 
   .form-control:focus, .form-select:focus {
     outline: none;
-    border-color: #198754;
+    border-color: #0d6efd;
     box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
     background: #282A36;
   }
@@ -138,7 +138,6 @@
     color: #666;
   }
 
-  /* Autocomplete Results */
   .autocomplete-results {
     position: absolute;
     top: 100%;
@@ -170,7 +169,6 @@
     border-bottom: none;
   }
 
-  /* Buttons */
   .btn {
     padding: 0.875rem 2rem;
     border: none;
@@ -215,13 +213,21 @@
     background: #c82333;
   }
 
+  .btn-warning {
+    background: #ffc107;
+    color: #000;
+  }
+
+  .btn-warning:hover {
+    background: #e0a800;
+  }
+
   .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none !important;
   }
 
-  /* Payment Type Pills */
   .payment-type-selector {
     display: flex;
     gap: 1rem;
@@ -261,7 +267,6 @@
     color: #ffffff;
   }
 
-  /* Plan Type Selector */
   .plan-type-selector {
     display: flex;
     gap: 1rem;
@@ -307,7 +312,6 @@
     margin-top: 0.5rem;
   }
 
-  /* Table Styles */
   .table-responsive {
     overflow-x: auto;
     min-height: 600px;
@@ -341,7 +345,6 @@
     color: #ffffff !important;
   }
 
-  /* Badge Styles */
   .badge {
     padding: 0.25rem 0.75rem;
     border-radius: 4px;
@@ -365,9 +368,14 @@
     color: #000;
   }
 
-  /* Action Dropdown - FIXED Z-INDEX */
+  .badge-danger {
+    background: #dc3545;
+    color: white;
+  }
+
   .action-dropdown {
     position: relative;
+    overflow: visible; 
   }
 
   .action-btn {
@@ -387,7 +395,6 @@
   .dropdown-menu {
     position: absolute;
     top: 100%;
-    right: 0;
     min-width: 180px;
     background: #282A36;
     border: 1px solid #555;
@@ -395,12 +402,20 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     padding: 8px 0;
     display: none;
-    z-index: 10000 !important; /* FIXED: Above all components */
+    z-index: 10000 !important;
     animation: slideDown 0.3s ease;
+    transform-origin: top left;
+    white-space: nowrap;
+    overflow: visible;
   }
 
   .dropdown-menu.show {
     display: block;
+  }
+
+  .action-dropdown .dropdown-menu {
+    right: 0;
+    left: auto;
   }
 
   @keyframes slideDown {
@@ -442,6 +457,14 @@
 
   .dropdown-item.danger:hover {
     background: rgba(255, 107, 107, 0.1);
+  }
+
+  .dropdown-item.warning {
+    color: #ffc107;
+  }
+
+  .dropdown-item.warning:hover {
+    background: rgba(255, 193, 7, 0.1);
   }
 
   /* Pagination - ALWAYS VISIBLE */
@@ -505,12 +528,12 @@
     backdrop-filter: blur(5px);
     z-index: 9999;
     animation: fadeIn 0.3s ease;
-    align-items: center; /* FIXED: Center vertically */
-    justify-content: center; /* FIXED: Center horizontally */
+    align-items: center;
+    justify-content: center;
   }
 
   .modal-overlay.show {
-    display: flex; /* FIXED: Use flex for centering */
+    display: flex;
   }
 
   @keyframes fadeIn {
@@ -527,6 +550,10 @@
     overflow-y: auto;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     animation: modalSlideIn 0.3s ease;
+  }
+
+  .modal-content.small {
+    max-width: 500px;
   }
 
   @keyframes modalSlideIn {
@@ -586,6 +613,66 @@
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
+  }
+
+  /* Confirmation Modal Specific Styles */
+  .confirmation-icon {
+    font-size: 4rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .confirmation-icon.warning {
+    color: #ffc107;
+  }
+
+  .confirmation-message {
+    text-align: center;
+    color: #333;
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .confirmation-details {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+  }
+
+  .confirmation-detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .confirmation-detail-row:last-child {
+    border-bottom: none;
+  }
+
+  .confirmation-detail-label {
+    font-weight: 600;
+    color: #666;
+  }
+
+  .confirmation-detail-value {
+    color: #333;
+    font-weight: 700;
+  }
+
+  /* Refund Modal Specific Styles */
+  .refund-warning {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+    color: #856404;
+  }
+
+  .refund-warning i {
+    margin-right: 0.5rem;
   }
 
   /* Receipt Styles */
@@ -686,51 +773,19 @@
     border-top: 2px solid #333;
   }
 
-  /* Notifications */
-  .notification {
-    position: fixed;
-    top: 2rem;
-    right: 2rem;
-    max-width: 400px;
-    padding: 1.5rem;
+  .receipt-refund-stamp {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem;
+    background: #fff3cd;
+    border: 3px dashed #ffc107;
     border-radius: 8px;
-    border: 2px solid;
-    display: none;
-    z-index: 10001;
-    animation: slideInRight 0.3s ease;
   }
 
-  @keyframes slideInRight {
-    from {
-      transform: translateX(400px);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-
-  .notification.show {
-    display: block;
-  }
-
-  .notification.success {
-    background: rgba(40, 167, 69, 0.1);
-    border-color: #28a745;
-    color: #28a745;
-  }
-
-  .notification.error {
-    background: rgba(220, 53, 69, 0.1);
-    border-color: #dc3545;
-    color: #dc3545;
-  }
-
-  .notification.warning {
-    background: rgba(255, 193, 7, 0.1);
-    border-color: #ffc107;
+  .receipt-refund-stamp h3 {
     color: #856404;
+    font-size: 1.5rem;
+    margin: 0;
   }
 
   /* Loading State */
@@ -765,7 +820,7 @@
 
   .filter-btn:hover {
     background: #191C24;
-    border-color: #198754;
+    border-color: #0d6efd;
   }
 
   .filter-menu {
@@ -814,7 +869,7 @@
 
   .filter-menu-item.active {
     background: rgba(23, 162, 184, 0.2);
-    color: #198754;
+    color: #0d6efd;
   }
 
   .filter-menu-divider {
@@ -844,7 +899,7 @@
     }
   }
 
-  /* Print Styles - FIXED */
+  /* Print Styles */
   @media print {
     @page {
       margin: 0.5in;
@@ -900,6 +955,13 @@
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
+
+    .receipt-refund-stamp {
+      background: #fff3cd !important;
+      border-color: #ffc107 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
   }
 </style>
 @endpush
@@ -928,11 +990,11 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                      <div>
-                        <h2 class="mb-0">{{ $activeMemberships ?? 0 }}</h2>
-                        <p class="text-muted mb-0">Active Memberships</p>
+                        <h2 class="mb-0">₱{{ number_format($refundedToday ?? 0, 2) }}</h2>
+                        <p class="text-muted mb-0">Refunded Today</p>
                     </div>
-                    <div class="stat-change positive">
-                        <i class="mdi mdi-arrow-up"></i> +8 this week
+                    <div class="stat-change neutral">
+                        <i class="mdi mdi-cash-refund"></i> {{ $refundedTodayCount ?? 0 }} transactions
                     </div>
                 </div>
             </div>    
@@ -943,11 +1005,11 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                      <div>
-                        <h2 class="mb-0">{{ $expiringSoon ?? 0 }}</h2>
-                        <p class="text-muted mb-0">Expiring Soon</p>
+                        <h2 class="mb-0">₱{{ number_format($totalRefunded ?? 0, 2) }}</h2>
+                        <p class="text-muted mb-0">Total Refunded</p>
                     </div>
                     <div class="stat-change negative">
-                        <i class="mdi mdi-alert-circle"></i> Within 7 days
+                        <i class="mdi mdi-alert-circle"></i> {{ $totalRefundedCount ?? 0 }} all-time
                     </div>
                 </div>
             </div>    
@@ -1020,7 +1082,6 @@
                 >
                 <input type="hidden" name="member_id" id="memberId">
                 <input type="hidden" id="memberStatus">
-                <div id="memberResults" class="autocomplete-results"></div>
             </div>
             </div>
         </div>
@@ -1224,6 +1285,7 @@
                 <th>Payment Method</th>
                 <th>Date</th>
                 <th>New Due Date</th>
+                <th>Status</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -1252,6 +1314,13 @@
                 <td>{{ $transaction->created_at->format('M d, Y h:i A') }}</td>
                 <td>{{ $transaction->new_due_date ? date('M d, Y', strtotime($transaction->new_due_date)) : 'N/A' }}</td>
                 <td>
+                    @if($transaction->refunded_at)
+                    <span class="badge badge-danger">Refunded</span>
+                    @else
+                    <span class="badge badge-success">Paid</span>
+                    @endif
+                </td>
+                <td>
                     <div class="action-dropdown">
                     <button type="button" class="action-btn" onclick="toggleDropdown(this)">
                         <i class="mdi mdi-dots-vertical"></i>
@@ -1260,11 +1329,16 @@
                         <button type="button" class="dropdown-item" onclick="viewReceipt({{ $transaction->id }})">
                         <i class="mdi mdi-eye"></i> View Receipt
                         </button>
+                        @if(!$transaction->refunded_at)
+                        <button type="button" class="dropdown-item warning" onclick="openRefundModal({{ $transaction->id }}, '{{ $transaction->receipt_number }}', {{ $transaction->amount }}, '{{ $transaction->member_name }}')">
+                        <i class="mdi mdi-cash-refund"></i> Refund
+                        </button>
+                        @endif
                         <form action="{{ route('membership.payment.destroy', $transaction->id) }}" method="POST" class="delete-form" style="margin: 0;">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="dropdown-item danger">
-                            <i class="mdi mdi-delete"></i> Delete
+                            <i class="mdi mdi-delete mr-2"></i> Delete
                         </button>
                         </form>
                     </div>
@@ -1276,7 +1350,7 @@
             
             @for($i = $transactionCount; $i < $maxRows; $i++)
             <tr>
-                <td colspan="10" style="height: 53px; text-align: center; color: #999;">
+                <td colspan="11" style="height: 53px; text-align: center; color: #999;">
                 @if($i == 0)
                     No transactions found
                 @endif
@@ -1348,6 +1422,60 @@
   </div>
 </div>
 
+<!-- Payment Confirmation Modal -->
+<div id="confirmationModal" class="modal-overlay">
+  <div class="modal-content small">
+    <div class="modal-header">
+      <h3 class="modal-title">Confirm Payment</h3>
+      <button class="modal-close" onclick="closeConfirmationModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirmation-icon warning">
+        <i class="mdi mdi-alert-circle-outline"></i>
+      </div>
+      <p class="confirmation-message">Please review the payment details before proceeding.</p>
+      <div class="confirmation-details" id="confirmationDetails"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeConfirmationModal()">
+        <i class="mdi mdi-close"></i> Cancel
+      </button>
+      <button type="button" class="btn btn-primary" onclick="confirmPayment()">
+        <i class="mdi mdi-check"></i> Confirm & Process
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Refund Modal -->
+<div id="refundModal" class="modal-overlay">
+  <div class="modal-content small">
+    <div class="modal-header">
+      <h3 class="modal-title">Process Refund</h3>
+      <button class="modal-close" onclick="closeRefundModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="refund-warning">
+        <i class="mdi mdi-alert"></i>
+        <strong>Warning:</strong> This will reverse the membership due date and mark this transaction as refunded.
+      </div>
+      <div class="confirmation-details" id="refundDetails"></div>
+      <div class="form-group">
+        <label class="form-label">Refund Reason (Optional)</label>
+        <textarea class="form-control" id="refundReason" rows="3" placeholder="Enter reason for refund..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeRefundModal()">
+        <i class="mdi mdi-close"></i> Cancel
+      </button>
+      <button type="button" class="btn btn-warning" onclick="confirmRefund()">
+        <i class="mdi mdi-cash-refund"></i> Process Refund
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Receipt Modal -->
 <div id="receiptModal" class="modal-overlay modal-overlay-centered" role="document">
   <div class="modal-content">
@@ -1379,18 +1507,24 @@
   <input type="hidden" name="ids" id="bulkDeleteIds">
 </form>
 
-<!-- Notification Container -->
-<div id="notification" class="notification">
-  <div id="notificationMessage"></div>
-</div>
+<!-- Refund Form -->
+<form id="refundForm" action="" method="POST" style="display: none;">
+  @csrf
+  @method('POST')
+  <input type="hidden" name="reason" id="refundReasonInput">
+</form>
 
 @endsection
 
 @push('scripts')
+<script src="{{ asset('js/common/avatar-utils.js') }}?v={{ time() }}"></script>
+<script src="{{ asset('js/common/form-utils.js') }}?v={{ time() }}"></script>
+<script src="{{ asset('js/common/bulk-selection.js') }}?v={{ time() }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   let selectedMemberStatus = '';
   let selectedMemberDueDate = '';
+  let currentRefundId = null;
 
   // Payment Type Selection
   const paymentTypePills = document.querySelectorAll('.payment-type-pill');
@@ -1405,15 +1539,12 @@ document.addEventListener('DOMContentLoaded', function() {
     pill.addEventListener('click', function() {
       const type = this.dataset.type;
       
-      // FIXED: Check if extension is clicked and member not selected
       if (type === 'extension' && !memberId.value) {
-        // Don't show error, just don't activate
         return;
       }
 
-      // FIXED: Check if renewal is clicked and member is active
       if (type === 'renewal' && selectedMemberStatus === 'Active' && selectedMemberDueDate && new Date(selectedMemberDueDate) > new Date()) {
-        showNotification('Member is active. Please use Extension instead.', 'warning');
+        ToastUtils.showWarning('Member is active. Please use Extension instead.');
         return;
       }
 
@@ -1511,16 +1642,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 new Date(dueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 
                 'No due date';
               
-              // FIXED: Enable extension pill when member selected
               extensionPill.style.opacity = '1';
               extensionPill.style.pointerEvents = 'auto';
 
-              // FIXED: Check if renewal should be disabled
               const renewalPill = document.querySelector('[data-type="renewal"]');
               if (selectedMemberStatus === 'Active' && selectedMemberDueDate && new Date(selectedMemberDueDate) > new Date()) {
                 renewalPill.style.opacity = '0.5';
                 renewalPill.style.pointerEvents = 'none';
-                // Auto-select extension
                 paymentTypePills.forEach(p => p.classList.remove('active'));
                 extensionPill.classList.add('active');
                 paymentTypeInput.value = 'extension';
@@ -1536,30 +1664,25 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
           console.error('Error fetching members:', error);
-          showNotification('Error searching for members', 'error');
+          ToastUtils.showError('Error searching for members');
         });
     }, 300);
   });
 
-  // Close autocomplete when clicking outside
   document.addEventListener('click', function(e) {
     if (!e.target.closest('#memberSearch') && !e.target.closest('#memberResults')) {
       document.getElementById('memberResults').style.display = 'none';
     }
   });
 
-  // FIXED: Contact number validation (accepts both 09 and +63)
   document.getElementById('newMemberContact').addEventListener('input', function(e) {
     let value = e.target.value.replace(/[^0-9+]/g, '');
     
-    // Allow +63 format
     if (value.startsWith('+63')) {
       if (value.length > 13) {
         value = value.substring(0, 13);
       }
-    }
-    // Allow 09 format
-    else if (value.startsWith('09')) {
+    } else if (value.startsWith('09')) {
       if (value.length > 11) {
         value = value.substring(0, 11);
       }
@@ -1568,7 +1691,6 @@ document.addEventListener('DOMContentLoaded', function() {
     e.target.value = value;
   });
 
-  // Calculate New Due Date
   function calculateNewDueDate() {
     const paymentType = paymentTypeInput.value;
     const duration = parseInt(additionalDaysInput.value) || 0;
@@ -1609,28 +1731,79 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Form Submission
+  // Form Submission with Confirmation
   const paymentForm = document.getElementById('membershipPaymentForm');
   paymentForm.addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // FIXED: Validate contact number format
     if (paymentTypeInput.value === 'new') {
       const contact = document.getElementById('newMemberContact').value;
       if (contact && !contact.match(/^(09\d{9}|\+639\d{9})$/)) {
-        showNotification('Invalid contact number. Use 09XXXXXXXXX or +639XXXXXXXXX format', 'error');
+        ToastUtils.showError('Invalid contact number. Use 09XXXXXXXXX or +639XXXXXXXXX format');
         return;
       }
     }
 
+    // Show confirmation modal
+    showConfirmationModal();
+  });
+
+  function showConfirmationModal() {
+    const paymentType = paymentTypeInput.value;
+    const planType = planTypeInput.value;
+    const amount = amountInput.value;
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    const memberName = paymentType === 'new' 
+      ? document.getElementById('newMemberName').value 
+      : memberSearch.value;
+    const newDueDate = document.getElementById('newDueDate').value;
+
+    const details = `
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Member:</span>
+        <span class="confirmation-detail-value">${memberName}</span>
+      </div>
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Payment Type:</span>
+        <span class="confirmation-detail-value">${paymentType.toUpperCase()}</span>
+      </div>
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Plan:</span>
+        <span class="confirmation-detail-value">${planType}</span>
+      </div>
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Amount:</span>
+        <span class="confirmation-detail-value">₱${parseFloat(amount).toFixed(2)}</span>
+      </div>
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Payment Method:</span>
+        <span class="confirmation-detail-value">${paymentMethod}</span>
+      </div>
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">New Due Date:</span>
+        <span class="confirmation-detail-value" style="color: #28a745;">${newDueDate}</span>
+      </div>
+    `;
+
+    document.getElementById('confirmationDetails').innerHTML = details;
+    document.getElementById('confirmationModal').classList.add('show');
+  }
+
+  window.closeConfirmationModal = function() {
+    document.getElementById('confirmationModal').classList.remove('show');
+  };
+
+  window.confirmPayment = function() {
+    closeConfirmationModal();
+    
     const submitBtn = document.getElementById('submitPaymentBtn');
     const originalText = submitBtn.innerHTML;
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
 
-    const formData = new FormData(this);
+    const formData = new FormData(paymentForm);
 
-    fetch(this.action, {
+    fetch(paymentForm.action, {
       method: 'POST',
       body: formData,
       headers: {
@@ -1641,22 +1814,97 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        showNotification(data.message || 'Payment processed successfully!', 'success');
-        // FIXED: Immediate reload without delay
-        window.location.reload();
+        ToastUtils.showSuccess(data.message || 'Payment processed successfully!');
+        
+        // Show receipt modal immediately
+        setTimeout(() => {
+          viewReceipt(data.payment.id);
+        }, 500);
+
+        // Reload after viewing receipt
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
       } else {
-        showNotification(data.message || 'An error occurred', 'error');
+        ToastUtils.showError(data.message || 'An error occurred');
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalText;
       }
     })
     .catch(error => {
       console.error('Error:', error);
-      showNotification('Failed to process payment. Please try again.', 'error');
+      ToastUtils.showError('Failed to process payment. Please try again.');
       submitBtn.disabled = false;
       submitBtn.innerHTML = originalText;
     });
-  });
+  };
+
+  // Refund Modal Functions
+  window.openRefundModal = function(id, receiptNumber, amount, memberName) {
+    currentRefundId = id;
+    
+    const details = `
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Receipt Number:</span>
+        <span class="confirmation-detail-value">#${receiptNumber}</span>
+      </div>
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Member:</span>
+        <span class="confirmation-detail-value">${memberName}</span>
+      </div>
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Refund Amount:</span>
+        <span class="confirmation-detail-value" style="color: #dc3545;">₱${parseFloat(amount).toFixed(2)}</span>
+      </div>
+    `;
+
+    document.getElementById('refundDetails').innerHTML = details;
+    document.getElementById('refundReason').value = '';
+    document.getElementById('refundModal').classList.add('show');
+  };
+
+  window.closeRefundModal = function() {
+    document.getElementById('refundModal').classList.remove('show');
+    currentRefundId = null;
+  };
+
+  window.confirmRefund = function() {
+    if (!currentRefundId) return;
+
+    const reason = document.getElementById('refundReason').value;
+    const refundForm = document.getElementById('refundForm');
+    
+    refundForm.action = `/membership-payment/${currentRefundId}/refund`;
+    document.getElementById('refundReasonInput').value = reason;
+
+    closeRefundModal();
+    
+    ToastUtils.showInfo('Processing refund...');
+    
+    fetch(refundForm.action, {
+      method: 'POST',
+      body: new FormData(refundForm),
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        ToastUtils.showSuccess(data.message || 'Refund processed successfully!');
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        ToastUtils.showError(data.message || 'Failed to process refund');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      ToastUtils.showError('Failed to process refund. Please try again.');
+    });
+  };
 
   // Clear Form
   document.getElementById('clearFormBtn').addEventListener('click', function() {
@@ -1673,7 +1921,6 @@ document.addEventListener('DOMContentLoaded', function() {
     amountInput.value = '500.00';
     additionalDaysInput.value = '30';
 
-    // Reset pills
     extensionPill.style.opacity = '0.5';
     extensionPill.style.pointerEvents = 'none';
     document.querySelector('[data-type="renewal"]').style.opacity = '1';
@@ -1708,13 +1955,12 @@ document.addEventListener('DOMContentLoaded', function() {
     bulkDeleteBtn.disabled = count === 0;
   }
 
-  // Bulk Delete
   bulkDeleteBtn.addEventListener('click', function() {
     const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
     const ids = Array.from(checkedBoxes).map(cb => cb.value);
 
     if (ids.length === 0) {
-      showNotification('Please select at least one transaction to delete', 'warning');
+      ToastUtils.showWarning('Please select at least one transaction to delete');
       return;
     }
 
@@ -1724,7 +1970,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Delete Form Confirmation
   document.querySelectorAll('.delete-form').forEach(form => {
     form.addEventListener('submit', function(e) {
       e.preventDefault();
@@ -1780,6 +2025,14 @@ function viewReceipt(transactionId) {
 }
 
 function generateReceiptHTML(data) {
+  const refundStamp = data.refunded_at ? `
+    <div class="receipt-refund-stamp">
+      <h3>REFUNDED</h3>
+      <p>Refunded on: ${data.refunded_at}</p>
+      ${data.refund_reason ? `<p>Reason: ${data.refund_reason}</p>` : ''}
+    </div>
+  ` : '';
+
   return `
     <div class="receipt-container">
       <div class="receipt-header">
@@ -1861,6 +2114,8 @@ function generateReceiptHTML(data) {
         </div>
       ` : ''}
 
+      ${refundStamp}
+
       <div style="text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px dashed #999; color: #666;">
         <p><strong>Thank you for your membership!</strong></p>
         <p style="font-size: 0.875rem;">Please keep this receipt for your records.</p>
@@ -1873,12 +2128,10 @@ function closeModal() {
   document.getElementById('receiptModal').classList.remove('show');
 }
 
-// FIXED: Print receipt properly
 function printReceipt() {
   window.print();
 }
 
-// Toggle Dropdown - FIXED Z-INDEX
 function toggleDropdown(button) {
   const dropdown = button.nextElementSibling;
   const allDropdowns = document.querySelectorAll('.dropdown-menu');
@@ -1892,7 +2145,6 @@ function toggleDropdown(button) {
   dropdown.classList.toggle('show');
 }
 
-// Close dropdowns when clicking outside
 document.addEventListener('click', function(e) {
   if (!e.target.closest('.action-dropdown')) {
     document.querySelectorAll('.dropdown-menu').forEach(d => {
@@ -1901,30 +2153,17 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// Show Notification
-function showNotification(message, type = 'success') {
-  const notification = document.getElementById('notification');
-  const messageElement = document.getElementById('notificationMessage');
-  
-  messageElement.textContent = message;
-  notification.className = `notification ${type} show`;
-  
-  setTimeout(() => {
-    notification.classList.remove('show');
-  }, 5000);
-}
-
-// Display Laravel validation errors or success messages
+// Display Laravel messages
 @if(session('success'))
-  showNotification('{{ session('success') }}', 'success');
+  ToastUtils.showSuccess('{{ session('success') }}');
 @endif
 
 @if(session('error'))
-  showNotification('{{ session('error') }}', 'error');
+  ToastUtils.showError('{{ session('error') }}');
 @endif
 
 @if($errors->any())
-  showNotification('{{ $errors->first() }}', 'error');
+  ToastUtils.showError('{{ $errors->first() }}');
 @endif
 </script>
 @endpush

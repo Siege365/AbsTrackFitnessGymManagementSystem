@@ -19,15 +19,15 @@ Route::put('/inventory/{id}', [InventorySupplyController::class, 'update'])->nam
 Route::delete('/inventory/bulk-delete', [InventorySupplyController::class, 'bulkDelete'])->name('inventory.bulk-delete');
 Route::delete('/inventory/{id}', [InventorySupplyController::class, 'destroy'])->name('inventory.destroy');
 Route::prefix('inventory')->name('inventory.')->group(function () {
-Route::get('/', [InventorySupplyController::class, 'index'])->name('index');
-Route::post('/', [InventorySupplyController::class, 'store'])->name('store');
-Route::put('/{id}', [InventorySupplyController::class, 'update'])->name('update');
-Route::delete('/{id}', [InventorySupplyController::class, 'destroy'])->name('destroy');
-Route::delete('/', [InventorySupplyController::class, 'bulkDelete'])->name('bulk-delete');
+    Route::get('/', [InventorySupplyController::class, 'index'])->name('index');
+    Route::post('/', [InventorySupplyController::class, 'store'])->name('store');
+    Route::put('/{id}', [InventorySupplyController::class, 'update'])->name('update');
+    Route::delete('/{id}', [InventorySupplyController::class, 'destroy'])->name('destroy');
+    Route::delete('/', [InventorySupplyController::class, 'bulkDelete'])->name('bulk-delete');
 
-// Stock transaction routes
-Route::post('/{id}/stock-transaction', [InventorySupplyController::class, 'stockTransaction'])->name('stock-transaction');
-Route::get('/{id}/transaction-history', [InventorySupplyController::class, 'transactionHistory'])->name('transaction-history');
+    // Stock transaction routes
+    Route::post('/{id}/stock-transaction', [InventorySupplyController::class, 'stockTransaction'])->name('stock-transaction');
+    Route::get('/{id}/transaction-history', [InventorySupplyController::class, 'transactionHistory'])->name('transaction-history');
 });
 
 // Authentication Routes
@@ -112,26 +112,28 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/payments/{payment}/receipt-data', [PaymentController::class, 'receiptData'])->name('payments.receiptData');
     Route::delete('/payments/bulk-delete', [PaymentController::class, 'bulkDelete'])->name('payments.bulkDelete');
     Route::delete('/payments/{payment}', [PaymentController::class, 'destroy'])->name('payments.destroy');
-    Route::get('/payments/membership', [PaymentController::class, 'membership'])
-    ->name('payments.membership');
+    Route::get('/payments/membership', [PaymentController::class, 'membership'])->name('payments.membership');
     
-    Route::middleware(['auth'])->group(function () {
-    // Payment routes
-    Route::get('/membership-payment', [MembershipPaymentController::class, 'index'])
-        ->name('membership.payment.index');
-    Route::post('/membership-payment', [MembershipPaymentController::class, 'store'])
-        ->name('membership.payment.store');
-    Route::get('/membership-payment/{id}/receipt', [MembershipPaymentController::class, 'receiptData'])
-        ->name('membership.payment.receipt');
-    Route::delete('/membership-payment/{id}', [MembershipPaymentController::class, 'destroy'])
-        ->name('membership.payment.destroy');
-    Route::delete('/membership-payment-bulk', [MembershipPaymentController::class, 'bulkDelete'])
-        ->name('membership.payment.bulkDelete');
+    // ==========================================
+    // MEMBERSHIP PAYMENT ROUTES (UPDATED)
+    // ==========================================
+    Route::prefix('membership-payment')->name('membership.payment.')->group(function () {
+        // Main routes
+        Route::get('/', [MembershipPaymentController::class, 'index'])->name('index');
+        Route::post('/', [MembershipPaymentController::class, 'store'])->name('store');
+        
+        // Single payment routes (must come before bulk routes)
+        Route::get('/{id}/receipt', [MembershipPaymentController::class, 'receiptData'])->name('receipt');
+        Route::post('/{id}/refund', [MembershipPaymentController::class, 'refund'])->name('refund'); // NEW REFUND ROUTE
+        Route::delete('/{id}', [MembershipPaymentController::class, 'destroy'])->name('destroy');
+        
+        // Bulk operations
+        Route::delete('/bulk-delete', [MembershipPaymentController::class, 'bulkDelete'])->name('bulkDelete');
+    });
     
     // Member search API
     Route::get('/api/members/search', [MemberApiController::class, 'search']);
     Route::get('/api/members/{id}', [MemberApiController::class, 'show']);
-    });
     
     // Reports & Analytics Routes
     Route::prefix('reports')->name('reports.')->group(function () {
@@ -148,7 +150,7 @@ Route::middleware(['auth'])->group(function () {
     // Legacy route (redirect to new reports route)
     Route::get('/ReportAndBilling', [ReportController::class, 'index'])->name('ReportAndBilling');
 
-    // User and Admin //
+    // User and Admin
     Route::get('/UserAndAdmin/UserManagement', function () {
         return view('UserAndAdmin.UserManagement');
     })->name('UserAndAdmin.UserManagement');

@@ -217,7 +217,7 @@
                                                     </a>
                                                     <a class="dropdown-item" href="javascript:void(0)"
                                                         onclick="SessionsPage.editPTSchedule({{ $schedule->id }})">
-                                                        <i class="mdi mdi-pencil mr-2"></i> Edit
+                                                        <i class="mdi mdi-pencil mr-2"></i> Reschedule
                                                     </a>
                                                     <a class="dropdown-item" href="javascript:void(0)"
                                                         onclick="SessionsPage.openBookNextModal({{ $schedule->client_id }}, '{{ $schedule->client->name ?? '' }}')">
