@@ -19,6 +19,18 @@ class Payment extends Model
         'return_amount',
         'total_quantity',
         'cashier_name',
+        'refunded_at',
+        'refund_reason',
+        'refunded_by',
+    ];
+
+    protected $casts = [
+        'paid_amount' => 'decimal:2',
+        'total_amount' => 'decimal:2',
+        'return_amount' => 'decimal:2',
+        'refunded_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function items()

@@ -59,6 +59,9 @@
           <li class="nav-item">
             <a class="nav-link" href="{{ route('payments.index') }}">Product Payment</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('payments.history') }}">Payment History</a>
+          </li>
         </ul>
       </div>
     </li>

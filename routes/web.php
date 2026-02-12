@@ -107,11 +107,13 @@ Route::middleware(['auth'])->group(function () {
     // Payment Routes (consolidated)
     Route::get('/PaymentAndBilling', [PaymentController::class, 'index'])->name('PaymentAndBilling');
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/payments/history', [App\Http\Controllers\PaymentHistoryController::class, 'index'])->name('payments.history');
     Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
     Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt'])->name('payments.receipt');
     Route::get('/payments/{payment}/receipt-data', [PaymentController::class, 'receiptData'])->name('payments.receiptData');
     Route::delete('/payments/bulk-delete', [PaymentController::class, 'bulkDelete'])->name('payments.bulkDelete');
-    Route::delete('/payments/{payment}', [PaymentController::class, 'destroy'])->name('payments.destroy');
+    Route::post('/payments/{payment}/refund', [App\Http\Controllers\PaymentHistoryController::class, 'refund'])->name('payments.refund');
+    Route::delete('/payments/{payment}', [App\Http\Controllers\PaymentHistoryController::class, 'destroy'])->name('payments.destroy');
     Route::get('/payments/membership', [PaymentController::class, 'membership'])->name('payments.membership');
     
     // ==========================================

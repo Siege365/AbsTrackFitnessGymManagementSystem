@@ -68,10 +68,11 @@
     background-color: rgba(255, 255, 255, 0.1) !important;
   }
 
-  /* Stats Cards - Consistent Style */
+  /* Stats Cards - Enhanced */
   .stat-change {
     font-size: 0.875rem;
     margin-top: 0.5rem;
+    font-weight: 600;
   }
 
   .stat-change.positive {
@@ -82,11 +83,11 @@
     color: #dc3545;
   }
 
-  /* Card Styles */
+  /* Card Styles - Enhanced */
   .card {
-    border-radius: 8px;
+    border-radius: 12px;
     margin-bottom: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   }
 
   .card-title {
@@ -96,7 +97,7 @@
     margin-bottom: 1.5rem;
   }
 
-  /* Form Styles */
+  /* Form Styles - Enhanced */
   .form-group {
     margin-bottom: 1.5rem;
   }
@@ -107,6 +108,8 @@
     font-weight: 600;
     color: #999;
     margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   .form-control, .form-select {
@@ -114,7 +117,7 @@
     padding: 0.875rem 1rem;
     background: #191C24;
     border: 1px solid #555;
-    border-radius: 4px;
+    border-radius: 6px;
     color: #ffffff;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -131,84 +134,89 @@
     color: #666;
   }
 
-  /* Search Results */
+  /* Search Results - Enhanced */
   .search-results {
     position: absolute;
     background: #282A36;
     border: 1px solid #555;
-    max-height: 200px;
+    max-height: 250px;
     overflow-y: auto;
     width: 100%;
     z-index: 1000;
-    border-radius: 4px;
+    border-radius: 6px;
     margin-top: 2px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 
   .search-result-item {
-    padding: 10px;
+    padding: 12px 16px;
     cursor: pointer;
     border-bottom: 1px solid #555;
     color: #ffffff;
+    transition: all 0.2s ease;
   }
 
   .search-result-item:hover {
     background-color: #191C24;
+    padding-left: 20px;
   }
 
   .search-result-item:last-child {
     border-bottom: none;
   }
 
-  /* Buttons */
+  /* Buttons - Enhanced */
   .btn {
     padding: 0.875rem 2rem;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     font-weight: 600;
     font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   .btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
   }
 
   .btn-primary {
-    background: #0d6efd;
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
     color: white;
   }
 
   .btn-primary:hover {
-    background: #0b5ed7;
+    background: linear-gradient(135deg, #0b5ed7 0%, #0a58ca 100%);
   }
 
   .btn-secondary {
-    background: #6c757d;
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
     color: white;
   }
 
   .btn-secondary:hover {
-    background: #5a6268;
+    background: linear-gradient(135deg, #5a6268 0%, #545b62 100%);
   }
 
   .btn-warning {
-    background: #ffc107;
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
     color: #000;
   }
 
   .btn-warning:hover {
-    background: #e0a800;
+    background: linear-gradient(135deg, #e0a800 0%, #d39e00 100%);
   }
 
   .btn-danger {
-    background: #dc3545;
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
     color: white;
   }
 
   .btn-danger:hover {
-    background: #c82333;
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
   }
 
   .btn:disabled {
@@ -222,10 +230,11 @@
     font-size: 0.875rem;
   }
 
-  /* Table Styles */
+  /* Table Styles - Enhanced */
   .table-responsive {
     overflow-x: auto;
     min-height: 600px;
+    border-radius: 8px;
   }
 
   .table {
@@ -240,6 +249,8 @@
     font-size: 0.875rem;
     color: #ffffff !important;
     border-bottom: 2px solid #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   .table tbody tr {
@@ -249,6 +260,7 @@
 
   .table tbody tr:hover {
     background: rgba(255, 255, 255, 0.1) !important;
+    transform: scale(1.01);
   }
 
   .table td {
@@ -257,134 +269,164 @@
     color: #ffffff !important;
   }
 
-  /* Custom Checkbox Styling */
-  .form-check-input {
-    width: 18px;
-    height: 18px;
-    border: 2px solid #dc3545;
-    border-radius: 4px;
-    background-color: transparent;
-    cursor: pointer;
-    position: relative;
-    appearance: none;
-    -webkit-appearance: none;
-    transition: all 0.2s;
-  }
-
-  .form-check-input:checked {
-    background-color: #dc3545;
-    border-color: #dc3545;
-  }
-
-  .form-check-input:checked::after {
-    content: '✓';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
-  }
-
-  .form-check-input:hover {
-    border-color: #ff4757;
-  }
-
-  .form-check-input:focus {
-    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-    outline: none;
-  }
-
-  /* Action Dropdown */
-  .btn-action {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: #ffffff;
-    padding: 0.25rem 0.5rem;
-    transition: all 0.2s;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  .btn-action:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-  }
-
-  .dropdown-menu {
-    min-width: 180px;
-    background: #282A36;
-    border: 1px solid #555;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    padding: 8px 0;
-    z-index: 10000 !important;
-  }
-
-  .dropdown-item {
-    padding: 12px 20px;
-    font-size: 14px;
-    color: #ffffff;
-    transition: background-color 0.2s;
-    display: flex;
+  /* Modal Overlay - Base */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
     align-items: center;
+    justify-content: center;
   }
 
-  .dropdown-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
+  .modal-overlay.show {
+    display: flex;
   }
 
-  .dropdown-item i {
-    margin-right: 0.5rem;
-    font-size: 16px;
-    width: 20px;
-    text-align: center;
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
-  .dropdown-item.text-danger {
-    color: #ff6b6b !important;
+  /* Modal Content */
+  .modal-content {
+    background: #ffffff;
+    border-radius: 8px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    animation: modalSlideIn 0.3s ease;
   }
 
-  .dropdown-item.text-danger:hover {
-    background-color: rgba(255, 107, 107, 0.1);
+  .modal-content.small {
+    max-width: 500px;
   }
 
-  /* Pagination */
-  .pagination-container {
+  @keyframes modalSlideIn {
+    from {
+      transform: scale(0.9) translateY(-50px);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .modal-header {
+    padding: 2rem;
+    background: #191C24;
+    color: white;
+    border-radius: 8px 8px 0 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 2px solid #555;
   }
 
-  .pagination {
-    display: flex;
-    gap: 0.5rem;
-    list-style: none;
-    padding: 0;
+  .modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
     margin: 0;
   }
 
-  .page-item {
-    display: inline-block;
+  .modal-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  /* Receipt Modal Styles */
+  .modal-close:hover {
+    color: #dc3545;
+    transform: rotate(90deg);
+  }
+
+  .modal-body {
+    padding: 2rem;
+  }
+
+  .modal-footer {
+    padding: 1.5rem 2rem;
+    background: #f8f9fa;
+    border-radius: 0 0 8px 8px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+
+  /* Confirmation Modal Specific Styles */
+  .confirmation-icon {
+    font-size: 4rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .confirmation-icon.warning {
+    color: #ffc107;
+  }
+
+  .confirmation-message {
+    text-align: center;
+    color: #333;
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .confirmation-details {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+  }
+
+  .confirmation-detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .confirmation-detail-row:last-child {
+    border-bottom: none;
+  }
+
+  .confirmation-detail-label {
+    font-weight: 600;
+    color: #666;
+  }
+
+  .confirmation-detail-value {
+    color: #333;
+    font-weight: 700;
+  }
+
+  /* Receipt Modal - Enhanced */
   .receipt-modal {
     display: none;
     position: fixed;
-    z-index: 9999;
+    z-index: 10000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.8);
-    backdrop-filter: blur(5px);
+    background-color: rgba(0,0,0,0.9);
+    backdrop-filter: blur(10px);
     animation: fadeIn 0.3s;
     align-items: center;
     justify-content: center;
@@ -399,21 +441,16 @@
     padding: 0;
     max-width: 800px;
     width: 90%;
-    border-radius: 8px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    animation: modalSlideIn 0.3s;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    animation: receiptSlideIn 0.5s ease;
     max-height: 90vh;
     overflow-y: auto;
   }
 
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  @keyframes modalSlideIn {
+  @keyframes receiptSlideIn {
     from {
-      transform: scale(0.9) translateY(-50px);
+      transform: scale(0.8) translateY(-100px);
       opacity: 0;
     }
     to {
@@ -423,10 +460,10 @@
   }
 
   .receipt-modal-header {
-    padding: 20px 30px;
-    background-color: #191C24;
+    padding: 24px 30px;
+    background: linear-gradient(135deg, #191C24 0%, #282A36 100%);
     color: white;
-    border-radius: 8px 8px 0 0;
+    border-radius: 12px 12px 0 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -434,32 +471,37 @@
 
   .receipt-modal-header h3 {
     margin: 0;
-    font-size: 24px;
+    font-size: 28px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
 
   .receipt-modal-close {
     color: white;
-    font-size: 32px;
+    font-size: 36px;
     font-weight: bold;
     cursor: pointer;
     background: none;
     border: none;
     padding: 0;
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
+    border-radius: 50%;
   }
 
   .receipt-modal-close:hover {
     color: #dc3545;
-    transform: rotate(90deg);
+    background: rgba(220, 53, 69, 0.2);
+    transform: rotate(90deg) scale(1.1);
   }
 
   .receipt-modal-body {
-    padding: 30px;
+    padding: 40px;
   }
 
   .receipt-container {
@@ -471,18 +513,22 @@
     text-align: center;
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 2px solid #333;
+    border-bottom: 3px solid #191C24;
   }
 
   .receipt-header h2 {
-    color: #333;
+    color: #191C24;
     margin: 0 0 10px 0;
-    font-size: 28px;
+    font-size: 32px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
   }
 
   .receipt-header p {
     color: #666;
     margin: 5px 0;
+    font-size: 14px;
   }
 
   .receipt-info {
@@ -493,100 +539,140 @@
   }
 
   .receipt-info-item {
-    padding: 12px;
+    padding: 16px;
     background: #f8f9fa;
-    border-radius: 4px;
+    border-radius: 8px;
+    border-left: 4px solid #191C24;
   }
 
   .receipt-info-item strong {
     display: block;
     color: #666;
-    font-size: 12px;
+    font-size: 11px;
     text-transform: uppercase;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+    font-weight: 700;
   }
 
   .receipt-info-item span {
     display: block;
-    color: #333;
+    color: #191C24;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .receipt-table {
     width: 100%;
     margin-bottom: 30px;
     border-collapse: collapse;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
 
   .receipt-table th {
     background: #191C24;
     color: white;
-    padding: 12px;
+    padding: 14px;
     text-align: left;
-    font-weight: 600;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
   }
 
   .receipt-table td {
-    padding: 12px;
+    padding: 14px;
     border-bottom: 1px solid #ddd;
     color: #333;
+    font-size: 14px;
   }
 
   .receipt-table tr:last-child td {
-    border-bottom: 2px solid #333;
+    border-bottom: 2px solid #191C24;
+  }
+
+  .receipt-table tbody tr:hover {
+    background-color: #f8f9fa;
   }
 
   .receipt-total {
     text-align: right;
     margin-top: 20px;
     padding-top: 20px;
-    border-top: 2px solid #333;
+    border-top: 3px solid #191C24;
   }
 
   .receipt-total-row {
     display: flex;
     justify-content: flex-end;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     color: #333;
+    font-size: 16px;
   }
 
   .receipt-total-row strong {
-    width: 150px;
+    width: 180px;
     text-align: right;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   .receipt-total-row span {
-    width: 150px;
+    width: 180px;
     text-align: right;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .receipt-total-row.grand-total {
-    font-size: 20px;
+    font-size: 24px;
     color: #191C24;
     margin-top: 15px;
     padding-top: 15px;
-    border-top: 2px solid #333;
+    border-top: 3px double #191C24;
   }
 
   .receipt-footer {
     text-align: center;
     margin-top: 40px;
     padding-top: 20px;
-    border-top: 1px dashed #999;
+    border-top: 2px dashed #999;
     color: #666;
   }
 
+  .receipt-footer p {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 10px 0;
+  }
+
   .receipt-modal-footer {
-    padding: 20px 30px;
+    padding: 24px 30px;
     background-color: #f8f9fa;
-    border-radius: 0 0 8px 8px;
+    border-radius: 0 0 12px 12px;
     text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
   }
 
   .receipt-modal-footer button {
-    margin: 0 5px;
+    margin: 0;
+  }
+
+  /* Loading Spinner */
+  .loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 
   /* Responsive */
@@ -594,6 +680,18 @@
     .pagination-container {
       flex-direction: column;
       gap: 1rem;
+    }
+
+    .receipt-info {
+      grid-template-columns: 1fr;
+    }
+
+    .modal-content.small {
+      width: 95%;
+    }
+
+    .receipt-modal-content {
+      width: 95%;
     }
   }
 
@@ -644,6 +742,25 @@
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
+  }
+
+  /* Enhanced Stats Card */
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  .card-body h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-body .text-muted {
+    color: #999 !important;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 </style>
 @endpush
@@ -826,7 +943,7 @@
               <button type="button" class="btn btn-secondary" id="clearBtn">
                 <i class="mdi mdi-close"></i> Clear
               </button>
-              <button type="submit" class="btn btn-primary">
+              <button type="button" class="btn btn-primary" id="processPaymentBtn">
                 <i class="mdi mdi-check"></i> Process Payment
               </button>
             </div>
@@ -836,287 +953,43 @@
     </div>
   </div>
 
-  <!-- Transaction History Card -->
-  <div class="card">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="card-title mb-0">Transaction History</h4>
-        <div class="d-flex align-items-center">
-          <!-- Filter Dropdown -->
-          <div class="dropdown mr-2">
-            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdownBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="mdi mdi-filter-variant"></i> Filter
-            </button>
-            <div class="dropdown-menu" aria-labelledby="filterDropdownBtn">
-              <h6 class="dropdown-header">Sort By</h6>
-              <a class="dropdown-item filter-option {{ request('filter') == 'date_newest' ? 'active' : '' }}" 
-                 href="{{ route('payments.index', ['filter' => 'date_newest', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
-                <i class="mdi mdi-calendar-clock"></i> Date (Newest)
-              </a>
-              <a class="dropdown-item filter-option {{ request('filter') == 'date_oldest' ? 'active' : '' }}" 
-                 href="{{ route('payments.index', ['filter' => 'date_oldest', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
-                <i class="mdi mdi-calendar"></i> Date (Oldest)
-              </a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item filter-option {{ request('filter') == 'name_asc' ? 'active' : '' }}" 
-                 href="{{ route('payments.index', ['filter' => 'name_asc', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
-                <i class="mdi mdi-sort-alphabetical-ascending"></i> Customer (A-Z)
-              </a>
-              <a class="dropdown-item filter-option {{ request('filter') == 'name_desc' ? 'active' : '' }}" 
-                 href="{{ route('payments.index', ['filter' => 'name_desc', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
-                <i class="mdi mdi-sort-alphabetical-descending"></i> Customer (Z-A)
-              </a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item filter-option {{ request('filter') == 'amount_asc' ? 'active' : '' }}" 
-                 href="{{ route('payments.index', ['filter' => 'amount_asc', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
-                <i class="mdi mdi-sort-numeric-ascending"></i> Amount (Low to High)
-              </a>
-              <a class="dropdown-item filter-option {{ request('filter') == 'amount_desc' ? 'active' : '' }}" 
-                 href="{{ route('payments.index', ['filter' => 'amount_desc', 'search' => request('search'), 'payment_method' => request('payment_method')]) }}">
-                <i class="mdi mdi-sort-numeric-descending"></i> Amount (High to Low)
-              </a>
-              <div class="dropdown-divider"></div>
-              <h6 class="dropdown-header">Payment Method</h6>
-              <a class="dropdown-item filter-option {{ request('payment_method') == 'Cash' ? 'active' : '' }}" 
-                 href="{{ route('payments.index', ['payment_method' => 'Cash', 'filter' => request('filter'), 'search' => request('search')]) }}">
-                <i class="mdi mdi-cash"></i> Cash
-              </a>
-              <a class="dropdown-item filter-option {{ request('payment_method') == 'Credit Card' ? 'active' : '' }}" 
-                 href="{{ route('payments.index', ['payment_method' => 'Credit Card', 'filter' => request('filter'), 'search' => request('search')]) }}">
-                <i class="mdi mdi-credit-card"></i> Credit Card
-              </a>
-              <a class="dropdown-item filter-option {{ request('payment_method') == 'Debit Card' ? 'active' : '' }}" 
-                 href="{{ route('payments.index', ['payment_method' => 'Debit Card', 'filter' => request('filter'), 'search' => request('search')]) }}">
-                <i class="mdi mdi-credit-card-outline"></i> Debit Card
-              </a>
-              <a class="dropdown-item filter-option {{ request('payment_method') == 'GCash' ? 'active' : '' }}" 
-                 href="{{ route('payments.index', ['payment_method' => 'GCash', 'filter' => request('filter'), 'search' => request('search')]) }}">
-                <i class="mdi mdi-cellphone"></i> GCash
-              </a>
-              <a class="dropdown-item filter-option {{ request('payment_method') == 'Online Payment' ? 'active' : '' }}" 
-                 href="{{ route('payments.index', ['payment_method' => 'Online Payment', 'filter' => request('filter'), 'search' => request('search')]) }}">
-                <i class="mdi mdi-web"></i> Online Payment
-              </a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item filter-option text-danger" 
-                 href="{{ route('payments.index') }}">
-                <i class="mdi mdi-close-circle"></i> Clear Filter
-              </a>
-            </div>
-          </div>
-          
-          <!-- Search Bar -->
-          <form action="{{ route('payments.index') }}" method="GET" id="transactionSearchForm" class="mb-0">
-            <input type="hidden" name="filter" value="{{ request('filter') }}">
-            <input type="hidden" name="payment_method" value="{{ request('payment_method') }}">
-            <input type="text" 
-                   id="transactionSearchInput" 
-                   name="search" 
-                   class="form-control form-control-sm" 
-                   placeholder="Search transactions..." 
-                   style="width: 200px;" 
-                   value="{{ request('search') }}">
-          </form>
-        </div>
-      </div>
-
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th style="min-width: 50px;">
-                <div class="form-check form-check-muted m-0">
-                  <label class="form-check-label">
-                    <input type="checkbox" class="form-check-input" id="selectAllTransactions">
-                  </label>
-                </div>
-              </th>
-              <th style="min-width: 80px;">Receipt#</th>
-              <th style="min-width: 180px;">Customer Name</th>
-              <th style="min-width: 150px;">Date & Time</th>
-              <th style="min-width: 120px;">Payment Type</th>
-              <th style="min-width: 80px;">Quantity</th>
-              <th style="min-width: 120px;">Total Price (₱)</th>
-              <th style="min-width: 150px;">Cashier</th>
-              <th style="min-width: 80px;">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @php
-              $transactionCount = isset($transactions) ? $transactions->count() : 0;
-              $maxRows = 10;
-            @endphp
-            
-            @if(isset($transactions) && $transactions->count() > 0)
-              @foreach($transactions as $transaction)
-              <tr>
-                <td>
-                  <div class="form-check form-check-muted m-0">
-                    <label class="form-check-label">
-                      <input type="checkbox" class="form-check-input transaction-checkbox" value="{{ $transaction->id }}">
-                    </label>
-                  </div>
-                </td>
-                <td>{{ $transaction->receipt_number }}</td>
-                <td>{{ $transaction->customer_name }}</td>
-                <td>{{ $transaction->created_at->format('Y-m-d, H:i') }}</td>
-                <td>{{ $transaction->payment_method }}</td>
-                <td>{{ $transaction->total_quantity }}</td>
-                <td>₱{{ number_format($transaction->total_amount, 2) }}</td>
-                <td>{{ $transaction->cashier_name }}</td>
-                <td>
-                  <div class="dropdown">
-                    <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown">
-                      <i class="mdi mdi-dots-vertical"></i>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right">
-                      <button type="button" 
-                              class="dropdown-item" 
-                              onclick="loadReceiptModal({{ $transaction->id }})">
-                        <i class="mdi mdi-eye mr-2"></i> View
-                      </button>
-                      <form action="{{ route('payments.destroy', $transaction->id) }}" method="POST" class="d-inline delete-form-payment">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="dropdown-item text-danger">
-                          <i class="mdi mdi-delete mr-2"></i> Delete
-                        </button>
-                      </form>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              @endforeach
-            @endif
-            
-            @for($i = $transactionCount; $i < $maxRows; $i++)
-            <tr>
-              <td colspan="9" style="height: 53px; text-align: center;">
-                @if($i == 0)
-                  <span class="text-muted">No transactions found</span>
-                @endif
-              </td>
-            </tr>
-            @endfor
-          </tbody>
-        </table>
-      </div>
-      
-      <!-- Pagination -->
-      <div class="pagination-container">
-        <button class="btn btn-danger btn-sm" id="bulkDeleteBtn" disabled>
-          <i class="mdi mdi-delete"></i> Delete Selected (<span id="selectedCount">0</span>)
-        </button>
-        
-        @if(isset($transactions) && $transactions->total() > 0)
-        <div class="d-flex flex-column align-items-center">
-          <nav aria-label="Page navigation">
-            <ul class="pagination mb-2">
-              @if ($transactions->onFirstPage())
-                <li class="page-item disabled">
-                  <span class="page-link">‹</span>
-                </li>
-              @else
-                <li class="page-item">
-                  <a class="page-link" href="{{ $transactions->appends(request()->query())->previousPageUrl() }}" rel="prev">‹</a>
-                </li>
-              @endif
-
-              @php
-                $currentPage = $transactions->currentPage();
-                $lastPage = $transactions->lastPage();
-                
-                if ($lastPage <= 3) {
-                  $start = 1;
-                  $end = $lastPage;
-                } else {
-                  if ($currentPage <= 2) {
-                    $start = 1;
-                    $end = 3;
-                  } elseif ($currentPage >= $lastPage - 1) {
-                    $start = $lastPage - 2;
-                    $end = $lastPage;
-                  } else {
-                    $start = $currentPage - 1;
-                    $end = $currentPage + 1;
-                  }
-                }
-              @endphp
-
-              @if ($start > 1)
-                <li class="page-item">
-                  <a class="page-link" href="{{ $transactions->appends(request()->query())->url(1) }}">1</a>
-                </li>
-                @if ($start > 2)
-                  <li class="page-item disabled">
-                    <span class="page-link">...</span>
-                  </li>
-                @endif
-              @endif
-
-              @for ($page = $start; $page <= $end; $page++)
-                @if ($page == $currentPage)
-                  <li class="page-item active">
-                    <span class="page-link">{{ $page }}</span>
-                  </li>
-                @else
-                  <li class="page-item">
-                    <a class="page-link" href="{{ $transactions->appends(request()->query())->url($page) }}">{{ $page }}</a>
-                  </li>
-                @endif
-              @endfor
-
-              @if ($end < $lastPage)
-                @if ($end < $lastPage - 1)
-                  <li class="page-item disabled">
-                    <span class="page-link">...</span>
-                  </li>
-                @endif
-                <li class="page-item">
-                  <a class="page-link" href="{{ $transactions->appends(request()->query())->url($lastPage) }}">{{ $lastPage }}</a>
-                </li>
-              @endif
-
-              @if ($transactions->hasMorePages())
-                <li class="page-item">
-                  <a class="page-link" href="{{ $transactions->appends(request()->query())->nextPageUrl() }}" rel="next">›</a>
-                </li>
-              @else
-                <li class="page-item disabled">
-                  <span class="page-link">›</span>
-                </li>
-              @endif
-            </ul>
-          </nav>
-          <span class="pagination-info">
-            Showing {{ $transactions->firstItem() ?? 0 }} to {{ $transactions->lastItem() ?? 0 }} of {{ $transactions->total() }} entries
-          </span>
-        </div>
-        @else
-        <nav aria-label="Page navigation">
-          <ul class="pagination mb-2">
-            <li class="page-item disabled"><span class="page-link">‹</span></li>
-            <li class="page-item active"><span class="page-link">1</span></li>
-            <li class="page-item disabled"><span class="page-link">2</span></li>
-            <li class="page-item disabled"><span class="page-link">3</span></li>
-            <li class="page-item disabled"><span class="page-link">›</span></li>
-          </ul>
-        </nav>
-        <span class="pagination-info">Showing 0 to 0 of 0 entries</span>
-        @endif
-        
-        <div style="width: 150px;"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- Bulk Delete Form (Hidden) -->
 <form id="bulkDeleteForm" action="{{ route('payments.bulkDelete') }}" method="POST" style="display: none;">
   @csrf
   @method('DELETE')
   <input type="hidden" name="ids" id="bulkDeleteIds">
 </form>
+
+<!-- Refund Form (Hidden) -->
+<form id="productRefundForm" action="" method="POST" style="display: none;">
+  @csrf
+  <input type="hidden" name="reason" id="productRefundReasonInput">
+</form>
+
+<!-- Payment Confirmation Modal -->
+<div id="paymentConfirmationModal" class="modal-overlay">
+  <div class="modal-content small">
+    <div class="modal-header">
+      <h3 class="modal-title">Confirm Payment</h3>
+      <button class="modal-close" onclick="closePaymentConfirmation()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirmation-icon warning">
+        <i class="mdi mdi-alert-circle-outline"></i>
+      </div>
+      <p class="confirmation-message">Please review the payment details before proceeding.</p>
+      <div class="confirmation-details" id="paymentConfirmationDetails"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closePaymentConfirmation()">
+        <i class="mdi mdi-close"></i> Cancel
+      </button>
+      <button type="button" class="btn btn-primary" id="confirmProductPaymentBtn">
+        <i class="mdi mdi-check"></i> Confirm & Process
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- Receipt Modal -->
 <div id="receiptModal" class="receipt-modal">
@@ -1406,9 +1279,11 @@
     selectedSearchItem = null;
   });
   
-  document.getElementById('paymentForm').addEventListener('submit', function(e) {
+  // Process Payment Button Handler
+  document.getElementById('processPaymentBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+
     if (cartItems.length === 0) {
-      e.preventDefault();
       alert('Please add at least one item to the cart!');
       return;
     }
@@ -1416,16 +1291,60 @@
     const total = parseFloat(document.getElementById('totalAmount').value) || 0;
     const paid = parseFloat(document.getElementById('paidAmount').value) || 0;
     if (paid < total) {
-      e.preventDefault();
       alert('Payment incomplete: Paid amount must be equal to or greater than the total amount.');
       const paidEl = document.getElementById('paidAmount');
       if (paidEl) paidEl.focus();
       return;
     }
 
+    // Prepare items data
     document.getElementById('itemsData').value = JSON.stringify(cartItems);
-    isSubmitting = true;
-    clearState();
+
+    // Build confirmation details
+    const itemsHtml = cartItems.map(i => `
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">${i.name} x ${i.qty}</span>
+        <span class="confirmation-detail-value">₱${(i.price * i.qty).toFixed(2)}</span>
+      </div>
+    `).join('');
+
+    const customerName = document.getElementById('customerName')?.value || 'Walk-in Customer';
+    const paymentMethod = document.getElementById('paymentMethod')?.value || 'Cash';
+
+    const details = `
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Customer:</span>
+        <span class="confirmation-detail-value">${customerName}</span>
+      </div>
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Payment Type:</span>
+        <span class="confirmation-detail-value">PRODUCT</span>
+      </div>
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Items:</span>
+        <span class="confirmation-detail-value">${cartItems.length} item(s)</span>
+      </div>
+      ${itemsHtml}
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Payment Method:</span>
+        <span class="confirmation-detail-value">${paymentMethod}</span>
+      </div>
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Total Amount:</span>
+        <span class="confirmation-detail-value">₱${total.toFixed(2)}</span>
+      </div>
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Paid Amount:</span>
+        <span class="confirmation-detail-value">₱${paid.toFixed(2)}</span>
+      </div>
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Change:</span>
+        <span class="confirmation-detail-value">₱${(paid - total).toFixed(2)}</span>
+      </div>
+    `;
+
+    document.getElementById('paymentConfirmationDetails').innerHTML = details;
+    document.getElementById('paymentConfirmationModal').classList.add('show');
   });
   
   document.addEventListener('click', function(e) {
@@ -1489,20 +1408,6 @@
       }, 250);
     });
   })();
-
-  // Real-time transaction search with debounce
-  let transactionSearchTimeout;
-  const transactionSearchInput = document.getElementById('transactionSearchInput');
-  const transactionSearchForm = document.getElementById('transactionSearchForm');
-
-  if (transactionSearchInput) {
-      transactionSearchInput.addEventListener('keyup', function() {
-          clearTimeout(transactionSearchTimeout);
-          transactionSearchTimeout = setTimeout(function() {
-              transactionSearchForm.submit();
-          }, 500);
-      });
-  }
 
   // Transaction History Controls
   function initializeTransactionControls() {
@@ -1576,6 +1481,69 @@
             }
         });
     });
+  }
+
+  function closePaymentConfirmation() {
+    const m = document.getElementById('paymentConfirmationModal');
+    if (m) m.classList.remove('show');
+  }
+
+  function confirmProductPayment() {
+    const btn = document.getElementById('confirmProductPaymentBtn');
+    if (!btn) return;
+    
+    btn.disabled = true;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+
+    const form = document.getElementById('paymentForm');
+    if (!form) return;
+    const fd = new FormData(form);
+
+    fetch(form.action, {
+      method: 'POST',
+      body: fd,
+      headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        // Close confirmation modal
+        closePaymentConfirmation();
+        
+        // Show receipt modal immediately
+        setTimeout(() => {
+          loadReceiptModal(data.payment.id);
+        }, 300);
+        
+        // Clear form and state after showing receipt
+        clearFormData();
+        
+      } else {
+        alert(data.message || 'Failed to process payment');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
+    })
+    .catch(err => {
+      console.error('Product payment error', err);
+      alert('Failed to process payment. Please try again.');
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    });
+  }
+
+  // Attach confirm handler to button
+  document.getElementById('confirmProductPaymentBtn').addEventListener('click', confirmProductPayment);
+
+  function clearFormData() {
+    cartItems = [];
+    renderCart();
+    document.getElementById('paymentForm').reset();
+    document.getElementById('totalAmount').value = '';
+    document.getElementById('returnAmount').value = '';
+    selectedSearchItem = null;
+    clearState();
   }
 
   // Receipt Modal Functions
@@ -1687,25 +1655,105 @@
         </div>
 
         <div class="receipt-footer">
-          <p>Thank you!</p>
+          <p>Thank you for your purchase!</p>
+          <p style="font-size: 14px; margin-top: 10px;">Please come again!</p>
         </div>
       </div>
     `;
   }
 
   function closeReceiptModal() {
-    document.getElementById('receiptModal').classList.remove('show');
+    const modal = document.getElementById('receiptModal');
+    modal.classList.remove('show');
+    
+    // Reload page after closing receipt to refresh the transaction list
+    setTimeout(() => {
+      window.location.reload();
+    }, 300);
   }
 
   function printReceipt() {
     window.print();
   }
 
+  // Close modal when clicking outside
   window.onclick = function(event) {
-    const modal = document.getElementById('receiptModal');
-    if (event.target === modal) {
+    const confirmModal = document.getElementById('paymentConfirmationModal');
+    const receiptModal = document.getElementById('receiptModal');
+    
+    if (event.target === confirmModal) {
+      closePaymentConfirmation();
+    }
+    if (event.target === receiptModal) {
       closeReceiptModal();
     }
+  }
+
+  // Product Refund Modal Functions
+  let currentProductRefundId = null;
+  function openProductRefundModal(id, receiptNumber, amount, customerName) {
+    currentProductRefundId = id;
+    // create modal if not exists
+    if (!document.getElementById('productRefundModal')) {
+      const html = `
+      <div id="productRefundModal" class="modal-overlay">
+        <div class="modal-content small">
+          <div class="modal-header">
+            <h3 class="modal-title">Process Refund</h3>
+            <button class="modal-close" onclick="closeProductRefundModal()">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="refund-warning" style="background: rgba(220, 53, 69, 0.1); padding: 15px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #dc3545;">
+              <i class="mdi mdi-alert" style="color: #dc3545;"></i>
+              <strong>Warning:</strong> This will mark this transaction as refunded.
+            </div>
+            <div class="confirmation-details" id="productRefundDetails"></div>
+            <div class="form-group">
+              <label class="form-label">Refund Reason (Optional)</label>
+              <textarea class="form-control" id="productRefundReason" rows="3" placeholder="Enter reason for refund..."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeProductRefundModal()">Cancel</button>
+            <button type="button" class="btn btn-warning" onclick="confirmProductRefund()">Process Refund</button>
+          </div>
+        </div>
+      </div>`;
+      document.body.insertAdjacentHTML('beforeend', html);
+    }
+
+    document.getElementById('productRefundDetails').innerHTML = `
+      <div class="confirmation-detail-row"><span class="confirmation-detail-label">Receipt:</span><span class="confirmation-detail-value">#${receiptNumber}</span></div>
+      <div class="confirmation-detail-row"><span class="confirmation-detail-label">Customer:</span><span class="confirmation-detail-value">${customerName}</span></div>
+      <div class="confirmation-detail-row"><span class="confirmation-detail-label">Refund Amount:</span><span class="confirmation-detail-value" style="color:#dc3545;">₱${parseFloat(amount).toFixed(2)}</span></div>`;
+
+    document.getElementById('productRefundModal').classList.add('show');
+  }
+
+  function closeProductRefundModal() {
+    const m = document.getElementById('productRefundModal');
+    if (m) m.classList.remove('show');
+  }
+
+  function confirmProductRefund() {
+    if (!currentProductRefundId) return;
+    const reason = document.getElementById('productRefundReason').value || '';
+    const url = `/payments/${currentProductRefundId}/refund`;
+    const fd = new FormData();
+    fd.append('reason', reason);
+
+    fetch(url, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          alert(data.message || 'Refund processed');
+          closeProductRefundModal();
+          setTimeout(() => window.location.reload(), 500);
+        } else {
+          alert(data.message || 'Failed to process refund');
+        }
+      })
+      .catch(err => { console.error(err); alert('Failed to process refund'); });
   }
 </script>
 @endpush
