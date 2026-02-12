@@ -963,7 +963,35 @@
       print-color-adjust: exact;
     }
   }
+  
+  .modal-overlay.show, .receipt-modal.show {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+
+  .modal-overlay .modal-content,
+  .modal-content,
+  .receipt-modal-content,
+  .receipt-container {
+    margin: 0 auto !important;
+    position: relative !important;
+    max-height: 90vh;
+    overflow: auto;
+  }
+
+  .modal-content.small {
+    margin: auto !important;
+  }
+
+  /* Ensure overlay prevents awkward vertical offset on small screens */
+  @media (max-height: 600px) {
+    .modal-overlay.show, .receipt-modal.show { align-items: flex-start !important; padding-top: 2rem; }
+  }
 </style>
+
 @endpush
 
 @section('content')

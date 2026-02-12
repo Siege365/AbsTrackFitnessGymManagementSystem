@@ -11,6 +11,8 @@ use App\Http\Controllers\MembershipPaymentController;
 use App\Http\Controllers\Api\MemberApiController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\PaymentHistoryController;
+use App\Http\Controllers\RefundController;
 
 //Inventory Supply Routes
 Route::get('/inventory', [InventorySupplyController::class, 'index'])->name('inventory.index');
@@ -112,7 +114,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt'])->name('payments.receipt');
     Route::get('/payments/{payment}/receipt-data', [PaymentController::class, 'receiptData'])->name('payments.receiptData');
     Route::delete('/payments/bulk-delete', [PaymentController::class, 'bulkDelete'])->name('payments.bulkDelete');
-    Route::post('/payments/{payment}/refund', [App\Http\Controllers\PaymentHistoryController::class, 'refund'])->name('payments.refund');
+    
     Route::delete('/payments/{payment}', [App\Http\Controllers\PaymentHistoryController::class, 'destroy'])->name('payments.destroy');
     Route::get('/payments/membership', [PaymentController::class, 'membership'])->name('payments.membership');
     
@@ -137,6 +139,28 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/members/search', [MemberApiController::class, 'search']);
     Route::get('/api/members/{id}', [MemberApiController::class, 'show']);
     
+    // Payment History Routes
+    Route::get('/payments/history', [PaymentHistoryController::class, 'index'])->name('payments.history');
+
+    // Product Payment Routes
+    Route::get('/payments/{id}/receipt-data', [PaymentHistoryController::class, 'getReceiptData'])->name('payments.receipt-data');
+    Route::post('/payments/{id}/refund', [PaymentHistoryController::class, 'refundProduct'])->name('payments.refund');
+    Route::delete('/payments/{id}', [PaymentHistoryController::class, 'destroy'])->name('payments.destroy');
+
+    // Membership Payment Routes
+    Route::get('/membership-payment/{id}/receipt', [PaymentHistoryController::class, 'getMembershipReceipt'])->name('membership-payment.receipt');
+    Route::post('/membership-payment/{id}/refund', [PaymentHistoryController::class, 'refundMembership'])->name('membership-payment.refund');
+    Route::delete('/membership-payment/{id}', [PaymentHistoryController::class, 'destroyMembership'])->name('membership-payment.destroy');
+    
+    // // Optional: Dedicated Refund Management Routes (if you want a separate refund dashboard)
+    // Route::prefix('refunds')->name('refunds.')->group(function () {
+    //     Route::get('/', [RefundController::class, 'index'])->name('index');
+    //     Route::get('/statistics', [RefundController::class, 'getStatistics'])->name('statistics');
+    //     Route::get('/export', [RefundController::class, 'export'])->name('export');
+    //     Route::get('/{id}/details', [RefundController::class, 'getRefundDetails'])->name('details');
+    //     Route::post('/{id}/cancel', [RefundController::class, 'cancelRefund'])->name('cancel');
+    // });
+
     // Reports & Analytics Routes
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');

@@ -10,9 +10,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\Services\RefundService;
 
 class PaymentController extends Controller
 {
+    protected $refundService;
+
+    public function __construct(RefundService $refundService)
+    {
+        $this->refundService = $refundService;
+    }
+
     public function index(Request $request)
     {
         $inventoryItems = InventorySupply::all();
@@ -299,42 +307,29 @@ class PaymentController extends Controller
      */
     public function refund(Request $request, $id)
     {
+        $validated = $request->validate([
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
         try {
-            DB::beginTransaction();
-
-            $payment = Payment::findOrFail($id);
-
-            if ($payment->refunded_at) {
-                throw new \Exception('This payment has already been refunded.');
-            }
-
-            // Reverse stock for each item
-            foreach ($payment->items as $item) {
-                $inventory = InventorySupply::find($item->inventory_supply_id);
-                if ($inventory) {
-                    $inventory->increment('stock_qty', $item->quantity);
-                }
-            }
-
-            $payment->update([
-                'refunded_at' => now(),
-                'refund_reason' => $request->input('reason'),
-                'refunded_by' => Auth::user()->name ?? 'Admin',
+            $result = $this->refundService->refundProductPayment($id, [
+                'reason' => $validated['reason'] ?? null,
             ]);
 
-            DB::commit();
-
             if ($request->expectsJson()) {
-                return response()->json(['success' => true, 'message' => 'Refund processed successfully.']);
+                return response()->json($result);
             }
 
-            return back()->with('success', 'Refund processed successfully.');
+            return back()->with('success', $result['message']);
 
         } catch (\Exception $e) {
-            DB::rollBack();
             if ($request->expectsJson()) {
-                return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 422);
             }
+
             return back()->withErrors(['error' => $e->getMessage()]);
         }
     }

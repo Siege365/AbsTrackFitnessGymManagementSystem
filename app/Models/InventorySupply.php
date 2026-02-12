@@ -45,4 +45,12 @@ class InventorySupply extends Model
             return ['class' => 'badge-success', 'text' => 'In Stock'];
         }
     }
+
+    /**
+     * Get inventory adjustments
+     */
+    public function adjustments()
+    {
+        return $this->hasMany(InventoryAdjustment::class);
+    }
 }

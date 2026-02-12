@@ -22,6 +22,13 @@ class MembershipPayment extends Model
         'new_due_date',
         'notes',
         'processed_by',
+        'is_refunded',
+        'refund_status',
+        'refunded_amount',
+        'refunded_at',
+        'refund_reason',
+        'refunded_by',
+        'previous_status',
     ];
 
     protected $casts = [
@@ -29,6 +36,9 @@ class MembershipPayment extends Model
         'duration_days' => 'integer',
         'previous_due_date' => 'datetime',
         'new_due_date' => 'datetime',
+        'is_refunded' => 'boolean',
+        'refunded_amount' => 'decimal:2',
+        'refunded_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

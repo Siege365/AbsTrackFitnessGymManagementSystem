@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use App\Models\MembershipPayment;
 use App\Models\PaymentItem;
+use App\Services\RefundService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -12,11 +13,22 @@ use Illuminate\Support\Facades\Auth;
 
 class PaymentHistoryController extends Controller
 {
+    protected $refundService;
+
+    public function __construct(RefundService $refundService)
+    {
+        $this->refundService = $refundService;
+    }
+
     public function index(Request $request)
     {
-        // Build base queries
-        $productQuery = Payment::with('items')->orderBy('created_at', 'desc');
-        $membershipQuery = MembershipPayment::orderBy('created_at', 'desc');
+        // Build base queries - exclude refunded from main lists
+        $productQuery = Payment::with('items')
+            ->where('is_refunded', false)
+            ->orderBy('created_at', 'desc');
+            
+        $membershipQuery = MembershipPayment::where('is_refunded', false)
+            ->orderBy('created_at', 'desc');
 
         // Search filter
         if ($request->has('search') && $request->search != '') {
@@ -40,8 +52,8 @@ class PaymentHistoryController extends Controller
         $membershipPayments = $membershipQuery->paginate(10, ['*'], 'membership_page')->withQueryString();
 
         // Build combined refunded list
-        $refProd = Payment::whereNotNull('refunded_at');
-        $refMem = MembershipPayment::whereNotNull('refunded_at');
+        $refProd = Payment::whereNotNull('refunded_at')->where('is_refunded', true);
+        $refMem = MembershipPayment::whereNotNull('refunded_at')->where('is_refunded', true);
 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
@@ -68,6 +80,8 @@ class PaymentHistoryController extends Controller
                 'name' => $p->customer_name,
                 'refunded_at' => $p->refunded_at,
                 'amount' => $p->total_amount,
+                'refunded_amount' => $p->refunded_amount,
+                'refund_status' => $p->refund_status,
                 'refund_reason' => $p->refund_reason,
                 'refunded_by' => $p->refunded_by,
                 'type' => 'Product'
@@ -81,6 +95,8 @@ class PaymentHistoryController extends Controller
                 'name' => $m->member_name,
                 'refunded_at' => $m->refunded_at,
                 'amount' => $m->amount,
+                'refunded_amount' => $m->refunded_amount,
+                'refund_status' => $m->refund_status,
                 'refund_reason' => $m->refund_reason,
                 'refunded_by' => $m->refunded_by,
                 'type' => 'Membership'
@@ -106,48 +122,140 @@ class PaymentHistoryController extends Controller
         return view('PaymentAndBillings.PaymentHistory', compact('productPayments', 'membershipPayments', 'combinedRefunds'));
     }
 
-    public function refund(Request $request, $id)
+    /**
+     * Get receipt data for product payment (AJAX)
+     */
+    public function getReceiptData($id)
     {
+        $payment = Payment::with('items')->findOrFail($id);
+        
+        return response()->json([
+            'id' => $payment->id,
+            'receipt_number' => $payment->receipt_number,
+            'customer_name' => $payment->customer_name,
+            'total_amount' => $payment->total_amount,
+            'payment_method' => $payment->payment_method,
+            'cashier_name' => $payment->cashier_name,
+            'created_at' => $payment->created_at,
+            'is_refunded' => $payment->is_refunded,
+            'refund_status' => $payment->refund_status,
+            'refunded_amount' => $payment->refunded_amount,
+            'refunded_at' => $payment->refunded_at,
+            'refund_reason' => $payment->refund_reason,
+            'refunded_by' => $payment->refunded_by,
+            'items' => $payment->items->map(function($item) {
+                return [
+                    'product_name' => $item->product_name,
+                    'quantity' => $item->quantity,
+                    'unit_price' => $item->unit_price,
+                    'total_price' => $item->total_price,
+                ];
+            })
+        ]);
+    }
+
+    /**
+     * Get receipt data for membership payment (AJAX)
+     */
+    public function getMembershipReceipt($id)
+    {
+        $payment = MembershipPayment::findOrFail($id);
+        
+        // Ensure membership relation is loaded to access contact
+        $payment->load('membership');
+
+        return response()->json([
+            'id' => $payment->id,
+            'receipt_number' => $payment->receipt_number,
+            'member_name' => $payment->member_name,
+            'member_contact' => $payment->membership->contact ?? 'N/A',
+            'amount' => $payment->amount,
+            'plan_type' => $payment->plan_type,
+            // JS expects `duration` key — use `duration_days` from model
+            'duration' => $payment->duration_days,
+            'payment_type' => $payment->payment_type,
+            'payment_method' => $payment->payment_method,
+            'processed_by' => $payment->processed_by,
+            // Provide formatted date for display
+            'formatted_date' => \Carbon\Carbon::parse($payment->created_at)->setTimezone('Asia/Manila')->format('F d, Y - h:i A'),
+            'is_refunded' => $payment->is_refunded,
+            'refund_status' => $payment->refund_status,
+            'refunded_amount' => $payment->refunded_amount,
+            'refunded_at' => $payment->refunded_at,
+            'refund_reason' => $payment->refund_reason,
+            'refunded_by' => $payment->refunded_by,
+            'previous_due_date' => $payment->previous_due_date ? \Carbon\Carbon::parse($payment->previous_due_date)->format('F d, Y') : null,
+            'new_due_date' => $payment->new_due_date ? \Carbon\Carbon::parse($payment->new_due_date)->format('F d, Y') : null,
+        ]);
+    }
+
+    /**
+     * Process product refund using RefundService
+     */
+    public function refundProduct(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
         try {
-            DB::beginTransaction();
-
-            $payment = Payment::findOrFail($id);
-
-            if ($payment->refunded_at) {
-                throw new \Exception('This payment has already been refunded.');
-            }
-
-            // Reverse stock for each item
-            foreach ($payment->items as $item) {
-                $inventory = \App\Models\InventorySupply::find($item->inventory_supply_id);
-                if ($inventory) {
-                    $inventory->increment('stock_qty', $item->quantity);
-                }
-            }
-
-            $payment->update([
-                'refunded_at' => now(),
-                'refund_reason' => $request->input('reason'),
-                'refunded_by' => Auth::user()->name ?? 'Admin',
+            $result = $this->refundService->refundProductPayment($id, [
+                'reason' => $validated['reason'] ?? null,
             ]);
 
-            DB::commit();
-
             if ($request->expectsJson()) {
-                return response()->json(['success' => true, 'message' => 'Refund processed successfully.']);
+                return response()->json($result);
             }
 
-            return back()->with('success', 'Refund processed successfully.');
+            return back()->with('success', $result['message']);
 
         } catch (\Exception $e) {
-            DB::rollBack();
             if ($request->expectsJson()) {
-                return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 422);
             }
+
             return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
 
+    /**
+     * Process membership refund using RefundService
+     */
+    public function refundMembership(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            $result = $this->refundService->refundMembershipPayment($id, [
+                'reason' => $validated['reason'] ?? null,
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json($result);
+            }
+
+            return back()->with('success', $result['message']);
+
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Delete product payment (with inventory restoration)
+     */
     public function destroy($id)
     {
         try {
@@ -155,10 +263,13 @@ class PaymentHistoryController extends Controller
                 $paymentRecord = Payment::findOrFail($id);
                 $paymentItems = PaymentItem::where('payment_id', $paymentRecord->id)->get();
 
-                foreach ($paymentItems as $item) {
-                    $inventory = \App\Models\InventorySupply::find($item->inventory_supply_id);
-                    if ($inventory) {
-                        $inventory->increment('stock_qty', $item->quantity);
+                // Restore inventory if not already refunded
+                if (!$paymentRecord->is_refunded) {
+                    foreach ($paymentItems as $item) {
+                        $inventory = \App\Models\InventorySupply::find($item->inventory_supply_id);
+                        if ($inventory) {
+                            $inventory->increment('stock_qty', $item->quantity);
+                        }
                     }
                 }
 
@@ -169,6 +280,36 @@ class PaymentHistoryController extends Controller
             return back()->with('success', 'Transaction deleted successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to delete transaction: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Delete membership payment
+     */
+    public function destroyMembership($id)
+    {
+        try {
+            DB::transaction(function () use ($id) {
+                $payment = MembershipPayment::findOrFail($id);
+                
+                // If refunded, we should restore the member's previous state
+                if ($payment->is_refunded && $payment->previous_due_date) {
+                    // Use Membership model (not Member) — Membership stores member records
+                    $member = \App\Models\Membership::find($payment->membership_id ?? $payment->membership_id);
+                    if ($member) {
+                        $member->due_date = $payment->previous_due_date;
+                        // previous_status may not exist; default to 'Active'
+                        $member->status = $payment->previous_status ?? 'Active';
+                        $member->save();
+                    }
+                }
+                
+                $payment->delete();
+            });
+
+            return back()->with('success', 'Membership payment deleted successfully.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Failed to delete payment: ' . $e->getMessage()]);
         }
     }
 }

@@ -9,9 +9,17 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use App\Services\RefundService;
 
 class MembershipPaymentController extends Controller
 {
+    protected $refundService;
+
+    public function __construct(RefundService $refundService)
+    {
+        $this->refundService = $refundService;
+    }
+
     /**
      * Display the membership payment page with statistics and transaction history
      */
@@ -292,62 +300,27 @@ class MembershipPaymentController extends Controller
     {
         date_default_timezone_set('Asia/Manila');
 
+        $validated = $request->validate([
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
         try {
-            DB::beginTransaction();
-
-            $payment = MembershipPayment::findOrFail($id);
-
-            // Check if already refunded
-            if ($payment->refunded_at) {
-                throw new \Exception('This payment has already been refunded.');
-            }
-
-            $member = Membership::find($payment->membership_id);
-
-            if ($member) {
-                // Reverse the membership due date
-                if ($payment->previous_due_date) {
-                    $member->update([
-                        'due_date' => $payment->previous_due_date,
-                        'status' => Carbon::parse($payment->previous_due_date)->isFuture() 
-                            ? 'Active' 
-                            : 'Expired',
-                    ]);
-                } else {
-                    // If there was no previous due date (new member), set as expired
-                    $member->update([
-                        'status' => 'Expired',
-                        'due_date' => null,
-                    ]);
-                }
-            }
-
-            // Mark payment as refunded
-            $payment->update([
-                'refunded_at' => now(),
-                'refund_reason' => $request->input('reason'),
-                'refunded_by' => Auth::user()->name ?? 'Admin',
+            $result = $this->refundService->refundMembershipPayment($id, [
+                'reason' => $validated['reason'] ?? null,
             ]);
 
-            DB::commit();
-
             if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Refund processed successfully. Membership due date has been reversed.',
-                ]);
+                return response()->json($result);
             }
 
             return redirect()->route('membership.payment.index')
-                ->with('success', 'Refund processed successfully. Membership due date has been reversed.');
+                ->with('success', $result['message']);
 
         } catch (\Exception $e) {
-            DB::rollBack();
-
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => $e->getMessage()
+                    'message' => $e->getMessage(),
                 ], 500);
             }
 

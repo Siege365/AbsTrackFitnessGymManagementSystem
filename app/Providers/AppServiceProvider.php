@@ -10,10 +10,10 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    public function register(): void
-    {
-        //
-    }
+    // public function register(): void
+    // {
+    //     //
+    // }
 
     /**
      * Bootstrap any application services.
@@ -53,5 +53,12 @@ class AppServiceProvider extends ServiceProvider
         
         // Return as-is if format doesn't match expected patterns
         return $contact;
+    }
+
+    public function register()
+    {
+        $this->app->singleton(\App\Services\RefundService::class, function ($app) {
+            return new \App\Services\RefundService();
+        });
     }
 }
