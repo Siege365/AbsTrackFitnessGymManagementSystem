@@ -3,7 +3,7 @@
 @section('title', 'Reports & Analytics - AbsTrack Fitness Gym')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/reports.css') }}?v={{ time() }}">
+    @vite(['resources/css/reports.css'])
 @endpush
 
 @section('content')
@@ -305,7 +305,7 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-<script src="{{ asset('js/pages/reports.js') }}?v={{ time() }}"></script>
+@vite(['resources/js/pages/reports.js'])
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     ReportsPage.init();

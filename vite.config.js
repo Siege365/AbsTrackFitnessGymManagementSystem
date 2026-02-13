@@ -1,13 +1,52 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js'],
+            input: [
+                // Global / Layout CSS
+                'resources/css/core.css',
+                'resources/css/sidebar.css',
+                'resources/css/custom-fonts.css',
+                'resources/css/notification-bell.css',
+                'resources/css/global-theme.css',
+
+                // Page-specific CSS
+                'resources/css/dashboard.css',
+                'resources/css/clients.css',
+                'resources/css/memberships.css',
+                'resources/css/sessions.css',
+                'resources/css/inventory.css',
+                'resources/css/transaction-history.css',
+                'resources/css/payment.css',
+                'resources/css/product-payment.css',
+                'resources/css/membership-payment.css',
+                'resources/css/reports.css',
+
+                // Auth CSS
+                'resources/css/auth-login.css',
+                'resources/css/auth-register.css',
+
+                // Common JS utilities
+                'resources/js/common/toast-utils.js',
+                'resources/js/common/avatar-utils.js',
+                'resources/js/common/form-utils.js',
+                'resources/js/common/bulk-selection.js',
+                'resources/js/common/sidebar.js',
+
+                // Page-specific JS
+                'resources/js/pages/clients.js',
+                'resources/js/pages/memberships.js',
+                'resources/js/pages/payments.js',
+                'resources/js/pages/reports.js',
+                'resources/js/sessions.js',
+
+                // Auth JS
+                'resources/js/auth-login.js',
+                'resources/js/auth-register.js',
+            ],
             refresh: true,
         }),
-        tailwindcss(),
     ],
 });

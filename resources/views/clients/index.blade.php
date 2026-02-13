@@ -3,7 +3,7 @@
 @section('title', 'Clients Management - AbsTrack Fitness Gym')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/clients.css') }}?v={{ time() }}">
+@vite(['resources/css/clients.css'])
 @endpush
 
 @section('content')
@@ -677,11 +677,11 @@
 
 @push('scripts')
 <!-- Common Utilities -->
-<script src="{{ asset('js/common/avatar-utils.js') }}?v={{ time() }}"></script>
-<script src="{{ asset('js/common/form-utils.js') }}?v={{ time() }}"></script>
-<script src="{{ asset('js/common/bulk-selection.js') }}?v={{ time() }}"></script>
+@vite(['resources/js/common/avatar-utils.js'])
+@vite(['resources/js/common/form-utils.js'])
+@vite(['resources/js/common/bulk-selection.js'])
 <!-- Page Module -->
-<script src="{{ asset('js/pages/clients.js') }}?v={{ time() }}"></script>
+@vite(['resources/js/pages/clients.js'])
 <script>
   // Initialize clients page with Laravel data
   document.addEventListener('DOMContentLoaded', function() {

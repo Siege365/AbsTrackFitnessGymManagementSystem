@@ -8,7 +8,7 @@
     @include('partials.fonts')
     
     <link rel="stylesheet" href="{{ asset('template/assets/vendors/mdi/css/materialdesignicons.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/auth-login.css') }}">
+    @vite(['resources/css/auth-login.css'])
     <link rel="shortcut icon" href="{{ asset('template/assets/images/favicon.png') }}" />
 </head>
 <body>
@@ -82,6 +82,6 @@
         </div>
     </div>
     
-    <script src="{{ asset('js/auth-login.js') }}"></script>
+    @vite(['resources/js/auth-login.js'])
 </body>
 </html>

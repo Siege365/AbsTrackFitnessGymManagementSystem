@@ -3,43 +3,7 @@
 @section('title', 'Transaction History')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/inventory.css') }}?v={{ time() }}">
-<style>
-    .timeline {
-        position: relative;
-        padding-left: 30px;
-    }
-    .timeline::before {
-        content: '';
-        position: absolute;
-        left: 8px;
-        top: 0;
-        bottom: 0;
-        width: 2px;
-        background: #e0e0e0;
-    }
-    .timeline-item {
-        position: relative;
-        padding-bottom: 30px;
-    }
-    .timeline-item::before {
-        content: '';
-        position: absolute;
-        left: -26px;
-        top: 5px;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background: white;
-        border: 3px solid;
-    }
-    .timeline-item.stock-in::before {
-        border-color: #28a745;
-    }
-    .timeline-item.stock-out::before {
-        border-color: #ffc107;
-    }
-</style>
+@vite(['resources/css/inventory.css', 'resources/css/transaction-history.css'])
 @endpush
 
 @section('content')

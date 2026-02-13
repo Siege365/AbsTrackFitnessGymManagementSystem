@@ -3,7 +3,7 @@
 @section('title', 'Dashboard')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/dashboard.css') }}?v={{ time() }}">
+@vite(['resources/css/dashboard.css'])
 @endpush
 
 @section('content')

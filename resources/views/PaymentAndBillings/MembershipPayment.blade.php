@@ -1,907 +1,9 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Membership Payment System')
 
 @push('styles')
-<style>
-  /* CONSISTENT COLOR SCHEME FROM PRODUCT PAYMENT */
-  .table-responsive::-webkit-scrollbar {
-    height: 8px;
-  }
-  
-  .table-responsive::-webkit-scrollbar-track {
-    background: #191C24;
-  }
-  
-  .table-responsive::-webkit-scrollbar-thumb {
-    background-color: #555;
-    border-radius: 4px;
-  }
-
-  .pagination .page-item.active .page-link {
-    background-color: #ffffff;
-    border-color: #ffffff;
-    color: #000000;
-  }
-  
-  .pagination .page-link {
-    color: #ffffff;
-    background-color: #282A36;
-    border-color: #555;
-    padding: 8px 12px;
-    margin: 0 2px;
-    border-radius: 4px;
-  }
-  
-  .pagination .page-link:hover {
-    background-color: #ffffff;
-    border-color: #000000;
-    color: #000000;
-  }
-
-  .pagination .page-link:focus {
-    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-  }
-
-  .pagination .page-item.disabled .page-link {
-    background-color: #1a1d24;
-    border-color: #333;
-    color: #666;
-  }
-
-  .pagination-info {
-    color: #999;
-    font-size: 14px;
-  }
-
-  .form-control[readonly] {
-    background-color: #282A36 !important;
-    color: #495057 !important;
-  }
-
-  .table thead th,
-  .table tbody td {
-    color: #ffffff !important;
-  }
-
-  .table-hover tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-  }
-
-  /* Stats Cards - Consistent Style */
-  .stat-change {
-    font-size: 0.875rem;
-    margin-top: 0.5rem;
-  }
-
-  .stat-change.positive {
-    color: #28a745;
-  }
-
-  .stat-change.negative {
-    color: #dc3545;
-  }
-
-  /* Card Styles */
-  .card {
-    border-radius: 8px;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  }
-
-  .card-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 1.5rem;
-  }
-
-  /* Form Styles */
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .form-group {
-    margin-bottom: 1.5rem;
-  }
-
-  .form-label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #999;
-    margin-bottom: 0.5rem;
-  }
-
-  .form-control, .form-select {
-    width: 100%;
-    padding: 0.875rem 1rem;
-    background: #191C24;
-    border: 1px solid #555;
-    border-radius: 4px;
-    color: #ffffff;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-  }
-
-  .form-control:focus, .form-select:focus {
-    outline: none;
-    border-color: #198754;
-    box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
-    background: #282A36;
-  }
-
-  .form-control::placeholder {
-    color: #666;
-  }
-
-  /* Autocomplete Results */
-  .autocomplete-results {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    max-height: 250px;
-    overflow-y: auto;
-    background: #282A36;
-    border: 1px solid #555;
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-    z-index: 1000;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  }
-
-  .autocomplete-item {
-    padding: 1rem;
-    cursor: pointer;
-    border-bottom: 1px solid #555;
-    transition: all 0.2s ease;
-    color: #ffffff;
-  }
-
-  .autocomplete-item:hover {
-    background: #191C24;
-  }
-
-  .autocomplete-item:last-child {
-    border-bottom: none;
-  }
-
-  /* Buttons */
-  .btn {
-    padding: 0.875rem 2rem;
-    border: none;
-    border-radius: 4px;
-    font-weight: 600;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  }
-
-  .btn-primary {
-    background: #0d6efd;
-    color: white;
-  }
-
-  .btn-primary:hover {
-    background: #138496;
-  }
-
-  .btn-secondary {
-    background: #6c757d;
-    color: white;
-  }
-
-  .btn-secondary:hover {
-    background: #5a6268;
-  }
-
-  .btn-danger {
-    background: #dc3545;
-    color: white;
-  }
-
-  .btn-danger:hover {
-    background: #c82333;
-  }
-
-  .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none !important;
-  }
-
-  /* Payment Type Pills */
-  .payment-type-selector {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .payment-type-pill {
-    flex: 1;
-    padding: 1rem;
-    background: #191C24;
-    border: 2px solid #555;
-    border-radius: 4px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .payment-type-pill:hover {
-    border-color: #198754;
-    transform: translateY(-3px);
-  }
-
-  .payment-type-pill.active {
-    background: #282A36;
-    border-color: #198754;
-  }
-
-  .payment-type-pill .icon {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-    display: block;
-  }
-
-  .payment-type-pill .label {
-    font-weight: 600;
-    font-size: 0.875rem;
-    color: #ffffff;
-  }
-
-  /* Plan Type Selector */
-  .plan-type-selector {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .plan-type-card {
-    flex: 1;
-    padding: 1.5rem;
-    background: #191C24;
-    border: 2px solid #555;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .plan-type-card:hover {
-    border-color: #198754;
-    transform: translateY(-3px);
-  }
-
-  .plan-type-card.active {
-    background: #282A36;
-    border-color: #198754;
-  }
-
-  .plan-type-card .plan-name {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 0.5rem;
-  }
-
-  .plan-type-card .plan-duration {
-    font-size: 0.875rem;
-    color: #999;
-  }
-
-  .plan-type-card .plan-price {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #28a745;
-    margin-top: 0.5rem;
-  }
-
-  /* Table Styles */
-  .table-responsive {
-    overflow-x: auto;
-    min-height: 600px;
-  }
-
-  .table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .table th {
-    padding: 1rem;
-    text-align: left;
-    font-weight: 600;
-    font-size: 0.875rem;
-    color: #ffffff !important;
-    border-bottom: 2px solid #555;
-  }
-
-  .table tbody tr {
-    transition: all 0.3s ease;
-  }
-
-  .table tbody tr:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-  }
-
-  .table td {
-    padding: 1rem;
-    border-bottom: 1px solid #555;
-    color: #ffffff !important;
-  }
-
-  /* Badge Styles */
-  .badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-
-  .badge-success {
-    background: #28a745;
-    color: white;
-  }
-
-  .badge-info {
-    background: #0d6efd;
-    color: white;
-  }
-
-  .badge-warning {
-    background: #ffc107;
-    color: #000;
-  }
-
-  /* Action Dropdown - FIXED Z-INDEX */
-  .action-dropdown {
-    position: relative;
-  }
-
-  .action-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: #ffffff;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .action-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  .dropdown-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    min-width: 180px;
-    background: #282A36;
-    border: 1px solid #555;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    padding: 8px 0;
-    display: none;
-    z-index: 10000 !important; /* FIXED: Above all components */
-    animation: slideDown 0.3s ease;
-  }
-
-  .dropdown-menu.show {
-    display: block;
-  }
-
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .dropdown-item {
-    padding: 12px 20px;
-    font-size: 14px;
-    color: #ffffff;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    background: none;
-    border: none;
-    width: 100%;
-    text-align: left;
-  }
-
-  .dropdown-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .dropdown-item i {
-    margin-right: 0.5rem;
-  }
-
-  .dropdown-item.danger {
-    color: #ff6b6b;
-  }
-
-  .dropdown-item.danger:hover {
-    background: rgba(255, 107, 107, 0.1);
-  }
-
-  /* Pagination - ALWAYS VISIBLE */
-  .pagination-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 2px solid #555;
-  }
-
-  .pagination {
-    display: flex;
-    gap: 0.5rem;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .page-item {
-    display: inline-block;
-  }
-
-  /* Checkbox Styles */
-  .custom-checkbox {
-    width: 18px;
-    height: 18px;
-    border: 2px solid #dc3545;
-    border-radius: 4px;
-    background-color: transparent;
-    cursor: pointer;
-    appearance: none;
-    transition: all 0.3s ease;
-  }
-
-  .custom-checkbox:checked {
-    background-color: #dc3545;
-    border-color: #dc3545;
-  }
-
-  .custom-checkbox:checked::after {
-    content: '✓';
-    display: block;
-    text-align: center;
-    color: white;
-    font-weight: bold;
-    font-size: 12px;
-    line-height: 14px;
-  }
-
-  /* Modal Styles - FIXED CENTERING */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(5px);
-    z-index: 9999;
-    animation: fadeIn 0.3s ease;
-    align-items: center; /* FIXED: Center vertically */
-    justify-content: center; /* FIXED: Center horizontally */
-  }
-
-  .modal-overlay.show {
-    display: flex; /* FIXED: Use flex for centering */
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  .modal-content {
-    background: #ffffff;
-    border-radius: 8px;
-    max-width: 800px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-    animation: modalSlideIn 0.3s ease;
-  }
-
-  @keyframes modalSlideIn {
-    from {
-      transform: scale(0.9) translateY(-50px);
-      opacity: 0;
-    }
-    to {
-      transform: scale(1) translateY(0);
-      opacity: 1;
-    }
-  }
-
-  .modal-header {
-    padding: 2rem;
-    background: #191C24;
-    color: white;
-    border-radius: 8px 8px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .modal-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin: 0;
-  }
-
-  .modal-close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 2rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-close:hover {
-    color: #dc3545;
-    transform: rotate(90deg);
-  }
-
-  .modal-body {
-    padding: 2rem;
-  }
-
-  .modal-footer {
-    padding: 1.5rem 2rem;
-    background: #f8f9fa;
-    border-radius: 0 0 8px 8px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-  }
-
-  /* Receipt Styles */
-  .receipt-container {
-    background: white;
-    color: #333;
-  }
-
-  .receipt-header {
-    text-align: center;
-    border-bottom: 3px solid #191C24;
-    padding-bottom: 1.5rem;
-    margin-bottom: 2rem;
-  }
-
-  .receipt-header h2 {
-    font-size: 2rem;
-    color: #191C24;
-    margin-bottom: 0.5rem;
-  }
-
-  .receipt-info-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-
-  .receipt-info-item {
-    padding: 1rem;
-    background: #f5f5f5;
-    border-radius: 4px;
-  }
-
-  .receipt-info-item strong {
-    display: block;
-    font-size: 0.75rem;
-    color: #666;
-    text-transform: uppercase;
-    margin-bottom: 0.25rem;
-  }
-
-  .receipt-info-item span {
-    display: block;
-    font-size: 1rem;
-    color: #333;
-    font-weight: 600;
-  }
-
-  .receipt-table {
-    width: 100%;
-    margin-bottom: 2rem;
-    border-collapse: collapse;
-  }
-
-  .receipt-table th {
-    background: #191C24;
-    color: white;
-    padding: 1rem;
-    text-align: left;
-    font-weight: 600;
-  }
-
-  .receipt-table td {
-    padding: 1rem;
-    border-bottom: 1px solid #ddd;
-    color: #333;
-  }
-
-  .receipt-total {
-    text-align: right;
-    padding-top: 1rem;
-    border-top: 3px solid #191C24;
-  }
-
-  .receipt-total-row {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 0.5rem;
-    font-size: 1.125rem;
-  }
-
-  .receipt-total-row strong {
-    width: 200px;
-  }
-
-  .receipt-total-row span {
-    width: 150px;
-    text-align: right;
-    font-weight: 700;
-  }
-
-  .receipt-total-row.grand-total {
-    font-size: 1.5rem;
-    color: #191C24;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 2px solid #333;
-  }
-
-  /* Notifications */
-  .notification {
-    position: fixed;
-    top: 2rem;
-    right: 2rem;
-    max-width: 400px;
-    padding: 1.5rem;
-    border-radius: 8px;
-    border: 2px solid;
-    display: none;
-    z-index: 10001;
-    animation: slideInRight 0.3s ease;
-  }
-
-  @keyframes slideInRight {
-    from {
-      transform: translateX(400px);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-
-  .notification.show {
-    display: block;
-  }
-
-  .notification.success {
-    background: rgba(40, 167, 69, 0.1);
-    border-color: #28a745;
-    color: #28a745;
-  }
-
-  .notification.error {
-    background: rgba(220, 53, 69, 0.1);
-    border-color: #dc3545;
-    color: #dc3545;
-  }
-
-  .notification.warning {
-    background: rgba(255, 193, 7, 0.1);
-    border-color: #ffc107;
-    color: #856404;
-  }
-
-  /* Loading State */
-  .loading-spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid #555;
-    border-top-color: #0d6efd;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  /* Filter Dropdown */
-  .filter-dropdown {
-    position: relative;
-  }
-
-  .filter-btn {
-    background: #282A36;
-    border: 1px solid #555;
-    color: #ffffff;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .filter-btn:hover {
-    background: #191C24;
-    border-color: #198754;
-  }
-
-  .filter-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    min-width: 250px;
-    background: #282A36;
-    border: 1px solid #555;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    padding: 0.5rem 0;
-    display: none;
-    z-index: 1000;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-
-  .filter-menu.show {
-    display: block;
-  }
-
-  .filter-header {
-    padding: 0.75rem 1.25rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #999;
-    text-transform: uppercase;
-    border-bottom: 1px solid #555;
-  }
-
-  .filter-menu-item {
-    padding: 0.75rem 1.25rem;
-    color: #ffffff;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    text-decoration: none;
-  }
-
-  .filter-menu-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .filter-menu-item.active {
-    background: rgba(23, 162, 184, 0.2);
-    color: #198754;
-  }
-
-  .filter-menu-divider {
-    height: 1px;
-    background: #555;
-    margin: 0.5rem 0;
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .stats-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .form-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .payment-type-selector,
-    .plan-type-selector {
-      flex-direction: column;
-    }
-
-    .pagination-container {
-      flex-direction: column;
-      gap: 1rem;
-    }
-  }
-
-  /* Print Styles - FIXED */
-  @media print {
-    @page {
-      margin: 0.5in;
-    }
-
-    body * {
-      visibility: hidden;
-    }
-
-    .receipt-container,
-    .receipt-container * {
-      visibility: visible;
-    }
-
-    .receipt-container {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      background: white;
-      color: black;
-    }
-
-    .modal-header,
-    .modal-footer,
-    .modal-close {
-      display: none !important;
-    }
-
-    .modal-overlay {
-      background: white !important;
-      backdrop-filter: none !important;
-    }
-
-    .modal-content {
-      box-shadow: none !important;
-      max-height: none !important;
-      overflow: visible !important;
-    }
-
-    .modal-body {
-      padding: 0 !important;
-    }
-
-    .receipt-table th {
-      background: #333 !important;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-
-    .receipt-info-item {
-      background: #f5f5f5 !important;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-  }
-</style>
+@vite(['resources/css/membership-payment.css'])
 @endpush
 
 @section('content')
@@ -924,7 +26,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h2 class="mb-0">₱{{ number_format($monthlyRevenue ?? 0, 2) }}</h2>
+                        <h2 class="mb-0">â‚±{{ number_format($monthlyRevenue ?? 0, 2) }}</h2>
                         <p class="text-muted mb-0">Monthly Revenue</p>
                     </div>
                     <div class="stat-change positive">
@@ -969,7 +71,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                      <div>
-                        <h2 class="mb-0">₱{{ number_format($todayRevenue ?? 0, 2) }}</h2>
+                        <h2 class="mb-0">â‚±{{ number_format($todayRevenue ?? 0, 2) }}</h2>
                         <p class="text-muted mb-0">Today's Revenue</p>
                     </div>
                     <div class="stat-change positive">
@@ -1060,12 +162,12 @@
             <div class="plan-type-card active" data-plan="Monthly" data-price="500" data-duration="30">
             <div class="plan-name">Monthly Plan</div>
             <div class="plan-duration">30 Days Access</div>
-            <div class="plan-price">₱500.00</div>
+            <div class="plan-price">â‚±500.00</div>
             </div>
             <div class="plan-type-card" data-plan="Session" data-price="50" data-duration="1">
             <div class="plan-name">Session Pass</div>
             <div class="plan-duration">1 Day Access</div>
-            <div class="plan-price">₱50.00</div>
+            <div class="plan-price">â‚±50.00</div>
             </div>
         </div>
         <input type="hidden" name="plan_type" id="planType" value="Monthly">
@@ -1090,7 +192,7 @@
 
                             <div class="col-md-2">
                             <label class="form-label">Amount</label>
-                            <input type="number" class="form-control" name="amount" id="amount" placeholder="₱0.00" step="0.01" value="500.00" readonly>
+                            <input type="number" class="form-control" name="amount" id="amount" placeholder="â‚±0.00" step="0.01" value="500.00" readonly>
                             </div>
 
                             <div class="col-md-3">
@@ -1258,7 +360,7 @@
                     </span>
                 </td>
                 <td>{{ $transaction->plan_type }}</td>
-                <td><strong>₱{{ number_format($transaction->amount, 2) }}</strong></td>
+                <td><strong>â‚±{{ number_format($transaction->amount, 2) }}</strong></td>
                 <td>{{ $transaction->payment_method }}</td>
                 <td>{{ $transaction->created_at->format('M d, Y h:i A') }}</td>
                 <td>{{ $transaction->new_due_date ? date('M d, Y', strtotime($transaction->new_due_date)) : 'N/A' }}</td>
@@ -1309,11 +411,11 @@
             <ul class="pagination">
             @if ($transactions->onFirstPage())
                 <li class="page-item disabled">
-                <span class="page-link">‹</span>
+                <span class="page-link">â€¹</span>
                 </li>
             @else
                 <li class="page-item">
-                <a class="page-link" href="{{ $transactions->appends(request()->query())->previousPageUrl() }}">‹</a>
+                <a class="page-link" href="{{ $transactions->appends(request()->query())->previousPageUrl() }}">â€¹</a>
                 </li>
             @endif
 
@@ -1331,11 +433,11 @@
 
             @if ($transactions->hasMorePages())
                 <li class="page-item">
-                <a class="page-link" href="{{ $transactions->appends(request()->query())->nextPageUrl() }}">›</a>
+                <a class="page-link" href="{{ $transactions->appends(request()->query())->nextPageUrl() }}">â€º</a>
                 </li>
             @else
                 <li class="page-item disabled">
-                <span class="page-link">›</span>
+                <span class="page-link">â€º</span>
                 </li>
             @endif
             </ul>
@@ -1347,9 +449,9 @@
         @else
         <nav>
             <ul class="pagination">
-            <li class="page-item disabled"><span class="page-link">‹</span></li>
+            <li class="page-item disabled"><span class="page-link">â€¹</span></li>
             <li class="page-item active"><span class="page-link">1</span></li>
-            <li class="page-item disabled"><span class="page-link">›</span></li>
+            <li class="page-item disabled"><span class="page-link">â€º</span></li>
             </ul>
         </nav>
         <div class="pagination-info">Showing 0 to 0 of 0 entries</div>
@@ -1840,7 +942,7 @@ function generateReceiptHTML(data) {
               <strong>${data.plan_type} Plan</strong><br>
               <small style="color: #666;">Duration: ${data.duration} days</small>
             </td>
-            <td style="text-align: right;">₱${parseFloat(data.amount).toFixed(2)}</td>
+            <td style="text-align: right;">â‚±${parseFloat(data.amount).toFixed(2)}</td>
           </tr>
         </tbody>
       </table>
@@ -1848,7 +950,7 @@ function generateReceiptHTML(data) {
       <div class="receipt-total">
         <div class="receipt-total-row grand-total">
           <strong>Total Paid:</strong>
-          <span>₱${parseFloat(data.amount).toFixed(2)}</span>
+          <span>â‚±${parseFloat(data.amount).toFixed(2)}</span>
         </div>
       </div>
 
