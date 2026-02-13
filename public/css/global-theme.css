@@ -11,6 +11,88 @@ body {
     background: #282A36 !important;
 }
 
+/* ============================================
+   Page Header Component - Enhanced
+   ============================================ */
+.page-header-card {
+    background: #191C24 !important;
+    border: 1px solid rgba(255, 167, 38, 0.2);
+    border-radius: 14px;
+    margin-bottom: 1.5rem;
+    box-shadow: 
+        0 1px 3px rgba(0, 0, 0, 0.3),
+        0 4px 12px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(255, 167, 38, 0.08);
+}
+
+.page-header-card .card-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.page-header-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.page-header-subtitle {
+    font-size: 0.9375rem;
+    color: #b0b0b0;
+    margin-bottom: 0;
+    line-height: 1.4;
+}
+
+.page-header-card .btn-page-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    border-radius: 10px;
+    border: 2px solid #FFA726;
+    background: linear-gradient(135deg, #FFA726, #FFB84D);
+    color: #1a1d24;
+    white-space: nowrap;
+    box-shadow: 
+        0 1px 2px rgba(0, 0, 0, 0.1),
+        0 2px 8px rgba(255, 167, 38, 0.2);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-header-card .btn-page-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 4px 14px rgba(255, 167, 38, 0.4),
+        0 2px 4px rgba(0, 0, 0, 0.2);
+    border-color: #FFB84D;
+}
+
+.page-header-card .btn-page-action:active {
+    transform: translateY(0);
+}
+
+.page-header-card .btn-page-action i {
+    font-size: 1.125rem;
+}
+
+/* Dropdown button variant */
+.page-header-card .dropdown .btn-page-action {
+    padding-right: 1.25rem;
+}
+
+.page-header-card .dropdown .btn-page-action::after {
+    margin-left: 0.5rem;
+}
+
 /* Card Backgrounds */
 .card {
     background: #191C24 !important;

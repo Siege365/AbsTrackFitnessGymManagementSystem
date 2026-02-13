@@ -54,6 +54,19 @@
 @endpush
 
 @section('content')
+    <!-- Page Header -->
+    <div class="card page-header-card">
+        <div class="card-body">
+            <div>
+                <h2 class="page-header-title">Inventory Management</h2>
+                <p class="page-header-subtitle">Track, manage, and restock gym products and supplies.</p>
+            </div>
+            <button class="btn btn-page-action" data-toggle="modal" data-target="#addProductModal">
+                <i class="mdi mdi-plus"></i> Add New Product
+            </button>
+        </div>
+    </div>
+
     <!-- Success/Error Messages -->
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">

@@ -8,6 +8,16 @@
 
 @section('content')
 
+<!-- Page Header -->
+<div class="card page-header-card">
+    <div class="card-body">
+        <div>
+            <h2 class="page-header-title">Dashboard</h2>
+            <p class="page-header-subtitle">Welcome back! Here's what's happening with your gym today.</p>
+        </div>
+    </div>
+</div>
+
             <div class="row">
               <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
                 <div class="card">

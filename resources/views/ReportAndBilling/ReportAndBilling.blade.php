@@ -7,17 +7,20 @@
 @endpush
 
 @section('content')
-    <!-- Page Header with Export Button -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="mb-0 text-white">Reports & Analytics</h4>
-            <p class="text-muted mb-0">Monitor your gym's performance and revenue</p>
+    <!-- Page Header -->
+    <div class="card page-header-card">
+        <div class="card-body">
+            <div>
+                <h2 class="page-header-title">Reports & Analytics</h2>
+                <p class="page-header-subtitle">Monitor your gym's performance and revenue.</p>
+            </div>
+            <button class="btn btn-page-action" data-toggle="modal" data-target="#exportReportModal">
+                <i class="mdi mdi-download"></i> Export Report
+            </button>
         </div>
-        <button class="btn btn-warning" data-toggle="modal" data-target="#exportReportModal">
-            <i class="mdi mdi-plus"></i> Export Report
-        </button>
     </div>
 
+    
     <!-- KPI Statistics Cards -->
     <div class="row">
         <!-- Monthly Revenue -->

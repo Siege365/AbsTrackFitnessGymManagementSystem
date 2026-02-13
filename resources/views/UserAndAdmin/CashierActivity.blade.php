@@ -3,6 +3,17 @@
 @section('title', 'Cashier Activity')
 
 @section('content')
+
+<!-- Page Header -->
+<div class="card page-header-card">
+    <div class="card-body">
+        <div>
+            <h2 class="page-header-title">Cashier Activity</h2>
+            <p class="page-header-subtitle">Track and review cashier activity logs and transactions.</p>
+        </div>
+    </div>
+</div>
+
             <div class="row">
               <div class="col-12 grid-margin">
                 <div class="card">

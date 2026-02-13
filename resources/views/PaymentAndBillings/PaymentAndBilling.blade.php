@@ -650,6 +650,17 @@
 
 @section('content')
 <div class="container-fluid">
+
+  <!-- Page Header -->
+  <div class="card page-header-card">
+      <div class="card-body">
+          <div>
+              <h2 class="page-header-title">Product Payment</h2>
+              <p class="page-header-subtitle">Process product sales and manage payment transactions.</p>
+          </div>
+      </div>
+  </div>
+
   <!-- Stats Grid -->
   <div class="row">
     <div class="col-xl-3 col-sm-6 grid-margin stretch-card">

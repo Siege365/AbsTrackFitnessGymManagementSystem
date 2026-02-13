@@ -8,6 +8,19 @@
 
 @section('content')
 
+<!-- Page Header -->
+<div class="card page-header-card">
+    <div class="card-body">
+        <div>
+            <h2 class="page-header-title">Client Management</h2>
+            <p class="page-header-subtitle">View, add, edit, and manage client records.</p>
+        </div>
+        <button class="btn btn-page-action" data-toggle="modal" data-target="#addClientModal">
+            <i class="mdi mdi-plus"></i> Add New Client
+        </button>
+    </div>
+</div>
+
 <!-- Statistics Cards -->
 <div class="row">
   <div class="col-xl-3 col-sm-6 grid-margin stretch-card">

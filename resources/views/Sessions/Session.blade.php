@@ -28,6 +28,30 @@
         </script>
     @endif
 
+    <!-- Page Header -->
+    <div class="card page-header-card">
+        <div class="card-body">
+            <div>
+                <h2 class="page-header-title">Session Management</h2>
+                <p class="page-header-subtitle">Manage personal training schedules and customer attendance.</p>
+            </div>
+            <div class="dropdown">
+                <button class="btn btn-page-action dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                    <i class="mdi mdi-plus"></i> Add Schedule
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addAttendanceModal">
+                        <i class="mdi mdi-account-check mr-2 text-success"></i> Customer Attendance
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPTScheduleModal">
+                        <i class="mdi mdi-calendar-plus mr-2 text-primary"></i> PT Session Schedule
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Statistics Cards -->
     <div class="row">
         <div class="col-xl-3 col-sm-6 grid-margin stretch-card">

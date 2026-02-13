@@ -906,6 +906,17 @@
 
 @section('content')
 <div class="container-fluid">
+
+  <!-- Page Header -->
+  <div class="card page-header-card">
+      <div class="card-body">
+          <div>
+              <h2 class="page-header-title">Membership Payment</h2>
+              <p class="page-header-subtitle">Process membership payments and manage billing records.</p>
+          </div>
+      </div>
+  </div>
+
   <!-- Stats Grid -->
   <div class="row">
     <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
