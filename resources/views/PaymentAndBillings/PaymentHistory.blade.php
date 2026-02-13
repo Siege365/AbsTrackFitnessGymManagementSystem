@@ -492,26 +492,13 @@ body {
   background-color: #fff3cd !important;
 }
 
-/* Fixed Table Heights */
+/* Fixed Table Heights: keep fixed height but remove internal scrollbars (use server-side pagination) */
 .table-responsive {
   min-height: 600px;
   max-height: 600px;
-  overflow-y: auto;
+  /* remove internal vertical scrollbar — pagination will control rows */
+  overflow-y: hidden;
   overflow-x: auto;
-}
-
-.table-responsive::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.table-responsive::-webkit-scrollbar-track {
-  background: #191C24;  /* Changed */
-}
-
-.table-responsive::-webkit-scrollbar-thumb {
-  background-color: #3a3f4b;  /* Changed */
-  border-radius: 4px;
 }
 
 /* Form Controls - Adjusted colors */

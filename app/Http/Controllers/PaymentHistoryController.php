@@ -22,58 +22,79 @@ class PaymentHistoryController extends Controller
 
     public function index(Request $request)
     {
-        // Build base queries - exclude refunded from main lists
+        // Build base queries (don't hard-exclude refunded here so filter can control it)
         $productQuery = Payment::with('items')
-            ->where('is_refunded', false)
-            ->orderBy('created_at', 'desc');
-            
-        $membershipQuery = MembershipPayment::where('is_refunded', false)
             ->orderBy('created_at', 'desc');
 
-        // Search filter
-        if ($request->has('search') && $request->search != '') {
-            $search = $request->search;
-            $productQuery->where(function($q) use ($search) {
-                $q->where('receipt_number', 'LIKE', "%{$search}%")
-                  ->orWhere('customer_name', 'LIKE', "%{$search}%");
-            });
+        $membershipQuery = MembershipPayment::orderBy('created_at', 'desc');
 
-            $membershipQuery->where(function($q) use ($search) {
-                $q->where('receipt_number', 'LIKE', "%{$search}%")
-                  ->orWhere('member_name', 'LIKE', "%{$search}%");
+        // Per-table search inputs (product_search, membership_search, refund_search)
+        $productSearch = $request->get('product_search', null);
+        $membershipSearch = $request->get('membership_search', null);
+        $refundSearch = $request->get('refund_search', null);
+
+        // Per-table filters
+        // Default to showing paid (non-refunded) entries in each table
+        $productFilter = $request->get('product_filter', 'paid');
+        $membershipFilter = $request->get('membership_filter', 'paid');
+        $refundFilter = $request->get('refund_filter', 'all');
+
+        // Apply product search
+        if (!empty($productSearch)) {
+            $productQuery->where(function($q) use ($productSearch) {
+                $q->where('receipt_number', 'LIKE', "%{$productSearch}%")
+                  ->orWhere('customer_name', 'LIKE', "%{$productSearch}%");
             });
         }
 
-        // Type filter (product/membership/all)
-        $filterType = $request->get('filter_type', 'all');
+        // Apply membership search
+        if (!empty($membershipSearch)) {
+            $membershipQuery->where(function($q) use ($membershipSearch) {
+                $q->where('receipt_number', 'LIKE', "%{$membershipSearch}%")
+                  ->orWhere('member_name', 'LIKE', "%{$membershipSearch}%");
+            });
+        }
+
+        // Apply product filter (paid/refunded/all)
+        if ($productFilter === 'paid') {
+            $productQuery->where('is_refunded', false);
+        } elseif ($productFilter === 'refunded') {
+            $productQuery->where('is_refunded', true);
+        }
+
+        // Apply membership filter (paid/refunded/all)
+        if ($membershipFilter === 'paid') {
+            $membershipQuery->where('is_refunded', false);
+        } elseif ($membershipFilter === 'refunded') {
+            $membershipQuery->where('is_refunded', true);
+        }
 
         // Paginate lists
         $productPayments = $productQuery->paginate(10, ['*'], 'product_page')->withQueryString();
         $membershipPayments = $membershipQuery->paginate(10, ['*'], 'membership_page')->withQueryString();
 
-        // Build combined refunded list
+        // Build combined refunded list (use refund_search and refund_filter)
         $refProd = Payment::whereNotNull('refunded_at')->where('is_refunded', true);
         $refMem = MembershipPayment::whereNotNull('refunded_at')->where('is_refunded', true);
 
-        if ($request->has('search') && $request->search != '') {
-            $search = $request->search;
-            $refProd->where(function($q) use ($search) {
-                $q->where('receipt_number', 'LIKE', "%{$search}%")
-                  ->orWhere('customer_name', 'LIKE', "%{$search}%");
+        if (!empty($refundSearch)) {
+            $refProd->where(function($q) use ($refundSearch) {
+                $q->where('receipt_number', 'LIKE', "%{$refundSearch}%")
+                  ->orWhere('customer_name', 'LIKE', "%{$refundSearch}%");
             });
-            $refMem->where(function($q) use ($search) {
-                $q->where('receipt_number', 'LIKE', "%{$search}%")
-                  ->orWhere('member_name', 'LIKE', "%{$search}%");
+            $refMem->where(function($q) use ($refundSearch) {
+                $q->where('receipt_number', 'LIKE', "%{$refundSearch}%")
+                  ->orWhere('member_name', 'LIKE', "%{$refundSearch}%");
             });
         }
 
-        if ($filterType === 'product') {
+        if ($refundFilter === 'product') {
             $refMem = MembershipPayment::whereRaw('1=0');
-        } elseif ($filterType === 'membership') {
+        } elseif ($refundFilter === 'membership') {
             $refProd = Payment::whereRaw('1=0');
         }
 
-        $refProdList = $refProd->get()->map(function($p) {
+        $refProdList = collect($refProd->get()->map(function($p) {
             return (object)[
                 'id' => $p->id,
                 'receipt_number' => $p->receipt_number,
@@ -86,9 +107,9 @@ class PaymentHistoryController extends Controller
                 'refunded_by' => $p->refunded_by,
                 'type' => 'Product'
             ];
-        });
+        })->all());
 
-        $refMemList = $refMem->get()->map(function($m) {
+        $refMemList = collect($refMem->get()->map(function($m) {
             return (object)[
                 'id' => $m->id,
                 'receipt_number' => $m->receipt_number,
@@ -101,7 +122,7 @@ class PaymentHistoryController extends Controller
                 'refunded_by' => $m->refunded_by,
                 'type' => 'Membership'
             ];
-        });
+        })->all());
 
         $combined = $refProdList->merge($refMemList)->sortByDesc('refunded_at')->values();
 
