@@ -11,16 +11,14 @@
     <!-- MDI Icons -->
     <link rel="stylesheet" href="{{ asset('template/assets/vendors/mdi/css/materialdesignicons.min.css') }}">
     
-    <!-- Core CSS (Replaces Bootstrap + Template) -->
-    <link rel="stylesheet" href="{{ asset('css/core.css') }}?v={{ filemtime(public_path('css/core.css')) }}">
-    
-    <!-- Sidebar Styles -->
-    <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}?v={{ filemtime(public_path('css/sidebar.css')) }}">
-    
-    <!-- Custom Styles -->
-    <link rel="stylesheet" href="{{ asset('css/custom-fonts.css') }}?v={{ filemtime(public_path('css/custom-fonts.css')) }}">
-    <link rel="stylesheet" href="{{ asset('css/notification-bell.css') }}?v={{ filemtime(public_path('css/notification-bell.css')) }}">
-    <link rel="stylesheet" href="{{ asset('css/global-theme.css') }}?v={{ filemtime(public_path('css/global-theme.css')) }}">
+    <!-- Vite-managed CSS (hot reload enabled) -->
+    @vite([
+        'resources/css/core.css',
+        'resources/css/sidebar.css',
+        'resources/css/custom-fonts.css',
+        'resources/css/notification-bell.css',
+        'resources/css/global-theme.css'
+    ])
     
     <!-- Page-specific styles -->
     @stack('styles')
@@ -51,8 +49,8 @@
     <script src="{{ asset('template/assets/vendors/owl-carousel-2/owl.carousel.min.js') }}"></script>
     <!-- End plugin js for this page -->
     
-    <!-- Common JS Utilities -->
-    <script src="{{ asset('js/common/toast-utils.js') }}?v={{ time() }}"></script>
+    <!-- Common JS Utilities (Vite-managed) -->
+    @vite(['resources/js/common/toast-utils.js'])
     <script src="{{ asset('template/assets/js/misc.js') }}?v={{ time() }}"></script>
     
     <!-- Session Flash Messages as Toasts -->

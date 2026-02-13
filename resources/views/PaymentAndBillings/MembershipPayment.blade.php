@@ -1,1001 +1,24 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Membership Payment System')
 
 @push('styles')
-<style>
-  .table-responsive::-webkit-scrollbar {
-    height: 8px;
-  }
-  
-  .table-responsive::-webkit-scrollbar-track {
-    background: #191C24;
-  }
-  
-  .table-responsive::-webkit-scrollbar-thumb {
-    background-color: #555;
-    border-radius: 4px;
-  }
-
-  .pagination .page-item.active .page-link {
-    background-color: #ffffff;
-    border-color: #ffffff;
-    color: #000000;
-  }
-  
-  .pagination .page-link {
-    color: #ffffff;
-    background-color: #282A36;
-    border-color: #555;
-    padding: 8px 12px;
-    margin: 0 2px;
-    border-radius: 4px;
-  }
-  
-  .pagination .page-link:hover {
-    background-color: #ffffff;
-    border-color: #000000;
-    color: #000000;
-  }
-
-  .pagination .page-link:focus {
-    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-  }
-
-  .pagination .page-item.disabled .page-link {
-    background-color: #1a1d24;
-    border-color: #333;
-    color: #666;
-  }
-
-  .pagination-info {
-    color: #999;
-    font-size: 14px;
-  }
-
-  .form-control[readonly] {
-    background-color: #282A36 !important;
-    color: #495057 !important;
-  }
-
-  .table thead th,
-  .table tbody td {
-    color: #ffffff !important;
-  }
-
-  .table-hover tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-  }
-
-  .stat-change {
-    font-size: 0.875rem;
-    margin-top: 0.5rem;
-  }
-
-  .stat-change.positive {
-    color: #28a745;
-  }
-
-  .stat-change.negative {
-    color: #dc3545;
-  }
-
-  .stat-change.neutral {
-    color: #ffc107;
-  }
-
-  .card {
-    border-radius: 8px;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  }
-
-  .card-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 1.5rem;
-  }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .form-group {
-    margin-bottom: 1.5rem;
-  }
-
-  .form-label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #999;
-    margin-bottom: 0.5rem;
-  }
-
-  .form-control, .form-select {
-    width: 100%;
-    padding: 0.875rem 1rem;
-    background: #191C24;
-    border: 1px solid #555;
-    border-radius: 4px;
-    color: #ffffff;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-  }
-
-  .form-control:focus, .form-select:focus {
-    outline: none;
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
-    background: #282A36;
-  }
-
-  .form-control::placeholder {
-    color: #666;
-  }
-
-  .autocomplete-results {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    max-height: 250px;
-    overflow-y: auto;
-    background: #282A36;
-    border: 1px solid #555;
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-    z-index: 1000;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  }
-
-  .autocomplete-item {
-    padding: 1rem;
-    cursor: pointer;
-    border-bottom: 1px solid #555;
-    transition: all 0.2s ease;
-    color: #ffffff;
-  }
-
-  .autocomplete-item:hover {
-    background: #191C24;
-  }
-
-  .autocomplete-item:last-child {
-    border-bottom: none;
-  }
-
-  .btn {
-    padding: 0.875rem 2rem;
-    border: none;
-    border-radius: 4px;
-    font-weight: 600;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  }
-
-  .btn-primary {
-    background: #0d6efd;
-    color: white;
-  }
-
-  .btn-primary:hover {
-    background: #138496;
-  }
-
-  .btn-secondary {
-    background: #6c757d;
-    color: white;
-  }
-
-  .btn-secondary:hover {
-    background: #5a6268;
-  }
-
-  .btn-danger {
-    background: #dc3545;
-    color: white;
-  }
-
-  .btn-danger:hover {
-    background: #c82333;
-  }
-
-  .btn-warning {
-    background: #ffc107;
-    color: #000;
-  }
-
-  .btn-warning:hover {
-    background: #e0a800;
-  }
-
-  .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none !important;
-  }
-
-  .payment-type-selector {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .payment-type-pill {
-    flex: 1;
-    padding: 1rem;
-    background: #191C24;
-    border: 2px solid #555;
-    border-radius: 4px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .payment-type-pill:hover {
-    border-color: #198754;
-    transform: translateY(-3px);
-  }
-
-  .payment-type-pill.active {
-    background: #282A36;
-    border-color: #198754;
-  }
-
-  .payment-type-pill .icon {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-    display: block;
-  }
-
-  .payment-type-pill .label {
-    font-weight: 600;
-    font-size: 0.875rem;
-    color: #ffffff;
-  }
-
-  .plan-type-selector {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .plan-type-card {
-    flex: 1;
-    padding: 1.5rem;
-    background: #191C24;
-    border: 2px solid #555;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .plan-type-card:hover {
-    border-color: #198754;
-    transform: translateY(-3px);
-  }
-
-  .plan-type-card.active {
-    background: #282A36;
-    border-color: #198754;
-  }
-
-  .plan-type-card .plan-name {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 0.5rem;
-  }
-
-  .plan-type-card .plan-duration {
-    font-size: 0.875rem;
-    color: #999;
-  }
-
-  .plan-type-card .plan-price {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #28a745;
-    margin-top: 0.5rem;
-  }
-
-  .table-responsive {
-    overflow-x: auto;
-    min-height: 600px;
-  }
-
-  .table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .table th {
-    padding: 1rem;
-    text-align: left;
-    font-weight: 600;
-    font-size: 0.875rem;
-    color: #ffffff !important;
-    border-bottom: 2px solid #555;
-  }
-
-  .table tbody tr {
-    transition: all 0.3s ease;
-  }
-
-  .table tbody tr:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-  }
-
-  .table td {
-    padding: 1rem;
-    border-bottom: 1px solid #555;
-    color: #ffffff !important;
-  }
-
-  .badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-
-  .badge-success {
-    background: #28a745;
-    color: white;
-  }
-
-  .badge-info {
-    background: #0d6efd;
-    color: white;
-  }
-
-  .badge-warning {
-    background: #ffc107;
-    color: #000;
-  }
-
-  .badge-danger {
-    background: #dc3545;
-    color: white;
-  }
-
-  .action-dropdown {
-    position: relative;
-    overflow: visible; 
-  }
-
-  .action-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: #ffffff;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .action-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  .dropdown-menu {
-    position: absolute;
-    top: 100%;
-    min-width: 180px;
-    background: #282A36;
-    border: 1px solid #555;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    padding: 8px 0;
-    display: none;
-    z-index: 10000 !important;
-    animation: slideDown 0.3s ease;
-    transform-origin: top left;
-    white-space: nowrap;
-    overflow: visible;
-  }
-
-  .dropdown-menu.show {
-    display: block;
-  }
-
-  .action-dropdown .dropdown-menu {
-    right: 0;
-    left: auto;
-  }
-
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .dropdown-item {
-    padding: 12px 20px;
-    font-size: 14px;
-    color: #ffffff;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    background: none;
-    border: none;
-    width: 100%;
-    text-align: left;
-  }
-
-  .dropdown-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .dropdown-item i {
-    margin-right: 0.5rem;
-  }
-
-  .dropdown-item.danger {
-    color: #ff6b6b;
-  }
-
-  .dropdown-item.danger:hover {
-    background: rgba(255, 107, 107, 0.1);
-  }
-
-  .dropdown-item.warning {
-    color: #ffc107;
-  }
-
-  .dropdown-item.warning:hover {
-    background: rgba(255, 193, 7, 0.1);
-  }
-
-  /* Pagination - ALWAYS VISIBLE */
-  .pagination-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 2px solid #555;
-  }
-
-  .pagination {
-    display: flex;
-    gap: 0.5rem;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .page-item {
-    display: inline-block;
-  }
-
-  /* Checkbox Styles */
-  .custom-checkbox {
-    width: 18px;
-    height: 18px;
-    border: 2px solid #dc3545;
-    border-radius: 4px;
-    background-color: transparent;
-    cursor: pointer;
-    appearance: none;
-    transition: all 0.3s ease;
-  }
-
-  .custom-checkbox:checked {
-    background-color: #dc3545;
-    border-color: #dc3545;
-  }
-
-  .custom-checkbox:checked::after {
-    content: '✓';
-    display: block;
-    text-align: center;
-    color: white;
-    font-weight: bold;
-    font-size: 12px;
-    line-height: 14px;
-  }
-
-  /* Modal Styles - FIXED CENTERING */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(5px);
-    z-index: 9999;
-    animation: fadeIn 0.3s ease;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-overlay.show {
-    display: flex;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  .modal-content {
-    background: #ffffff;
-    border-radius: 8px;
-    max-width: 800px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-    animation: modalSlideIn 0.3s ease;
-  }
-
-  .modal-content.small {
-    max-width: 500px;
-  }
-
-  @keyframes modalSlideIn {
-    from {
-      transform: scale(0.9) translateY(-50px);
-      opacity: 0;
-    }
-    to {
-      transform: scale(1) translateY(0);
-      opacity: 1;
-    }
-  }
-
-  .modal-header {
-    padding: 2rem;
-    background: #191C24;
-    color: white;
-    border-radius: 8px 8px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .modal-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin: 0;
-  }
-
-  .modal-close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 2rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-close:hover {
-    color: #dc3545;
-    transform: rotate(90deg);
-  }
-
-  .modal-body {
-    padding: 2rem;
-  }
-
-  .modal-footer {
-    padding: 1.5rem 2rem;
-    background: #f8f9fa;
-    border-radius: 0 0 8px 8px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-  }
-
-  /* Confirmation Modal Specific Styles */
-  .confirmation-icon {
-    font-size: 4rem;
-    text-align: center;
-    margin-bottom: 1rem;
-  }
-
-  .confirmation-icon.warning {
-    color: #ffc107;
-  }
-
-  .confirmation-message {
-    text-align: center;
-    color: #333;
-    font-size: 1.125rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .confirmation-details {
-    background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 4px;
-    margin-bottom: 1.5rem;
-  }
-
-  .confirmation-detail-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #dee2e6;
-  }
-
-  .confirmation-detail-row:last-child {
-    border-bottom: none;
-  }
-
-  .confirmation-detail-label {
-    font-weight: 600;
-    color: #666;
-  }
-
-  .confirmation-detail-value {
-    color: #333;
-    font-weight: 700;
-  }
-
-  /* Refund Modal Specific Styles */
-  .refund-warning {
-    background: #fff3cd;
-    border: 1px solid #ffc107;
-    padding: 1rem;
-    border-radius: 4px;
-    margin-bottom: 1.5rem;
-    color: #856404;
-  }
-
-  .refund-warning i {
-    margin-right: 0.5rem;
-  }
-
-  /* Receipt Styles */
-  .receipt-container {
-    background: white;
-    color: #333;
-  }
-
-  .receipt-header {
-    text-align: center;
-    border-bottom: 3px solid #191C24;
-    padding-bottom: 1.5rem;
-    margin-bottom: 2rem;
-  }
-
-  .receipt-header h2 {
-    font-size: 2rem;
-    color: #191C24;
-    margin-bottom: 0.5rem;
-  }
-
-  .receipt-info-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-
-  .receipt-info-item {
-    padding: 1rem;
-    background: #f5f5f5;
-    border-radius: 4px;
-  }
-
-  .receipt-info-item strong {
-    display: block;
-    font-size: 0.75rem;
-    color: #666;
-    text-transform: uppercase;
-    margin-bottom: 0.25rem;
-  }
-
-  .receipt-info-item span {
-    display: block;
-    font-size: 1rem;
-    color: #333;
-    font-weight: 600;
-  }
-
-  .receipt-table {
-    width: 100%;
-    margin-bottom: 2rem;
-    border-collapse: collapse;
-  }
-
-  .receipt-table th {
-    background: #191C24;
-    color: white;
-    padding: 1rem;
-    text-align: left;
-    font-weight: 600;
-  }
-
-  .receipt-table td {
-    padding: 1rem;
-    border-bottom: 1px solid #ddd;
-    color: #333;
-  }
-
-  .receipt-total {
-    text-align: right;
-    padding-top: 1rem;
-    border-top: 3px solid #191C24;
-  }
-
-  .receipt-total-row {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 0.5rem;
-    font-size: 1.125rem;
-  }
-
-  .receipt-total-row strong {
-    width: 200px;
-  }
-
-  .receipt-total-row span {
-    width: 150px;
-    text-align: right;
-    font-weight: 700;
-  }
-
-  .receipt-total-row.grand-total {
-    font-size: 1.5rem;
-    color: #191C24;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 2px solid #333;
-  }
-
-  .receipt-refund-stamp {
-    text-align: center;
-    margin-top: 2rem;
-    padding: 1rem;
-    background: #fff3cd;
-    border: 3px dashed #ffc107;
-    border-radius: 8px;
-  }
-
-  .receipt-refund-stamp h3 {
-    color: #856404;
-    font-size: 1.5rem;
-    margin: 0;
-  }
-
-  /* Loading State */
-  .loading-spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid #555;
-    border-top-color: #0d6efd;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  /* Filter Dropdown */
-  .filter-dropdown {
-    position: relative;
-  }
-
-  .filter-btn {
-    background: #282A36;
-    border: 1px solid #555;
-    color: #ffffff;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .filter-btn:hover {
-    background: #191C24;
-    border-color: #0d6efd;
-  }
-
-  .filter-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    min-width: 250px;
-    background: #282A36;
-    border: 1px solid #555;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    padding: 0.5rem 0;
-    display: none;
-    z-index: 1000;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-
-  .filter-menu.show {
-    display: block;
-  }
-
-  .filter-header {
-    padding: 0.75rem 1.25rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #999;
-    text-transform: uppercase;
-    border-bottom: 1px solid #555;
-  }
-
-  .filter-menu-item {
-    padding: 0.75rem 1.25rem;
-    color: #ffffff;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    text-decoration: none;
-  }
-
-  .filter-menu-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .filter-menu-item.active {
-    background: rgba(23, 162, 184, 0.2);
-    color: #0d6efd;
-  }
-
-  .filter-menu-divider {
-    height: 1px;
-    background: #555;
-    margin: 0.5rem 0;
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .stats-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .form-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .payment-type-selector,
-    .plan-type-selector {
-      flex-direction: column;
-    }
-
-    .pagination-container {
-      flex-direction: column;
-      gap: 1rem;
-    }
-  }
-
-  /* Print Styles */
-  @media print {
-    @page {
-      margin: 0.5in;
-    }
-
-    body * {
-      visibility: hidden;
-    }
-
-    .receipt-container,
-    .receipt-container * {
-      visibility: visible;
-    }
-
-    .receipt-container {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      background: white;
-      color: black;
-    }
-
-    .modal-header,
-    .modal-footer,
-    .modal-close {
-      display: none !important;
-    }
-
-    .modal-overlay {
-      background: white !important;
-      backdrop-filter: none !important;
-    }
-
-    .modal-content {
-      box-shadow: none !important;
-      max-height: none !important;
-      overflow: visible !important;
-    }
-
-    .modal-body {
-      padding: 0 !important;
-    }
-
-    .receipt-table th {
-      background: #333 !important;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-
-    .receipt-info-item {
-      background: #f5f5f5 !important;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-
-    .receipt-refund-stamp {
-      background: #fff3cd !important;
-      border-color: #ffc107 !important;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-  }
-  
-  .modal-overlay.show, .receipt-modal.show {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 1rem;
-    box-sizing: border-box;
-  }
-
-  .modal-overlay .modal-content,
-  .modal-content,
-  .receipt-modal-content,
-  .receipt-container {
-    margin: 0 auto !important;
-    position: relative !important;
-    max-height: 90vh;
-    overflow: auto;
-  }
-
-  .modal-content.small {
-    margin: auto !important;
-  }
-
-  /* Ensure overlay prevents awkward vertical offset on small screens */
-  @media (max-height: 600px) {
-    .modal-overlay.show, .receipt-modal.show { align-items: flex-start !important; padding-top: 2rem; }
-  }
-</style>
-
+@vite(['resources/css/membership-payment.css'])
 @endpush
 
 @section('content')
 <div class="container-fluid">
+
+  <!-- Page Header -->
+  <div class="card page-header-card">
+      <div class="card-body">
+          <div>
+              <h2 class="page-header-title">Membership Payment</h2>
+              <p class="page-header-subtitle">Process membership payments and manage billing records.</p>
+          </div>
+      </div>
+  </div>
+
   <!-- Stats Grid -->
   <div class="row">
     <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
@@ -1003,7 +26,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h2 class="mb-0">₱{{ number_format($monthlyRevenue ?? 0, 2) }}</h2>
+                        <h2 class="mb-0">â‚±{{ number_format($monthlyRevenue ?? 0, 2) }}</h2>
                         <p class="text-muted mb-0">Monthly Revenue</p>
                     </div>
                     <div class="stat-change positive">
@@ -1048,7 +71,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                      <div>
-                        <h2 class="mb-0">₱{{ number_format($todayRevenue ?? 0, 2) }}</h2>
+                        <h2 class="mb-0">â‚±{{ number_format($todayRevenue ?? 0, 2) }}</h2>
                         <p class="text-muted mb-0">Today's Revenue</p>
                     </div>
                     <div class="stat-change positive">
@@ -1139,12 +162,12 @@
             <div class="plan-type-card active" data-plan="Monthly" data-price="500" data-duration="30">
             <div class="plan-name">Monthly Plan</div>
             <div class="plan-duration">30 Days Access</div>
-            <div class="plan-price">₱500.00</div>
+            <div class="plan-price">â‚±500.00</div>
             </div>
             <div class="plan-type-card" data-plan="Session" data-price="50" data-duration="1">
             <div class="plan-name">Session Pass</div>
             <div class="plan-duration">1 Day Access</div>
-            <div class="plan-price">₱50.00</div>
+            <div class="plan-price">â‚±50.00</div>
             </div>
         </div>
         <input type="hidden" name="plan_type" id="planType" value="Monthly">
@@ -1169,7 +192,7 @@
 
                             <div class="col-md-2">
                             <label class="form-label">Amount</label>
-                            <input type="number" class="form-control" name="amount" id="amount" placeholder="₱0.00" step="0.01" value="500.00" readonly>
+                            <input type="number" class="form-control" name="amount" id="amount" placeholder="â‚±0.00" step="0.01" value="500.00" readonly>
                             </div>
 
                             <div class="col-md-3">
@@ -1204,56 +227,236 @@
     </div>
   </div>
 
-<!-- Payment Confirmation Modal -->
-<div id="confirmationModal" class="modal-overlay">
-  <div class="modal-content small">
-    <div class="modal-header">
-      <h3 class="modal-title">Confirm Payment</h3>
-      <button class="modal-close" onclick="closeConfirmationModal()">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="confirmation-icon warning">
-        <i class="mdi mdi-alert-circle-outline"></i>
-      </div>
-      <p class="confirmation-message">Please review the payment details before proceeding.</p>
-      <div class="confirmation-details" id="confirmationDetails"></div>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" onclick="closeConfirmationModal()">
-        <i class="mdi mdi-close"></i> Cancel
-      </button>
-      <button type="button" class="btn btn-primary" onclick="confirmPayment()">
-        <i class="mdi mdi-check"></i> Confirm & Process
-      </button>
-    </div>
-  </div>
-</div>
+  <!-- Transaction History Card -->
+  <div class="card">
+    <div class="card-body">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 class="card-title" style="margin-bottom: 0;">Transaction History</h2>
+        
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <!-- Filter Dropdown -->
+            <div class="filter-dropdown">
+            <button type="button" class="filter-btn" id="filterBtn">
+                <i class="mdi mdi-filter-variant"></i> Filter
+            </button>
+            <div class="filter-menu" id="filterMenu">
+                <div class="filter-header">Sort By</div>
+                <a href="{{ route('membership.payment.index', ['sort' => 'date_newest', 'search' => request('search'), 'filter_plan' => request('filter_plan'), 'filter_method' => request('filter_method')]) }}" 
+                class="filter-menu-item {{ request('sort') == 'date_newest' || !request('sort') ? 'active' : '' }}">
+                <i class="mdi mdi-calendar-clock"></i> Date (Newest)
+                </a>
+                <a href="{{ route('membership.payment.index', ['sort' => 'date_oldest', 'search' => request('search'), 'filter_plan' => request('filter_plan'), 'filter_method' => request('filter_method')]) }}" 
+                class="filter-menu-item {{ request('sort') == 'date_oldest' ? 'active' : '' }}">
+                <i class="mdi mdi-calendar"></i> Date (Oldest)
+                </a>
+                <a href="{{ route('membership.payment.index', ['sort' => 'name_asc', 'search' => request('search'), 'filter_plan' => request('filter_plan'), 'filter_method' => request('filter_method')]) }}" 
+                class="filter-menu-item {{ request('sort') == 'name_asc' ? 'active' : '' }}">
+                <i class="mdi mdi-sort-alphabetical-ascending"></i> Name (A-Z)
+                </a>
+                <a href="{{ route('membership.payment.index', ['sort' => 'name_desc', 'search' => request('search'), 'filter_plan' => request('filter_plan'), 'filter_method' => request('filter_method')]) }}" 
+                class="filter-menu-item {{ request('sort') == 'name_desc' ? 'active' : '' }}">
+                <i class="mdi mdi-sort-alphabetical-descending"></i> Name (Z-A)
+                </a>
+                
+                <div class="filter-menu-divider"></div>
+                <div class="filter-header">Plan Type</div>
+                <a href="{{ route('membership.payment.index', ['filter_plan' => 'Monthly', 'search' => request('search'), 'sort' => request('sort'), 'filter_method' => request('filter_method')]) }}" 
+                class="filter-menu-item {{ request('filter_plan') == 'Monthly' ? 'active' : '' }}">
+                <i class="mdi mdi-calendar-month"></i> Monthly
+                </a>
+                <a href="{{ route('membership.payment.index', ['filter_plan' => 'Session', 'search' => request('search'), 'sort' => request('sort'), 'filter_method' => request('filter_method')]) }}" 
+                class="filter-menu-item {{ request('filter_plan') == 'Session' ? 'active' : '' }}">
+                <i class="mdi mdi-clock-outline"></i> Session
+                </a>
+                
+                <div class="filter-menu-divider"></div>
+                <div class="filter-header">Payment Method</div>
+                <a href="{{ route('membership.payment.index', ['filter_method' => 'Cash', 'search' => request('search'), 'sort' => request('sort'), 'filter_plan' => request('filter_plan')]) }}" 
+                class="filter-menu-item {{ request('filter_method') == 'Cash' ? 'active' : '' }}">
+                <i class="mdi mdi-cash"></i> Cash
+                </a>
+                <a href="{{ route('membership.payment.index', ['filter_method' => 'Credit Card', 'search' => request('search'), 'sort' => request('sort'), 'filter_plan' => request('filter_plan')]) }}" 
+                class="filter-menu-item {{ request('filter_method') == 'Credit Card' ? 'active' : '' }}">
+                <i class="mdi mdi-credit-card"></i> Credit Card
+                </a>
+                <a href="{{ route('membership.payment.index', ['filter_method' => 'Debit Card', 'search' => request('search'), 'sort' => request('sort'), 'filter_plan' => request('filter_plan')]) }}" 
+                class="filter-menu-item {{ request('filter_method') == 'Debit Card' ? 'active' : '' }}">
+                <i class="mdi mdi-credit-card-outline"></i> Debit Card
+                </a>
+                <a href="{{ route('membership.payment.index', ['filter_method' => 'GCash', 'search' => request('search'), 'sort' => request('sort'), 'filter_plan' => request('filter_plan')]) }}" 
+                class="filter-menu-item {{ request('filter_method') == 'GCash' ? 'active' : '' }}">
+                <i class="mdi mdi-cellphone"></i> GCash
+                </a>
+                <a href="{{ route('membership.payment.index', ['filter_method' => 'PayMaya', 'search' => request('search'), 'sort' => request('sort'), 'filter_plan' => request('filter_plan')]) }}" 
+                class="filter-menu-item {{ request('filter_method') == 'PayMaya' ? 'active' : '' }}">
+                <i class="mdi mdi-wallet"></i> PayMaya
+                </a>
+                <a href="{{ route('membership.payment.index', ['filter_method' => 'Bank Transfer', 'search' => request('search'), 'sort' => request('sort'), 'filter_plan' => request('filter_plan')]) }}" 
+                class="filter-menu-item {{ request('filter_method') == 'Bank Transfer' ? 'active' : '' }}">
+                <i class="mdi mdi-bank"></i> Bank Transfer
+                </a>
+                
+                <div class="filter-menu-divider"></div>
+                <a href="{{ route('membership.payment.index') }}" class="filter-menu-item" style="color: #dc3545;">
+                <i class="mdi mdi-close-circle"></i> Clear Filters
+                </a>
+            </div>
+            </div>
+            
+            <!-- Search Form -->
+            <form action="{{ route('membership.payment.index') }}" method="GET" style="display: flex; gap: 0.5rem;">
+            <input type="hidden" name="sort" value="{{ request('sort') }}">
+            <input type="hidden" name="filter_plan" value="{{ request('filter_plan') }}">
+            <input type="hidden" name="filter_method" value="{{ request('filter_method') }}">
+            <input 
+                type="text" 
+                class="form-control" 
+                name="search" 
+                placeholder="Search transactions..." 
+                value="{{ request('search') }}"
+            >
+            <button type="submit" class="btn btn-primary">
+                <i class="mdi mdi-magnify"></i>
+            </button>
+            </form>
+        </div>
+        </div>
 
-<!-- Refund Modal -->
-<div id="refundModal" class="modal-overlay">
-  <div class="modal-content small">
-    <div class="modal-header">
-      <h3 class="modal-title">Process Refund</h3>
-      <button class="modal-close" onclick="closeRefundModal()">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="refund-warning">
-        <i class="mdi mdi-alert"></i>
-        <strong>Warning:</strong> This will reverse the membership due date and mark this transaction as refunded.
-      </div>
-      <div class="confirmation-details" id="refundDetails"></div>
-      <div class="form-group">
-        <label class="form-label">Refund Reason (Optional)</label>
-        <textarea class="form-control" id="refundReason" rows="3" placeholder="Enter reason for refund..."></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" onclick="closeRefundModal()">
-        <i class="mdi mdi-close"></i> Cancel
-      </button>
-      <button type="button" class="btn btn-warning" onclick="confirmRefund()">
-        <i class="mdi mdi-cash-refund"></i> Process Refund
-      </button>
+        <div class="table-responsive">
+        <table class="table table table-hover">
+            <thead>
+            <tr>
+                <th style="width: 50px;">
+                <input type="checkbox" class="custom-checkbox" id="selectAll">
+                </th>
+                <th>Receipt #</th>
+                <th>Member Name</th>
+                <th>Type</th>
+                <th>Plan</th>
+                <th>Amount</th>
+                <th>Payment Method</th>
+                <th>Date</th>
+                <th>New Due Date</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            @php
+                $transactionCount = isset($transactions) ? $transactions->count() : 0;
+                $maxRows = 10;
+            @endphp
+            
+            @if(isset($transactions) && $transactions->count() > 0)
+                @foreach($transactions as $transaction)
+                <tr>
+                <td>
+                    <input type="checkbox" class="custom-checkbox transaction-checkbox" value="{{ $transaction->id }}">
+                </td>
+                <td><strong>#{{ $transaction->receipt_number }}</strong></td>
+                <td>{{ $transaction->member_name }}</td>
+                <td>
+                    <span class="badge badge-{{ $transaction->payment_type == 'new' ? 'success' : ($transaction->payment_type == 'renewal' ? 'info' : 'warning') }}">
+                    {{ ucfirst($transaction->payment_type) }}
+                    </span>
+                </td>
+                <td>{{ $transaction->plan_type }}</td>
+                <td><strong>â‚±{{ number_format($transaction->amount, 2) }}</strong></td>
+                <td>{{ $transaction->payment_method }}</td>
+                <td>{{ $transaction->created_at->format('M d, Y h:i A') }}</td>
+                <td>{{ $transaction->new_due_date ? date('M d, Y', strtotime($transaction->new_due_date)) : 'N/A' }}</td>
+                <td>
+                    <div class="action-dropdown">
+                    <button type="button" class="action-btn" onclick="toggleDropdown(this)">
+                        <i class="mdi mdi-dots-vertical"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                        <button type="button" class="dropdown-item" onclick="viewReceipt({{ $transaction->id }})">
+                        <i class="mdi mdi-eye"></i> View Receipt
+                        </button>
+                        <form action="{{ route('membership.payment.destroy', $transaction->id) }}" method="POST" class="delete-form" style="margin: 0;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="dropdown-item danger">
+                            <i class="mdi mdi-delete"></i> Delete
+                        </button>
+                        </form>
+                    </div>
+                    </div>
+                </td>
+                </tr>
+                @endforeach
+            @endif
+            
+            @for($i = $transactionCount; $i < $maxRows; $i++)
+            <tr>
+                <td colspan="10" style="height: 53px; text-align: center; color: #999;">
+                @if($i == 0)
+                    No transactions found
+                @endif
+                </td>
+            </tr>
+            @endfor
+            </tbody>
+        </table>
+        </div>
+
+        <!-- Pagination - ALWAYS VISIBLE -->
+        <div class="pagination-container">
+        <button class="btn btn-danger" id="bulkDeleteBtn" disabled>
+            <i class="mdi mdi-delete"></i> Delete Selected (<span id="selectedCount">0</span>)
+        </button>
+        
+        @if(isset($transactions) && $transactions->total() > 0)
+        <nav>
+            <ul class="pagination">
+            @if ($transactions->onFirstPage())
+                <li class="page-item disabled">
+                <span class="page-link">â€¹</span>
+                </li>
+            @else
+                <li class="page-item">
+                <a class="page-link" href="{{ $transactions->appends(request()->query())->previousPageUrl() }}">â€¹</a>
+                </li>
+            @endif
+
+            @foreach(range(1, min(5, $transactions->lastPage())) as $page)
+                @if($page == $transactions->currentPage())
+                <li class="page-item active">
+                    <span class="page-link">{{ $page }}</span>
+                </li>
+                @else
+                <li class="page-item">
+                    <a class="page-link" href="{{ $transactions->appends(request()->query())->url($page) }}">{{ $page }}</a>
+                </li>
+                @endif
+            @endforeach
+
+            @if ($transactions->hasMorePages())
+                <li class="page-item">
+                <a class="page-link" href="{{ $transactions->appends(request()->query())->nextPageUrl() }}">â€º</a>
+                </li>
+            @else
+                <li class="page-item disabled">
+                <span class="page-link">â€º</span>
+                </li>
+            @endif
+            </ul>
+        </nav>
+
+        <div class="pagination-info">
+            Showing {{ $transactions->firstItem() ?? 0 }} to {{ $transactions->lastItem() ?? 0 }} of {{ $transactions->total() }} entries
+        </div>
+        @else
+        <nav>
+            <ul class="pagination">
+            <li class="page-item disabled"><span class="page-link">â€¹</span></li>
+            <li class="page-item active"><span class="page-link">1</span></li>
+            <li class="page-item disabled"><span class="page-link">â€º</span></li>
+            </ul>
+        </nav>
+        <div class="pagination-info">Showing 0 to 0 of 0 entries</div>
+        @endif
+        </div>
     </div>
   </div>
 </div>
@@ -1880,7 +1083,7 @@ function generateReceiptHTML(data) {
               <strong>${data.plan_type} Plan</strong><br>
               <small style="color: #666;">Duration: ${data.duration} days</small>
             </td>
-            <td style="text-align: right;">₱${parseFloat(data.amount).toFixed(2)}</td>
+            <td style="text-align: right;">â‚±${parseFloat(data.amount).toFixed(2)}</td>
           </tr>
         </tbody>
       </table>
@@ -1888,7 +1091,7 @@ function generateReceiptHTML(data) {
       <div class="receipt-total">
         <div class="receipt-total-row grand-total">
           <strong>Total Paid:</strong>
-          <span>₱${parseFloat(data.amount).toFixed(2)}</span>
+          <span>â‚±${parseFloat(data.amount).toFixed(2)}</span>
         </div>
       </div>
 

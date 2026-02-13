@@ -3,6 +3,17 @@
 @section('title', 'Trainer Management')
 
 @section('content')
+
+<!-- Page Header -->
+<div class="card page-header-card">
+    <div class="card-body">
+        <div>
+            <h2 class="page-header-title">Trainer Management</h2>
+            <p class="page-header-subtitle">View, add, and manage gym trainers and their specializations.</p>
+        </div>
+    </div>
+</div>
+
             <div class="row">
               <div class="col-12 grid-margin">
                 <div class="card">
