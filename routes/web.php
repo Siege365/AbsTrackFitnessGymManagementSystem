@@ -142,15 +142,10 @@ Route::middleware(['auth'])->group(function () {
     // Payment History Routes
     Route::get('/payments/history', [PaymentHistoryController::class, 'index'])->name('payments.history');
 
-    // Product Payment Routes
+    // Product Payment Routes (managed from Payment History page)
     Route::get('/payments/{id}/receipt-data', [PaymentHistoryController::class, 'getReceiptData'])->name('payments.receipt-data');
     Route::post('/payments/{id}/refund', [PaymentHistoryController::class, 'refundProduct'])->name('payments.refund');
     Route::delete('/payments/{id}', [PaymentHistoryController::class, 'destroy'])->name('payments.destroy');
-
-    // Membership Payment Routes
-    Route::get('/membership-payment/{id}/receipt', [PaymentHistoryController::class, 'getMembershipReceipt'])->name('membership-payment.receipt');
-    Route::post('/membership-payment/{id}/refund', [PaymentHistoryController::class, 'refundMembership'])->name('membership-payment.refund');
-    Route::delete('/membership-payment/{id}', [PaymentHistoryController::class, 'destroyMembership'])->name('membership-payment.destroy');
     
     // // Optional: Dedicated Refund Management Routes (if you want a separate refund dashboard)
     // Route::prefix('refunds')->name('refunds.')->group(function () {
