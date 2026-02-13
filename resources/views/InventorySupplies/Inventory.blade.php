@@ -3,57 +3,23 @@
 @section('title', 'Inventory Management')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/inventory.css') }}?v={{ time() }}">
-<style>
-    .stock-modal .info-card {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-    .stock-modal .info-row {
-        margin-bottom: 0.5rem;
-    }
-    .stock-modal .info-label {
-        color: #6c757d;
-        font-size: 0.875rem;
-    }
-    .stock-modal .info-value {
-        font-weight: 500;
-        color: #000000;
-    }
-    .stock-modal .quantity-input {
-        font-size: 1.25rem;
-        height: 50px;
-        text-align: center;
-    }
-    .stock-modal .preview-box {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 1rem;
-        margin-top: 1rem;
-    }
-    .stock-modal .preview-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.5rem 0;
-    }
-    .stock-modal .preview-row:not(:last-child) {
-        border-bottom: 1px solid #dee2e6;
-    }
-    .stock-modal .preview-label {
-        color: #6c757d;
-    }
-    .stock-modal .preview-value {
-        font-weight: 500;
-        font-size: 1.125rem;
-        color: #000000;
-    }
-</style>
+@vite(['resources/css/inventory.css'])
 @endpush
 
 @section('content')
+    <!-- Page Header -->
+    <div class="card page-header-card">
+        <div class="card-body">
+            <div>
+                <h2 class="page-header-title">Inventory Management</h2>
+                <p class="page-header-subtitle">Track, manage, and restock gym products and supplies.</p>
+            </div>
+            <button class="btn btn-page-action" data-toggle="modal" data-target="#addProductModal">
+                <i class="mdi mdi-plus"></i> Add New Product
+            </button>
+        </div>
+    </div>
+
     <!-- Success/Error Messages -->
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">

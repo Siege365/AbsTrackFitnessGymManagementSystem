@@ -7,81 +7,68 @@
       <span class="mdi mdi-menu"></span>
     </button>
     <ul class="navbar-nav navbar-nav-right">
-      <!-- Conditional Button Logic -->
-      @if(request()->is('memberships*'))
-        <!-- Add Member Button (appears only on membership pages) -->
-        <li class="nav-item d-none d-lg-block">
-          <button class="nav-link btn add-entity-button" data-toggle="modal" data-target="#addMemberModal" style="border: none; background: transparent;">
-            <i class="mdi mdi-plus"></i> Add Member
-          </button>
-        </li>
-      @elseif(request()->is('clients*'))
-        <!-- Add Client Button (appears only on client pages) -->
-        <li class="nav-item d-none d-lg-block">
-          <button class="nav-link btn add-entity-button" data-toggle="modal" data-target="#addClientModal" style="border: none; background: transparent;">
-            <i class="mdi mdi-plus"></i> Add Client
-          </button>
-        </li>
-      @elseif(request()->is('Session*'))
-        <!-- Add Schedule Dropdown (appears only on Sessions page) -->
-        <li class="nav-item dropdown d-none d-lg-block">
-          <a class="nav-link btn btn-warning create-new-button" id="addScheduleDropdown" data-toggle="dropdown" aria-expanded="false" href="#">
-            <i class="mdi mdi-plus"></i> Add Schedule
+      <!-- Quick Actions Dropdown (always visible) -->
+      <li class="nav-item dropdown d-none d-lg-block">
+        <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown" data-toggle="dropdown" aria-expanded="false" href="#">+ Quick Actions</a>
+        <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="createbuttonDropdown">
+          <h6 class="p-3 mb-0">Create New Entry</h6>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item preview-item" href="{{ route('memberships.create') }}">
+            <div class="preview-thumbnail">
+              <div class="preview-icon bg-dark rounded-circle">
+                <i class="mdi mdi-file-outline text-primary"></i>
+              </div>
+            </div>
+            <div class="preview-item-content">
+              <p class="preview-subject ellipsis mb-1">Add Member</p>
+            </div>
           </a>
-          <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="addScheduleDropdown">
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addAttendanceModal">
-              <i class="mdi mdi-account-check mr-2 text-success"></i> Customer Attendance
-            </a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPTScheduleModal">
-              <i class="mdi mdi-calendar-plus mr-2 text-primary"></i> PT Session Schedule
-            </a>
-          </div>
-        </li>
-      @else
-        <!-- Create Dropdown (appears on all other pages) -->
-        <li class="nav-item dropdown d-none d-lg-block">
-          <a class="nav-link btn btn-success create-new-button" id="createbuttonDropdown" data-toggle="dropdown" aria-expanded="false" href="#">+ Quick Actions</a>
-          <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="createbuttonDropdown">
-            <h6 class="p-3 mb-0">Create New Entry</h6>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item preview-item" href="{{ route('memberships.create') }}">
-              <div class="preview-thumbnail">
-                <div class="preview-icon bg-dark rounded-circle">
-                  <i class="mdi mdi-file-outline text-primary"></i>
-                </div>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item preview-item" href="{{ route('clients.create') }}">
+            <div class="preview-thumbnail">
+              <div class="preview-icon bg-dark rounded-circle">
+                <i class="mdi mdi-account-plus text-info"></i>
               </div>
-              <div class="preview-item-content">
-                <p class="preview-subject ellipsis mb-1">Add Member</p>
+            </div>
+            <div class="preview-item-content">
+              <p class="preview-subject ellipsis mb-1">Add Client</p>
+            </div>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item preview-item" href="#" data-toggle="modal" data-target="#addAttendanceModal">
+            <div class="preview-thumbnail">
+              <div class="preview-icon bg-dark rounded-circle">
+                <i class="mdi mdi-account-check text-success"></i>
               </div>
-            </a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item preview-item" href="{{ route('clients.create') }}">
-              <div class="preview-thumbnail">
-                <div class="preview-icon bg-dark rounded-circle">
-                  <i class="mdi mdi-web text-info"></i>
-                </div>
+            </div>
+            <div class="preview-item-content">
+              <p class="preview-subject ellipsis mb-1">Customer Attendance</p>
+            </div>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item preview-item" href="#" data-toggle="modal" data-target="#addPTScheduleModal">
+            <div class="preview-thumbnail">
+              <div class="preview-icon bg-dark rounded-circle">
+                <i class="mdi mdi-calendar-plus text-warning"></i>
               </div>
-              <div class="preview-item-content">
-                <p class="preview-subject ellipsis mb-1">Add Client</p>
+            </div>
+            <div class="preview-item-content">
+              <p class="preview-subject ellipsis mb-1">PT Session Schedule</p>
+            </div>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item preview-item" href="{{ route('inventory.index') }}">
+            <div class="preview-thumbnail">
+              <div class="preview-icon bg-dark rounded-circle">
+                <i class="mdi mdi-package-variant-closed text-danger"></i>
               </div>
-            </a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item preview-item">
-              <div class="preview-thumbnail">
-                <div class="preview-icon bg-dark rounded-circle">
-                  <i class="mdi mdi-layers text-danger"></i>
-                </div>
-              </div>
-              <div class="preview-item-content">
-                <p class="preview-subject ellipsis mb-1">Add Schedule</p>
-              </div>
-            </a>
-            <div class="dropdown-divider"></div>
-            <p class="p-3 mb-0 text-center">See all projects</p>
-          </div>
-        </li>
-      @endif
+            </div>
+            <div class="preview-item-content">
+              <p class="preview-subject ellipsis mb-1">Manage Inventory</p>
+            </div>
+          </a>
+        </div>
+      </li>
     
       <!-- Notification Bell Dropdown -->
       <li class="nav-item dropdown">

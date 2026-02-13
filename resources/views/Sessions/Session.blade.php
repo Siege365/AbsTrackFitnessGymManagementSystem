@@ -3,7 +3,7 @@
 @section('title', 'Sessions - AbsTrack Fitness Gym')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/sessions.css') }}?v={{ time() }}">
+    @vite(['resources/css/sessions.css'])
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
@@ -27,6 +27,30 @@
             });
         </script>
     @endif
+
+    <!-- Page Header -->
+    <div class="card page-header-card">
+        <div class="card-body">
+            <div>
+                <h2 class="page-header-title">Session Management</h2>
+                <p class="page-header-subtitle">Manage personal training schedules and customer attendance.</p>
+            </div>
+            <div class="dropdown">
+                <button class="btn btn-page-action dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                    <i class="mdi mdi-plus"></i> Add Schedule
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addAttendanceModal">
+                        <i class="mdi mdi-account-check mr-2 text-success"></i> Customer Attendance
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPTScheduleModal">
+                        <i class="mdi mdi-calendar-plus mr-2 text-primary"></i> PT Session Schedule
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Statistics Cards -->
     <div class="row">
@@ -797,5 +821,5 @@
 @push('scripts')
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="{{ asset('js/sessions.js') }}?v={{ time() }}"></script>
+    @vite(['resources/js/sessions.js'])
 @endpush

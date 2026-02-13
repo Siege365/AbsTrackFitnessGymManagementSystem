@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('payment_items', function (Blueprint $table) {
-            $table->boolean('is_refunded')->default(false)->after('total_price');
+            $table->boolean('is_refunded')->default(false)->after('subtotal');
             $table->integer('refunded_quantity')->default(0)->after('is_refunded');
             $table->decimal('refunded_amount', 10, 2)->default(0)->after('refunded_quantity');
             
