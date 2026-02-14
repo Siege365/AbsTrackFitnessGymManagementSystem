@@ -3,21 +3,999 @@
 @section('title', 'Membership Payment System')
 
 @push('styles')
-@vite(['resources/css/membership-payment.css'])
+<style>
+  .table-responsive::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  .table-responsive::-webkit-scrollbar-track {
+    background: #191C24;
+  }
+  
+  .table-responsive::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 4px;
+  }
+
+  .pagination .page-item.active .page-link {
+    background-color: #ffffff;
+    border-color: #ffffff;
+    color: #000000;
+  }
+  
+  .pagination .page-link {
+    color: #ffffff;
+    background-color: #282A36;
+    border-color: #555;
+    padding: 8px 12px;
+    margin: 0 2px;
+    border-radius: 4px;
+  }
+  
+  .pagination .page-link:hover {
+    background-color: #ffffff;
+    border-color: #000000;
+    color: #000000;
+  }
+
+  .pagination .page-link:focus {
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+  }
+
+  .pagination .page-item.disabled .page-link {
+    background-color: #1a1d24;
+    border-color: #333;
+    color: #666;
+  }
+
+  .pagination-info {
+    color: #999;
+    font-size: 14px;
+  }
+
+  .form-control[readonly] {
+    background-color: #282A36 !important;
+    color: #495057 !important;
+  }
+
+  .table thead th,
+  .table tbody td {
+    color: #ffffff !important;
+  }
+
+  .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .stat-change {
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+  }
+
+  .stat-change.positive {
+    color: #28a745;
+  }
+
+  .stat-change.negative {
+    color: #dc3545;
+  }
+
+  .stat-change.neutral {
+    color: #ffc107;
+  }
+
+  .card {
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #999;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-control, .form-select {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: #191C24;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #ffffff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus, .form-select:focus {
+    outline: none;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+    background: #282A36;
+  }
+
+  .form-control::placeholder {
+    color: #666;
+  }
+
+  .autocomplete-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 250px;
+    overflow-y: auto;
+    background: #282A36;
+    border: 1px solid #555;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .autocomplete-item {
+    padding: 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #555;
+    transition: all 0.2s ease;
+    color: #ffffff;
+  }
+
+  .autocomplete-item:hover {
+    background: #191C24;
+  }
+
+  .autocomplete-item:last-child {
+    border-bottom: none;
+  }
+
+  .btn {
+    padding: 0.875rem 2rem;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .btn-primary {
+    background: #0d6efd;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #138496;
+  }
+
+  .btn-secondary {
+    background: #6c757d;
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    background: #5a6268;
+  }
+
+  .btn-danger {
+    background: #dc3545;
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background: #c82333;
+  }
+
+  .btn-warning {
+    background: #ffc107;
+    color: #000;
+  }
+
+  .btn-warning:hover {
+    background: #e0a800;
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  .payment-type-selector {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .payment-type-pill {
+    flex: 1;
+    padding: 1rem;
+    background: #191C24;
+    border: 2px solid #555;
+    border-radius: 4px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .payment-type-pill:hover {
+    border-color: #198754;
+    transform: translateY(-3px);
+  }
+
+  .payment-type-pill.active {
+    background: #282A36;
+    border-color: #198754;
+  }
+
+  .payment-type-pill .icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .payment-type-pill .label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #ffffff;
+  }
+
+  .plan-type-selector {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .plan-type-card {
+    flex: 1;
+    padding: 1.5rem;
+    background: #191C24;
+    border: 2px solid #555;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .plan-type-card:hover {
+    border-color: #198754;
+    transform: translateY(-3px);
+  }
+
+  .plan-type-card.active {
+    background: #282A36;
+    border-color: #198754;
+  }
+
+  .plan-type-card .plan-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+  }
+
+  .plan-type-card .plan-duration {
+    font-size: 0.875rem;
+    color: #999;
+  }
+
+  .plan-type-card .plan-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #28a745;
+    margin-top: 0.5rem;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+    min-height: 600px;
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #ffffff !important;
+    border-bottom: 2px solid #555;
+  }
+
+  .table tbody tr {
+    transition: all 0.3s ease;
+  }
+
+  .table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .table td {
+    padding: 1rem;
+    border-bottom: 1px solid #555;
+    color: #ffffff !important;
+  }
+
+  .badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .badge-success {
+    background: #28a745;
+    color: white;
+  }
+
+  .badge-info {
+    background: #0d6efd;
+    color: white;
+  }
+
+  .badge-warning {
+    background: #ffc107;
+    color: #000;
+  }
+
+  .badge-danger {
+    background: #dc3545;
+    color: white;
+  }
+
+  .action-dropdown {
+    position: relative;
+    overflow: visible; 
+  }
+
+  .action-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #ffffff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .action-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    min-width: 180px;
+    background: #282A36;
+    border: 1px solid #555;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    padding: 8px 0;
+    display: none;
+    z-index: 10000 !important;
+    animation: slideDown 0.3s ease;
+    transform-origin: top left;
+    white-space: nowrap;
+    overflow: visible;
+  }
+
+  .dropdown-menu.show {
+    display: block;
+  }
+
+  .action-dropdown .dropdown-menu {
+    right: 0;
+    left: auto;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .dropdown-item {
+    padding: 12px 20px;
+    font-size: 14px;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+  }
+
+  .dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .dropdown-item i {
+    margin-right: 0.5rem;
+  }
+
+  .dropdown-item.danger {
+    color: #ff6b6b;
+  }
+
+  .dropdown-item.danger:hover {
+    background: rgba(255, 107, 107, 0.1);
+  }
+
+  .dropdown-item.warning {
+    color: #ffc107;
+  }
+
+  .dropdown-item.warning:hover {
+    background: rgba(255, 193, 7, 0.1);
+  }
+
+  /* Pagination - ALWAYS VISIBLE */
+  .pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #555;
+  }
+
+  .pagination {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .page-item {
+    display: inline-block;
+  }
+
+  /* Checkbox Styles */
+  .custom-checkbox {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #dc3545;
+    border-radius: 4px;
+    background-color: transparent;
+    cursor: pointer;
+    appearance: none;
+    transition: all 0.3s ease;
+  }
+
+  .custom-checkbox:checked {
+    background-color: #dc3545;
+    border-color: #dc3545;
+  }
+
+  .custom-checkbox:checked::after {
+    content: '✓';
+    display: block;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+    line-height: 14px;
+  }
+
+  /* Modal Styles - FIXED CENTERING */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.show {
+    display: flex;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .modal-content {
+    background: #ffffff;
+    border-radius: 8px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    animation: modalSlideIn 0.3s ease;
+  }
+
+  .modal-content.small {
+    max-width: 500px;
+  }
+
+  @keyframes modalSlideIn {
+    from {
+      transform: scale(0.9) translateY(-50px);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .modal-header {
+    padding: 2rem;
+    background: #191C24;
+    color: white;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-close:hover {
+    color: #dc3545;
+    transform: rotate(90deg);
+  }
+
+  .modal-body {
+    padding: 2rem;
+  }
+
+  .modal-footer {
+    padding: 1.5rem 2rem;
+    background: #f8f9fa;
+    border-radius: 0 0 8px 8px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+
+  /* Confirmation Modal Specific Styles */
+  .confirmation-icon {
+    font-size: 4rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .confirmation-icon.warning {
+    color: #ffc107;
+  }
+
+  .confirmation-message {
+    text-align: center;
+    color: #333;
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .confirmation-details {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+  }
+
+  .confirmation-detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .confirmation-detail-row:last-child {
+    border-bottom: none;
+  }
+
+  .confirmation-detail-label {
+    font-weight: 600;
+    color: #666;
+  }
+
+  .confirmation-detail-value {
+    color: #333;
+    font-weight: 700;
+  }
+
+  /* Refund Modal Specific Styles */
+  .refund-warning {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+    color: #856404;
+  }
+
+  .refund-warning i {
+    margin-right: 0.5rem;
+  }
+
+  /* Receipt Styles */
+  .receipt-container {
+    background: white;
+    color: #333;
+  }
+
+  .receipt-header {
+    text-align: center;
+    border-bottom: 3px solid #191C24;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .receipt-header h2 {
+    font-size: 2rem;
+    color: #191C24;
+    margin-bottom: 0.5rem;
+  }
+
+  .receipt-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .receipt-info-item {
+    padding: 1rem;
+    background: #f5f5f5;
+    border-radius: 4px;
+  }
+
+  .receipt-info-item strong {
+    display: block;
+    font-size: 0.75rem;
+    color: #666;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+  }
+
+  .receipt-info-item span {
+    display: block;
+    font-size: 1rem;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .receipt-table {
+    width: 100%;
+    margin-bottom: 2rem;
+    border-collapse: collapse;
+  }
+
+  .receipt-table th {
+    background: #191C24;
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  .receipt-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #ddd;
+    color: #333;
+  }
+
+  .receipt-total {
+    text-align: right;
+    padding-top: 1rem;
+    border-top: 3px solid #191C24;
+  }
+
+  .receipt-total-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.5rem;
+    font-size: 1.125rem;
+  }
+
+  .receipt-total-row strong {
+    width: 200px;
+  }
+
+  .receipt-total-row span {
+    width: 150px;
+    text-align: right;
+    font-weight: 700;
+  }
+
+  .receipt-total-row.grand-total {
+    font-size: 1.5rem;
+    color: #191C24;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid #333;
+  }
+
+  .receipt-refund-stamp {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem;
+    background: #fff3cd;
+    border: 3px dashed #ffc107;
+    border-radius: 8px;
+  }
+
+  .receipt-refund-stamp h3 {
+    color: #856404;
+    font-size: 1.5rem;
+    margin: 0;
+  }
+
+  /* Loading State */
+  .loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #555;
+    border-top-color: #0d6efd;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Filter Dropdown */
+  .filter-dropdown {
+    position: relative;
+  }
+
+  .filter-btn {
+    background: #282A36;
+    border: 1px solid #555;
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover {
+    background: #191C24;
+    border-color: #0d6efd;
+  }
+
+  .filter-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 250px;
+    background: #282A36;
+    border: 1px solid #555;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    padding: 0.5rem 0;
+    display: none;
+    z-index: 1000;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .filter-menu.show {
+    display: block;
+  }
+
+  .filter-header {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #999;
+    text-transform: uppercase;
+    border-bottom: 1px solid #555;
+  }
+
+  .filter-menu-item {
+    padding: 0.75rem 1.25rem;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+  }
+
+  .filter-menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .filter-menu-item.active {
+    background: rgba(23, 162, 184, 0.2);
+    color: #0d6efd;
+  }
+
+  .filter-menu-divider {
+    height: 1px;
+    background: #555;
+    margin: 0.5rem 0;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .payment-type-selector,
+    .plan-type-selector {
+      flex-direction: column;
+    }
+
+    .pagination-container {
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+
+  /* Print Styles */
+  @media print {
+    @page {
+      margin: 0.5in;
+    }
+
+    body * {
+      visibility: hidden;
+    }
+
+    .receipt-container,
+    .receipt-container * {
+      visibility: visible;
+    }
+
+    .receipt-container {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      background: white;
+      color: black;
+    }
+
+    .modal-header,
+    .modal-footer,
+    .modal-close {
+      display: none !important;
+    }
+
+    .modal-overlay {
+      background: white !important;
+      backdrop-filter: none !important;
+    }
+
+    .modal-content {
+      box-shadow: none !important;
+      max-height: none !important;
+      overflow: visible !important;
+    }
+
+    .modal-body {
+      padding: 0 !important;
+    }
+
+    .receipt-table th {
+      background: #333 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .receipt-info-item {
+      background: #f5f5f5 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .receipt-refund-stamp {
+      background: #fff3cd !important;
+      border-color: #ffc107 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+  
+  .modal-overlay.show, .receipt-modal.show {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+
+  .modal-overlay .modal-content,
+  .modal-content,
+  .receipt-modal-content,
+  .receipt-container {
+    margin: 0 auto !important;
+    position: relative !important;
+    max-height: 90vh;
+    overflow: auto;
+  }
+
+  .modal-content.small {
+    margin: auto !important;
+  }
+
+  /* Ensure overlay prevents awkward vertical offset on small screens */
+  @media (max-height: 600px) {
+    .modal-overlay.show, .receipt-modal.show { align-items: flex-start !important; padding-top: 2rem; }
+  }
+</style>
+
 @endpush
 
 @section('content')
 <div class="container-fluid">
-
-  <!-- Page Header -->
-  <div class="card page-header-card">
-      <div class="card-body">
-          <div>
-              <h2 class="page-header-title">Membership Payment</h2>
-              <p class="page-header-subtitle">Process membership payments and manage billing records.</p>
-          </div>
-      </div>
-  </div>
   <!-- Stats Grid -->
   <div class="row">
     <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
@@ -324,7 +1302,6 @@
 <script src="{{ asset('js/common/avatar-utils.js') }}?v={{ time() }}"></script>
 <script src="{{ asset('js/common/form-utils.js') }}?v={{ time() }}"></script>
 <script src="{{ asset('js/common/bulk-selection.js') }}?v={{ time() }}"></script>
-<script src="{{ asset('js/common/toast-utils.js') }}?v={{ time() }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   let selectedMemberStatus = '';
@@ -345,12 +1322,11 @@ document.addEventListener('DOMContentLoaded', function() {
       const type = this.dataset.type;
       
       if (type === 'extension' && !memberId.value) {
-        ToastUtils.showWarning('Please select a member first to use Extension');
         return;
       }
 
       if (type === 'renewal' && selectedMemberStatus === 'Active' && selectedMemberDueDate && new Date(selectedMemberDueDate) > new Date()) {
-        ToastUtils.showWarning('Member is active. Please use Extension instead');
+        ToastUtils.showWarning('Member is active. Please use Extension instead.');
         return;
       }
 
@@ -365,16 +1341,12 @@ document.addEventListener('DOMContentLoaded', function() {
         memberId.removeAttribute('required');
         document.getElementById('newMemberName').setAttribute('required', 'required');
         document.getElementById('newMemberContact').setAttribute('required', 'required');
-        ToastUtils.showInfo('Switched to New Membership mode');
       } else {
         memberSelectionSection.style.display = 'block';
         newMemberSection.style.display = 'none';
         memberSearch.setAttribute('required', 'required');
         document.getElementById('newMemberName').removeAttribute('required');
         document.getElementById('newMemberContact').removeAttribute('required');
-        
-        const typeLabel = type === 'renewal' ? 'Renewal' : 'Extension';
-        ToastUtils.showInfo(`Switched to ${typeLabel} mode`);
       }
 
       document.getElementById('currentDueDate').value = '';
@@ -402,7 +1374,6 @@ document.addEventListener('DOMContentLoaded', function() {
       amountInput.value = parseFloat(price).toFixed(2);
       additionalDaysInput.value = duration;
       
-      ToastUtils.showSuccess(`${planType} plan selected - ₱${parseFloat(price).toFixed(2)}`);
       calculateNewDueDate();
     });
   });
@@ -428,15 +1399,11 @@ document.addEventListener('DOMContentLoaded', function() {
           'Accept': 'application/json'
         }
       })
-        .then(response => {
-          if (!response.ok) throw new Error('Search failed');
-          return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
           if (data.length === 0) {
             resultsContainer.innerHTML = '<div class="autocomplete-item">No members found</div>';
             resultsContainer.style.display = 'block';
-            ToastUtils.showInfo('No members found matching your search');
             return;
           }
 
@@ -453,8 +1420,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
           resultsContainer.querySelectorAll('.autocomplete-item').forEach(item => {
             item.addEventListener('click', function() {
-              const memberName = this.dataset.name;
-              memberSearch.value = memberName;
+              memberSearch.value = this.dataset.name;
               memberId.value = this.dataset.id;
               selectedMemberStatus = this.dataset.status;
               selectedMemberDueDate = this.dataset.dueDate;
@@ -474,22 +1440,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 paymentTypePills.forEach(p => p.classList.remove('active'));
                 extensionPill.classList.add('active');
                 paymentTypeInput.value = 'extension';
-                ToastUtils.showInfo(`${memberName} is active - switched to Extension mode`);
               } else {
                 renewalPill.style.opacity = '1';
                 renewalPill.style.pointerEvents = 'auto';
               }
               
               resultsContainer.style.display = 'none';
-              ToastUtils.showSuccess(`Member ${memberName} selected`);
               calculateNewDueDate();
             });
           });
         })
         .catch(error => {
           console.error('Error fetching members:', error);
-          resultsContainer.style.display = 'none';
-          ToastUtils.showError('Error searching for members. Please try again');
+          ToastUtils.showError('Error searching for members');
         });
     }, 300);
   });
@@ -500,7 +1463,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Contact Number Validation
   document.getElementById('newMemberContact').addEventListener('input', function(e) {
     let value = e.target.value.replace(/[^0-9+]/g, '');
     
@@ -515,14 +1477,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     e.target.value = value;
-  });
-
-  document.getElementById('newMemberContact').addEventListener('blur', function(e) {
-    const value = e.target.value;
-    
-    if (value && !value.match(/^(09\d{9}|\+639\d{9})$/)) {
-      ToastUtils.showError('Invalid contact number. Use 09XXXXXXXXX or +639XXXXXXXXX format');
-    }
   });
 
   function calculateNewDueDate() {
@@ -551,7 +1505,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if (currentDueDateText && currentDueDateText !== 'No due date') {
         startDate = new Date(currentDueDateText);
       } else {
-        ToastUtils.showWarning('Cannot calculate extension - no current due date');
         return;
       }
     }
@@ -559,13 +1512,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const newDueDate = new Date(startDate);
     newDueDate.setDate(newDueDate.getDate() + duration);
 
-    const formattedDate = newDueDate.toLocaleDateString('en-US', { 
+    document.getElementById('newDueDate').value = newDueDate.toLocaleDateString('en-US', { 
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 
     });
-    
-    document.getElementById('newDueDate').value = formattedDate;
   }
 
   // Form Submission with Confirmation
@@ -573,19 +1524,10 @@ document.addEventListener('DOMContentLoaded', function() {
   paymentForm.addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // Validate contact for new members
     if (paymentTypeInput.value === 'new') {
       const contact = document.getElementById('newMemberContact').value;
       if (contact && !contact.match(/^(09\d{9}|\+639\d{9})$/)) {
         ToastUtils.showError('Invalid contact number. Use 09XXXXXXXXX or +639XXXXXXXXX format');
-        document.getElementById('newMemberContact').focus();
-        return;
-      }
-      
-      const newName = document.getElementById('newMemberName').value.trim();
-      if (!newName) {
-        ToastUtils.showError('Please enter the new member\'s name');
-        document.getElementById('newMemberName').focus();
         return;
       }
     }
@@ -593,17 +1535,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Ensure member selected for non-new payments
     if (paymentTypeInput.value !== 'new') {
       if (!memberId.value) {
-        ToastUtils.showError('Please select a member before processing payment');
-        memberSearch.focus();
+        ToastUtils.showError('Please select a member before processing payment.');
         return;
       }
-    }
-
-    // Validate new due date
-    const newDueDate = document.getElementById('newDueDate').value;
-    if (!newDueDate || newDueDate === 'Will be calculated') {
-      ToastUtils.showError('Due date calculation failed. Please select a plan');
-      return;
+    } else {
+      // For new members ensure name provided
+      const newName = document.getElementById('newMemberName').value.trim();
+      if (!newName) {
+        ToastUtils.showError('Please enter the new member\'s name.');
+        return;
+      }
     }
 
     // Show confirmation modal
@@ -619,7 +1560,6 @@ document.addEventListener('DOMContentLoaded', function() {
       ? document.getElementById('newMemberName').value 
       : memberSearch.value;
     const newDueDate = document.getElementById('newDueDate').value;
-    const currentDueDate = document.getElementById('currentDueDate').value;
 
     const details = `
       <div class="confirmation-detail-row">
@@ -642,12 +1582,6 @@ document.addEventListener('DOMContentLoaded', function() {
         <span class="confirmation-detail-label">Payment Method:</span>
         <span class="confirmation-detail-value">${paymentMethod}</span>
       </div>
-      ${paymentType !== 'new' ? `
-      <div class="confirmation-detail-row">
-        <span class="confirmation-detail-label">Current Due Date:</span>
-        <span class="confirmation-detail-value">${currentDueDate}</span>
-      </div>
-      ` : ''}
       <div class="confirmation-detail-row">
         <span class="confirmation-detail-label">New Due Date:</span>
         <span class="confirmation-detail-value" style="color: #28a745;">${newDueDate}</span>
@@ -670,8 +1604,6 @@ document.addEventListener('DOMContentLoaded', function() {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
 
-    ToastUtils.showInfo('Processing payment...');
-
     const formData = new FormData(paymentForm);
 
     fetch(paymentForm.action, {
@@ -682,26 +1614,24 @@ document.addEventListener('DOMContentLoaded', function() {
         'Accept': 'application/json'
       }
     })
-    .then(response => {
-      if (!response.ok) throw new Error('Payment processing failed');
-      return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
       if (data.success) {
         ToastUtils.showSuccess(data.message || 'Payment processed successfully!');
+        // Show receipt modal immediately and reload only after user closes it
         window._reloadAfterReceipt = true;
         setTimeout(() => {
           viewReceipt(data.payment.id);
         }, 500);
       } else {
-        ToastUtils.showError(data.message || 'An error occurred while processing payment');
+        ToastUtils.showError(data.message || 'An error occurred');
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalText;
       }
     })
     .catch(error => {
       console.error('Error:', error);
-      ToastUtils.showError('Failed to process payment. Please try again');
+      ToastUtils.showError('Failed to process payment. Please try again.');
       submitBtn.disabled = false;
       submitBtn.innerHTML = originalText;
     });
@@ -737,10 +1667,7 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   window.confirmRefund = function() {
-    if (!currentRefundId) {
-      ToastUtils.showError('No refund transaction selected');
-      return;
-    }
+    if (!currentRefundId) return;
 
     const reason = document.getElementById('refundReason').value;
     const refundForm = document.getElementById('refundForm');
@@ -760,10 +1687,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'Accept': 'application/json'
       }
     })
-    .then(response => {
-      if (!response.ok) throw new Error('Refund failed');
-      return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
       if (data.success) {
         ToastUtils.showSuccess(data.message || 'Refund processed successfully!');
@@ -776,45 +1700,29 @@ document.addEventListener('DOMContentLoaded', function() {
     })
     .catch(error => {
       console.error('Error:', error);
-      ToastUtils.showError('Failed to process refund. Please try again');
+      ToastUtils.showError('Failed to process refund. Please try again.');
     });
   };
 
   // Clear Form
   document.getElementById('clearFormBtn').addEventListener('click', function() {
-    const hasData = memberSearch.value || memberId.value || 
-                    document.getElementById('newMemberName').value ||
-                    document.getElementById('newMemberContact').value;
+    paymentForm.reset();
+    memberId.value = '';
+    selectedMemberStatus = '';
+    selectedMemberDueDate = '';
+    document.getElementById('currentDueDate').value = '';
+    document.getElementById('newDueDate').value = '';
     
-    if (hasData || paymentTypeInput.value !== 'renewal') {
-      paymentForm.reset();
-      memberId.value = '';
-      selectedMemberStatus = '';
-      selectedMemberDueDate = '';
-      document.getElementById('currentDueDate').value = '';
-      document.getElementById('newDueDate').value = '';
-      
-      planTypeCards.forEach(c => c.classList.remove('active'));
-      planTypeCards[0].classList.add('active');
-      planTypeInput.value = 'Monthly';
-      amountInput.value = '500.00';
-      additionalDaysInput.value = '30';
+    planTypeCards.forEach(c => c.classList.remove('active'));
+    planTypeCards[0].classList.add('active');
+    planTypeInput.value = 'Monthly';
+    amountInput.value = '500.00';
+    additionalDaysInput.value = '30';
 
-      extensionPill.style.opacity = '0.5';
-      extensionPill.style.pointerEvents = 'none';
-      document.querySelector('[data-type="renewal"]').style.opacity = '1';
-      document.querySelector('[data-type="renewal"]').style.pointerEvents = 'auto';
-      
-      paymentTypePills.forEach(p => p.classList.remove('active'));
-      document.querySelector('[data-type="renewal"]').classList.add('active');
-      paymentTypeInput.value = 'renewal';
-      memberSelectionSection.style.display = 'block';
-      newMemberSection.style.display = 'none';
-      
-      ToastUtils.showSuccess('Form cleared successfully');
-    } else {
-      ToastUtils.showInfo('Form is already empty');
-    }
+    extensionPill.style.opacity = '0.5';
+    extensionPill.style.pointerEvents = 'none';
+    document.querySelector('[data-type="renewal"]').style.opacity = '1';
+    document.querySelector('[data-type="renewal"]').style.pointerEvents = 'auto';
   });
 
   // Checkbox Selection
@@ -823,70 +1731,48 @@ document.addEventListener('DOMContentLoaded', function() {
   const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
   const selectedCountSpan = document.getElementById('selectedCount');
 
-  if (selectAllCheckbox) {
-    selectAllCheckbox.addEventListener('change', function() {
-      transactionCheckboxes.forEach(cb => {
-        cb.checked = this.checked;
-      });
-      updateBulkDeleteButton();
-      
-      if (this.checked) {
-        ToastUtils.showInfo(`${transactionCheckboxes.length} transactions selected`);
-      } else {
-        ToastUtils.showInfo('All transactions deselected');
-      }
+  selectAllCheckbox.addEventListener('change', function() {
+    transactionCheckboxes.forEach(cb => {
+      cb.checked = this.checked;
     });
-  }
+    updateBulkDeleteButton();
+  });
 
   transactionCheckboxes.forEach(cb => {
     cb.addEventListener('change', function() {
       updateBulkDeleteButton();
       const allChecked = Array.from(transactionCheckboxes).every(checkbox => checkbox.checked);
-      if (selectAllCheckbox) {
-        selectAllCheckbox.checked = allChecked;
-      }
+      selectAllCheckbox.checked = allChecked;
     });
   });
 
   function updateBulkDeleteButton() {
     const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
     const count = checkedBoxes.length;
-    if (selectedCountSpan) {
-      selectedCountSpan.textContent = count;
-    }
-    if (bulkDeleteBtn) {
-      bulkDeleteBtn.disabled = count === 0;
-    }
+    selectedCountSpan.textContent = count;
+    bulkDeleteBtn.disabled = count === 0;
   }
 
-  if (bulkDeleteBtn) {
-    bulkDeleteBtn.addEventListener('click', function() {
-      const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
-      const ids = Array.from(checkedBoxes).map(cb => cb.value);
+  bulkDeleteBtn.addEventListener('click', function() {
+    const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
+    const ids = Array.from(checkedBoxes).map(cb => cb.value);
 
-      if (ids.length === 0) {
-        ToastUtils.showWarning('Please select at least one transaction to delete');
-        return;
-      }
+    if (ids.length === 0) {
+      ToastUtils.showWarning('Please select at least one transaction to delete');
+      return;
+    }
 
-      if (confirm(`Are you sure you want to delete ${ids.length} transaction(s)? This action cannot be undone.`)) {
-        document.getElementById('bulkDeleteIds').value = JSON.stringify(ids);
-        ToastUtils.showInfo('Deleting transactions...');
-        document.getElementById('bulkDeleteForm').submit();
-      } else {
-        ToastUtils.showInfo('Deletion cancelled');
-      }
-    });
-  }
+    if (confirm(`Are you sure you want to delete ${ids.length} transaction(s)? This action cannot be undone.`)) {
+      document.getElementById('bulkDeleteIds').value = JSON.stringify(ids);
+      document.getElementById('bulkDeleteForm').submit();
+    }
+  });
 
   document.querySelectorAll('.delete-form').forEach(form => {
     form.addEventListener('submit', function(e) {
       e.preventDefault();
       if (confirm('Are you sure you want to delete this transaction? This action cannot be undone.')) {
-        ToastUtils.showInfo('Deleting transaction...');
         this.submit();
-      } else {
-        ToastUtils.showInfo('Deletion cancelled');
       }
     });
   });
@@ -895,18 +1781,16 @@ document.addEventListener('DOMContentLoaded', function() {
   const filterBtn = document.getElementById('filterBtn');
   const filterMenu = document.getElementById('filterMenu');
 
-  if (filterBtn && filterMenu) {
-    filterBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      filterMenu.classList.toggle('show');
-    });
+  filterBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    filterMenu.classList.toggle('show');
+  });
 
-    document.addEventListener('click', function(e) {
-      if (!e.target.closest('.filter-dropdown')) {
-        filterMenu.classList.remove('show');
-      }
-    });
-  }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.filter-dropdown')) {
+      filterMenu.classList.remove('show');
+    }
+  });
 });
 
 // View Receipt
@@ -922,16 +1806,10 @@ function viewReceipt(transactionId) {
     </div>
   `;
 
-  ToastUtils.showInfo('Loading receipt...');
-
   fetch(`/membership-payment/${transactionId}/receipt`)
-    .then(response => {
-      if (!response.ok) throw new Error('Failed to load receipt');
-      return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
       receiptBody.innerHTML = generateReceiptHTML(data);
-      ToastUtils.showSuccess('Receipt loaded successfully');
     })
     .catch(error => {
       console.error('Error loading receipt:', error);
@@ -941,7 +1819,6 @@ function viewReceipt(transactionId) {
           <p>Failed to load receipt. Please try again.</p>
         </div>
       `;
-      ToastUtils.showError('Failed to load receipt. Please try again');
     });
 }
 
@@ -1048,16 +1925,13 @@ function generateReceiptHTML(data) {
 function closeModal() {
   document.getElementById('receiptModal').classList.remove('show');
   if (window._reloadAfterReceipt) {
-    ToastUtils.showInfo('Refreshing page...');
+    // reset flag and reload page after user closes receipt
     window._reloadAfterReceipt = false;
-    setTimeout(() => {
-      window.location.reload();
-    }, 500);
+    window.location.reload();
   }
 }
 
 function printReceipt() {
-  ToastUtils.showInfo('Preparing to print receipt...');
   window.print();
 }
 
@@ -1089,14 +1963,6 @@ document.addEventListener('click', function(e) {
 
 @if(session('error'))
   ToastUtils.showError('{{ session('error') }}');
-@endif
-
-@if(session('warning'))
-  ToastUtils.showWarning('{{ session('warning') }}');
-@endif
-
-@if(session('info'))
-  ToastUtils.showInfo('{{ session('info') }}');
 @endif
 
 @if($errors->any())

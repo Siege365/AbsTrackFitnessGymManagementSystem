@@ -3,21 +3,797 @@
 @section('title', 'Payments & Billing -> Product Payment')
 
 @push('styles')
-@vite(['resources/css/product-payment.css'])
+<style>
+  /* CONSISTENT COLOR SCHEME MATCHING MEMBERSHIP PAYMENT */
+  .table-responsive::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  .table-responsive::-webkit-scrollbar-track {
+    background: #191C24;
+  }
+  
+  .table-responsive::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 4px;
+  }
+
+  .pagination .page-item.active .page-link {
+    background-color: #ffffff;
+    border-color: #ffffff;
+    color: #000000;
+  }
+  
+  .pagination .page-link {
+    color: #ffffff;
+    background-color: #282A36;
+    border-color: #555;
+    padding: 8px 12px;
+    margin: 0 2px;
+    border-radius: 4px;
+  }
+  
+  .pagination .page-link:hover {
+    background-color: #ffffff;
+    border-color: #000000;
+    color: #000000;
+  }
+
+  .pagination .page-link:focus {
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+  }
+
+  .pagination .page-item.disabled .page-link {
+    background-color: #1a1d24;
+    border-color: #333;
+    color: #666;
+  }
+
+  .pagination-info {
+    color: #999;
+    font-size: 14px;
+  }
+
+  .form-control[readonly] {
+    background-color: #282A36 !important;
+    color: #495057 !important;
+  }
+
+  .table thead th,
+  .table tbody td {
+    color: #ffffff !important;
+  }
+
+  .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* Stats Cards - Enhanced */
+  .stat-change {
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    font-weight: 600;
+  }
+
+  .stat-change.positive {
+    color: #28a745;
+  }
+
+  .stat-change.negative {
+    color: #dc3545;
+  }
+
+  /* Card Styles - Enhanced */
+  .card {
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Form Styles - Enhanced */
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #999;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-control, .form-select {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: #191C24;
+    border: 1px solid #555;
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus, .form-select:focus {
+    outline: none;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    background: #282A36;
+  }
+
+  .form-control::placeholder {
+    color: #666;
+  }
+
+  /* Search Results - Enhanced */
+  .search-results {
+    position: absolute;
+    background: #282A36;
+    border: 1px solid #555;
+    max-height: 250px;
+    overflow-y: auto;
+    width: 100%;
+    z-index: 1000;
+    border-radius: 6px;
+    margin-top: 2px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .search-result-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #555;
+    color: #ffffff;
+    transition: all 0.2s ease;
+  }
+
+  .search-result-item:hover {
+    background-color: #191C24;
+    padding-left: 20px;
+  }
+
+  .search-result-item:last-child {
+    border-bottom: none;
+  }
+
+  /* Buttons - Enhanced */
+  .btn {
+    padding: 0.875rem 2rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #0b5ed7 0%, #0a58ca 100%);
+  }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #545b62 100%);
+  }
+
+  .btn-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    color: #000;
+  }
+
+  .btn-warning:hover {
+    background: linear-gradient(135deg, #e0a800 0%, #d39e00 100%);
+  }
+
+  .btn-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  .btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  /* Table Styles - Enhanced */
+  .table-responsive {
+    overflow-x: auto;
+    min-height: 600px;
+    border-radius: 8px;
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #ffffff !important;
+    border-bottom: 2px solid #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .table tbody tr {
+    transition: all 0.3s ease;
+    height: 53px;
+  }
+
+  .table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    transform: scale(1.01);
+  }
+
+  .table td {
+    padding: 1rem;
+    border-bottom: 1px solid #555;
+    color: #ffffff !important;
+  }
+
+  /* Modal Overlay - Base */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.show {
+    display: flex;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Modal Content */
+  .modal-content {
+    background: #ffffff;
+    border-radius: 8px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    animation: modalSlideIn 0.3s ease;
+  }
+
+  .modal-content.small {
+    max-width: 500px;
+  }
+
+  @keyframes modalSlideIn {
+    from {
+      transform: scale(0.9) translateY(-50px);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .modal-header {
+    padding: 2rem;
+    background: #191C24;
+    color: white;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-close:hover {
+    color: #dc3545;
+    transform: rotate(90deg);
+  }
+
+  .modal-body {
+    padding: 2rem;
+  }
+
+  .modal-footer {
+    padding: 1.5rem 2rem;
+    background: #f8f9fa;
+    border-radius: 0 0 8px 8px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+
+  /* Confirmation Modal Specific Styles */
+  .confirmation-icon {
+    font-size: 4rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .confirmation-icon.warning {
+    color: #ffc107;
+  }
+
+  .confirmation-message {
+    text-align: center;
+    color: #333;
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .confirmation-details {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+  }
+
+  .confirmation-detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .confirmation-detail-row:last-child {
+    border-bottom: none;
+  }
+
+  .confirmation-detail-label {
+    font-weight: 600;
+    color: #666;
+  }
+
+  .confirmation-detail-value {
+    color: #333;
+    font-weight: 700;
+  }
+
+  /* Receipt Modal - Enhanced */
+  .receipt-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.9);
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.3s;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .receipt-modal.show {
+    display: flex;
+  }
+
+  .receipt-modal-content {
+    background-color: #ffffff;
+    padding: 0;
+    max-width: 800px;
+    width: 90%;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    animation: receiptSlideIn 0.5s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  @keyframes receiptSlideIn {
+    from {
+      transform: scale(0.8) translateY(-100px);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .receipt-modal-header {
+    padding: 24px 30px;
+    background: linear-gradient(135deg, #191C24 0%, #282A36 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .receipt-modal-header h3 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .receipt-modal-close {
+    color: white;
+    font-size: 36px;
+    font-weight: bold;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+  }
+
+  .receipt-modal-close:hover {
+    color: #dc3545;
+    background: rgba(220, 53, 69, 0.2);
+    transform: rotate(90deg) scale(1.1);
+  }
+
+  .receipt-modal-body {
+    padding: 40px;
+  }
+
+  .receipt-container {
+    background: white;
+    color: #333;
+  }
+
+  .receipt-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #191C24;
+  }
+
+  .receipt-header h2 {
+    color: #191C24;
+    margin: 0 0 10px 0;
+    font-size: 32px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .receipt-header p {
+    color: #666;
+    margin: 5px 0;
+    font-size: 14px;
+  }
+
+  .receipt-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+
+  .receipt-info-item {
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #191C24;
+  }
+
+  .receipt-info-item strong {
+    display: block;
+    color: #666;
+    font-size: 11px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+    font-weight: 700;
+  }
+
+  .receipt-info-item span {
+    display: block;
+    color: #191C24;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .receipt-table {
+    width: 100%;
+    margin-bottom: 30px;
+    border-collapse: collapse;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .receipt-table th {
+    background: #191C24;
+    color: white;
+    padding: 14px;
+    text-align: left;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  .receipt-table td {
+    padding: 14px;
+    border-bottom: 1px solid #ddd;
+    color: #333;
+    font-size: 14px;
+  }
+
+  .receipt-table tr:last-child td {
+    border-bottom: 2px solid #191C24;
+  }
+
+  .receipt-table tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+
+  .receipt-total {
+    text-align: right;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 3px solid #191C24;
+  }
+
+  .receipt-total-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+    color: #333;
+    font-size: 16px;
+  }
+
+  .receipt-total-row strong {
+    width: 180px;
+    text-align: right;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .receipt-total-row span {
+    width: 180px;
+    text-align: right;
+    font-weight: 700;
+  }
+
+  .receipt-total-row.grand-total {
+    font-size: 24px;
+    color: #191C24;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 3px double #191C24;
+  }
+
+  .receipt-footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 2px dashed #999;
+    color: #666;
+  }
+
+  .receipt-footer p {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 10px 0;
+  }
+
+  .receipt-modal-footer {
+    padding: 24px 30px;
+    background-color: #f8f9fa;
+    border-radius: 0 0 12px 12px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .receipt-modal-footer button {
+    margin: 0;
+  }
+
+  /* Loading Spinner */
+  .loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .pagination-container {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .receipt-info {
+      grid-template-columns: 1fr;
+    }
+
+    .modal-content.small {
+      width: 95%;
+    }
+
+    .receipt-modal-content {
+      width: 95%;
+    }
+  }
+
+  /* Print Styles */
+  @media print {
+    @page {
+      margin: 0.5in;
+    }
+
+    body * {
+      visibility: hidden;
+    }
+
+    .receipt-modal-content,
+    .receipt-modal-content * {
+      visibility: visible;
+    }
+
+    .receipt-modal-content {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      background: white;
+      color: black;
+      margin: 0;
+      box-shadow: none;
+    }
+
+    .receipt-modal-header,
+    .receipt-modal-footer {
+      display: none !important;
+    }
+
+    .receipt-modal-body {
+      padding: 20px;
+      max-height: none;
+    }
+
+    .receipt-table th {
+      background: #333 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .receipt-info-item {
+      background: #f5f5f5 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+
+  /* Enhanced Stats Card */
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  .card-body h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-body .text-muted {
+    color: #999 !important;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .modal-overlay.show, .receipt-modal.show {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+
+  .modal-overlay .modal-content,
+  .modal-content,
+  .receipt-modal-content,
+  .receipt-container {
+    margin: 0 auto !important;
+    position: relative !important;
+    max-height: 90vh;
+    overflow: auto;
+  }
+
+  .modal-content.small {
+    margin: auto !important;
+  }
+
+  @media (max-height: 600px) {
+    .modal-overlay.show, .receipt-modal.show { align-items: flex-start !important; padding-top: 2rem; }
+  }
+</style>
+
 @endpush
 
 @section('content')
 <div class="container-fluid">
-
-  <!-- Page Header -->
-  <div class="card page-header-card">
-      <div class="card-body">
-          <div>
-              <h2 class="page-header-title">Product Payment</h2>
-              <p class="page-header-subtitle">Process product sales and manage payment transactions.</p>
-          </div>
-      </div>
-  </div>
   <!-- Stats Grid -->
   <div class="row">
     <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
@@ -269,7 +1045,6 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/common/toast-utils.js') }}?v={{ time() }}"></script>
 <script>
   let cartItems = [];
   let inventoryItems = @json($inventoryItems ?? []);
@@ -292,7 +1067,6 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch (e) {
       console.warn('Failed to save payment form state', e);
-      ToastUtils.showWarning('Unable to save form state');
     }
   }
 
@@ -318,9 +1092,6 @@
                 state.customer_name = '';
                 state.customer_id = '';
                 try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
-                ToastUtils.showWarning('Previous customer no longer exists');
-              } else {
-                ToastUtils.showInfo('Previous session restored');
               }
             })
             .catch(() => {});
@@ -334,16 +1105,11 @@
       }
     } catch (e) {
       console.warn('Failed to load payment form state', e);
-      ToastUtils.showError('Error loading previous session');
     }
   }
 
   function clearState() {
-    try { 
-      localStorage.removeItem(STORAGE_KEY); 
-    } catch (e) { 
-      ToastUtils.showWarning('Unable to clear saved state');
-    }
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { }
   }
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -390,26 +1156,24 @@
           const price = parseFloat(this.dataset.price);
 
           if (isNaN(stock) || stock <= 0) {
-            ToastUtils.showError('This item is out of stock and cannot be selected');
+            alert('This item is out of stock and cannot be selected.');
             return;
           }
 
           selectedSearchItem = { id: id, name: name, price: price, stock: stock };
           document.getElementById('searchItem').value = name;
           searchResults.style.display = 'none';
-          ToastUtils.showSuccess(`${name} selected`);
         });
       });
     } else {
       searchResults.innerHTML = '<div class="search-result-item">No items found</div>';
       searchResults.style.display = 'block';
-      ToastUtils.showInfo('No items match your search');
     }
   });
 
   function addItemToCart(item) {
     if (!item || typeof item.stock === 'undefined' || item.stock <= 0) {
-      ToastUtils.showError('Cannot add item — Insufficient stock');
+      alert('Cannot add item — Insufficient stock.');
       return;
     }
 
@@ -418,9 +1182,8 @@
     if (existingItem) {
       if (existingItem.qty < item.stock) {
         existingItem.qty++;
-        ToastUtils.showSuccess(`${item.name} quantity increased to ${existingItem.qty}`);
       } else {
-        ToastUtils.showWarning(`Cannot add more ${item.name}. Maximum stock: ${item.stock}`);
+        alert('Cannot add more. Insufficient stock!');
         return;
       }
     } else {
@@ -431,7 +1194,6 @@
         qty: 1,
         stock: item.stock
       });
-      ToastUtils.showSuccess(`${item.name} added to cart`);
     }
     
     renderCart();
@@ -467,32 +1229,19 @@
   
   function updateQty(index, newQty) {
     newQty = parseInt(newQty);
-    const item = cartItems[index];
-    
-    if (isNaN(newQty) || newQty <= 0) {
-      ToastUtils.showError('Quantity must be at least 1');
+    if (newQty > 0 && newQty <= cartItems[index].stock) {
+      cartItems[index].qty = newQty;
       renderCart();
-      return;
-    }
-    
-    if (newQty > item.stock) {
-      ToastUtils.showWarning(`Cannot exceed stock limit of ${item.stock} for ${item.name}`);
+      calculateTotals();
+    } else {
+      alert('Invalid quantity or insufficient stock!');
       renderCart();
-      return;
     }
-    
-    const oldQty = item.qty;
-    item.qty = newQty;
-    ToastUtils.showInfo(`${item.name} quantity updated from ${oldQty} to ${newQty}`);
-    renderCart();
-    calculateTotals();
     saveState();
   }
   
   function removeItem(index) {
-    const itemName = cartItems[index].name;
     cartItems.splice(index, 1);
-    ToastUtils.showInfo(`${itemName} removed from cart`);
     renderCart();
     calculateTotals();
     saveState();
@@ -505,10 +1254,6 @@
     const paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
     const returnAmount = paidAmount - total;
     document.getElementById('returnAmount').value = returnAmount >= 0 ? returnAmount.toFixed(2) : '0.00';
-    
-    if (paidAmount > 0 && paidAmount < total) {
-      ToastUtils.showWarning('Paid amount is less than total amount');
-    }
   }
   
   document.getElementById('paidAmount').addEventListener('input', calculateTotals);
@@ -516,35 +1261,29 @@
   
   // Clear form button
   document.getElementById('clearBtn').addEventListener('click', function() {
-    if (cartItems.length > 0 || document.getElementById('customerName').value || document.getElementById('paidAmount').value) {
-      cartItems = [];
-      renderCart();
-      document.getElementById('paymentForm').reset();
-      document.getElementById('totalAmount').value = '';
-      document.getElementById('returnAmount').value = '';
-      selectedSearchItem = null;
-      clearState();
-      ToastUtils.showSuccess('Form cleared successfully');
-    } else {
-      ToastUtils.showInfo('Form is already empty');
-    }
+    cartItems = [];
+    renderCart();
+    document.getElementById('paymentForm').reset();
+    document.getElementById('totalAmount').value = '';
+    document.getElementById('returnAmount').value = '';
+    selectedSearchItem = null;
+    clearState();
   });
 
   document.getElementById('addItemBtn').addEventListener('click', function() {
     if (!selectedSearchItem) {
       const name = document.getElementById('searchItem').value.trim();
       if (!name) {
-        ToastUtils.showWarning('Please select an item first from the search results');
-        document.getElementById('searchItem').focus();
+        alert('Please select an item first from the search results.');
         return;
       }
       const found = inventoryItems.find(i => i.product_name.toLowerCase() === name.toLowerCase());
       if (!found) {
-        ToastUtils.showError('Selected item not found. Please choose from the search results');
+        alert('Selected item not found. Please choose from the search results.');
         return;
       }
       if (found.stock_qty <= 0) {
-        ToastUtils.showError('This item is out of stock and cannot be added');
+        alert('This item is out of stock and cannot be added.');
         return;
       }
       selectedSearchItem = { id: found.id, name: found.product_name, price: parseFloat(found.unit_price), stock: found.stock_qty };
@@ -562,11 +1301,7 @@
   });
 
   document.getElementById('searchClearBtn').addEventListener('click', function() {
-    const searchInput = document.getElementById('searchItem');
-    if (searchInput.value) {
-      searchInput.value = '';
-      ToastUtils.showInfo('Search cleared');
-    }
+    document.getElementById('searchItem').value = '';
     document.getElementById('searchResults').style.display = 'none';
     selectedSearchItem = null;
   });
@@ -576,29 +1311,16 @@
     e.preventDefault();
 
     if (cartItems.length === 0) {
-      ToastUtils.showError('Please add at least one item to the cart');
-      return;
-    }
-
-    const customerName = document.getElementById('customerName').value.trim();
-    if (!customerName) {
-      ToastUtils.showError('Please enter customer name');
-      document.getElementById('customerName').focus();
+      alert('Please add at least one item to the cart!');
       return;
     }
 
     const total = parseFloat(document.getElementById('totalAmount').value) || 0;
     const paid = parseFloat(document.getElementById('paidAmount').value) || 0;
-    
-    if (paid <= 0) {
-      ToastUtils.showError('Please enter paid amount');
-      document.getElementById('paidAmount').focus();
-      return;
-    }
-    
     if (paid < total) {
-      ToastUtils.showError('Payment incomplete: Paid amount must be equal to or greater than the total amount');
-      document.getElementById('paidAmount').focus();
+      alert('Payment incomplete: Paid amount must be equal to or greater than the total amount.');
+      const paidEl = document.getElementById('paidAmount');
+      if (paidEl) paidEl.focus();
       return;
     }
 
@@ -613,6 +1335,7 @@
       </div>
     `).join('');
 
+    const customerName = document.getElementById('customerName')?.value || 'Walk-in Customer';
     const paymentMethod = document.getElementById('paymentMethod')?.value || 'Cash';
 
     const details = `
@@ -682,10 +1405,7 @@
 
       debounceTimer = setTimeout(() => {
         fetch(`{{ url('/members/search') }}?q=${encodeURIComponent(q)}`)
-          .then(r => {
-            if (!r.ok) throw new Error('Network error');
-            return r.json();
-          })
+          .then(r => r.json())
           .then(data => {
             if (!Array.isArray(data) || data.length === 0) {
               resultsEl.innerHTML = '<div class="search-result-item">No members found</div>';
@@ -705,14 +1425,12 @@
                 input.value = this.dataset.name;
                 if (customerIdEl) customerIdEl.value = this.dataset.id;
                 resultsEl.style.display = 'none';
-                ToastUtils.showSuccess(`Customer ${this.dataset.name} selected`);
               });
             });
           })
           .catch(err => {
             console.error('Member search error', err);
             resultsEl.style.display = 'none';
-            ToastUtils.showError('Error searching for customers');
           });
       }, 250);
     });
@@ -730,9 +1448,6 @@
           checkbox.checked = this.checked;
         });
         updateBulkDeleteButton();
-        if (this.checked) {
-          ToastUtils.showInfo(`${transactionCheckboxes.length} transactions selected`);
-        }
       });
     }
 
@@ -774,16 +1489,13 @@
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
         
         if (ids.length === 0) {
-          ToastUtils.showWarning('Please select at least one transaction to delete');
+          alert('Please select at least one transaction to delete.');
           return;
         }
 
         if (confirm(`Are you sure you want to delete ${ids.length} transaction(s)? This action cannot be undone.`)) {
           document.getElementById('bulkDeleteIds').value = JSON.stringify(ids);
-          ToastUtils.showInfo('Deleting transactions...');
           document.getElementById('bulkDeleteForm').submit();
-        } else {
-          ToastUtils.showInfo('Deletion cancelled');
         }
       });
     }
@@ -792,10 +1504,7 @@
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             if (confirm('Are you sure you want to delete this transaction? This action cannot be undone.')) {
-                ToastUtils.showInfo('Deleting transaction...');
                 this.submit();
-            } else {
-                ToastUtils.showInfo('Deletion cancelled');
             }
         });
     });
@@ -818,41 +1527,36 @@
     if (!form) return;
     const fd = new FormData(form);
 
-    isSubmitting = true;
-
     fetch(form.action, {
       method: 'POST',
       body: fd,
       headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
     })
-    .then(r => {
-      if (!r.ok) throw new Error('Network response was not ok');
-      return r.json();
-    })
+    .then(r => r.json())
     .then(data => {
       if (data.success) {
-        ToastUtils.showSuccess('Payment processed successfully!');
+        // Close confirmation modal
         closePaymentConfirmation();
         
+        // Show receipt modal immediately
         setTimeout(() => {
           loadReceiptModal(data.payment.id);
         }, 300);
         
+        // Clear form and state after showing receipt
         clearFormData();
         
       } else {
-        ToastUtils.showError(data.message || 'Failed to process payment');
+        alert(data.message || 'Failed to process payment');
         btn.disabled = false;
         btn.innerHTML = originalText;
-        isSubmitting = false;
       }
     })
     .catch(err => {
       console.error('Product payment error', err);
-      ToastUtils.showError('Failed to process payment. Please try again');
+      alert('Failed to process payment. Please try again.');
       btn.disabled = false;
       btn.innerHTML = originalText;
-      isSubmitting = false;
     });
   }
 
@@ -883,13 +1587,9 @@
     `;
     
     fetch(`/payments/${paymentId}/receipt-data`)
-      .then(response => {
-        if (!response.ok) throw new Error('Failed to fetch receipt');
-        return response.json();
-      })
+      .then(response => response.json())
       .then(data => {
         modalBody.innerHTML = generateReceiptHTML(data);
-        ToastUtils.showSuccess('Receipt loaded successfully');
       })
       .catch(error => {
         console.error('Error loading receipt:', error);
@@ -899,7 +1599,6 @@
             <p>Failed to load receipt. Please try again.</p>
           </div>
         `;
-        ToastUtils.showError('Failed to load receipt');
       });
   }
 
@@ -994,14 +1693,13 @@
     const modal = document.getElementById('receiptModal');
     modal.classList.remove('show');
     
+    // Reload page after closing receipt to refresh the transaction list
     setTimeout(() => {
-      ToastUtils.showInfo('Reloading page...');
       window.location.reload();
     }, 300);
   }
 
   function printReceipt() {
-    ToastUtils.showInfo('Opening print dialog...');
     window.print();
   }
 
@@ -1022,6 +1720,7 @@
   let currentProductRefundId = null;
   function openProductRefundModal(id, receiptNumber, amount, customerName) {
     currentProductRefundId = id;
+    // create modal if not exists
     if (!document.getElementById('productRefundModal')) {
       const html = `
       <div id="productRefundModal" class="modal-overlay">
@@ -1064,57 +1763,24 @@
   }
 
   function confirmProductRefund() {
-    if (!currentProductRefundId) {
-      ToastUtils.showError('No refund selected');
-      return;
-    }
-    
+    if (!currentProductRefundId) return;
     const reason = document.getElementById('productRefundReason').value || '';
     const url = `/payments/${currentProductRefundId}/refund`;
     const fd = new FormData();
     fd.append('reason', reason);
 
-    ToastUtils.showInfo('Processing refund...');
-
     fetch(url, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } })
-      .then(r => {
-        if (!r.ok) throw new Error('Refund failed');
-        return r.json();
-      })
+      .then(r => r.json())
       .then(data => {
         if (data.success) {
-          ToastUtils.showSuccess(data.message || 'Refund processed successfully');
+          alert(data.message || 'Refund processed');
           closeProductRefundModal();
-          setTimeout(() => window.location.reload(), 1000);
+          setTimeout(() => window.location.reload(), 500);
         } else {
-          ToastUtils.showError(data.message || 'Failed to process refund');
+          alert(data.message || 'Failed to process refund');
         }
       })
-      .catch(err => { 
-        console.error(err); 
-        ToastUtils.showError('Failed to process refund. Please try again');
-      });
+      .catch(err => { console.error(err); alert('Failed to process refund'); });
   }
-
-  // Display Laravel messages
-  @if(session('success'))
-    ToastUtils.showSuccess('{{ session('success') }}');
-  @endif
-
-  @if(session('error'))
-    ToastUtils.showError('{{ session('error') }}');
-  @endif
-
-  @if(session('warning'))
-    ToastUtils.showWarning('{{ session('warning') }}');
-  @endif
-
-  @if(session('info'))
-    ToastUtils.showInfo('{{ session('info') }}');
-  @endif
-
-  @if($errors->any())
-    ToastUtils.showError('{{ $errors->first() }}');
-  @endif
 </script>
 @endpush
