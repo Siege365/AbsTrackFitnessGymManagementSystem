@@ -19,28 +19,27 @@
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h4>Product Payments</h4>
-        <div class="d-flex align-items-center" style="gap: 0.5rem;">
-          <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" style="gap: 0.5rem;">
-            <input type="text" name="product_search" class="form-control form-control-sm" placeholder="Search..." value="{{ request('product_search') }}" style="width: 250px;">
-            <input type="hidden" name="membership_search" value="{{ request('membership_search') }}">
-            <input type="hidden" name="refund_search" value="{{ request('refund_search') }}">
-            
-            <div class="dropdown">
-              <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown">
+        <div class="d-flex align-items-center">
+          <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" id="searchForm">
+            <input type="text" 
+              name="product_search" 
+              class="form-control form-control-sm mr-2" 
+              placeholder="Search..." 
+              value="{{ request('product_search') }}" 
+              style="width: 450px;"
+              id="searchInput">
+            </form>
+            <div class="dropdown d-inline-block mr-2">
+              <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="filterDropdown" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                 <i class="mdi mdi-filter-variant"></i> Filter
               </button>
-              <div class="dropdown-menu dropdown-menu-right">
+              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="filterDropdown">
                 <h6 class="dropdown-header">Status</h6>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('product_filter'), ['product_search' => request('product_search'), 'product_filter' => 'all'])) }}">All</a>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('product_filter'), ['product_search' => request('product_search'), 'product_filter' => 'paid'])) }}">Paid Only</a>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('product_filter'), ['product_search' => request('product_search'), 'product_filter' => 'refunded'])) }}">Refunded Only</a>
+                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('product_filter'), ['product_search' => request('product_search'), 'product_filter' => 'all'])) }}"> <i class="mdi mdi-account-multiple mr-2"></i>All</a>
+                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('product_filter'), ['product_search' => request('product_search'), 'product_filter' => 'paid'])) }}"> <i class="mdi mdi-cash mr-2 text-success"></i>Paid Only</a>
+                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('product_filter'), ['product_search' => request('product_search'), 'product_filter' => 'refunded'])) }}"> <i class="mdi mdi-cash-refund mr-2 text-danger"></i>Refunded Only</a>
               </div>
             </div>
-            
-            <button class="btn btn-sm btn-primary" type="submit"><i class="mdi mdi-magnify"></i></button>
-            @if(request('product_search'))
-              <a href="{{ route('payments.history', array_merge(request()->except(['product_search', 'product_filter']))) }}" class="btn btn-sm btn-secondary"><i class="mdi mdi-close"></i></a>
-            @endif
           </form>
         </div>
       </div>
@@ -137,28 +136,27 @@
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h4>Membership Payments</h4>
-        <div class="d-flex align-items-center" style="gap: 0.5rem;">
-          <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" style="gap: 0.5rem;">
-            <input type="text" name="membership_search" class="form-control form-control-sm" placeholder="Search..." value="{{ request('membership_search') }}" style="width: 250px;">
-            <input type="hidden" name="product_search" value="{{ request('product_search') }}">
-            <input type="hidden" name="refund_search" value="{{ request('refund_search') }}">
-            
-            <div class="dropdown">
-              <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown">
+        <div class="d-flex align-items-center">
+          <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" id="searchForm">
+            <input type="text" 
+            name="membership_search" 
+            class="form-control form-control-sm mr-2" 
+            placeholder="Search..." 
+            value="{{ request('membership_search') }}"
+            style="width: 450px;"
+            id="searchInput">
+            </form>
+            <div class="dropdown d-inline-block mr-2">
+              <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="filterDropdown" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                 <i class="mdi mdi-filter-variant"></i> Filter
               </button>
               <div class="dropdown-menu dropdown-menu-right">
                 <h6 class="dropdown-header">Status</h6>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('membership_filter'), ['membership_search' => request('membership_search'), 'membership_filter' => 'all'])) }}">All</a>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('membership_filter'), ['membership_search' => request('membership_search'), 'membership_filter' => 'paid'])) }}">Paid Only</a>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('membership_filter'), ['membership_search' => request('membership_search'), 'membership_filter' => 'refunded'])) }}">Refunded Only</a>
+                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('membership_filter'), ['membership_search' => request('membership_search'), 'membership_filter' => 'all'])) }}"> <i class="mdi mdi-account-multiple mr-2"></i>All</a>
+                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('membership_filter'), ['membership_search' => request('membership_search'), 'membership_filter' => 'paid'])) }}"> <i class="mdi mdi-cash mr-2 text-success"></i>Paid Only</a>
+                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('membership_filter'), ['membership_search' => request('membership_search'), 'membership_filter' => 'refunded'])) }}"> <i class="mdi mdi-cash-refund mr-2 text-danger"></i>Refunded Only</a>
               </div>
             </div>
-            
-            <button class="btn btn-sm btn-primary" type="submit"><i class="mdi mdi-magnify"></i></button>
-            @if(request('membership_search'))
-              <a href="{{ route('payments.history', array_merge(request()->except(['membership_search', 'membership_filter']))) }}" class="btn btn-sm btn-secondary"><i class="mdi mdi-close"></i></a>
-            @endif
           </form>
         </div>
       </div>
@@ -255,28 +253,26 @@
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h4>Refunded Payments (Combined)</h4>
-        <div class="d-flex align-items-center" style="gap: 0.5rem;">
-          <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" style="gap: 0.5rem;">
-            <input type="text" name="refund_search" class="form-control form-control-sm" placeholder="Search..." value="{{ request('refund_search') }}" style="width: 250px;">
-            <input type="hidden" name="product_search" value="{{ request('product_search') }}">
-            <input type="hidden" name="membership_search" value="{{ request('membership_search') }}">
-            
-            <div class="dropdown">
-              <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown">
+        <div class="d-flex align-items-center">
+          <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" id="searchForm">
+            <input type="text" 
+            name="refund_search" 
+            class="form-control form-control-sm mr-2" 
+            placeholder="Search..." 
+            value="{{ request('refund_search') }}" 
+            style="width: 450px;"
+            id="searchInput">
+            <div class="dropdown d-inline-block mr-2">
+              <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="filterDropdown" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                 <i class="mdi mdi-filter-variant"></i> Filter
               </button>
-              <div class="dropdown-menu dropdown-menu-right">
+              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="filterDropdown">
                 <h6 class="dropdown-header">Type</h6>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('refund_filter'), ['refund_search' => request('refund_search'), 'refund_filter' => 'all'])) }}">All</a>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('refund_filter'), ['refund_search' => request('refund_search'), 'refund_filter' => 'product'])) }}">Products Only</a>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('refund_filter'), ['refund_search' => request('refund_search'), 'refund_filter' => 'membership'])) }}">Memberships Only</a>
+                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('refund_filter'), ['refund_search' => request('refund_search'), 'refund_filter' => 'all'])) }}"> <i class="mdi mdi-account-multiple mr-2"></i>All</a>
+                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('refund_filter'), ['refund_search' => request('refund_search'), 'refund_filter' => 'product'])) }}"> <i class="mdi mdi-basket mr-2"></i>Products Only</a>
+                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('refund_filter'), ['refund_search' => request('refund_search'), 'refund_filter' => 'membership'])) }}"> <i class="mdi mdi-account mr-2"></i>Memberships Only</a>
               </div>
             </div>
-            
-            <button class="btn btn-sm btn-primary" type="submit"><i class="mdi mdi-magnify"></i></button>
-            @if(request('refund_search'))
-              <a href="{{ route('payments.history', array_merge(request()->except(['refund_search', 'refund_filter']))) }}" class="btn btn-sm btn-secondary"><i class="mdi mdi-close"></i></a>
-            @endif
           </form>
         </div>
       </div>
@@ -363,7 +359,6 @@
       </div>
     </div>
   </div>
-
 </div>
 
 <!-- Refund Confirmation Modal -->
@@ -512,18 +507,18 @@ body {
 
 /* Form Controls - Adjusted colors */
 .form-control {
-  background-color: #282A36;  /* Changed */
-  border: 1px solid rgba(255, 255, 255, 0.1);  /* Changed */
-  color: #ffffff;  /* Changed */
-  padding: 0.625rem 1rem;
-  font-size: 1rem;
-  min-height: 38px;
+  background-color: #282A36;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  padding: 0.75rem 1.25rem;
+  font-size: 1.125rem;
+  min-height: 48px;
 }
 
 .form-control-sm {
-  padding: 0.5rem 0.875rem;
-  font-size: 0.875rem;
-  min-height: 38px;
+  padding: 0.625rem 1rem;
+  font-size: 1rem;
+  min-height: 48px;
 }
 
 .form-control::placeholder {

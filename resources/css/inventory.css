@@ -10,6 +10,27 @@ body {
   padding-right: 0 !important;
 }
 
+.dropdown-menu {
+    background: #191C24;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: fadeInDown 0.2s ease;
+  /* Keep dropdown above most page elements but below navbar */
+  z-index: 15000;
+    /* min-width: 10rem; */
+}
+
+.dropdown-menu-right {
+    right: 0;
+    left: auto;
+}
+
+.dropdown-item {
+    color: #ffffff;
+    font-size: 1rem;
+    padding: 0.625rem 1.25rem;
+    white-space: nowrap;
+}
+
 .page-body-wrapper {
   min-height: 100vh !important;
   padding-left: 0 !important;
@@ -239,4 +260,37 @@ body {
     font-weight: 500;
     font-size: 1.125rem;
     color: #000000;
+}
+
+/* Recent Activity Table */
+.activity-table-container {
+    scrollbar-width: thin;
+    scrollbar-color: #3a3f4b #191C24;
+}
+
+.activity-table-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.activity-table-container::-webkit-scrollbar-track {
+    background: #191C24;
+}
+
+.activity-table-container::-webkit-scrollbar-thumb {
+    background-color: #3a3f4b;
+    border-radius: 4px;
+}
+
+.activity-table-container::-webkit-scrollbar-thumb:hover {
+    background-color: #4a4f5b;
+}
+
+.activity-table-container .table thead th {
+    font-size: 0.9rem;
+    padding: 14px 12px;
+}
+
+.activity-table-container .table tbody td {
+    font-size: 0.95rem;
+    padding: 12px;
 }

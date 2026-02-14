@@ -23,6 +23,7 @@ Route::delete('/inventory/{id}', [InventorySupplyController::class, 'destroy'])-
 Route::prefix('inventory')->name('inventory.')->group(function () {
     Route::get('/', [InventorySupplyController::class, 'index'])->name('index');
     Route::post('/', [InventorySupplyController::class, 'store'])->name('store');
+    Route::get('/next-product-number', [InventorySupplyController::class, 'getNextProductNumber'])->name('next-product-number');
     Route::put('/{id}', [InventorySupplyController::class, 'update'])->name('update');
     Route::delete('/{id}', [InventorySupplyController::class, 'destroy'])->name('destroy');
     Route::delete('/', [InventorySupplyController::class, 'bulkDelete'])->name('bulk-delete');

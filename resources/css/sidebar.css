@@ -506,7 +506,8 @@ body.sidebar-icon-only .sidebar:hover .menu-items.active > .nav-link::before {
   top: 0;
   right: 0;
   left: 260px;
-  z-index: 99;
+  /* Ensure navbar stays above all dropdowns and overlays */
+  z-index: 20000;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }

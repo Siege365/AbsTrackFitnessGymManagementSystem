@@ -20,39 +20,6 @@
         </div>
     </div>
 
-    <!-- Success/Error Messages -->
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <strong>Success!</strong> {{ session('success') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <strong>Error!</strong> {{ session('error') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    @endif
-
-    @if($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <strong>Error!</strong>
-            <ul class="mb-0">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    @endif
-
     <div class="row">
       <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
         <div class="card">
@@ -125,12 +92,24 @@
             <div class="d-flex justify-content-between align-items-center mb-3" style="white-space: nowrap;">
               <h4 class="card-title mb-0">Inventory</h4>
               <div class="d-flex align-items-center">
+                <!-- Search Bar -->
+                <form action="{{ route('inventory.index') }}" method="GET" id="searchForm" class="d-inline" >
+                    <input type="hidden" name="filter" value="{{ request('filter') }}">
+                    <input type="text" 
+                          id="searchInput" 
+                          name="search" 
+                          class="form-control form-control-sm mr-2" 
+                          placeholder="Search products..." 
+                          value="{{ request('search') }}"
+                          style="width: 450px;"
+                          id="searchInput">
+                </form> 
                 <!-- Filter Dropdown -->
-                <div class="dropdown mr-2">
-                  <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <div class="dropdown d-inline-block mr-2">
+                  <button type="button" class="btn btn-sm filter-button dropdown-toggle" type="button" id="filterDropdown" data-toggle="dropdown" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                     <i class="mdi mdi-filter-variant"></i> Filter
                   </button>
-                  <div class="dropdown-menu" aria-labelledby="filterDropdown">
+                  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="filterDropdown">
                     <h6 class="dropdown-header">Sort By</h6>
                     <a class="dropdown-item filter-option {{ request('filter') == 'name_asc' ? 'active' : '' }}" 
                       href="{{ route('inventory.index', ['filter' => 'name_asc', 'search' => request('search')]) }}">
@@ -140,7 +119,6 @@
                       href="{{ route('inventory.index', ['filter' => 'name_desc', 'search' => request('search')]) }}">
                       <i class="mdi mdi-sort-alphabetical-descending"></i> Name (Z-A)
                     </a>
-                    <div class="dropdown-divider"></div>
                     <a class="dropdown-item filter-option {{ request('filter') == 'date_newest' ? 'active' : '' }}" 
                       href="{{ route('inventory.index', ['filter' => 'date_newest', 'search' => request('search')]) }}">
                       <i class="mdi mdi-calendar-clock"></i> Date Added (Newest)
@@ -149,7 +127,6 @@
                       href="{{ route('inventory.index', ['filter' => 'date_oldest', 'search' => request('search')]) }}">
                       <i class="mdi mdi-calendar"></i> Date Added (Oldest)
                     </a>
-                    <div class="dropdown-divider"></div>
                     <a class="dropdown-item filter-option {{ request('filter') == 'stock_asc' ? 'active' : '' }}" 
                       href="{{ route('inventory.index', ['filter' => 'stock_asc', 'search' => request('search')]) }}">
                       <i class="mdi mdi-sort-numeric-ascending"></i> Stock (Low to High)
@@ -158,29 +135,8 @@
                       href="{{ route('inventory.index', ['filter' => 'stock_desc', 'search' => request('search')]) }}">
                       <i class="mdi mdi-sort-numeric-descending"></i> Stock (High to Low)
                     </a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item filter-option text-danger" 
-                      href="{{ route('inventory.index') }}">
-                      <i class="mdi mdi-close-circle"></i> Clear Filter
-                    </a>
                   </div>
                 </div>
-                
-                <!-- Search Bar -->
-                <form action="{{ route('inventory.index') }}" method="GET" id="searchForm" class="d-inline">
-                    <input type="hidden" name="filter" value="{{ request('filter') }}">
-                    <input type="text" 
-                          id="searchInput" 
-                          name="search" 
-                          class="form-control form-control-sm mr-2" 
-                          placeholder="Search products..." 
-                          value="{{ request('search') }}">
-                </form>
-
-                <!-- Add Item Button -->
-                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addItemModal">
-                  <i class="mdi mdi-plus"></i> Add Item
-                </button>
               </div>
             </div>
             <div class="table-responsive" style="min-height: 600px;">
@@ -235,7 +191,7 @@
                     </td>
                     <td>
                         <div class="dropdown">
-                          <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown">
+                          <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                               <i class="mdi mdi-dots-vertical"></i>
                           </button>
                           <div class="dropdown-menu dropdown-menu-right">
@@ -390,91 +346,196 @@
       </div>
     </div>
 
-    <!-- Add Item Modal -->
-    <div class="modal fade" id="addItemModal" tabindex="-1" role="dialog" aria-labelledby="addItemModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
+    <!-- Recent Activity Section -->
+    <div class="row">
+      <div class="col-12 grid-margin">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="card-title mb-0">Recent Activity</h4>
+              <div class="dropdown">
+                <button class="btn btn-sm filter-button dropdown-toggle" type="button" id="activityFilterDropdown" data-toggle="dropdown" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+                  <i class="mdi mdi-filter-variant"></i> 
+                  @switch($activityFilter ?? 'newest')
+                    @case('oldest') Oldest First @break
+                    @case('stock_in') Stock In @break
+                    @case('stock_out') Stock Out @break
+                    @case('Food') Food @break
+                    @case('Drink') Drink @break
+                    @case('Supplement') Supplement @break
+                    @default Newest First
+                  @endswitch
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="activityFilterDropdown">
+                  <h6 class="dropdown-header">Sort By</h6>
+                  <a class="dropdown-item {{ ($activityFilter ?? 'newest') == 'newest' ? 'active' : '' }}" 
+                    href="{{ route('inventory.index', array_merge(request()->except('activity_filter'), ['activity_filter' => 'newest'])) }}">
+                    <i class="mdi mdi-sort-calendar-descending"></i> Newest First
+                  </a>
+                  <a class="dropdown-item {{ ($activityFilter ?? '') == 'oldest' ? 'active' : '' }}" 
+                    href="{{ route('inventory.index', array_merge(request()->except('activity_filter'), ['activity_filter' => 'oldest'])) }}">
+                    <i class="mdi mdi-sort-calendar-ascending"></i> Oldest First
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <h6 class="dropdown-header">Transaction Type</h6>
+                  <a class="dropdown-item {{ ($activityFilter ?? '') == 'stock_in' ? 'active' : '' }}" 
+                    href="{{ route('inventory.index', array_merge(request()->except('activity_filter'), ['activity_filter' => 'stock_in'])) }}">
+                    <i class="mdi mdi-plus-circle text-success"></i> Stock In
+                  </a>
+                  <a class="dropdown-item {{ ($activityFilter ?? '') == 'stock_out' ? 'active' : '' }}" 
+                    href="{{ route('inventory.index', array_merge(request()->except('activity_filter'), ['activity_filter' => 'stock_out'])) }}">
+                    <i class="mdi mdi-minus-circle text-warning"></i> Stock Out
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <h6 class="dropdown-header">Category</h6>
+                  <a class="dropdown-item {{ ($activityFilter ?? '') == 'Food' ? 'active' : '' }}" 
+                    href="{{ route('inventory.index', array_merge(request()->except('activity_filter'), ['activity_filter' => 'Food'])) }}">
+                    <i class="mdi mdi-food"></i> Food
+                  </a>
+                  <a class="dropdown-item {{ ($activityFilter ?? '') == 'Drink' ? 'active' : '' }}" 
+                    href="{{ route('inventory.index', array_merge(request()->except('activity_filter'), ['activity_filter' => 'Drink'])) }}">
+                    <i class="mdi mdi-cup"></i> Drink
+                  </a>
+                  <a class="dropdown-item {{ ($activityFilter ?? '') == 'Supplement' ? 'active' : '' }}" 
+                    href="{{ route('inventory.index', array_merge(request()->except('activity_filter'), ['activity_filter' => 'Supplement'])) }}">
+                    <i class="mdi mdi-pill"></i> Supplement
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive activity-table-container" style="max-height: 480px; overflow-y: auto;">
+              <table class="table table-hover">
+                <thead style="position: sticky; top: 0; background: #191C24; z-index: 1;">
+                  <tr>
+                    <th>Date & Time</th>
+                    <th>Product#</th>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Unit Price</th>
+                    <th>Status</th>
+                    <th>Quantity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                @forelse($recentActivity ?? [] as $activity)
+                    <tr>
+                      <td>{{ \Carbon\Carbon::parse($activity->created_at)->timezone('Asia/Manila')->format('M d, Y h:i A') }}</td>
+                      <td>{{ $activity->inventorySupply->product_number ?? 'N/A' }}</td>
+                      <td>{{ $activity->inventorySupply->product_name ?? 'N/A' }}</td>
+                      <td>{{ $activity->inventorySupply->category ?? 'N/A' }}</td>
+                      <td>₱{{ number_format($activity->inventorySupply->unit_price ?? 0, 2) }}</td>
+                      <td>
+                        @if($activity->transaction_type === 'stock_in')
+                          <span class="badge badge-success"><i class="mdi mdi-plus-circle"></i> Stock In</span>
+                        @else
+                          <span class="badge badge-warning"><i class="mdi mdi-minus-circle"></i> Stock Out</span>
+                        @endif
+                      </td>
+                      <td>
+                        @if($activity->transaction_type === 'stock_in')
+                          <span class="text-success font-weight-bold">+{{ $activity->quantity }}</span>
+                        @else
+                          <span class="text-warning font-weight-bold">-{{ $activity->quantity }}</span>
+                        @endif
+                      </td>
+                    </tr>
+                @empty
+                    <tr>
+                      <td colspan="7" class="text-center text-muted">No recent activity found</td>
+                    </tr>
+                @endforelse
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-md" role="document">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="addItemModalLabel">Add New Product</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="addProductModalLabel">
+              <i class="mdi mdi-plus-box"></i> Add New Product
+            </h5>
+            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <form id="addItemForm" action="{{ route('inventory.store') }}" method="POST">
+          <form id="addProductForm" action="{{ route('inventory.store') }}" method="POST">
             @csrf
             <div class="modal-body">
-              <!-- Show validation errors inside modal -->
-              @if($errors->any() && old('product_number'))
-              <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <strong>Please fix the following errors:</strong>
-                <ul class="mb-0 mt-2">
-                  @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                  @endforeach
-                </ul>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
+              <!-- Product Number (Auto-generated, Read-only) -->
+              <div class="form-group">
+                <label class="form-label">Product Number</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="mdi mdi-barcode"></i></span>
+                  </div>
+                  <input type="text" 
+                        class="form-control bg-light" 
+                        name="product_number" 
+                        id="autoProductNumber"
+                        value="{{ old('product_number') }}" 
+                        readonly
+                        style="cursor: not-allowed;">
+                </div>
+                <small class="text-muted">Auto-generated product number</small>
               </div>
-              @endif
 
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label class="form-label">Product Number <span class="text-danger">*</span></label>
-                    <input type="text" 
-                          class="form-control @error('product_number') is-invalid @enderror" 
-                          name="product_number" 
-                          placeholder="e.g., PRD-001" 
-                          value="{{ old('product_number') }}" 
-                          required>
-                    @error('product_number')
-                      <div class="invalid-feedback d-block">{{ $message }}</div>
-                    @enderror
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label class="form-label">Product Name <span class="text-danger">*</span></label>
-                    <input type="text" 
-                          class="form-control @error('product_name') is-invalid @enderror" 
-                          name="product_name" 
-                          placeholder="e.g., Protein Powder" 
-                          value="{{ old('product_name') }}" 
-                          required>
-                    @error('product_name')
-                      <div class="invalid-feedback d-block">{{ $message }}</div>
-                    @enderror
-                  </div>
-                </div>
+              <!-- Product Name -->
+              <div class="form-group">
+                <label class="form-label">Product Name <span class="text-danger">*</span></label>
+                <input type="text" 
+                      class="form-control @error('product_name') is-invalid @enderror" 
+                      name="product_name" 
+                      id="productNameInput"
+                      placeholder="Enter product name" 
+                      value="{{ old('product_name') }}" 
+                      required
+                      autofocus>
+                @error('product_name')
+                  <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
               </div>
 
               <div class="row">
                 <div class="col-md-6">
+                  <!-- Category Dropdown -->
                   <div class="form-group">
                     <label class="form-label">Category <span class="text-danger">*</span></label>
-                    <input type="text" 
-                          class="form-control @error('category') is-invalid @enderror" 
-                          name="category" 
-                          placeholder="e.g., Supplements" 
-                          value="{{ old('category') }}" 
-                          required>
+                    <select class="form-control @error('category') is-invalid @enderror" 
+                            name="category" 
+                            required>
+                      <option value="" disabled {{ old('category') ? '' : 'selected' }}>Select category</option>
+                      <option value="Food" {{ old('category') == 'Food' ? 'selected' : '' }}>Food</option>
+                      <option value="Drink" {{ old('category') == 'Drink' ? 'selected' : '' }}>Drink</option>
+                      <option value="Supplement" {{ old('category') == 'Supplement' ? 'selected' : '' }}>Supplement</option>
+                    </select>
                     @error('category')
                       <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
                   </div>
                 </div>
                 <div class="col-md-6">
+                  <!-- Unit Price -->
                   <div class="form-group">
                     <label class="form-label">Unit Price <span class="text-danger">*</span></label>
-                    <input type="number" 
-                    step="0.01" 
-                    min="0" 
-                    class="form-control @error('unit_price') is-invalid @enderror" 
-                    name="unit_price" 
-                    placeholder="₱0.00"
-                    value="{{ old('unit_price') }}" 
-                    required>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">₱</span>
+                      </div>
+                      <input type="number" 
+                            step="0.01" 
+                            min="0" 
+                            class="form-control @error('unit_price') is-invalid @enderror" 
+                            name="unit_price" 
+                            placeholder="0.00"
+                            value="{{ old('unit_price') }}" 
+                            required>
+                    </div>
                     @error('unit_price')
                       <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
@@ -484,6 +545,7 @@
 
               <div class="row">
                 <div class="col-md-6">
+                  <!-- Initial Stock Quantity -->
                   <div class="form-group">
                     <label class="form-label">Initial Stock Quantity <span class="text-danger">*</span></label>
                     <input type="number" 
@@ -499,26 +561,25 @@
                   </div>
                 </div>
                 <div class="col-md-6">
+                  <!-- Low Stock Threshold (Fixed at 10, Read-only) -->
                   <div class="form-group">
-                    <label class="form-label">Low Stock Threshold <span class="text-danger">*</span></label>
+                    <label class="form-label">Low Stock Threshold</label>
                     <input type="number" 
-                          min="0" 
-                          class="form-control @error('low_stock_threshold') is-invalid @enderror" 
-                          name="low_stock_threshold" 
-                          placeholder="10" 
-                          value="{{ old('low_stock_threshold') }}" 
-                          required>
-                    <small class="text-muted">Alert threshold for low stock</small>
-                    @error('low_stock_threshold')
-                      <div class="invalid-feedback d-block">{{ $message }}</div>
-                    @enderror
+                          class="form-control bg-light" 
+                          value="10" 
+                          readonly
+                          style="cursor: not-allowed;">
+                    <input type="hidden" name="low_stock_threshold" value="10">
+                    <small class="text-muted">Fixed at 10 units</small>
                   </div>
                 </div>
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-              <button type="submit" class="btn btn-primary">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                <i class="mdi mdi-close"></i> Cancel
+              </button>
+              <button type="submit" class="btn btn-primary" id="addProductSubmitBtn">
                 <i class="mdi mdi-check"></i> Add Product
               </button>
             </div>
@@ -903,11 +964,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Reset modals on close
-    $('#addItemModal').on('hidden.bs.modal', function () {
-        document.getElementById('addItemForm').reset();
+    $('#addProductModal').on('hidden.bs.modal', function () {
+        document.getElementById('addProductForm').reset();
+        document.getElementById('autoProductNumber').value = '';
         $('.is-invalid').removeClass('is-invalid');
         $('.invalid-feedback').remove();
         $('.alert').remove();
+    });
+
+    // Fetch next product number when modal opens
+    $('#addProductModal').on('show.bs.modal', function () {
+        fetch('{{ route("inventory.next-product-number") }}')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('autoProductNumber').value = data.product_number;
+            })
+            .catch(error => {
+                console.error('Error fetching product number:', error);
+                document.getElementById('autoProductNumber').value = 'PRD-0001';
+            });
     });
 
     $('#stockInModal').on('hidden.bs.modal', function () {
@@ -922,10 +997,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('confirmStockOut').disabled = false;
     });
 
-    // Show add item modal if there are validation errors
-    @if($errors->any() && old('product_number'))
+    // Show add product modal if there are validation errors
+    @if($errors->any() && old('product_name'))
         $(document).ready(function() {
-            $('#addItemModal').modal('show');
+            $('#addProductModal').modal('show');
         });
     @endif
 });
