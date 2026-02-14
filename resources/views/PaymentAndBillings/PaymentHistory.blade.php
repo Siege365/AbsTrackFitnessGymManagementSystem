@@ -4,7 +4,15 @@
 
 @section('content')
 <div class="container-fluid">
-  <h2>Payment History</h2>
+  <!-- Page Header -->
+  <div class="card page-header-card">
+      <div class="card-body">
+          <div>
+              <h2 class="page-header-title">Payment History</h2>
+              <p class="page-header-subtitle">View and manage all payment transactions.</p>
+          </div>
+      </div>
+  </div>
 
   <!-- Product Payments Table -->
   <div class="card mt-3">
@@ -451,6 +459,7 @@ body {
   border: none;
   margin-bottom: 2rem;
   border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .card-body {
@@ -895,6 +904,14 @@ input[type="checkbox"]:hover {
 .confirmation-detail-value {
   font-weight: 500;
   color: #333;
+}
+
+.page-header-card {
+    background: #191C24 !important;
+    border: 1px solid rgba(255, 167, 38, 0.2); */
+    border-radius: 14px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 167, 38, 0.08);
 }
 
 /* Receipt Styles */
