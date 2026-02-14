@@ -18,7 +18,6 @@
           </div>
       </div>
   </div>
-
   <!-- Stats Grid -->
   <div class="row">
     <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
@@ -270,6 +269,7 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('js/common/toast-utils.js') }}?v={{ time() }}"></script>
 <script>
   let cartItems = [];
   let inventoryItems = @json($inventoryItems ?? []);
@@ -292,6 +292,7 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch (e) {
       console.warn('Failed to save payment form state', e);
+      ToastUtils.showWarning('Unable to save form state');
     }
   }
 
@@ -317,6 +318,9 @@
                 state.customer_name = '';
                 state.customer_id = '';
                 try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+                ToastUtils.showWarning('Previous customer no longer exists');
+              } else {
+                ToastUtils.showInfo('Previous session restored');
               }
             })
             .catch(() => {});
@@ -330,11 +334,16 @@
       }
     } catch (e) {
       console.warn('Failed to load payment form state', e);
+      ToastUtils.showError('Error loading previous session');
     }
   }
 
   function clearState() {
-    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { }
+    try { 
+      localStorage.removeItem(STORAGE_KEY); 
+    } catch (e) { 
+      ToastUtils.showWarning('Unable to clear saved state');
+    }
   }
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -381,24 +390,26 @@
           const price = parseFloat(this.dataset.price);
 
           if (isNaN(stock) || stock <= 0) {
-            alert('This item is out of stock and cannot be selected.');
+            ToastUtils.showError('This item is out of stock and cannot be selected');
             return;
           }
 
           selectedSearchItem = { id: id, name: name, price: price, stock: stock };
           document.getElementById('searchItem').value = name;
           searchResults.style.display = 'none';
+          ToastUtils.showSuccess(`${name} selected`);
         });
       });
     } else {
       searchResults.innerHTML = '<div class="search-result-item">No items found</div>';
       searchResults.style.display = 'block';
+      ToastUtils.showInfo('No items match your search');
     }
   });
 
   function addItemToCart(item) {
     if (!item || typeof item.stock === 'undefined' || item.stock <= 0) {
-      alert('Cannot add item — Insufficient stock.');
+      ToastUtils.showError('Cannot add item — Insufficient stock');
       return;
     }
 
@@ -407,8 +418,9 @@
     if (existingItem) {
       if (existingItem.qty < item.stock) {
         existingItem.qty++;
+        ToastUtils.showSuccess(`${item.name} quantity increased to ${existingItem.qty}`);
       } else {
-        alert('Cannot add more. Insufficient stock!');
+        ToastUtils.showWarning(`Cannot add more ${item.name}. Maximum stock: ${item.stock}`);
         return;
       }
     } else {
@@ -419,6 +431,7 @@
         qty: 1,
         stock: item.stock
       });
+      ToastUtils.showSuccess(`${item.name} added to cart`);
     }
     
     renderCart();
@@ -454,19 +467,32 @@
   
   function updateQty(index, newQty) {
     newQty = parseInt(newQty);
-    if (newQty > 0 && newQty <= cartItems[index].stock) {
-      cartItems[index].qty = newQty;
+    const item = cartItems[index];
+    
+    if (isNaN(newQty) || newQty <= 0) {
+      ToastUtils.showError('Quantity must be at least 1');
       renderCart();
-      calculateTotals();
-    } else {
-      alert('Invalid quantity or insufficient stock!');
-      renderCart();
+      return;
     }
+    
+    if (newQty > item.stock) {
+      ToastUtils.showWarning(`Cannot exceed stock limit of ${item.stock} for ${item.name}`);
+      renderCart();
+      return;
+    }
+    
+    const oldQty = item.qty;
+    item.qty = newQty;
+    ToastUtils.showInfo(`${item.name} quantity updated from ${oldQty} to ${newQty}`);
+    renderCart();
+    calculateTotals();
     saveState();
   }
   
   function removeItem(index) {
+    const itemName = cartItems[index].name;
     cartItems.splice(index, 1);
+    ToastUtils.showInfo(`${itemName} removed from cart`);
     renderCart();
     calculateTotals();
     saveState();
@@ -479,6 +505,10 @@
     const paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
     const returnAmount = paidAmount - total;
     document.getElementById('returnAmount').value = returnAmount >= 0 ? returnAmount.toFixed(2) : '0.00';
+    
+    if (paidAmount > 0 && paidAmount < total) {
+      ToastUtils.showWarning('Paid amount is less than total amount');
+    }
   }
   
   document.getElementById('paidAmount').addEventListener('input', calculateTotals);
@@ -486,29 +516,35 @@
   
   // Clear form button
   document.getElementById('clearBtn').addEventListener('click', function() {
-    cartItems = [];
-    renderCart();
-    document.getElementById('paymentForm').reset();
-    document.getElementById('totalAmount').value = '';
-    document.getElementById('returnAmount').value = '';
-    selectedSearchItem = null;
-    clearState();
+    if (cartItems.length > 0 || document.getElementById('customerName').value || document.getElementById('paidAmount').value) {
+      cartItems = [];
+      renderCart();
+      document.getElementById('paymentForm').reset();
+      document.getElementById('totalAmount').value = '';
+      document.getElementById('returnAmount').value = '';
+      selectedSearchItem = null;
+      clearState();
+      ToastUtils.showSuccess('Form cleared successfully');
+    } else {
+      ToastUtils.showInfo('Form is already empty');
+    }
   });
 
   document.getElementById('addItemBtn').addEventListener('click', function() {
     if (!selectedSearchItem) {
       const name = document.getElementById('searchItem').value.trim();
       if (!name) {
-        alert('Please select an item first from the search results.');
+        ToastUtils.showWarning('Please select an item first from the search results');
+        document.getElementById('searchItem').focus();
         return;
       }
       const found = inventoryItems.find(i => i.product_name.toLowerCase() === name.toLowerCase());
       if (!found) {
-        alert('Selected item not found. Please choose from the search results.');
+        ToastUtils.showError('Selected item not found. Please choose from the search results');
         return;
       }
       if (found.stock_qty <= 0) {
-        alert('This item is out of stock and cannot be added.');
+        ToastUtils.showError('This item is out of stock and cannot be added');
         return;
       }
       selectedSearchItem = { id: found.id, name: found.product_name, price: parseFloat(found.unit_price), stock: found.stock_qty };
@@ -526,7 +562,11 @@
   });
 
   document.getElementById('searchClearBtn').addEventListener('click', function() {
-    document.getElementById('searchItem').value = '';
+    const searchInput = document.getElementById('searchItem');
+    if (searchInput.value) {
+      searchInput.value = '';
+      ToastUtils.showInfo('Search cleared');
+    }
     document.getElementById('searchResults').style.display = 'none';
     selectedSearchItem = null;
   });
@@ -536,16 +576,29 @@
     e.preventDefault();
 
     if (cartItems.length === 0) {
-      alert('Please add at least one item to the cart!');
+      ToastUtils.showError('Please add at least one item to the cart');
+      return;
+    }
+
+    const customerName = document.getElementById('customerName').value.trim();
+    if (!customerName) {
+      ToastUtils.showError('Please enter customer name');
+      document.getElementById('customerName').focus();
       return;
     }
 
     const total = parseFloat(document.getElementById('totalAmount').value) || 0;
     const paid = parseFloat(document.getElementById('paidAmount').value) || 0;
+    
+    if (paid <= 0) {
+      ToastUtils.showError('Please enter paid amount');
+      document.getElementById('paidAmount').focus();
+      return;
+    }
+    
     if (paid < total) {
-      alert('Payment incomplete: Paid amount must be equal to or greater than the total amount.');
-      const paidEl = document.getElementById('paidAmount');
-      if (paidEl) paidEl.focus();
+      ToastUtils.showError('Payment incomplete: Paid amount must be equal to or greater than the total amount');
+      document.getElementById('paidAmount').focus();
       return;
     }
 
@@ -560,7 +613,6 @@
       </div>
     `).join('');
 
-    const customerName = document.getElementById('customerName')?.value || 'Walk-in Customer';
     const paymentMethod = document.getElementById('paymentMethod')?.value || 'Cash';
 
     const details = `
@@ -630,7 +682,10 @@
 
       debounceTimer = setTimeout(() => {
         fetch(`{{ url('/members/search') }}?q=${encodeURIComponent(q)}`)
-          .then(r => r.json())
+          .then(r => {
+            if (!r.ok) throw new Error('Network error');
+            return r.json();
+          })
           .then(data => {
             if (!Array.isArray(data) || data.length === 0) {
               resultsEl.innerHTML = '<div class="search-result-item">No members found</div>';
@@ -650,12 +705,14 @@
                 input.value = this.dataset.name;
                 if (customerIdEl) customerIdEl.value = this.dataset.id;
                 resultsEl.style.display = 'none';
+                ToastUtils.showSuccess(`Customer ${this.dataset.name} selected`);
               });
             });
           })
           .catch(err => {
             console.error('Member search error', err);
             resultsEl.style.display = 'none';
+            ToastUtils.showError('Error searching for customers');
           });
       }, 250);
     });
@@ -673,6 +730,9 @@
           checkbox.checked = this.checked;
         });
         updateBulkDeleteButton();
+        if (this.checked) {
+          ToastUtils.showInfo(`${transactionCheckboxes.length} transactions selected`);
+        }
       });
     }
 
@@ -714,13 +774,16 @@
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
         
         if (ids.length === 0) {
-          alert('Please select at least one transaction to delete.');
+          ToastUtils.showWarning('Please select at least one transaction to delete');
           return;
         }
 
         if (confirm(`Are you sure you want to delete ${ids.length} transaction(s)? This action cannot be undone.`)) {
           document.getElementById('bulkDeleteIds').value = JSON.stringify(ids);
+          ToastUtils.showInfo('Deleting transactions...');
           document.getElementById('bulkDeleteForm').submit();
+        } else {
+          ToastUtils.showInfo('Deletion cancelled');
         }
       });
     }
@@ -729,7 +792,10 @@
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             if (confirm('Are you sure you want to delete this transaction? This action cannot be undone.')) {
+                ToastUtils.showInfo('Deleting transaction...');
                 this.submit();
+            } else {
+                ToastUtils.showInfo('Deletion cancelled');
             }
         });
     });
@@ -752,36 +818,41 @@
     if (!form) return;
     const fd = new FormData(form);
 
+    isSubmitting = true;
+
     fetch(form.action, {
       method: 'POST',
       body: fd,
       headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
     })
-    .then(r => r.json())
+    .then(r => {
+      if (!r.ok) throw new Error('Network response was not ok');
+      return r.json();
+    })
     .then(data => {
       if (data.success) {
-        // Close confirmation modal
+        ToastUtils.showSuccess('Payment processed successfully!');
         closePaymentConfirmation();
         
-        // Show receipt modal immediately
         setTimeout(() => {
           loadReceiptModal(data.payment.id);
         }, 300);
         
-        // Clear form and state after showing receipt
         clearFormData();
         
       } else {
-        alert(data.message || 'Failed to process payment');
+        ToastUtils.showError(data.message || 'Failed to process payment');
         btn.disabled = false;
         btn.innerHTML = originalText;
+        isSubmitting = false;
       }
     })
     .catch(err => {
       console.error('Product payment error', err);
-      alert('Failed to process payment. Please try again.');
+      ToastUtils.showError('Failed to process payment. Please try again');
       btn.disabled = false;
       btn.innerHTML = originalText;
+      isSubmitting = false;
     });
   }
 
@@ -812,9 +883,13 @@
     `;
     
     fetch(`/payments/${paymentId}/receipt-data`)
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) throw new Error('Failed to fetch receipt');
+        return response.json();
+      })
       .then(data => {
         modalBody.innerHTML = generateReceiptHTML(data);
+        ToastUtils.showSuccess('Receipt loaded successfully');
       })
       .catch(error => {
         console.error('Error loading receipt:', error);
@@ -824,6 +899,7 @@
             <p>Failed to load receipt. Please try again.</p>
           </div>
         `;
+        ToastUtils.showError('Failed to load receipt');
       });
   }
 
@@ -918,13 +994,14 @@
     const modal = document.getElementById('receiptModal');
     modal.classList.remove('show');
     
-    // Reload page after closing receipt to refresh the transaction list
     setTimeout(() => {
+      ToastUtils.showInfo('Reloading page...');
       window.location.reload();
     }, 300);
   }
 
   function printReceipt() {
+    ToastUtils.showInfo('Opening print dialog...');
     window.print();
   }
 
@@ -945,7 +1022,6 @@
   let currentProductRefundId = null;
   function openProductRefundModal(id, receiptNumber, amount, customerName) {
     currentProductRefundId = id;
-    // create modal if not exists
     if (!document.getElementById('productRefundModal')) {
       const html = `
       <div id="productRefundModal" class="modal-overlay">
@@ -988,24 +1064,57 @@
   }
 
   function confirmProductRefund() {
-    if (!currentProductRefundId) return;
+    if (!currentProductRefundId) {
+      ToastUtils.showError('No refund selected');
+      return;
+    }
+    
     const reason = document.getElementById('productRefundReason').value || '';
     const url = `/payments/${currentProductRefundId}/refund`;
     const fd = new FormData();
     fd.append('reason', reason);
 
+    ToastUtils.showInfo('Processing refund...');
+
     fetch(url, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } })
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) throw new Error('Refund failed');
+        return r.json();
+      })
       .then(data => {
         if (data.success) {
-          alert(data.message || 'Refund processed');
+          ToastUtils.showSuccess(data.message || 'Refund processed successfully');
           closeProductRefundModal();
-          setTimeout(() => window.location.reload(), 500);
+          setTimeout(() => window.location.reload(), 1000);
         } else {
-          alert(data.message || 'Failed to process refund');
+          ToastUtils.showError(data.message || 'Failed to process refund');
         }
       })
-      .catch(err => { console.error(err); alert('Failed to process refund'); });
+      .catch(err => { 
+        console.error(err); 
+        ToastUtils.showError('Failed to process refund. Please try again');
+      });
   }
+
+  // Display Laravel messages
+  @if(session('success'))
+    ToastUtils.showSuccess('{{ session('success') }}');
+  @endif
+
+  @if(session('error'))
+    ToastUtils.showError('{{ session('error') }}');
+  @endif
+
+  @if(session('warning'))
+    ToastUtils.showWarning('{{ session('warning') }}');
+  @endif
+
+  @if(session('info'))
+    ToastUtils.showInfo('{{ session('info') }}');
+  @endif
+
+  @if($errors->any())
+    ToastUtils.showError('{{ $errors->first() }}');
+  @endif
 </script>
 @endpush

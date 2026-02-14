@@ -324,6 +324,7 @@
 <script src="{{ asset('js/common/avatar-utils.js') }}?v={{ time() }}"></script>
 <script src="{{ asset('js/common/form-utils.js') }}?v={{ time() }}"></script>
 <script src="{{ asset('js/common/bulk-selection.js') }}?v={{ time() }}"></script>
+<script src="{{ asset('js/common/toast-utils.js') }}?v={{ time() }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   let selectedMemberStatus = '';
@@ -344,11 +345,12 @@ document.addEventListener('DOMContentLoaded', function() {
       const type = this.dataset.type;
       
       if (type === 'extension' && !memberId.value) {
+        ToastUtils.showWarning('Please select a member first to use Extension');
         return;
       }
 
       if (type === 'renewal' && selectedMemberStatus === 'Active' && selectedMemberDueDate && new Date(selectedMemberDueDate) > new Date()) {
-        ToastUtils.showWarning('Member is active. Please use Extension instead.');
+        ToastUtils.showWarning('Member is active. Please use Extension instead');
         return;
       }
 
@@ -363,12 +365,16 @@ document.addEventListener('DOMContentLoaded', function() {
         memberId.removeAttribute('required');
         document.getElementById('newMemberName').setAttribute('required', 'required');
         document.getElementById('newMemberContact').setAttribute('required', 'required');
+        ToastUtils.showInfo('Switched to New Membership mode');
       } else {
         memberSelectionSection.style.display = 'block';
         newMemberSection.style.display = 'none';
         memberSearch.setAttribute('required', 'required');
         document.getElementById('newMemberName').removeAttribute('required');
         document.getElementById('newMemberContact').removeAttribute('required');
+        
+        const typeLabel = type === 'renewal' ? 'Renewal' : 'Extension';
+        ToastUtils.showInfo(`Switched to ${typeLabel} mode`);
       }
 
       document.getElementById('currentDueDate').value = '';
@@ -396,6 +402,7 @@ document.addEventListener('DOMContentLoaded', function() {
       amountInput.value = parseFloat(price).toFixed(2);
       additionalDaysInput.value = duration;
       
+      ToastUtils.showSuccess(`${planType} plan selected - ₱${parseFloat(price).toFixed(2)}`);
       calculateNewDueDate();
     });
   });
@@ -421,11 +428,15 @@ document.addEventListener('DOMContentLoaded', function() {
           'Accept': 'application/json'
         }
       })
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) throw new Error('Search failed');
+          return response.json();
+        })
         .then(data => {
           if (data.length === 0) {
             resultsContainer.innerHTML = '<div class="autocomplete-item">No members found</div>';
             resultsContainer.style.display = 'block';
+            ToastUtils.showInfo('No members found matching your search');
             return;
           }
 
@@ -442,7 +453,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
           resultsContainer.querySelectorAll('.autocomplete-item').forEach(item => {
             item.addEventListener('click', function() {
-              memberSearch.value = this.dataset.name;
+              const memberName = this.dataset.name;
+              memberSearch.value = memberName;
               memberId.value = this.dataset.id;
               selectedMemberStatus = this.dataset.status;
               selectedMemberDueDate = this.dataset.dueDate;
@@ -462,19 +474,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 paymentTypePills.forEach(p => p.classList.remove('active'));
                 extensionPill.classList.add('active');
                 paymentTypeInput.value = 'extension';
+                ToastUtils.showInfo(`${memberName} is active - switched to Extension mode`);
               } else {
                 renewalPill.style.opacity = '1';
                 renewalPill.style.pointerEvents = 'auto';
               }
               
               resultsContainer.style.display = 'none';
+              ToastUtils.showSuccess(`Member ${memberName} selected`);
               calculateNewDueDate();
             });
           });
         })
         .catch(error => {
           console.error('Error fetching members:', error);
-          ToastUtils.showError('Error searching for members');
+          resultsContainer.style.display = 'none';
+          ToastUtils.showError('Error searching for members. Please try again');
         });
     }, 300);
   });
@@ -485,6 +500,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
+  // Contact Number Validation
   document.getElementById('newMemberContact').addEventListener('input', function(e) {
     let value = e.target.value.replace(/[^0-9+]/g, '');
     
@@ -499,6 +515,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     e.target.value = value;
+  });
+
+  document.getElementById('newMemberContact').addEventListener('blur', function(e) {
+    const value = e.target.value;
+    
+    if (value && !value.match(/^(09\d{9}|\+639\d{9})$/)) {
+      ToastUtils.showError('Invalid contact number. Use 09XXXXXXXXX or +639XXXXXXXXX format');
+    }
   });
 
   function calculateNewDueDate() {
@@ -527,6 +551,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (currentDueDateText && currentDueDateText !== 'No due date') {
         startDate = new Date(currentDueDateText);
       } else {
+        ToastUtils.showWarning('Cannot calculate extension - no current due date');
         return;
       }
     }
@@ -534,11 +559,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const newDueDate = new Date(startDate);
     newDueDate.setDate(newDueDate.getDate() + duration);
 
-    document.getElementById('newDueDate').value = newDueDate.toLocaleDateString('en-US', { 
+    const formattedDate = newDueDate.toLocaleDateString('en-US', { 
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 
     });
+    
+    document.getElementById('newDueDate').value = formattedDate;
   }
 
   // Form Submission with Confirmation
@@ -546,10 +573,19 @@ document.addEventListener('DOMContentLoaded', function() {
   paymentForm.addEventListener('submit', function(e) {
     e.preventDefault();
 
+    // Validate contact for new members
     if (paymentTypeInput.value === 'new') {
       const contact = document.getElementById('newMemberContact').value;
       if (contact && !contact.match(/^(09\d{9}|\+639\d{9})$/)) {
         ToastUtils.showError('Invalid contact number. Use 09XXXXXXXXX or +639XXXXXXXXX format');
+        document.getElementById('newMemberContact').focus();
+        return;
+      }
+      
+      const newName = document.getElementById('newMemberName').value.trim();
+      if (!newName) {
+        ToastUtils.showError('Please enter the new member\'s name');
+        document.getElementById('newMemberName').focus();
         return;
       }
     }
@@ -557,16 +593,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Ensure member selected for non-new payments
     if (paymentTypeInput.value !== 'new') {
       if (!memberId.value) {
-        ToastUtils.showError('Please select a member before processing payment.');
+        ToastUtils.showError('Please select a member before processing payment');
+        memberSearch.focus();
         return;
       }
-    } else {
-      // For new members ensure name provided
-      const newName = document.getElementById('newMemberName').value.trim();
-      if (!newName) {
-        ToastUtils.showError('Please enter the new member\'s name.');
-        return;
-      }
+    }
+
+    // Validate new due date
+    const newDueDate = document.getElementById('newDueDate').value;
+    if (!newDueDate || newDueDate === 'Will be calculated') {
+      ToastUtils.showError('Due date calculation failed. Please select a plan');
+      return;
     }
 
     // Show confirmation modal
@@ -582,6 +619,7 @@ document.addEventListener('DOMContentLoaded', function() {
       ? document.getElementById('newMemberName').value 
       : memberSearch.value;
     const newDueDate = document.getElementById('newDueDate').value;
+    const currentDueDate = document.getElementById('currentDueDate').value;
 
     const details = `
       <div class="confirmation-detail-row">
@@ -604,6 +642,12 @@ document.addEventListener('DOMContentLoaded', function() {
         <span class="confirmation-detail-label">Payment Method:</span>
         <span class="confirmation-detail-value">${paymentMethod}</span>
       </div>
+      ${paymentType !== 'new' ? `
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Current Due Date:</span>
+        <span class="confirmation-detail-value">${currentDueDate}</span>
+      </div>
+      ` : ''}
       <div class="confirmation-detail-row">
         <span class="confirmation-detail-label">New Due Date:</span>
         <span class="confirmation-detail-value" style="color: #28a745;">${newDueDate}</span>
@@ -626,6 +670,8 @@ document.addEventListener('DOMContentLoaded', function() {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
 
+    ToastUtils.showInfo('Processing payment...');
+
     const formData = new FormData(paymentForm);
 
     fetch(paymentForm.action, {
@@ -636,24 +682,26 @@ document.addEventListener('DOMContentLoaded', function() {
         'Accept': 'application/json'
       }
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error('Payment processing failed');
+      return response.json();
+    })
     .then(data => {
       if (data.success) {
         ToastUtils.showSuccess(data.message || 'Payment processed successfully!');
-        // Show receipt modal immediately and reload only after user closes it
         window._reloadAfterReceipt = true;
         setTimeout(() => {
           viewReceipt(data.payment.id);
         }, 500);
       } else {
-        ToastUtils.showError(data.message || 'An error occurred');
+        ToastUtils.showError(data.message || 'An error occurred while processing payment');
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalText;
       }
     })
     .catch(error => {
       console.error('Error:', error);
-      ToastUtils.showError('Failed to process payment. Please try again.');
+      ToastUtils.showError('Failed to process payment. Please try again');
       submitBtn.disabled = false;
       submitBtn.innerHTML = originalText;
     });
@@ -689,7 +737,10 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   window.confirmRefund = function() {
-    if (!currentRefundId) return;
+    if (!currentRefundId) {
+      ToastUtils.showError('No refund transaction selected');
+      return;
+    }
 
     const reason = document.getElementById('refundReason').value;
     const refundForm = document.getElementById('refundForm');
@@ -709,7 +760,10 @@ document.addEventListener('DOMContentLoaded', function() {
         'Accept': 'application/json'
       }
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error('Refund failed');
+      return response.json();
+    })
     .then(data => {
       if (data.success) {
         ToastUtils.showSuccess(data.message || 'Refund processed successfully!');
@@ -722,29 +776,45 @@ document.addEventListener('DOMContentLoaded', function() {
     })
     .catch(error => {
       console.error('Error:', error);
-      ToastUtils.showError('Failed to process refund. Please try again.');
+      ToastUtils.showError('Failed to process refund. Please try again');
     });
   };
 
   // Clear Form
   document.getElementById('clearFormBtn').addEventListener('click', function() {
-    paymentForm.reset();
-    memberId.value = '';
-    selectedMemberStatus = '';
-    selectedMemberDueDate = '';
-    document.getElementById('currentDueDate').value = '';
-    document.getElementById('newDueDate').value = '';
+    const hasData = memberSearch.value || memberId.value || 
+                    document.getElementById('newMemberName').value ||
+                    document.getElementById('newMemberContact').value;
     
-    planTypeCards.forEach(c => c.classList.remove('active'));
-    planTypeCards[0].classList.add('active');
-    planTypeInput.value = 'Monthly';
-    amountInput.value = '500.00';
-    additionalDaysInput.value = '30';
+    if (hasData || paymentTypeInput.value !== 'renewal') {
+      paymentForm.reset();
+      memberId.value = '';
+      selectedMemberStatus = '';
+      selectedMemberDueDate = '';
+      document.getElementById('currentDueDate').value = '';
+      document.getElementById('newDueDate').value = '';
+      
+      planTypeCards.forEach(c => c.classList.remove('active'));
+      planTypeCards[0].classList.add('active');
+      planTypeInput.value = 'Monthly';
+      amountInput.value = '500.00';
+      additionalDaysInput.value = '30';
 
-    extensionPill.style.opacity = '0.5';
-    extensionPill.style.pointerEvents = 'none';
-    document.querySelector('[data-type="renewal"]').style.opacity = '1';
-    document.querySelector('[data-type="renewal"]').style.pointerEvents = 'auto';
+      extensionPill.style.opacity = '0.5';
+      extensionPill.style.pointerEvents = 'none';
+      document.querySelector('[data-type="renewal"]').style.opacity = '1';
+      document.querySelector('[data-type="renewal"]').style.pointerEvents = 'auto';
+      
+      paymentTypePills.forEach(p => p.classList.remove('active'));
+      document.querySelector('[data-type="renewal"]').classList.add('active');
+      paymentTypeInput.value = 'renewal';
+      memberSelectionSection.style.display = 'block';
+      newMemberSection.style.display = 'none';
+      
+      ToastUtils.showSuccess('Form cleared successfully');
+    } else {
+      ToastUtils.showInfo('Form is already empty');
+    }
   });
 
   // Checkbox Selection
@@ -753,48 +823,70 @@ document.addEventListener('DOMContentLoaded', function() {
   const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
   const selectedCountSpan = document.getElementById('selectedCount');
 
-  selectAllCheckbox.addEventListener('change', function() {
-    transactionCheckboxes.forEach(cb => {
-      cb.checked = this.checked;
+  if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', function() {
+      transactionCheckboxes.forEach(cb => {
+        cb.checked = this.checked;
+      });
+      updateBulkDeleteButton();
+      
+      if (this.checked) {
+        ToastUtils.showInfo(`${transactionCheckboxes.length} transactions selected`);
+      } else {
+        ToastUtils.showInfo('All transactions deselected');
+      }
     });
-    updateBulkDeleteButton();
-  });
+  }
 
   transactionCheckboxes.forEach(cb => {
     cb.addEventListener('change', function() {
       updateBulkDeleteButton();
       const allChecked = Array.from(transactionCheckboxes).every(checkbox => checkbox.checked);
-      selectAllCheckbox.checked = allChecked;
+      if (selectAllCheckbox) {
+        selectAllCheckbox.checked = allChecked;
+      }
     });
   });
 
   function updateBulkDeleteButton() {
     const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
     const count = checkedBoxes.length;
-    selectedCountSpan.textContent = count;
-    bulkDeleteBtn.disabled = count === 0;
+    if (selectedCountSpan) {
+      selectedCountSpan.textContent = count;
+    }
+    if (bulkDeleteBtn) {
+      bulkDeleteBtn.disabled = count === 0;
+    }
   }
 
-  bulkDeleteBtn.addEventListener('click', function() {
-    const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
-    const ids = Array.from(checkedBoxes).map(cb => cb.value);
+  if (bulkDeleteBtn) {
+    bulkDeleteBtn.addEventListener('click', function() {
+      const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
+      const ids = Array.from(checkedBoxes).map(cb => cb.value);
 
-    if (ids.length === 0) {
-      ToastUtils.showWarning('Please select at least one transaction to delete');
-      return;
-    }
+      if (ids.length === 0) {
+        ToastUtils.showWarning('Please select at least one transaction to delete');
+        return;
+      }
 
-    if (confirm(`Are you sure you want to delete ${ids.length} transaction(s)? This action cannot be undone.`)) {
-      document.getElementById('bulkDeleteIds').value = JSON.stringify(ids);
-      document.getElementById('bulkDeleteForm').submit();
-    }
-  });
+      if (confirm(`Are you sure you want to delete ${ids.length} transaction(s)? This action cannot be undone.`)) {
+        document.getElementById('bulkDeleteIds').value = JSON.stringify(ids);
+        ToastUtils.showInfo('Deleting transactions...');
+        document.getElementById('bulkDeleteForm').submit();
+      } else {
+        ToastUtils.showInfo('Deletion cancelled');
+      }
+    });
+  }
 
   document.querySelectorAll('.delete-form').forEach(form => {
     form.addEventListener('submit', function(e) {
       e.preventDefault();
       if (confirm('Are you sure you want to delete this transaction? This action cannot be undone.')) {
+        ToastUtils.showInfo('Deleting transaction...');
         this.submit();
+      } else {
+        ToastUtils.showInfo('Deletion cancelled');
       }
     });
   });
@@ -803,16 +895,18 @@ document.addEventListener('DOMContentLoaded', function() {
   const filterBtn = document.getElementById('filterBtn');
   const filterMenu = document.getElementById('filterMenu');
 
-  filterBtn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    filterMenu.classList.toggle('show');
-  });
+  if (filterBtn && filterMenu) {
+    filterBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      filterMenu.classList.toggle('show');
+    });
 
-  document.addEventListener('click', function(e) {
-    if (!e.target.closest('.filter-dropdown')) {
-      filterMenu.classList.remove('show');
-    }
-  });
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.filter-dropdown')) {
+        filterMenu.classList.remove('show');
+      }
+    });
+  }
 });
 
 // View Receipt
@@ -828,10 +922,16 @@ function viewReceipt(transactionId) {
     </div>
   `;
 
+  ToastUtils.showInfo('Loading receipt...');
+
   fetch(`/membership-payment/${transactionId}/receipt`)
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error('Failed to load receipt');
+      return response.json();
+    })
     .then(data => {
       receiptBody.innerHTML = generateReceiptHTML(data);
+      ToastUtils.showSuccess('Receipt loaded successfully');
     })
     .catch(error => {
       console.error('Error loading receipt:', error);
@@ -841,6 +941,7 @@ function viewReceipt(transactionId) {
           <p>Failed to load receipt. Please try again.</p>
         </div>
       `;
+      ToastUtils.showError('Failed to load receipt. Please try again');
     });
 }
 
@@ -947,13 +1048,16 @@ function generateReceiptHTML(data) {
 function closeModal() {
   document.getElementById('receiptModal').classList.remove('show');
   if (window._reloadAfterReceipt) {
-    // reset flag and reload page after user closes receipt
+    ToastUtils.showInfo('Refreshing page...');
     window._reloadAfterReceipt = false;
-    window.location.reload();
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
   }
 }
 
 function printReceipt() {
+  ToastUtils.showInfo('Preparing to print receipt...');
   window.print();
 }
 
@@ -985,6 +1089,14 @@ document.addEventListener('click', function(e) {
 
 @if(session('error'))
   ToastUtils.showError('{{ session('error') }}');
+@endif
+
+@if(session('warning'))
+  ToastUtils.showWarning('{{ session('warning') }}');
+@endif
+
+@if(session('info'))
+  ToastUtils.showInfo('{{ session('info') }}');
 @endif
 
 @if($errors->any())
