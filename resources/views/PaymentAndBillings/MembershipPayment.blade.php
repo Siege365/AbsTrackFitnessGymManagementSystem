@@ -18,7 +18,6 @@
           </div>
       </div>
   </div>
-
   <!-- Stats Grid -->
   <div class="row">
     <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
@@ -26,7 +25,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h2 class="mb-0">â‚±{{ number_format($monthlyRevenue ?? 0, 2) }}</h2>
+                        <h2 class="mb-0">₱{{ number_format($monthlyRevenue ?? 0, 2) }}</h2>
                         <p class="text-muted mb-0">Monthly Revenue</p>
                     </div>
                     <div class="stat-change positive">
@@ -71,7 +70,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                      <div>
-                        <h2 class="mb-0">â‚±{{ number_format($todayRevenue ?? 0, 2) }}</h2>
+                        <h2 class="mb-0">₱{{ number_format($todayRevenue ?? 0, 2) }}</h2>
                         <p class="text-muted mb-0">Today's Revenue</p>
                     </div>
                     <div class="stat-change positive">
@@ -162,12 +161,12 @@
             <div class="plan-type-card active" data-plan="Monthly" data-price="500" data-duration="30">
             <div class="plan-name">Monthly Plan</div>
             <div class="plan-duration">30 Days Access</div>
-            <div class="plan-price">â‚±500.00</div>
+            <div class="plan-price">₱500.00</div>
             </div>
             <div class="plan-type-card" data-plan="Session" data-price="50" data-duration="1">
             <div class="plan-name">Session Pass</div>
             <div class="plan-duration">1 Day Access</div>
-            <div class="plan-price">â‚±50.00</div>
+            <div class="plan-price">₱50.00</div>
             </div>
         </div>
         <input type="hidden" name="plan_type" id="planType" value="Monthly">
@@ -192,7 +191,7 @@
 
                             <div class="col-md-2">
                             <label class="form-label">Amount</label>
-                            <input type="number" class="form-control" name="amount" id="amount" placeholder="â‚±0.00" step="0.01" value="500.00" readonly>
+                            <input type="number" class="form-control" name="amount" id="amount" placeholder="₱0.00" step="0.01" value="500.00" readonly>
                             </div>
 
                             <div class="col-md-3">
@@ -227,236 +226,56 @@
     </div>
   </div>
 
-  <!-- Transaction History Card -->
-  <div class="card">
-    <div class="card-body">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-        <h2 class="card-title" style="margin-bottom: 0;">Transaction History</h2>
-        
-        <div style="display: flex; gap: 1rem; align-items: center;">
-            <!-- Filter Dropdown -->
-            <div class="filter-dropdown">
-            <button type="button" class="filter-btn" id="filterBtn">
-                <i class="mdi mdi-filter-variant"></i> Filter
-            </button>
-            <div class="filter-menu" id="filterMenu">
-                <div class="filter-header">Sort By</div>
-                <a href="{{ route('membership.payment.index', ['sort' => 'date_newest', 'search' => request('search'), 'filter_plan' => request('filter_plan'), 'filter_method' => request('filter_method')]) }}" 
-                class="filter-menu-item {{ request('sort') == 'date_newest' || !request('sort') ? 'active' : '' }}">
-                <i class="mdi mdi-calendar-clock"></i> Date (Newest)
-                </a>
-                <a href="{{ route('membership.payment.index', ['sort' => 'date_oldest', 'search' => request('search'), 'filter_plan' => request('filter_plan'), 'filter_method' => request('filter_method')]) }}" 
-                class="filter-menu-item {{ request('sort') == 'date_oldest' ? 'active' : '' }}">
-                <i class="mdi mdi-calendar"></i> Date (Oldest)
-                </a>
-                <a href="{{ route('membership.payment.index', ['sort' => 'name_asc', 'search' => request('search'), 'filter_plan' => request('filter_plan'), 'filter_method' => request('filter_method')]) }}" 
-                class="filter-menu-item {{ request('sort') == 'name_asc' ? 'active' : '' }}">
-                <i class="mdi mdi-sort-alphabetical-ascending"></i> Name (A-Z)
-                </a>
-                <a href="{{ route('membership.payment.index', ['sort' => 'name_desc', 'search' => request('search'), 'filter_plan' => request('filter_plan'), 'filter_method' => request('filter_method')]) }}" 
-                class="filter-menu-item {{ request('sort') == 'name_desc' ? 'active' : '' }}">
-                <i class="mdi mdi-sort-alphabetical-descending"></i> Name (Z-A)
-                </a>
-                
-                <div class="filter-menu-divider"></div>
-                <div class="filter-header">Plan Type</div>
-                <a href="{{ route('membership.payment.index', ['filter_plan' => 'Monthly', 'search' => request('search'), 'sort' => request('sort'), 'filter_method' => request('filter_method')]) }}" 
-                class="filter-menu-item {{ request('filter_plan') == 'Monthly' ? 'active' : '' }}">
-                <i class="mdi mdi-calendar-month"></i> Monthly
-                </a>
-                <a href="{{ route('membership.payment.index', ['filter_plan' => 'Session', 'search' => request('search'), 'sort' => request('sort'), 'filter_method' => request('filter_method')]) }}" 
-                class="filter-menu-item {{ request('filter_plan') == 'Session' ? 'active' : '' }}">
-                <i class="mdi mdi-clock-outline"></i> Session
-                </a>
-                
-                <div class="filter-menu-divider"></div>
-                <div class="filter-header">Payment Method</div>
-                <a href="{{ route('membership.payment.index', ['filter_method' => 'Cash', 'search' => request('search'), 'sort' => request('sort'), 'filter_plan' => request('filter_plan')]) }}" 
-                class="filter-menu-item {{ request('filter_method') == 'Cash' ? 'active' : '' }}">
-                <i class="mdi mdi-cash"></i> Cash
-                </a>
-                <a href="{{ route('membership.payment.index', ['filter_method' => 'Credit Card', 'search' => request('search'), 'sort' => request('sort'), 'filter_plan' => request('filter_plan')]) }}" 
-                class="filter-menu-item {{ request('filter_method') == 'Credit Card' ? 'active' : '' }}">
-                <i class="mdi mdi-credit-card"></i> Credit Card
-                </a>
-                <a href="{{ route('membership.payment.index', ['filter_method' => 'Debit Card', 'search' => request('search'), 'sort' => request('sort'), 'filter_plan' => request('filter_plan')]) }}" 
-                class="filter-menu-item {{ request('filter_method') == 'Debit Card' ? 'active' : '' }}">
-                <i class="mdi mdi-credit-card-outline"></i> Debit Card
-                </a>
-                <a href="{{ route('membership.payment.index', ['filter_method' => 'GCash', 'search' => request('search'), 'sort' => request('sort'), 'filter_plan' => request('filter_plan')]) }}" 
-                class="filter-menu-item {{ request('filter_method') == 'GCash' ? 'active' : '' }}">
-                <i class="mdi mdi-cellphone"></i> GCash
-                </a>
-                <a href="{{ route('membership.payment.index', ['filter_method' => 'PayMaya', 'search' => request('search'), 'sort' => request('sort'), 'filter_plan' => request('filter_plan')]) }}" 
-                class="filter-menu-item {{ request('filter_method') == 'PayMaya' ? 'active' : '' }}">
-                <i class="mdi mdi-wallet"></i> PayMaya
-                </a>
-                <a href="{{ route('membership.payment.index', ['filter_method' => 'Bank Transfer', 'search' => request('search'), 'sort' => request('sort'), 'filter_plan' => request('filter_plan')]) }}" 
-                class="filter-menu-item {{ request('filter_method') == 'Bank Transfer' ? 'active' : '' }}">
-                <i class="mdi mdi-bank"></i> Bank Transfer
-                </a>
-                
-                <div class="filter-menu-divider"></div>
-                <a href="{{ route('membership.payment.index') }}" class="filter-menu-item" style="color: #dc3545;">
-                <i class="mdi mdi-close-circle"></i> Clear Filters
-                </a>
-            </div>
-            </div>
-            
-            <!-- Search Form -->
-            <form action="{{ route('membership.payment.index') }}" method="GET" style="display: flex; gap: 0.5rem;">
-            <input type="hidden" name="sort" value="{{ request('sort') }}">
-            <input type="hidden" name="filter_plan" value="{{ request('filter_plan') }}">
-            <input type="hidden" name="filter_method" value="{{ request('filter_method') }}">
-            <input 
-                type="text" 
-                class="form-control" 
-                name="search" 
-                placeholder="Search transactions..." 
-                value="{{ request('search') }}"
-            >
-            <button type="submit" class="btn btn-primary">
-                <i class="mdi mdi-magnify"></i>
-            </button>
-            </form>
-        </div>
-        </div>
+<!-- Payment Confirmation Modal -->
+<div id="confirmationModal" class="modal-overlay">
+  <div class="modal-content small">
+    <div class="modal-header">
+      <h3 class="modal-title">Confirm Payment</h3>
+      <button class="modal-close" onclick="closeConfirmationModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirmation-icon warning">
+        <i class="mdi mdi-alert-circle-outline"></i>
+      </div>
+      <p class="confirmation-message">Please review the payment details before proceeding.</p>
+      <div class="confirmation-details" id="confirmationDetails"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeConfirmationModal()">
+        <i class="mdi mdi-close"></i> Cancel
+      </button>
+      <button type="button" class="btn btn-primary" onclick="confirmPayment()">
+        <i class="mdi mdi-check"></i> Confirm & Process
+      </button>
+    </div>
+  </div>
+</div>
 
-        <div class="table-responsive">
-        <table class="table table table-hover">
-            <thead>
-            <tr>
-                <th style="width: 50px;">
-                <input type="checkbox" class="custom-checkbox" id="selectAll">
-                </th>
-                <th>Receipt #</th>
-                <th>Member Name</th>
-                <th>Type</th>
-                <th>Plan</th>
-                <th>Amount</th>
-                <th>Payment Method</th>
-                <th>Date</th>
-                <th>New Due Date</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            @php
-                $transactionCount = isset($transactions) ? $transactions->count() : 0;
-                $maxRows = 10;
-            @endphp
-            
-            @if(isset($transactions) && $transactions->count() > 0)
-                @foreach($transactions as $transaction)
-                <tr>
-                <td>
-                    <input type="checkbox" class="custom-checkbox transaction-checkbox" value="{{ $transaction->id }}">
-                </td>
-                <td><strong>#{{ $transaction->receipt_number }}</strong></td>
-                <td>{{ $transaction->member_name }}</td>
-                <td>
-                    <span class="badge badge-{{ $transaction->payment_type == 'new' ? 'success' : ($transaction->payment_type == 'renewal' ? 'info' : 'warning') }}">
-                    {{ ucfirst($transaction->payment_type) }}
-                    </span>
-                </td>
-                <td>{{ $transaction->plan_type }}</td>
-                <td><strong>â‚±{{ number_format($transaction->amount, 2) }}</strong></td>
-                <td>{{ $transaction->payment_method }}</td>
-                <td>{{ $transaction->created_at->format('M d, Y h:i A') }}</td>
-                <td>{{ $transaction->new_due_date ? date('M d, Y', strtotime($transaction->new_due_date)) : 'N/A' }}</td>
-                <td>
-                    <div class="action-dropdown">
-                    <button type="button" class="action-btn" onclick="toggleDropdown(this)">
-                        <i class="mdi mdi-dots-vertical"></i>
-                    </button>
-                    <div class="dropdown-menu">
-                        <button type="button" class="dropdown-item" onclick="viewReceipt({{ $transaction->id }})">
-                        <i class="mdi mdi-eye"></i> View Receipt
-                        </button>
-                        <form action="{{ route('membership.payment.destroy', $transaction->id) }}" method="POST" class="delete-form" style="margin: 0;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="dropdown-item danger">
-                            <i class="mdi mdi-delete"></i> Delete
-                        </button>
-                        </form>
-                    </div>
-                    </div>
-                </td>
-                </tr>
-                @endforeach
-            @endif
-            
-            @for($i = $transactionCount; $i < $maxRows; $i++)
-            <tr>
-                <td colspan="10" style="height: 53px; text-align: center; color: #999;">
-                @if($i == 0)
-                    No transactions found
-                @endif
-                </td>
-            </tr>
-            @endfor
-            </tbody>
-        </table>
-        </div>
-
-        <!-- Pagination - ALWAYS VISIBLE -->
-        <div class="pagination-container">
-        <button class="btn btn-danger" id="bulkDeleteBtn" disabled>
-            <i class="mdi mdi-delete"></i> Delete Selected (<span id="selectedCount">0</span>)
-        </button>
-        
-        @if(isset($transactions) && $transactions->total() > 0)
-        <nav>
-            <ul class="pagination">
-            @if ($transactions->onFirstPage())
-                <li class="page-item disabled">
-                <span class="page-link">â€¹</span>
-                </li>
-            @else
-                <li class="page-item">
-                <a class="page-link" href="{{ $transactions->appends(request()->query())->previousPageUrl() }}">â€¹</a>
-                </li>
-            @endif
-
-            @foreach(range(1, min(5, $transactions->lastPage())) as $page)
-                @if($page == $transactions->currentPage())
-                <li class="page-item active">
-                    <span class="page-link">{{ $page }}</span>
-                </li>
-                @else
-                <li class="page-item">
-                    <a class="page-link" href="{{ $transactions->appends(request()->query())->url($page) }}">{{ $page }}</a>
-                </li>
-                @endif
-            @endforeach
-
-            @if ($transactions->hasMorePages())
-                <li class="page-item">
-                <a class="page-link" href="{{ $transactions->appends(request()->query())->nextPageUrl() }}">â€º</a>
-                </li>
-            @else
-                <li class="page-item disabled">
-                <span class="page-link">â€º</span>
-                </li>
-            @endif
-            </ul>
-        </nav>
-
-        <div class="pagination-info">
-            Showing {{ $transactions->firstItem() ?? 0 }} to {{ $transactions->lastItem() ?? 0 }} of {{ $transactions->total() }} entries
-        </div>
-        @else
-        <nav>
-            <ul class="pagination">
-            <li class="page-item disabled"><span class="page-link">â€¹</span></li>
-            <li class="page-item active"><span class="page-link">1</span></li>
-            <li class="page-item disabled"><span class="page-link">â€º</span></li>
-            </ul>
-        </nav>
-        <div class="pagination-info">Showing 0 to 0 of 0 entries</div>
-        @endif
-        </div>
+<!-- Refund Modal -->
+<div id="refundModal" class="modal-overlay">
+  <div class="modal-content small">
+    <div class="modal-header">
+      <h3 class="modal-title">Process Refund</h3>
+      <button class="modal-close" onclick="closeRefundModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="refund-warning">
+        <i class="mdi mdi-alert"></i>
+        <strong>Warning:</strong> This will reverse the membership due date and mark this transaction as refunded.
+      </div>
+      <div class="confirmation-details" id="refundDetails"></div>
+      <div class="form-group">
+        <label class="form-label">Refund Reason (Optional)</label>
+        <textarea class="form-control" id="refundReason" rows="3" placeholder="Enter reason for refund..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeRefundModal()">
+        <i class="mdi mdi-close"></i> Cancel
+      </button>
+      <button type="button" class="btn btn-warning" onclick="confirmRefund()">
+        <i class="mdi mdi-cash-refund"></i> Process Refund
+      </button>
     </div>
   </div>
 </div>
@@ -1083,7 +902,7 @@ function generateReceiptHTML(data) {
               <strong>${data.plan_type} Plan</strong><br>
               <small style="color: #666;">Duration: ${data.duration} days</small>
             </td>
-            <td style="text-align: right;">â‚±${parseFloat(data.amount).toFixed(2)}</td>
+            <td style="text-align: right;">₱${parseFloat(data.amount).toFixed(2)}</td>
           </tr>
         </tbody>
       </table>
@@ -1091,7 +910,7 @@ function generateReceiptHTML(data) {
       <div class="receipt-total">
         <div class="receipt-total-row grand-total">
           <strong>Total Paid:</strong>
-          <span>â‚±${parseFloat(data.amount).toFixed(2)}</span>
+          <span>₱${parseFloat(data.amount).toFixed(2)}</span>
         </div>
       </div>
 
