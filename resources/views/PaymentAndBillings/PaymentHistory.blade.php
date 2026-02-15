@@ -1028,7 +1028,20 @@ input[type="checkbox"]:hover {
 @endpush
 
 @push('scripts')
-<script src="{{ asset('js/common/toast-utils.js') }}?v={{ time() }}"></script>
+<script>
+// Fallback ToastUtils if the main library fails to load
+if (typeof ToastUtils === 'undefined') {
+  window.ToastUtils = {
+    showSuccess: function(msg) { console.log('✅ Success:', msg); alert('Success: ' + msg); },
+    showError: function(msg) { console.error('❌ Error:', msg); alert('Error: ' + msg); },
+    showWarning: function(msg) { console.warn('⚠️ Warning:', msg); alert('Warning: ' + msg); },
+    showInfo: function(msg) { console.info('ℹ️ Info:', msg); }
+  };
+}
+</script>
+@vite(['resources/js/common/avatar-utils.js'])
+@vite(['resources/js/common/form-utils.js'])
+@vite(['resources/js/common/bulk-selection.js'])
 <script>
 const CSRF_TOKEN = '{{ csrf_token() }}';
 let currentRefundType = null;

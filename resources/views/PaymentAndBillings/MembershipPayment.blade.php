@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('title', 'Membership Payment System')
 
@@ -1299,9 +1299,20 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/common/avatar-utils.js') }}?v={{ time() }}"></script>
-<script src="{{ asset('js/common/form-utils.js') }}?v={{ time() }}"></script>
-<script src="{{ asset('js/common/bulk-selection.js') }}?v={{ time() }}"></script>
+<script>
+// Fallback ToastUtils if the main library fails to load
+if (typeof ToastUtils === 'undefined') {
+  window.ToastUtils = {
+    showSuccess: function(msg) { console.log('✅ Success:', msg); alert('Success: ' + msg); },
+    showError: function(msg) { console.error('❌ Error:', msg); alert('Error: ' + msg); },
+    showWarning: function(msg) { console.warn('⚠️ Warning:', msg); alert('Warning: ' + msg); },
+    showInfo: function(msg) { console.info('ℹ️ Info:', msg); }
+  };
+}
+</script>
+@vite(['resources/js/common/avatar-utils.js'])
+@vite(['resources/js/common/form-utils.js'])
+@vite(['resources/js/common/bulk-selection.js'])
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   let selectedMemberStatus = '';
@@ -1596,17 +1607,23 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('confirmationModal').classList.remove('show');
   };
 
+    // Find the confirmPayment function and replace it with this:
+
   window.confirmPayment = function() {
     closeConfirmationModal();
     
-    const submitBtn = document.getElementById('submitPaymentBtn');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
-
-    const formData = new FormData(paymentForm);
-
-    fetch(paymentForm.action, {
+    const form = document.getElementById('membershipPaymentForm');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    // Disable button to prevent double submission
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Processing...';
+    }
+    
+    const formData = new FormData(form);
+    
+    fetch(form.action, {
       method: 'POST',
       body: formData,
       headers: {
@@ -1618,22 +1635,31 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(data => {
       if (data.success) {
         ToastUtils.showSuccess(data.message || 'Payment processed successfully!');
-        // Show receipt modal immediately and reload only after user closes it
+        
+        // Show receipt modal
         window._reloadAfterReceipt = true;
         setTimeout(() => {
           viewReceipt(data.payment.id);
         }, 500);
+        
+        // Reset form
+        form.reset();
+        
       } else {
-        ToastUtils.showError(data.message || 'An error occurred');
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
+        ToastUtils.showError(data.message || 'Payment failed. Please try again.');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="mdi mdi-cash-check"></i> Process Payment';
+        }
       }
     })
     .catch(error => {
       console.error('Error:', error);
-      ToastUtils.showError('Failed to process payment. Please try again.');
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalText;
+      ToastUtils.showError('An error occurred. Please try again.');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="mdi mdi-cash-check"></i> Process Payment';
+      }
     });
   };
 
@@ -1731,42 +1757,53 @@ document.addEventListener('DOMContentLoaded', function() {
   const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
   const selectedCountSpan = document.getElementById('selectedCount');
 
-  selectAllCheckbox.addEventListener('change', function() {
-    transactionCheckboxes.forEach(cb => {
-      cb.checked = this.checked;
-    });
-    updateBulkDeleteButton();
-  });
-
-  transactionCheckboxes.forEach(cb => {
-    cb.addEventListener('change', function() {
+  // Add null checks
+  if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', function() {
+      transactionCheckboxes.forEach(cb => {
+        cb.checked = this.checked;
+      });
       updateBulkDeleteButton();
-      const allChecked = Array.from(transactionCheckboxes).every(checkbox => checkbox.checked);
-      selectAllCheckbox.checked = allChecked;
     });
-  });
+  }
+
+  if (transactionCheckboxes.length > 0) {
+    transactionCheckboxes.forEach(cb => {
+      cb.addEventListener('change', function() {
+        updateBulkDeleteButton();
+        if (selectAllCheckbox) {
+          const allChecked = Array.from(transactionCheckboxes).every(checkbox => checkbox.checked);
+          selectAllCheckbox.checked = allChecked;
+        }
+      });
+    });
+  }
 
   function updateBulkDeleteButton() {
     const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
     const count = checkedBoxes.length;
-    selectedCountSpan.textContent = count;
-    bulkDeleteBtn.disabled = count === 0;
+    if (selectedCountSpan) selectedCountSpan.textContent = count;
+    if (bulkDeleteBtn) bulkDeleteBtn.disabled = count === 0;
   }
 
-  bulkDeleteBtn.addEventListener('click', function() {
-    const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
-    const ids = Array.from(checkedBoxes).map(cb => cb.value);
+  // Find this section and fix it:
 
-    if (ids.length === 0) {
-      ToastUtils.showWarning('Please select at least one transaction to delete');
-      return;
-    }
+  if (bulkDeleteBtn) {
+    bulkDeleteBtn.addEventListener('click', function() {
+      const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
+      const ids = Array.from(checkedBoxes).map(cb => cb.value);
 
-    if (confirm(`Are you sure you want to delete ${ids.length} transaction(s)? This action cannot be undone.`)) {
-      document.getElementById('bulkDeleteIds').value = JSON.stringify(ids);
-      document.getElementById('bulkDeleteForm').submit();
-    }
-  });
+      if (ids.length === 0) {
+        ToastUtils.showWarning('Please select at least one transaction to delete');
+        return;
+      }
+
+      if (confirm(`Are you sure you want to delete ${ids.length} transaction(s)? This action cannot be undone.`)) {
+        document.getElementById('bulkDeleteIds').value = JSON.stringify(ids);
+        document.getElementById('bulkDeleteForm').submit();
+      }
+    });
+  } // ← This closing brace was missing!
 
   document.querySelectorAll('.delete-form').forEach(form => {
     form.addEventListener('submit', function(e) {
@@ -1781,17 +1818,20 @@ document.addEventListener('DOMContentLoaded', function() {
   const filterBtn = document.getElementById('filterBtn');
   const filterMenu = document.getElementById('filterMenu');
 
-  filterBtn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    filterMenu.classList.toggle('show');
-  });
+  // Add null checks for filter elements too
+  if (filterBtn && filterMenu) {
+    filterBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      filterMenu.classList.toggle('show');
+    });
 
-  document.addEventListener('click', function(e) {
-    if (!e.target.closest('.filter-dropdown')) {
-      filterMenu.classList.remove('show');
-    }
-  });
-});
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.filter-dropdown')) {
+        filterMenu.classList.remove('show');
+      }
+    });
+  }
+}); // This closes the DOMContentLoaded listener
 
 // View Receipt
 function viewReceipt(transactionId) {

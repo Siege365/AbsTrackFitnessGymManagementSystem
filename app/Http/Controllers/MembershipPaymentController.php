@@ -269,15 +269,18 @@ class MembershipPaymentController extends Controller
                 $message .= 'Membership extended.';
             }
 
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $message,
-                    'payment' => $payment
-                ]);
-            }
+            if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment processed successfully!',
+                'payment' => [
+                    'id' => $payment->id,
+                    'receipt_number' => $payment->receipt_number ?? $payment->id,
+                ]
+            ]);
+        }
 
-            return redirect()->route('membership.payment.index')->with('success', $message);
+        return redirect()->back()->with('success', 'Payment processed successfully!');
 
         } catch (\Exception $e) {
             DB::rollBack();
