@@ -233,7 +233,7 @@
   /* Table Styles - Enhanced */
   .table-responsive {
     overflow-x: auto;
-    min-height: 600px;
+    min-height: 300px;
     border-radius: 8px;
   }
 

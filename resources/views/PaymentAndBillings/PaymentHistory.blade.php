@@ -91,7 +91,7 @@
                   <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
                     <i class="mdi mdi-dots-vertical"></i>
                   </button>
-                  <div class="dropdown-menu dropdown-menu-right">
+                  <div class="dropdown-menu dropdown-menu-right" style="z-index: 98;">
                     <button type="button" class="dropdown-item" onclick="viewHistoryReceipt('product', {{ $p->id }})">
                       <i class="mdi mdi-eye mr-2"></i> View Receipt
                     </button>
@@ -150,7 +150,7 @@
               <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="filterDropdown" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                 <i class="mdi mdi-filter-variant"></i> Filter
               </button>
-              <div class="dropdown-menu dropdown-menu-right">
+              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="filterDropdown">
                 <h6 class="dropdown-header">Status</h6>
                 <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('membership_filter'), ['membership_search' => request('membership_search'), 'membership_filter' => 'all'])) }}"> <i class="mdi mdi-account-multiple mr-2"></i>All</a>
                 <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('membership_filter'), ['membership_search' => request('membership_search'), 'membership_filter' => 'paid'])) }}"> <i class="mdi mdi-cash mr-2 text-success"></i>Paid Only</a>
@@ -208,7 +208,7 @@
                   <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
                     <i class="mdi mdi-dots-vertical"></i>
                   </button>
-                  <div class="dropdown-menu dropdown-menu-right">
+                  <div class="dropdown-menu dropdown-menu-right" style="z-index: 98;">
                     <button type="button" class="dropdown-item" onclick="viewHistoryReceipt('membership', {{ $m->id }})">
                       <i class="mdi mdi-eye mr-2"></i> View Receipt
                     </button>
@@ -326,7 +326,7 @@
                   <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
                     <i class="mdi mdi-dots-vertical"></i>
                   </button>
-                  <div class="dropdown-menu dropdown-menu-right">
+                  <div class="dropdown-menu dropdown-menu-right" style="z-index: 98;">
                     <button type="button" class="dropdown-item" onclick="viewRefundReceipt('{{ strtolower($cr->type) }}', {{ $cr->id }})">
                       <i class="mdi mdi-receipt mr-2"></i> View Refund Receipt
                     </button>
@@ -459,6 +459,7 @@ body {
 
 .card-body {
   padding: 24px 28px !important;
+  position: relative;
 }
 
 .card-body h4 {
