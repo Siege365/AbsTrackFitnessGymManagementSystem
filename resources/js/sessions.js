@@ -688,3 +688,6 @@ const SessionsPage = {
 $(document).ready(function() {
   SessionsPage.init();
 });
+
+// Make globally accessible for inline scripts
+window.SessionsPage = SessionsPage;

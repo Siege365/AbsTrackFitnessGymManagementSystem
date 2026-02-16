@@ -90,7 +90,7 @@
 
 .nav-category .nav-link {
   padding: 0;
-  color: #0ABAB5 !important;
+  color: #6C7293 !important;
   font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -130,6 +130,11 @@
 .menu-items.active > .nav-link {
   color: #fff;
   background: rgba(255, 255, 255, 0.08);
+}
+
+/* Enhanced hover on active dropdown buttons */
+.menu-items.active > .nav-link:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 /* Active indicator bar - for ALL active menu items */
@@ -282,21 +287,15 @@
   margin-left: auto;
   font-size: 1.25rem;
   opacity: 0.6;
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), 
+  transition: transform 0.3s ease, 
               opacity 0.2s ease;
-}
-
-.menu-arrow::before {
-  content: '\F0140';
-  font-family: 'Material Design Icons';
 }
 
 .menu-items:hover .menu-arrow {
   opacity: 0.9;
 }
 
-/* Arrow rotation synced with collapse animation */
-.menu-items.active > .nav-link .menu-arrow,
+/* Arrow rotation - only when dropdown is actually open */
 .menu-items > .nav-link[aria-expanded="true"] .menu-arrow {
   transform: rotate(180deg);
   opacity: 1;
@@ -306,38 +305,28 @@
    SUBMENU / COLLAPSE
    ===================================================== */
 
-/* Reset Bootstrap's .show override for sidebar collapses */
-.sidebar .collapse:not(.show) {
-  display: none !important;
+/* Smooth collapse animation using max-height */
+.sidebar .collapse {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
 }
 
 .sidebar .collapse.show {
-  display: block !important;
+  max-height: 500px;
 }
 
-/* Bootstrap's smooth height transition */
-.sidebar .collapsing {
-  transition: height 0.3s ease-out !important;
-  overflow: hidden;
-}
-
-/* Reverse transition effect for sub-menu content */
+/* Sub-menu content transition */
 .sidebar .sub-menu {
   opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+  transform: translateY(-5px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 /* Show state - fade in and slide down */
 .sidebar .collapse.show .sub-menu {
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 0.25s ease-in, transform 0.25s ease-in;
-}
-
-/* Closing state - fade out and slide up (automatic reverse) */
-.sidebar .collapsing .sub-menu {
-  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
 }
 
 .sub-menu {
