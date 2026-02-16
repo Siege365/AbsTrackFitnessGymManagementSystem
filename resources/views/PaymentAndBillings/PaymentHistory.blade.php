@@ -2,6 +2,10 @@
 
 @section('title', 'Payments & Billing -> Payment History')
 
+@push('styles')
+@vite(['resources/css/payment-history.css'])
+@endpush
+
 @section('content')
 <div class="container-fluid">
   <!-- Page Header -->
@@ -41,10 +45,10 @@
           </form>
           <div class="dropdown d-inline-block mr-2">
             <button type="button" class="btn btn-sm filter-button dropdown-toggle" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
-              <i class="mdi mdi-sort-variant"></i> Sort
+              <i class="mdi mdi-sort-variant"></i> Filter
             </button>
             <div class="dropdown-menu dropdown-menu-right">
-              <h6 class="dropdown-header">Sort By</h6>
+              <h6 class="dropdown-header">Filter By</h6>
               <a class="dropdown-item {{ request('product_sort', 'newest') === 'newest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['product_sort', 'product_page']), ['product_sort' => 'newest'])) }}"> <i class="mdi mdi-sort-descending mr-2"></i>Newest First</a>
               <a class="dropdown-item {{ request('product_sort') === 'oldest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['product_sort', 'product_page']), ['product_sort' => 'oldest'])) }}"> <i class="mdi mdi-sort-ascending mr-2"></i>Oldest First</a>
             </div>
@@ -156,10 +160,10 @@
           </form>
           <div class="dropdown d-inline-block mr-2">
             <button type="button" class="btn btn-sm filter-button dropdown-toggle" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
-              <i class="mdi mdi-sort-variant"></i> Sort
+              <i class="mdi mdi-sort-variant"></i> Filter
             </button>
             <div class="dropdown-menu dropdown-menu-right">
-              <h6 class="dropdown-header">Sort By</h6>
+              <h6 class="dropdown-header">Filter By</h6>
               <a class="dropdown-item {{ request('membership_sort', 'newest') === 'newest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_sort', 'membership_page']), ['membership_sort' => 'newest'])) }}"> <i class="mdi mdi-sort-descending mr-2"></i>Newest First</a>
               <a class="dropdown-item {{ request('membership_sort') === 'oldest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_sort', 'membership_page']), ['membership_sort' => 'oldest'])) }}"> <i class="mdi mdi-sort-ascending mr-2"></i>Oldest First</a>
             </div>
@@ -248,7 +252,7 @@
   <div class="card mt-4">
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Refunded Payments (Combined)</h4>
+        <h4>Refunded Payments</h4>
         <div class="d-flex align-items-center">
           <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" id="refundSearchForm">
             @foreach(request()->except(['refund_search', 'refunded_page']) as $key => $value)
@@ -373,15 +377,11 @@
       <button class="modal-close" onclick="closeRefundModal()">&times;</button>
     </div>
     <div class="modal-body">
-      <div class="refund-warning">
+      <div class="refund-warning" style="color: #000;">
         <i class="mdi mdi-alert"></i>
         <strong>Warning:</strong> This action will mark this transaction as refunded and restore inventory (for products).
       </div>
       <div class="confirmation-details" id="refundDetails"></div>
-      <div class="form-group">
-        <label class="form-label">Refund Reason (Optional)</label>
-        <textarea class="form-control" id="refundReason" rows="3" placeholder="Enter reason for refund..."></textarea>
-      </div>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-secondary" onclick="closeRefundModal()">Cancel</button>
@@ -444,14 +444,14 @@
 <!-- Delete Confirmation Modal -->
 <div id="deleteConfirmModal" class="modal-overlay">
   <div class="modal-content small">
-    <div class="modal-header">
+    <div class="modal-header" style="background-color: #dc3545; color: #fff;">
       <h3 class="modal-title">Confirm Delete</h3>
       <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
     </div>
     <div class="modal-body">
       <div class="refund-warning" style="background: #f8d7da; border-color: #dc3545;">
         <i class="mdi mdi-alert" style="color: #dc3545;"></i>
-        <div>
+        <div style="color: #000;">
           <strong>Warning:</strong> This action cannot be undone. The selected record(s) will be permanently deleted.
         </div>
       </div>
@@ -470,633 +470,7 @@
     </div>
   </div>
 </div>
-
 @endsection
-
-@push('styles')
-<style>
-/* FIX #1: Adjusted colors to match membership management - KEPT ORIGINAL STRUCTURE */
-
-/* Background */
-body {
-  background: #282A36 !important;
-}
-
-/* Cards - Changed colors */
-.card {
-  background: #191C24 !important;  /* Changed from default to match membership */
-  border: none;
-  margin-bottom: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-}
-
-.card-body {
-  padding: 24px 28px !important;
-  position: relative;
-}
-
-.card-body h4 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #ffffff;  /* Changed to white */
-}
-
-/* Tables - Adjusted colors */
-.table {
-  color: #ffffff;  /* Changed to white */
-  background: transparent;
-}
-
-.table thead th {
-  color: rgba(255, 255, 255, 0.6);
-  font-weight: 700;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 1rem;
-  padding: 20px 18px;
-  text-align: left;
-}
-
-.table tbody td {
-  color: rgba(255, 255, 255, 0.9);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 20px 18px;
-  font-size: 1rem;
-  text-align: left;
-}
-
-.table-hover tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.03);  /* Changed */
-}
-
-.table-warning {
-  background-color: #fff3cd !important;
-}
-
-/* Fixed Table Heights: fits 6 rows, overflow visible so dropdowns are not clipped */
-.table-responsive {
-  min-height: 420px;
-  max-height: none;
-  overflow: visible !important;
-}
-
-/* Search input wrapper with clear button */
-.search-wrapper {
-  position: relative;
-  display: inline-block;
-}
-
-.search-wrapper .form-control {
-  padding-right: 35px;
-}
-
-.search-clear-btn {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 1.25rem;
-  cursor: pointer;
-  padding: 0 5px;
-  line-height: 1;
-  z-index: 2;
-}
-
-.search-clear-btn:hover {
-  color: #ffffff;
-}
-
-/* Form Controls - Adjusted colors */
-.form-control {
-  background-color: #282A36;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  padding: 0.75rem 1.25rem;
-  font-size: 1.125rem;
-  min-height: 48px;
-}
-
-.form-control-sm {
-  padding: 0.625rem 1rem;
-  font-size: 1rem;
-  min-height: 48px;
-}
-
-.form-control::placeholder {
-  color: rgba(255, 255, 255, 0.4);  /* Changed */
-}
-
-.form-control:focus {
-  background-color: #282A36;  /* Changed */
-  border-color: rgba(255, 255, 255, 0.2);  /* Changed */
-  color: #ffffff;  /* Changed */
-  box-shadow: none;
-}
-
-/* Buttons */
-.btn-primary {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #0b5ed7;
-  border-color: #0b5ed7;
-  color: white;
-}
-
-.btn-secondary {
-  background-color: #6c757d;
-  border-color: #6c757d;
-  color: white;
-}
-
-.btn-secondary:hover {
-  background-color: #5a6268;
-  border-color: #545b62;
-  color: white;
-}
-
-.btn-warning {
-  background-color: #ffc107;
-  border-color: #ffc107;
-  color: #000;
-}
-
-.btn-warning:hover {
-  background-color: #e0a800;
-  border-color: #d39e00;
-  color: #000;
-}
-
-/* Badges - Matching membership colors */
-.badge-success {
-  background: rgba(76, 175, 80, 0.2);  /* Changed */
-  color: #4CAF50;  /* Changed */
-  padding: 8px 14px;
-  border-radius: 20px;
-  font-weight: 500;
-  font-size: 0.875rem;
-}
-
-.badge-warning {
-  background: rgba(255, 193, 7, 0.2);  /* Changed */
-  color: #FFC107;  /* Changed */
-  padding: 8px 14px;
-  border-radius: 20px;
-  font-weight: 500;
-  font-size: 0.875rem;
-}
-
-.badge-primary {
-  background: rgba(13, 110, 253, 0.2);
-  color: #0d6efd;
-  padding: 8px 14px;
-  border-radius: 20px;
-  font-weight: 500;
-  font-size: 0.875rem;
-}
-
-.badge-info {
-  background: rgba(23, 162, 184, 0.2);
-  color: #17a2b8;
-  padding: 8px 14px;
-  border-radius: 20px;
-  font-weight: 500;
-  font-size: 0.875rem;
-}
-
-/* Gray Checkboxes - MATCHING membership management */
-input[type="checkbox"] {
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border: 2px solid #6c757d;
-  border-radius: 3px;
-  background: transparent;
-  cursor: pointer;
-  position: relative;
-  transition: all 0.2s ease;
-}
-
-input[type="checkbox"]:checked {
-  background: #6c757d;
-  border-color: #6c757d;
-}
-
-input[type="checkbox"]:checked::after {
-  content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-input[type="checkbox"]:hover {
-  border-color: #8c939d;
-}
-
-/* Dropdown - Changed colors */
-.dropdown {
-  position: relative;
-}
-
-.dropdown-menu {
-  background: #191C24;  /* Changed */
-  border: 1px solid rgba(255, 255, 255, 0.1);  /* Changed */
-  animation: fadeInDown 0.2s ease;
-  z-index: 1050;  /* High z-index so it shows above the table */
-  min-width: 200px;
-  position: absolute;
-}
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.dropdown-menu.show {
-  display: block;
-}
-
-.dropdown-header {
-  color: rgba(255, 255, 255, 0.6);  /* Changed */
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  padding: 0.5rem 1rem;
-}
-
-.dropdown-item {
-  color: #ffffff;  /* Changed */
-  font-size: 1rem;
-  padding: 0.625rem 1.25rem;
-  white-space: nowrap;
-}
-
-.dropdown-item:hover {
-  background-color: rgba(255, 255, 255, 0.05);  /* Changed */
-  color: #ffffff;  /* Changed */
-}
-
-.dropdown-item.active {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-}
-
-.dropdown-item.text-warning {
-  color: #ffc107;
-}
-
-.dropdown-item.text-danger {
-  color: #dc3545;
-}
-
-.btn-action {
-    background: #ffffff1a;
-    border: none;
-    color: #fff;
-    padding: .5rem .75rem;
-    font-size: 1.25rem;
-}
-
-.btn-action:hover {
-  background: rgba(255, 255, 255, 0.2);  /* Changed */
-  color: #ffffff;  /* Changed */
-}
-
-/* Delete Selected Button - Matching membership */
-.btn-delete-selected {
-  background: rgba(244, 67, 54, 0.2);  /* Changed */
-  border: none;
-  color: #F44336;  /* Changed */
-  font-size: 1rem;
-  padding: 0.625rem 1.25rem;
-  font-weight: 500;
-}
-
-.btn-delete-selected i {
-  font-size: 1.125rem;
-  margin-right: 0.5rem;
-}
-
-.btn-delete-selected:hover {
-  background: rgba(244, 67, 54, 0.3);  /* Changed */
-  color: #F44336;  /* Changed */
-}
-
-.btn-delete-selected:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Pagination - Matching membership */
-.pagination-wrapper {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);  /* Changed */
-  padding-top: 1.5rem;
-}
-
-.pagination .page-item.active .page-link {
-  background-color: #ffffff;
-  border-color: #ffffff;
-  color: #000000;
-}
-
-.pagination .page-link {
-  color: #ffffff;  /* Changed */
-  background-color: #282A36;  /* Changed */
-  border-color: #555;
-  padding: 8px 12px;
-  margin: 0 2px;
-  border-radius: 4px;
-}
-
-.pagination .page-link:hover {
-  background-color: #ffffff;
-  border-color: #000000;
-  color: #000000;
-}
-
-.pagination .page-item.disabled .page-link {
-  background-color: #1a1d24;  /* Changed */
-  border-color: #333;
-  color: #666;
-}
-
-/* FIX #2: MODAL STYLES - PROPERLY POSITIONED AS POPUP */
-.modal-overlay {
-  display: none;  /* Hidden by default */
-  position: fixed;  /* FIXED positioning - this is KEY */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);  /* Dark overlay */
-  backdrop-filter: blur(5px);
-  z-index: 100000 !important;  /* VERY high z-index to appear above everything */
-  align-items: center;
-  justify-content: center;
-  overflow-y: auto;
-  padding: 20px;
-}
-
-.modal-overlay.show {
-  display: flex !important;  /* Shows as flexbox when active */
-}
-
-.modal-content {
-  background: white;
-  border-radius: 8px;
-  width: 100%;
-  max-width: 800px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  position: relative;
-  margin: auto;
-}
-
-.modal-content.small {
-  max-width: 500px;
-}
-
-.modal-header {
-  padding: 20px;
-  border-bottom: 1px solid #e0e0e0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #191C24;  /* Changed to match */
-  color: white;
-  border-radius: 8px 8px 0 0;
-}
-
-.modal-title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: white;
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: white;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-
-.modal-close:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #dc3545;
-}
-
-.modal-body {
-  padding: 20px;
-}
-
-.modal-footer {
-  padding: 20px;
-  border-top: 1px solid #e0e0e0;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  background: #f8f9fa;
-  border-radius: 0 0 8px 8px;
-}
-
-/* Refund Warning */
-.refund-warning {
-  background: #fff3cd;
-  border: 1px solid #ffc107;
-  border-radius: 4px;
-  padding: 12px;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.refund-warning i {
-  color: #ffc107;
-  font-size: 1.25rem;
-  flex-shrink: 0;
-}
-
-/* Confirmation Details */
-.confirmation-details {
-  background: #f8f9fa;
-  border-radius: 4px;
-  padding: 15px;
-  margin-bottom: 20px;
-}
-
-.confirmation-detail-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.confirmation-detail-row:last-child {
-  border-bottom: none;
-}
-
-.confirmation-detail-label {
-  font-weight: 600;
-  color: #666;
-}
-
-.confirmation-detail-value {
-  font-weight: 500;
-  color: #333;
-}
-
-.page-header-card {
-    background: #191C24 !important;
-    border: 1px solid rgba(255, 167, 38, 0.2);
-    border-radius: 14px;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 167, 38, 0.08);
-}
-
-/* Receipt Styles */
-.receipt-container {
-  max-width: 600px;
-  margin: 0 auto;
-  background: white;
-  color: #000;
-  padding: 30px;
-  font-family: 'Courier New', monospace;
-}
-
-.receipt-header {
-  text-align: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px dashed #333;
-}
-
-.receipt-header h2 {
-  margin: 0 0 10px 0;
-  font-size: 1.5rem;
-  color: #000;
-}
-
-.receipt-refund-badge {
-  display: inline-block;
-  background: #dc3545;
-  color: white;
-  padding: 5px 15px;
-  border-radius: 4px;
-  font-weight: bold;
-  margin-top: 10px;
-}
-
-.receipt-info {
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px dashed #666;
-}
-
-.receipt-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  color: #000;
-}
-
-.receipt-items {
-  margin-bottom: 20px;
-}
-
-.receipt-item {
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 1px dotted #ccc;
-}
-
-.receipt-total {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 2px solid #333;
-}
-
-.receipt-total .receipt-row {
-  font-size: 1.1rem;
-  font-weight: bold;
-}
-
-.receipt-footer {
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 2px dashed #333;
-  text-align: center;
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.receipt-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 20px 0;
-}
-
-.receipt-table th {
-  background: #333;
-  color: white;
-  padding: 10px;
-  text-align: left;
-}
-
-.receipt-table td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  color: #000;
-}
-
-/* Loading spinner */
-.loading-spinner {
-  text-align: center;
-  padding: 40px;
-}
-
-.spinner {
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #3498db;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-</style>
-@endpush
 
 @push('scripts')
 <script>
@@ -1359,7 +733,6 @@ function openRefundModal(type, id, receipt, amount, name) {
       <span class="confirmation-detail-value">${type === 'product' ? 'Product Payment' : 'Membership Payment'}</span>
     </div>`;
   
-  document.getElementById('refundReason').value = '';
   document.getElementById('refundModal').classList.add('show');
 }
 
@@ -1376,7 +749,7 @@ document.getElementById('confirmRefundBtn')?.addEventListener('click', function(
     return;
   }
   
-  const reason = document.getElementById('refundReason').value;
+  const reason = document.getElementById('refundReason')?.value || '';
   const url = currentRefundType === 'product' 
     ? `/payments/${currentRefundId}/refund` 
     : `/membership-payment/${currentRefundId}/refund`;
@@ -1386,7 +759,7 @@ document.getElementById('confirmRefundBtn')?.addEventListener('click', function(
   
   const formData = new FormData();
   formData.append('_token', CSRF_TOKEN);
-  formData.append('reason', reason || '');
+  formData.append('reason', reason);
   
   fetch(url, {
     method: 'POST',

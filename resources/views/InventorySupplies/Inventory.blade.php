@@ -93,16 +93,20 @@
               <h4 class="card-title mb-0">Inventory</h4>
               <div class="d-flex align-items-center">
                 <!-- Search Bar -->
-                <form action="{{ route('inventory.index') }}" method="GET" id="searchForm" class="d-inline" >
+                <form action="{{ route('inventory.index') }}" method="GET" id="searchForm" class="d-flex align-items-center">
                     <input type="hidden" name="filter" value="{{ request('filter') }}">
-                    <input type="text" 
-                          id="searchInput" 
-                          name="search" 
-                          class="form-control form-control-sm mr-2" 
-                          placeholder="Search products..." 
-                          value="{{ request('search') }}"
-                          style="width: 450px;"
-                          id="searchInput">
+                    <div class="search-wrapper mr-2">
+                      <input type="text" 
+                            id="searchInput" 
+                            name="search" 
+                            class="form-control form-control-sm" 
+                            placeholder="Search products..." 
+                            value="{{ request('search') }}"
+                            style="width: 450px;">
+                      @if(request('search'))
+                      <button type="button" class="search-clear-btn" onclick="clearSearch('searchInput', 'searchForm')">&times;</button>
+                      @endif
+                    </div>
                 </form> 
                 <!-- Filter Dropdown -->
                 <div class="dropdown d-inline-block mr-2">
@@ -127,19 +131,25 @@
                       href="{{ route('inventory.index', ['filter' => 'date_oldest', 'search' => request('search')]) }}">
                       <i class="mdi mdi-calendar"></i> Date Added (Oldest)
                     </a>
-                    <a class="dropdown-item filter-option {{ request('filter') == 'stock_asc' ? 'active' : '' }}" 
-                      href="{{ route('inventory.index', ['filter' => 'stock_asc', 'search' => request('search')]) }}">
-                      <i class="mdi mdi-sort-numeric-ascending"></i> Stock (Low to High)
+                    <div class="dropdown-divider"></div>
+                    <h6 class="dropdown-header">Stock Status</h6>
+                    <a class="dropdown-item filter-option {{ request('filter') == 'in_stock' ? 'active' : '' }}" 
+                      href="{{ route('inventory.index', ['filter' => 'in_stock', 'search' => request('search')]) }}">
+                      <i class="mdi mdi-check-circle text-success"></i> In Stock
                     </a>
-                    <a class="dropdown-item filter-option {{ request('filter') == 'stock_desc' ? 'active' : '' }}" 
-                      href="{{ route('inventory.index', ['filter' => 'stock_desc', 'search' => request('search')]) }}">
-                      <i class="mdi mdi-sort-numeric-descending"></i> Stock (High to Low)
+                    <a class="dropdown-item filter-option {{ request('filter') == 'low_stock' ? 'active' : '' }}" 
+                      href="{{ route('inventory.index', ['filter' => 'low_stock', 'search' => request('search')]) }}">
+                      <i class="mdi mdi-alert text-warning"></i> Low Stock
+                    </a>
+                    <a class="dropdown-item filter-option {{ request('filter') == 'out_of_stock' ? 'active' : '' }}" 
+                      href="{{ route('inventory.index', ['filter' => 'out_of_stock', 'search' => request('search')]) }}">
+                      <i class="mdi mdi-close-circle text-danger"></i> Out of Stock
                     </a>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="table-responsive" style="min-height: 600px;">
+            <div class="table-responsive">
               <table class="table table-hover">
                 <thead>
                   <tr>
@@ -166,7 +176,12 @@
                     <td>
                         <div class="form-check form-check-muted m-0">
                         <label class="form-check-label">
-                            <input type="checkbox" class="form-check-input item-checkbox" value="{{ $item->id }}">
+                            <input type="checkbox" 
+                                   class="form-check-input item-checkbox" 
+                                   value="{{ $item->id }}"
+                                   data-product-number="{{ $item->product_number }}"
+                                   data-product-name="{{ $item->product_name }}"
+                                   data-category="{{ $item->category }}">
                         </label>
                         </div>
                     </td>
@@ -222,13 +237,9 @@
                                   <i class="mdi mdi-minus-circle mr-2"></i> Stock Out
                               </button>
                               <div class="dropdown-divider"></div>
-                              <form action="{{ route('inventory.destroy', $item->id) }}" method="POST" class="d-inline delete-form">
-                                  @csrf
-                                  @method('DELETE')
-                                  <button type="submit" class="dropdown-item text-danger">
-                                      <i class="mdi mdi-delete mr-2"></i> Delete
-                                  </button>
-                              </form>
+                              <button type="button" class="dropdown-item text-danger" onclick="confirmDeleteSingle({{ $item->id }})">
+                                  <i class="mdi mdi-delete mr-2"></i> Delete
+                              </button>
                           </div>
                       </div>
                     </td>
@@ -243,103 +254,19 @@
             </div>
             
             <!-- Pagination and Bulk Delete -->
-            <div class="d-flex justify-content-between align-items-center mt-4 pt-3">
-                <!-- Bulk Delete Button (Left) -->
-                <button id="bulkActionBtn" class="btn btn-sm btn-danger" disabled>
-                    <i class="mdi mdi-delete"></i> Delete Selected (<span id="selectedCount">0</span>)
-                </button>
-                
-                <!-- Pagination (Right) -->
-                @if(isset($inventoryItems))
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination pagination-sm mb-0">
-                            {{-- Previous Page Link --}}
-                            @if ($inventoryItems->onFirstPage())
-                                <li class="page-item disabled">
-                                    <span class="page-link" style="border-radius: 4px 0 0 4px;">
-                                        <i class="mdi mdi-chevron-left"></i>
-                                    </span>
-                                </li>
-                            @else
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $inventoryItems->previousPageUrl() }}" style="border-radius: 4px 0 0 4px;">
-                                        <i class="mdi mdi-chevron-left"></i>
-                                    </a>
-                                </li>
-                            @endif
-
-                            {{-- Pagination Elements - Show only 3 pages at a time --}}
-                            @php
-                                $currentPage = $inventoryItems->currentPage();
-                                $lastPage = $inventoryItems->lastPage();
-                                
-                                // Calculate start and end page for 3-page window
-                                if ($currentPage == 1) {
-                                    $start = 1;
-                                    $end = min(3, $lastPage);
-                                } elseif ($currentPage == $lastPage) {
-                                    $start = max(1, $lastPage - 2);
-                                    $end = $lastPage;
-                                } else {
-                                    $start = max(1, $currentPage - 1);
-                                    $end = min($lastPage, $currentPage + 1);
-                                }
-                            @endphp
-
-                            {{-- Show first page if not in range --}}
-                            @if($start > 1)
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $inventoryItems->url(1) }}">1</a>
-                                </li>
-                                @if($start > 2)
-                                    <li class="page-item disabled">
-                                        <span class="page-link">...</span>
-                                    </li>
-                                @endif
-                            @endif
-
-                            {{-- Show pages in range --}}
-                            @for($page = $start; $page <= $end; $page++)
-                                @if ($page == $currentPage)
-                                    <li class="page-item active">
-                                        <span class="page-link">{{ $page }}</span>
-                                    </li>
-                                @else
-                                    <li class="page-item">
-                                        <a class="page-link" href="{{ $inventoryItems->url($page) }}">{{ $page }}</a>
-                                    </li>
-                                @endif
-                            @endfor
-
-                            {{-- Show last page if not in range --}}
-                            @if($end < $lastPage)
-                                @if($end < $lastPage - 1)
-                                    <li class="page-item disabled">
-                                        <span class="page-link">...</span>
-                                    </li>
-                                @endif
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $inventoryItems->url($lastPage) }}">{{ $lastPage }}</a>
-                                </li>
-                            @endif
-
-                            {{-- Next Page Link --}}
-                            @if ($inventoryItems->hasMorePages())
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $inventoryItems->nextPageUrl() }}" style="border-radius: 0 4px 4px 0;">
-                                        <i class="mdi mdi-chevron-right"></i>
-                                    </a>
-                                </li>
-                            @else
-                                <li class="page-item disabled">
-                                    <span class="page-link" style="border-radius: 0 4px 4px 0;">
-                                        <i class="mdi mdi-chevron-right"></i>
-                                    </span>
-                                </li>
-                            @endif
-                        </ul>
-                    </nav>
-                @endif
+            <div class="pagination-wrapper mt-4">
+                <div class="row align-items-center">
+                  <div class="col-md-6">
+                    <button type="button" id="bulkActionBtn" class="btn btn-sm btn-delete-selected" disabled onclick="bulkDeleteInventory()">
+                        <i class="mdi mdi-delete"></i> Delete Selected (<span id="selectedCount">0</span>)
+                    </button>
+                  </div>
+                  <div class="col-md-6">
+                    @if(isset($inventoryItems))
+                      {{ $inventoryItems->links('vendor.pagination.custom') }}
+                    @endif
+                  </div>
+                </div>
             </div>
           </div>
         </div>
@@ -769,6 +696,50 @@
         </div>
       </div>
     </div>
+
+    <!-- Bulk Delete Form -->
+    <form id="bulkDeleteInventoryForm" action="{{ route('inventory.bulk-delete') }}" method="POST" style="display: none;">
+      @csrf
+      @method('DELETE')
+    </form>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmModal" class="modal-overlay">
+      <div class="modal-content small">
+        <div class="modal-header" style="background-color: #dc3545; color: #fff;">
+          <h5 class="modal-title"><i class="mdi mdi-alert-circle-outline"></i> Confirm Delete</h5>
+          <button type="button" class="modal-close" onclick="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="refund-warning" style="background: #f8d7da; border-color: #dc3545;">
+            <i class="mdi mdi-alert" style="color: #dc3545;"></i>
+            <div style="color: #000;">
+              <strong>Warning:</strong> This action cannot be undone. You are about to delete <strong id="deleteItemCount">0</strong>.
+            </div>
+          </div>
+          <div class="confirmation-details" id="deleteDetails">
+            <div class="confirmation-detail-row">
+              <span class="confirmation-detail-label">Items to delete:</span>
+              <span class="confirmation-detail-value" id="deleteItemCount">1</span>
+            </div>
+            <div class="confirmation-detail-row" style="border-bottom: none;">
+              <span class="confirmation-detail-label" style="color: #000;">Are you sure to delete selected product?</span>
+            </div>
+          </div>
+          <div id="selectedProductsList" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 4px; max-height: 200px; overflow-y: auto;">
+            <!-- Selected products will be listed here -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
+            <i class="mdi mdi-close"></i> Cancel
+          </button>
+          <button type="button" class="btn btn-danger" onclick="executeDelete()">
+            <i class="mdi mdi-delete"></i> Delete
+          </button>
+        </div>
+      </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -820,45 +791,6 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedCount.textContent = checkedCount;
         bulkActionBtn.disabled = checkedCount === 0;
     }
-
-    // Bulk delete action
-    bulkActionBtn.addEventListener('click', function() {
-        if (this.disabled) return;
-        
-        const checkedItems = Array.from(document.querySelectorAll('.item-checkbox:checked'))
-            .map(cb => cb.value);
-        
-        if (checkedItems.length === 0) return;
-
-        if (confirm(`Are you sure you want to delete ${checkedItems.length} item(s)?`)) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '{{ route("inventory.bulk-delete") }}';
-            
-            const csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = '_token';
-            csrfToken.value = '{{ csrf_token() }}';
-            form.appendChild(csrfToken);
-            
-            const methodField = document.createElement('input');
-            methodField.type = 'hidden';
-            methodField.name = '_method';
-            methodField.value = 'DELETE';
-            form.appendChild(methodField);
-            
-            checkedItems.forEach(id => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'ids[]';
-                input.value = id;
-                form.appendChild(input);
-            });
-            
-            document.body.appendChild(form);
-            form.submit();
-        }
-    });
 
     // Stock In Modal
     document.querySelectorAll('.stock-in-btn').forEach(btn => {
@@ -953,16 +885,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Delete form confirmation
-    document.querySelectorAll('.delete-form').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (confirm('Are you sure you want to delete this item?')) {
-                this.submit();
-            }
-        });
-    });
-
     // Reset modals on close
     $('#addProductModal').on('hidden.bs.modal', function () {
         document.getElementById('addProductForm').reset();
@@ -1003,6 +925,120 @@ document.addEventListener('DOMContentLoaded', function() {
             $('#addProductModal').modal('show');
         });
     @endif
+
+    // Close delete modal on escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDeleteModal();
+        }
+    });
+
+    // Close delete modal on overlay click
+    document.getElementById('deleteConfirmModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
 });
+
+// Delete confirmation modal logic
+let pendingDeleteAction = null;
+
+function clearSearch(inputId, formId) {
+    const input = document.getElementById(inputId);
+    if (input) {
+        input.value = '';
+        document.getElementById(formId).submit();
+    }
+}
+
+function showDeleteModal(itemDescription) {
+    document.getElementById('deleteItemCount').textContent = itemDescription;
+    document.getElementById('deleteConfirmModal').classList.add('show');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteConfirmModal').classList.remove('show');
+    pendingDeleteAction = null;
+}
+
+function executeDelete() {
+    if (pendingDeleteAction) {
+        pendingDeleteAction();
+        pendingDeleteAction = null;
+    }
+    closeDeleteModal();
+}
+
+// Single item delete via dropdown
+function confirmDeleteSingle(itemId) {
+    // Find the row containing this item
+    const checkbox = document.querySelector(`.item-checkbox[value="${itemId}"]`);
+    let productInfo = '';
+    
+    if (checkbox) {
+        const productNumber = checkbox.dataset.productNumber;
+        const productName = checkbox.dataset.productName;
+        const category = checkbox.dataset.category;
+        productInfo = `
+            <div style="padding: 8px; border-left: 3px solid #dc3545; margin-bottom: 8px; background: white;">
+                <div style="color: #000; font-weight: 500;">${productName}</div>
+                <div style="color: #666; font-size: 0.875rem;">Product #: ${productNumber} | Category: ${category}</div>
+            </div>
+        `;
+    }
+    
+    document.getElementById('selectedProductsList').innerHTML = productInfo;
+    
+    pendingDeleteAction = function() {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/inventory/' + itemId;
+        form.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
+        document.body.appendChild(form);
+        form.submit();
+    };
+    showDeleteModal('1 product');
+}
+
+// Bulk delete
+function bulkDeleteInventory() {
+    const checked = document.querySelectorAll('.item-checkbox:checked');
+    if (checked.length === 0) return;
+
+    // Build list of selected products
+    let productsList = '';
+    checked.forEach(cb => {
+        const productNumber = cb.dataset.productNumber;
+        const productName = cb.dataset.productName;
+        const category = cb.dataset.category;
+        productsList += `
+            <div style="padding: 8px; border-left: 3px solid #dc3545; margin-bottom: 8px; background: white;">
+                <div style="color: #000; font-weight: 500;">${productName}</div>
+                <div style="color: #666; font-size: 0.875rem;">Product #: ${productNumber} | Category: ${category}</div>
+            </div>
+        `;
+    });
+    
+    document.getElementById('selectedProductsList').innerHTML = productsList;
+
+    pendingDeleteAction = function() {
+        const form = document.getElementById('bulkDeleteInventoryForm');
+        // Clear previous hidden inputs (keep csrf and method)
+        form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+
+        checked.forEach(cb => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'ids[]';
+            input.value = cb.value;
+            form.appendChild(input);
+        });
+
+        form.submit();
+    };
+
+    showDeleteModal(checked.length + ' product(s)');
+}
 </script>
 @endpush

@@ -1,4 +1,5 @@
-.table-responsive::-webkit-scrollbar {
+/* CONSISTENT COLOR SCHEME MATCHING MEMBERSHIP PAYMENT */
+  .table-responsive::-webkit-scrollbar {
     height: 8px;
   }
   
@@ -162,14 +163,14 @@
   .btn {
     padding: 0.875rem 2rem;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     font-weight: 600;
     font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
+    position: relative;
+    overflow: hidden;
+}
 
   .btn:hover {
     transform: translateY(-2px);
@@ -177,12 +178,12 @@
   }
 
   .btn-primary {
-    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    background: #0d6efd;
     color: white;
-  }
+}
 
   .btn-primary:hover {
-    background: linear-gradient(135deg, #0b5ed7 0%, #0a58ca 100%);
+    background: #138496;
   }
 
   .btn-secondary {
@@ -226,7 +227,7 @@
   /* Table Styles - Enhanced */
   .table-responsive {
     overflow-x: auto;
-    min-height: 600px;
+    min-height: 300px;
     border-radius: 8px;
   }
 
@@ -273,12 +274,13 @@
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(5px);
     z-index: 9999;
+    animation: fadeIn 0.3s ease;
     align-items: center;
     justify-content: center;
   }
 
   .modal-overlay.show {
-    display: flex !important;
+    display: flex;
   }
 
   @keyframes fadeIn {

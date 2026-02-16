@@ -75,6 +75,20 @@ class InventorySupplyController extends Controller
                 case 'stock_desc':
                     $query->orderBy('stock_qty', 'desc');
                     break;
+                case 'in_stock':
+                    $query->whereColumn('stock_qty', '>=', 'low_stock_threshold')
+                          ->where('stock_qty', '>', 0)
+                          ->orderBy('created_at', 'desc');
+                    break;
+                case 'low_stock':
+                    $query->whereColumn('stock_qty', '<', 'low_stock_threshold')
+                          ->where('stock_qty', '>', 0)
+                          ->orderBy('created_at', 'desc');
+                    break;
+                case 'out_of_stock':
+                    $query->where('stock_qty', 0)
+                          ->orderBy('created_at', 'desc');
+                    break;
                 default:
                     $query->orderBy('created_at', 'desc');
             }

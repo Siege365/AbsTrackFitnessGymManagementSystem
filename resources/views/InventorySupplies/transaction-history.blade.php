@@ -91,7 +91,7 @@
                             <p class="text-muted mt-3">No transactions recorded yet</p>
                         </div>
                     @else
-                        <div class="timeline">
+                        <div class="timeline" style="max-height: 680px; overflow-y: auto; padding-right: 10px;">
                             <div class="timeline-inner">
                             @foreach($item->transactions as $transaction)
                                 <div class="timeline-item {{ $transaction->transaction_type }}">

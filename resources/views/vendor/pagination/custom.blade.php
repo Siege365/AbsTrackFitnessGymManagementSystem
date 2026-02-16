@@ -11,14 +11,13 @@
             @php
                 $currentPage = $paginator->currentPage();
                 $lastPage = $paginator->lastPage();
-                $showEllipsis = $lastPage > 7;
+                $showEllipsis = $lastPage > 5;
             @endphp
 
             @if ($showEllipsis)
-                {{-- Show: 1 2 3 4 5 ... lastPage-1 lastPage --}}
                 @if ($currentPage <= 4)
-                    {{-- Near start: show 1-5, ellipsis, last 2 --}}
-                    @for ($i = 1; $i <= 5; $i++)
+                    {{-- Near start: show 1-5, ellipsis, last page --}}
+                    @for ($i = 1; $i <= min(5, $lastPage); $i++)
                         <li class="page-item {{ $currentPage == $i ? 'active' : '' }}">
                             <a class="page-link" href="{{ $paginator->url($i) }}">{{ $i }}</a>
                         </li>
@@ -26,33 +25,27 @@
                     <li class="page-item disabled">
                         <span class="page-link">...</span>
                     </li>
-                    @for ($i = $lastPage - 1; $i <= $lastPage; $i++)
-                        <li class="page-item {{ $currentPage == $i ? 'active' : '' }}">
-                            <a class="page-link" href="{{ $paginator->url($i) }}">{{ $i }}</a>
-                        </li>
-                    @endfor
+                    <li class="page-item {{ $currentPage == $lastPage ? 'active' : '' }}">
+                        <a class="page-link" href="{{ $paginator->url($lastPage) }}">{{ $lastPage }}</a>
+                    </li>
                 @elseif ($currentPage >= $lastPage - 3)
-                    {{-- Near end: show first 2, ellipsis, last 5 --}}
-                    @for ($i = 1; $i <= 2; $i++)
-                        <li class="page-item {{ $currentPage == $i ? 'active' : '' }}">
-                            <a class="page-link" href="{{ $paginator->url($i) }}">{{ $i }}</a>
-                        </li>
-                    @endfor
+                    {{-- Near end: show first page, ellipsis, last 5 --}}
+                    <li class="page-item {{ $currentPage == 1 ? 'active' : '' }}">
+                        <a class="page-link" href="{{ $paginator->url(1) }}">1</a>
+                    </li>
                     <li class="page-item disabled">
                         <span class="page-link">...</span>
                     </li>
-                    @for ($i = $lastPage - 4; $i <= $lastPage; $i++)
+                    @for ($i = max($lastPage - 4, 1); $i <= $lastPage; $i++)
                         <li class="page-item {{ $currentPage == $i ? 'active' : '' }}">
                             <a class="page-link" href="{{ $paginator->url($i) }}">{{ $i }}</a>
                         </li>
                     @endfor
                 @else
-                    {{-- Middle: show first 2, ellipsis, current-1 to current+1, ellipsis, last 2 --}}
-                    @for ($i = 1; $i <= 2; $i++)
-                        <li class="page-item {{ $currentPage == $i ? 'active' : '' }}">
-                            <a class="page-link" href="{{ $paginator->url($i) }}">{{ $i }}</a>
-                        </li>
-                    @endfor
+                    {{-- Middle: show first page, ellipsis, current-1 to current+1, ellipsis, last page --}}
+                    <li class="page-item {{ $currentPage == 1 ? 'active' : '' }}">
+                        <a class="page-link" href="{{ $paginator->url(1) }}">1</a>
+                    </li>
                     <li class="page-item disabled">
                         <span class="page-link">...</span>
                     </li>
@@ -64,14 +57,12 @@
                     <li class="page-item disabled">
                         <span class="page-link">...</span>
                     </li>
-                    @for ($i = $lastPage - 1; $i <= $lastPage; $i++)
-                        <li class="page-item {{ $currentPage == $i ? 'active' : '' }}">
-                            <a class="page-link" href="{{ $paginator->url($i) }}">{{ $i }}</a>
-                        </li>
-                    @endfor
+                    <li class="page-item {{ $currentPage == $lastPage ? 'active' : '' }}">
+                        <a class="page-link" href="{{ $paginator->url($lastPage) }}">{{ $lastPage }}</a>
+                    </li>
                 @endif
             @else
-                {{-- 7 or fewer pages: show all --}}
+                {{-- 5 or fewer pages: show all --}}
                 @for ($i = 1; $i <= $lastPage; $i++)
                     <li class="page-item {{ $currentPage == $i ? 'active' : '' }}">
                         <a class="page-link" href="{{ $paginator->url($i) }}">{{ $i }}</a>
