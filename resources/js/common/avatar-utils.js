@@ -275,3 +275,6 @@ const AvatarUtils = (function() {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = AvatarUtils;
 }
+
+// Make globally accessible for inline scripts
+window.AvatarUtils = AvatarUtils;

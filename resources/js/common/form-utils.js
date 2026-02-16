@@ -268,3 +268,6 @@ const FormUtils = (function() {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = FormUtils;
 }
+
+// Make globally accessible for inline scripts
+window.FormUtils = FormUtils;

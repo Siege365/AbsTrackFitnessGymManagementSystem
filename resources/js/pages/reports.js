@@ -809,3 +809,6 @@ const ReportsPage = (function() {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ReportsPage;
 }
+
+// Make globally accessible for inline scripts
+window.ReportsPage = ReportsPage;

@@ -21,7 +21,7 @@
           <i class="mdi mdi-account-multiple"></i>
         </span>
         <span class="menu-title">Customers</span>
-        <i class="menu-arrow"></i>
+        <i class="menu-arrow mdi mdi-chevron-down"></i>
       </a>
 
       <div class="collapse" id="customers-menu">
@@ -49,7 +49,7 @@
           <i class="mdi mdi-credit-card"></i>
         </span>
         <span class="menu-title">Payments & Billing</span>
-        <i class="menu-arrow"></i>
+        <i class="menu-arrow mdi mdi-chevron-down"></i>
       </a>
       <div class="collapse" id="payments-menu">
         <ul class="nav flex-column sub-menu">
@@ -87,7 +87,7 @@
           <i class="mdi mdi-account-key"></i>
         </span>
         <span class="menu-title">Users/Admin</span>
-        <i class="menu-arrow"></i>
+        <i class="menu-arrow mdi mdi-chevron-down"></i>
       </a>
       <div class="collapse" id="auth">
         <ul class="nav flex-column sub-menu">

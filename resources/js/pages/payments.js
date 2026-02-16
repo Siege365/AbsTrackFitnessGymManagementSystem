@@ -461,3 +461,6 @@ const PaymentsPage = (function() {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = PaymentsPage;
 }
+
+// Make globally accessible for inline scripts
+window.PaymentsPage = PaymentsPage;

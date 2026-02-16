@@ -9,9 +9,9 @@ const Sidebar = (function() {
 
   // Configuration
   const CONFIG = {
-    storageKey: 'sidebarCollapsed',
+    storageKey: 'sidebar-state',
     selectors: {
-      toggler: '.navbar-toggler',
+      toggler: '[data-toggle="minimize"]',
       collapseLinks: '.sidebar .nav-link[data-toggle="collapse"]',
       navLinks: '.sidebar .nav-link:not([data-toggle="collapse"])',
       openMenus: '.sidebar .collapse.show',
@@ -32,7 +32,7 @@ const Sidebar = (function() {
    * @returns {boolean}
    */
   function getSavedState() {
-    return localStorage.getItem(CONFIG.storageKey) === 'true';
+    return localStorage.getItem(CONFIG.storageKey) === 'collapsed';
   }
 
   /**
@@ -40,7 +40,7 @@ const Sidebar = (function() {
    * @param {boolean} collapsed
    */
   function saveState(collapsed) {
-    localStorage.setItem(CONFIG.storageKey, collapsed);
+    localStorage.setItem(CONFIG.storageKey, collapsed ? 'collapsed' : 'expanded');
   }
 
   /**
@@ -92,37 +92,47 @@ const Sidebar = (function() {
 
   /**
    * Setup submenu toggle functionality
+   * Uses direct DOM manipulation (no Bootstrap Collapse dependency)
    */
   function setupSubmenuToggle() {
     const toggleLinks = document.querySelectorAll(CONFIG.selectors.collapseLinks);
 
     toggleLinks.forEach(function(element) {
+      const targetSelector = element.getAttribute('href');
+      const target = document.querySelector(targetSelector);
+      const parent = element.closest(CONFIG.selectors.menuItems);
+      
+      if (!target) return;
+
       element.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
 
-        const targetSelector = this.getAttribute('href');
-        const target = document.querySelector(targetSelector);
-        const parent = this.closest(CONFIG.selectors.menuItems);
+        const isOpen = target.classList.contains(CONFIG.classes.show);
 
-        if (!target) return;
-
-        // Toggle collapse
-        if (target.classList.contains(CONFIG.classes.show)) {
-          target.classList.remove(CONFIG.classes.show);
-          parent.classList.remove(CONFIG.classes.active);
-        } else {
-          // Close other open menus first
-          document.querySelectorAll(CONFIG.selectors.openMenus).forEach(function(openMenu) {
-            openMenu.classList.remove(CONFIG.classes.show);
-            const parentItem = openMenu.closest(CONFIG.selectors.menuItems);
-            if (parentItem && !parentItem.querySelector(`${CONFIG.selectors.subMenu} ${CONFIG.selectors.navItem}.${CONFIG.classes.active}`)) {
-              parentItem.classList.remove(CONFIG.classes.active);
+        // Close all open menus first
+        document.querySelectorAll(CONFIG.selectors.openMenus).forEach(function(openMenu) {
+          openMenu.classList.remove(CONFIG.classes.show);
+          const openParent = openMenu.closest(CONFIG.selectors.menuItems);
+          if (openParent) {
+            // Check if this dropdown has an active subpage
+            const hasActiveChild = openMenu.querySelector('.sub-menu .nav-link.active');
+            
+            // Only remove active class if no active subpage inside
+            if (!hasActiveChild) {
+              openParent.classList.remove(CONFIG.classes.active);
             }
-          });
+            
+            const openLink = openParent.querySelector('[data-toggle="collapse"]');
+            if (openLink) openLink.setAttribute('aria-expanded', 'false');
+          }
+        });
 
+        // Toggle current menu (if it was closed, open it)
+        if (!isOpen) {
           target.classList.add(CONFIG.classes.show);
           parent.classList.add(CONFIG.classes.active);
+          element.setAttribute('aria-expanded', 'true');
         }
       });
     });
@@ -149,12 +159,26 @@ const Sidebar = (function() {
             navItem.classList.add(CONFIG.classes.active);
           }
 
-          // If inside submenu, open parent collapse
+          // If inside submenu, handle parent dropdown and link highlighting
           const subMenu = link.closest(CONFIG.selectors.subMenu);
           if (subMenu) {
+            // Add active class to the submenu link itself
+            link.classList.add(CONFIG.classes.active);
+            
+            // Open parent collapse
             const collapseEl = subMenu.closest(CONFIG.selectors.collapse);
             if (collapseEl) {
               collapseEl.classList.add(CONFIG.classes.show);
+              
+              // Add active class to parent menu-items and set aria-expanded
+              const parentMenuItem = collapseEl.closest(CONFIG.selectors.menuItems);
+              if (parentMenuItem) {
+                parentMenuItem.classList.add(CONFIG.classes.active);
+                const parentLink = parentMenuItem.querySelector('[data-toggle="collapse"]');
+                if (parentLink) {
+                  parentLink.setAttribute('aria-expanded', 'true');
+                }
+              }
             }
           }
         }
@@ -195,3 +219,6 @@ document.addEventListener('DOMContentLoaded', function() {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = Sidebar;
 }
+
+// Make globally accessible for inline scripts
+window.Sidebar = Sidebar;

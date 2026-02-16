@@ -745,3 +745,6 @@ const ClientsPage = (function() {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ClientsPage;
 }
+
+// Make globally accessible for inline scripts
+window.ClientsPage = ClientsPage;

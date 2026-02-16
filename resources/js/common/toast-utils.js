@@ -253,3 +253,6 @@ const ToastUtils = (function() {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ToastUtils;
 }
+
+// Make globally accessible for inline scripts
+window.ToastUtils = ToastUtils;

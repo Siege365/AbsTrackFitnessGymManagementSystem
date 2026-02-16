@@ -154,3 +154,6 @@ const BulkSelection = (function() {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = BulkSelection;
 }
+
+// Make globally accessible for inline scripts
+window.BulkSelection = BulkSelection;

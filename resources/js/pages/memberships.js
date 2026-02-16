@@ -707,3 +707,6 @@ const MembershipsPage = (function() {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = MembershipsPage;
 }
+
+// Make globally accessible for inline scripts
+window.MembershipsPage = MembershipsPage;
