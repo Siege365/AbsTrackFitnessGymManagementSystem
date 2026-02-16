@@ -360,7 +360,7 @@ class PaymentController extends Controller
 
     public function bulkDelete(Request $request)
     {
-        $ids = json_decode($request->ids, true);
+        $ids = $request->input('ids', []);
         
         if (!is_array($ids) || empty($ids)) {
             return back()->withErrors(['error' => 'No transactions selected.']);

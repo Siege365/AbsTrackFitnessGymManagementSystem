@@ -169,14 +169,14 @@
   .btn {
     padding: 0.875rem 2rem;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     font-weight: 600;
     font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
+    position: relative;
+    overflow: hidden;
+}
 
   .btn:hover {
     transform: translateY(-2px);
@@ -184,12 +184,12 @@
   }
 
   .btn-primary {
-    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    background: #0d6efd;
     color: white;
-  }
+}
 
   .btn-primary:hover {
-    background: linear-gradient(135deg, #0b5ed7 0%, #0a58ca 100%);
+    background: #138496;
   }
 
   .btn-secondary {

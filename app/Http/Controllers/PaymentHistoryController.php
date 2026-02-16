@@ -22,21 +22,24 @@ class PaymentHistoryController extends Controller
 
     public function index(Request $request)
     {
-        // Build base queries (don't hard-exclude refunded here so filter can control it)
+        // Sort direction per table (default: newest)
+        $productSort = $request->get('product_sort', 'newest');
+        $membershipSort = $request->get('membership_sort', 'newest');
+
+        // Build base queries — exclude refunded (they appear in the refunded table)
         $productQuery = Payment::with('items')
-            ->orderBy('created_at', 'desc');
+            ->where('is_refunded', false)
+            ->orderBy('created_at', $productSort === 'oldest' ? 'asc' : 'desc');
 
-        $membershipQuery = MembershipPayment::orderBy('created_at', 'desc');
+        $membershipQuery = MembershipPayment::where('is_refunded', false)
+            ->orderBy('created_at', $membershipSort === 'oldest' ? 'asc' : 'desc');
 
-        // Per-table search inputs (product_search, membership_search, refund_search)
+        // Per-table search inputs
         $productSearch = $request->get('product_search', null);
         $membershipSearch = $request->get('membership_search', null);
         $refundSearch = $request->get('refund_search', null);
 
-        // Per-table filters
-        // Default to showing paid (non-refunded) entries in each table
-        $productFilter = $request->get('product_filter', 'paid');
-        $membershipFilter = $request->get('membership_filter', 'paid');
+        // Refund table type filter
         $refundFilter = $request->get('refund_filter', 'all');
 
         // Apply product search
@@ -55,25 +58,13 @@ class PaymentHistoryController extends Controller
             });
         }
 
-        // Apply product filter (paid/refunded/all)
-        if ($productFilter === 'paid') {
-            $productQuery->where('is_refunded', false);
-        } elseif ($productFilter === 'refunded') {
-            $productQuery->where('is_refunded', true);
-        }
+        // Paginate lists — 6 rows per page
+        $productPayments = $productQuery->paginate(6, ['*'], 'product_page')
+            ->appends($request->except('product_page'));
+        $membershipPayments = $membershipQuery->paginate(6, ['*'], 'membership_page')
+            ->appends($request->except('membership_page'));
 
-        // Apply membership filter (paid/refunded/all)
-        if ($membershipFilter === 'paid') {
-            $membershipQuery->where('is_refunded', false);
-        } elseif ($membershipFilter === 'refunded') {
-            $membershipQuery->where('is_refunded', true);
-        }
-
-        // Paginate lists
-        $productPayments = $productQuery->paginate(10, ['*'], 'product_page')->withQueryString();
-        $membershipPayments = $membershipQuery->paginate(10, ['*'], 'membership_page')->withQueryString();
-
-        // Build combined refunded list (use refund_search and refund_filter)
+        // Build combined refunded list
         $refProd = Payment::whereNotNull('refunded_at')->where('is_refunded', true);
         $refMem = MembershipPayment::whereNotNull('refunded_at')->where('is_refunded', true);
 
@@ -126,9 +117,9 @@ class PaymentHistoryController extends Controller
 
         $combined = $refProdList->merge($refMemList)->sortByDesc('refunded_at')->values();
 
-        // Simple paginator for combined refunds
+        // Paginate combined refunds — 6 per page
         $page = $request->get('refunded_page', 1);
-        $perPage = 10;
+        $perPage = 6;
         $offset = ($page - 1) * $perPage;
         $itemsForCurrentPage = $combined->slice($offset, $perPage)->all();
 
@@ -137,8 +128,9 @@ class PaymentHistoryController extends Controller
             $combined->count(),
             $perPage,
             $page,
-            ['path' => url()->current(), 'query' => $request->query()]
+            ['path' => url()->current(), 'pageName' => 'refunded_page']
         );
+        $combinedRefunds->appends($request->except('refunded_page'));
 
         return view('PaymentAndBillings.PaymentHistory', compact('productPayments', 'membershipPayments', 'combinedRefunds'));
     }

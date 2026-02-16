@@ -156,7 +156,7 @@
                     <th> Unit Price </th>
                     <th> Stock Qty</th>
                     <th> Status </th>
-                    <th> Transaction History </th>
+                    <th> Stock History </th>
                     <th> Actions </th>
                   </tr>
                 </thead>
@@ -185,8 +185,8 @@
                         @endif
                     </td>
                     <td>
-                        <a href="{{ route('inventory.transaction-history', $item->id) }}" class="btn btn-sm btn-outline-primary">
-                            <i class="mdi mdi-history"></i> View History
+                        <a href="{{ route('inventory.transaction-history', $item->id) }}" class="btn btn-outline-info">
+                            <i class="mdi mdi-history" ></i> View
                         </a>
                     </td>
                     <td>

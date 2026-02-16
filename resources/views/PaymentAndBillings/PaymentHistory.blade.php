@@ -20,27 +20,35 @@
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h4>Product Payments</h4>
         <div class="d-flex align-items-center">
-          <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" id="searchForm">
-            <input type="text" 
-              name="product_search" 
-              class="form-control form-control-sm mr-2" 
-              placeholder="Search..." 
-              value="{{ request('product_search') }}" 
-              style="width: 450px;"
-              id="searchInput">
-            </form>
-            <div class="dropdown d-inline-block mr-2">
-              <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="filterDropdown" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
-                <i class="mdi mdi-filter-variant"></i> Filter
-              </button>
-              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="filterDropdown">
-                <h6 class="dropdown-header">Status</h6>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('product_filter'), ['product_search' => request('product_search'), 'product_filter' => 'all'])) }}"> <i class="mdi mdi-account-multiple mr-2"></i>All</a>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('product_filter'), ['product_search' => request('product_search'), 'product_filter' => 'paid'])) }}"> <i class="mdi mdi-cash mr-2 text-success"></i>Paid Only</a>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('product_filter'), ['product_search' => request('product_search'), 'product_filter' => 'refunded'])) }}"> <i class="mdi mdi-cash-refund mr-2 text-danger"></i>Refunded Only</a>
-              </div>
+          <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" id="productSearchForm">
+            @foreach(request()->except(['product_search', 'product_page']) as $key => $value)
+              @if(!is_array($value))
+                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+              @endif
+            @endforeach
+            <div class="search-wrapper mr-2">
+              <input type="text" 
+                name="product_search" 
+                class="form-control form-control-sm" 
+                placeholder="Search..." 
+                value="{{ request('product_search') }}" 
+                style="width: 450px;"
+                id="productSearchInput">
+              @if(request('product_search'))
+              <button type="button" class="search-clear-btn" onclick="clearSearch('productSearchInput', 'productSearchForm')">&times;</button>
+              @endif
             </div>
           </form>
+          <div class="dropdown d-inline-block mr-2">
+            <button type="button" class="btn btn-sm filter-button dropdown-toggle" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+              <i class="mdi mdi-sort-variant"></i> Sort
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+              <h6 class="dropdown-header">Sort By</h6>
+              <a class="dropdown-item {{ request('product_sort', 'newest') === 'newest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['product_sort', 'product_page']), ['product_sort' => 'newest'])) }}"> <i class="mdi mdi-sort-descending mr-2"></i>Newest First</a>
+              <a class="dropdown-item {{ request('product_sort') === 'oldest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['product_sort', 'product_page']), ['product_sort' => 'oldest'])) }}"> <i class="mdi mdi-sort-ascending mr-2"></i>Oldest First</a>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -55,18 +63,17 @@
                   </label>
                 </div>
               </th>
-              <th>Receipt #</th>
-              <th>Customer</th>
-              <th>Date</th>
-              <th>Total</th>
-              <th>Cashier</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th class="text-left">Receipt #</th>
+              <th class="text-left">Customer</th>
+              <th class="text-left"> Date</th>
+              <th class="text-left">Amount</th>
+              <th class="text-left">Cashier</th>
+              <th class="text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
             @forelse($productPayments ?? [] as $p)
-            <tr class="{{ $p->is_refunded ? 'table-warning' : '' }}">
+            <tr>
               <td>
                 <div class="form-check">
                   <label class="form-check-label">
@@ -80,27 +87,18 @@
               <td>₱{{ number_format($p->total_amount,2) }}</td>
               <td>{{ $p->cashier_name }}</td>
               <td>
-                @if($p->is_refunded)
-                  <span class="badge badge-warning">{{ ucfirst($p->refund_status) }} Refund</span>
-                @else
-                  <span class="badge badge-success">Paid</span>
-                @endif
-              </td>
-              <td>
                 <div class="dropdown">
                   <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
                     <i class="mdi mdi-dots-vertical"></i>
                   </button>
-                  <div class="dropdown-menu dropdown-menu-right" style="z-index: 98;">
+                  <div class="dropdown-menu dropdown-menu-right">
                     <button type="button" class="dropdown-item" onclick="viewHistoryReceipt('product', {{ $p->id }})">
                       <i class="mdi mdi-eye mr-2"></i> View Receipt
                     </button>
-                    @if(!$p->is_refunded)
                     <button type="button" class="dropdown-item text-warning" onclick="openRefundModal('product', {{ $p->id }}, '{{ $p->receipt_number }}', {{ $p->total_amount }}, '{{ addslashes($p->customer_name) }}')">
                       <i class="mdi mdi-cash-refund mr-2"></i> Refund
                     </button>
-                    @endif
-                    <button type="button" class="dropdown-item text-danger" onclick="deleteSingleTransaction('product', {{ $p->id }})">
+                    <button type="button" class="dropdown-item text-danger" onclick="confirmDeleteSingle('product', {{ $p->id }})">
                       <i class="mdi mdi-delete mr-2"></i> Delete
                     </button>
                   </div>
@@ -109,7 +107,7 @@
             </tr>
             @empty
             <tr>
-              <td colspan="8" class="text-center">No product payments found</td>
+              <td colspan="7" class="text-center">No product payments found</td>
             </tr>
             @endforelse
           </tbody>
@@ -124,7 +122,7 @@
             </button>
           </div>
           <div class="col-md-6">
-            {{ $productPayments->appends(request()->except('page'))->links('vendor.pagination.custom') }}
+            {{ $productPayments->links('vendor.pagination.custom') }}
           </div>
         </div>
       </div>
@@ -137,27 +135,35 @@
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h4>Membership Payments</h4>
         <div class="d-flex align-items-center">
-          <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" id="searchForm">
-            <input type="text" 
-            name="membership_search" 
-            class="form-control form-control-sm mr-2" 
-            placeholder="Search..." 
-            value="{{ request('membership_search') }}"
-            style="width: 450px;"
-            id="searchInput">
-            </form>
-            <div class="dropdown d-inline-block mr-2">
-              <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="filterDropdown" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
-                <i class="mdi mdi-filter-variant"></i> Filter
-              </button>
-              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="filterDropdown">
-                <h6 class="dropdown-header">Status</h6>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('membership_filter'), ['membership_search' => request('membership_search'), 'membership_filter' => 'all'])) }}"> <i class="mdi mdi-account-multiple mr-2"></i>All</a>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('membership_filter'), ['membership_search' => request('membership_search'), 'membership_filter' => 'paid'])) }}"> <i class="mdi mdi-cash mr-2 text-success"></i>Paid Only</a>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('membership_filter'), ['membership_search' => request('membership_search'), 'membership_filter' => 'refunded'])) }}"> <i class="mdi mdi-cash-refund mr-2 text-danger"></i>Refunded Only</a>
-              </div>
+          <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" id="membershipSearchForm">
+            @foreach(request()->except(['membership_search', 'membership_page']) as $key => $value)
+              @if(!is_array($value))
+                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+              @endif
+            @endforeach
+            <div class="search-wrapper mr-2">
+              <input type="text" 
+                name="membership_search" 
+                class="form-control form-control-sm" 
+                placeholder="Search..." 
+                value="{{ request('membership_search') }}"
+                style="width: 450px;"
+                id="membershipSearchInput">
+              @if(request('membership_search'))
+              <button type="button" class="search-clear-btn" onclick="clearSearch('membershipSearchInput', 'membershipSearchForm')">&times;</button>
+              @endif
             </div>
           </form>
+          <div class="dropdown d-inline-block mr-2">
+            <button type="button" class="btn btn-sm filter-button dropdown-toggle" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+              <i class="mdi mdi-sort-variant"></i> Sort
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+              <h6 class="dropdown-header">Sort By</h6>
+              <a class="dropdown-item {{ request('membership_sort', 'newest') === 'newest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_sort', 'membership_page']), ['membership_sort' => 'newest'])) }}"> <i class="mdi mdi-sort-descending mr-2"></i>Newest First</a>
+              <a class="dropdown-item {{ request('membership_sort') === 'oldest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_sort', 'membership_page']), ['membership_sort' => 'oldest'])) }}"> <i class="mdi mdi-sort-ascending mr-2"></i>Oldest First</a>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -172,18 +178,17 @@
                   </label>
                 </div>
               </th>
-              <th>Receipt #</th>
-              <th>Member</th>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Processed By</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th class="text-left">Receipt #</th>
+              <th class="text-left">Member</th>
+              <th class="text-left"> Date</th>
+              <th class="text-left">Amount</th>
+              <th class="text-left">Cashier</th>
+              <th class="text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
             @forelse($membershipPayments ?? [] as $m)
-            <tr class="{{ $m->is_refunded ? 'table-warning' : '' }}">
+            <tr>
               <td>
                 <div class="form-check">
                   <label class="form-check-label">
@@ -197,27 +202,18 @@
               <td>₱{{ number_format($m->amount,2) }}</td>
               <td>{{ $m->processed_by }}</td>
               <td>
-                @if($m->is_refunded)
-                  <span class="badge badge-warning">{{ ucfirst($m->refund_status) }} Refund</span>
-                @else
-                  <span class="badge badge-success">Paid</span>
-                @endif
-              </td>
-              <td>
                 <div class="dropdown">
                   <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
                     <i class="mdi mdi-dots-vertical"></i>
                   </button>
-                  <div class="dropdown-menu dropdown-menu-right" style="z-index: 98;">
+                  <div class="dropdown-menu dropdown-menu-right">
                     <button type="button" class="dropdown-item" onclick="viewHistoryReceipt('membership', {{ $m->id }})">
                       <i class="mdi mdi-eye mr-2"></i> View Receipt
                     </button>
-                    @if(!$m->is_refunded)
                     <button type="button" class="dropdown-item text-warning" onclick="openRefundModal('membership', {{ $m->id }}, '{{ $m->receipt_number }}', {{ $m->amount }}, '{{ addslashes($m->member_name) }}')">
                       <i class="mdi mdi-cash-refund mr-2"></i> Refund
                     </button>
-                    @endif
-                    <button type="button" class="dropdown-item text-danger" onclick="deleteSingleTransaction('membership', {{ $m->id }})">
+                    <button type="button" class="dropdown-item text-danger" onclick="confirmDeleteSingle('membership', {{ $m->id }})">
                       <i class="mdi mdi-delete mr-2"></i> Delete
                     </button>
                   </div>
@@ -226,7 +222,7 @@
             </tr>
             @empty
             <tr>
-              <td colspan="8" class="text-center">No membership payments found</td>
+              <td colspan="7" class="text-center">No membership payments found</td>
             </tr>
             @endforelse
           </tbody>
@@ -241,7 +237,7 @@
             </button>
           </div>
           <div class="col-md-6">
-            {{ $membershipPayments->appends(request()->except('page'))->links('vendor.pagination.custom') }}
+            {{ $membershipPayments->links('vendor.pagination.custom') }}
           </div>
         </div>
       </div>
@@ -254,26 +250,36 @@
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h4>Refunded Payments (Combined)</h4>
         <div class="d-flex align-items-center">
-          <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" id="searchForm">
-            <input type="text" 
-            name="refund_search" 
-            class="form-control form-control-sm mr-2" 
-            placeholder="Search..." 
-            value="{{ request('refund_search') }}" 
-            style="width: 450px;"
-            id="searchInput">
-            <div class="dropdown d-inline-block mr-2">
-              <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="filterDropdown" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
-                <i class="mdi mdi-filter-variant"></i> Filter
-              </button>
-              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="filterDropdown">
-                <h6 class="dropdown-header">Type</h6>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('refund_filter'), ['refund_search' => request('refund_search'), 'refund_filter' => 'all'])) }}"> <i class="mdi mdi-account-multiple mr-2"></i>All</a>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('refund_filter'), ['refund_search' => request('refund_search'), 'refund_filter' => 'product'])) }}"> <i class="mdi mdi-basket mr-2"></i>Products Only</a>
-                <a class="dropdown-item" href="{{ route('payments.history', array_merge(request()->except('refund_filter'), ['refund_search' => request('refund_search'), 'refund_filter' => 'membership'])) }}"> <i class="mdi mdi-account mr-2"></i>Memberships Only</a>
-              </div>
+          <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" id="refundSearchForm">
+            @foreach(request()->except(['refund_search', 'refunded_page']) as $key => $value)
+              @if(!is_array($value))
+                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+              @endif
+            @endforeach
+            <div class="search-wrapper mr-2">
+              <input type="text" 
+                name="refund_search" 
+                class="form-control form-control-sm" 
+                placeholder="Search..." 
+                value="{{ request('refund_search') }}" 
+                style="width: 450px;"
+                id="refundSearchInput">
+              @if(request('refund_search'))
+              <button type="button" class="search-clear-btn" onclick="clearSearch('refundSearchInput', 'refundSearchForm')">&times;</button>
+              @endif
             </div>
           </form>
+          <div class="dropdown d-inline-block mr-2">
+            <button type="button" class="btn btn-sm filter-button dropdown-toggle" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+              <i class="mdi mdi-filter-variant"></i> Filter
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+              <h6 class="dropdown-header">Type</h6>
+              <a class="dropdown-item {{ request('refund_filter', 'all') === 'all' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'all'])) }}"> <i class="mdi mdi-account-multiple mr-2"></i>All</a>
+              <a class="dropdown-item {{ request('refund_filter') === 'product' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'product'])) }}"> <i class="mdi mdi-basket mr-2"></i>Products Only</a>
+              <a class="dropdown-item {{ request('refund_filter') === 'membership' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'membership'])) }}"> <i class="mdi mdi-account mr-2"></i>Memberships Only</a>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -288,15 +294,14 @@
                   </label>
                 </div>
               </th>
-              <th>Receipt #</th>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Refunded At</th>
-              <th>Amount</th>
-              <th>Refunded Amount</th>
-              <th>Reason</th>
-              <th>Processed By</th>
-              <th>Actions</th>
+              <th class="text-left">Receipt #</th>
+              <th class="text-left">Name</th>
+              <th class="text-center"> Type</th>
+              <th class="text-left">Refunded At</th>
+              <th class="text-left">Amount</th>
+              <th class="text-left">Refunded Amount</th>
+              <th class="text-left">Cashier</th>
+              <th class="text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -319,18 +324,17 @@
               <td>{{ optional($cr->refunded_at)->format('M d, Y - h:i A') }}</td>
               <td>₱{{ number_format($cr->amount,2) }}</td>
               <td>₱{{ number_format($cr->refunded_amount,2) }}</td>
-              <td>{{ $cr->refund_reason ?? 'N/A' }}</td>
               <td>{{ $cr->refunded_by }}</td>
               <td>
                 <div class="dropdown">
                   <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
                     <i class="mdi mdi-dots-vertical"></i>
                   </button>
-                  <div class="dropdown-menu dropdown-menu-right" style="z-index: 98;">
+                  <div class="dropdown-menu dropdown-menu-right">
                     <button type="button" class="dropdown-item" onclick="viewRefundReceipt('{{ strtolower($cr->type) }}', {{ $cr->id }})">
                       <i class="mdi mdi-receipt mr-2"></i> View Refund Receipt
                     </button>
-                    <button type="button" class="dropdown-item text-danger" onclick="deleteSingleRefund('{{ strtolower($cr->type) }}', {{ $cr->id }})">
+                    <button type="button" class="dropdown-item text-danger" onclick="confirmDeleteSingle('{{ strtolower($cr->type) }}', {{ $cr->id }})">
                       <i class="mdi mdi-delete mr-2"></i> Delete
                     </button>
                   </div>
@@ -353,7 +357,7 @@
             </button>
           </div>
           <div class="col-md-6">
-            {{ $combinedRefunds->appends(request()->except('page'))->links('vendor.pagination.custom') }}
+            {{ $combinedRefunds->links('vendor.pagination.custom') }}
           </div>
         </div>
       </div>
@@ -437,6 +441,36 @@
   @method('DELETE')
 </form>
 
+<!-- Delete Confirmation Modal -->
+<div id="deleteConfirmModal" class="modal-overlay">
+  <div class="modal-content small">
+    <div class="modal-header">
+      <h3 class="modal-title">Confirm Delete</h3>
+      <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="refund-warning" style="background: #f8d7da; border-color: #dc3545;">
+        <i class="mdi mdi-alert" style="color: #dc3545;"></i>
+        <div>
+          <strong>Warning:</strong> This action cannot be undone. The selected record(s) will be permanently deleted.
+        </div>
+      </div>
+      <div class="confirmation-details" id="deleteDetails">
+        <div class="confirmation-detail-row">
+          <span class="confirmation-detail-label">Items to delete:</span>
+          <span class="confirmation-detail-value" id="deleteItemCount">1</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" id="confirmDeleteBtn" onclick="executeDelete()">
+        <i class="mdi mdi-delete"></i> Delete
+      </button>
+    </div>
+  </div>
+</div>
+
 @endsection
 
 @push('styles')
@@ -475,18 +509,20 @@ body {
 }
 
 .table thead th {
-  color: rgba(255, 255, 255, 0.6);  /* Changed to white with opacity */
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 700;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);  /* Changed */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 1rem;
   padding: 20px 18px;
+  text-align: left;
 }
 
 .table tbody td {
-  color: rgba(255, 255, 255, 0.9);  /* Changed to white */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);  /* Changed */
+  color: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   padding: 20px 18px;
   font-size: 1rem;
+  text-align: left;
 }
 
 .table-hover tbody tr:hover {
@@ -497,13 +533,40 @@ body {
   background-color: #fff3cd !important;
 }
 
-/* Fixed Table Heights: keep fixed height but remove internal scrollbars (use server-side pagination) */
+/* Fixed Table Heights: fits 6 rows, overflow visible so dropdowns are not clipped */
 .table-responsive {
-  min-height: 600px;
-  max-height: 600px;
-  /* remove internal vertical scrollbar — pagination will control rows */
-  overflow-y: hidden;
-  overflow-x: auto;
+  min-height: 420px;
+  max-height: none;
+  overflow: visible !important;
+}
+
+/* Search input wrapper with clear button */
+.search-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.search-wrapper .form-control {
+  padding-right: 35px;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0 5px;
+  line-height: 1;
+  z-index: 2;
+}
+
+.search-clear-btn:hover {
+  color: #ffffff;
 }
 
 /* Form Controls - Adjusted colors */
@@ -649,8 +712,9 @@ input[type="checkbox"]:hover {
   background: #191C24;  /* Changed */
   border: 1px solid rgba(255, 255, 255, 0.1);  /* Changed */
   animation: fadeInDown 0.2s ease;
-  z-index: 50;  /* Keep normal z-index for table dropdowns */
+  z-index: 1050;  /* High z-index so it shows above the table */
   min-width: 200px;
+  position: absolute;
 }
 
 @keyframes fadeInDown {
@@ -687,6 +751,11 @@ input[type="checkbox"]:hover {
   color: #ffffff;  /* Changed */
 }
 
+.dropdown-item.active {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
 .dropdown-item.text-warning {
   color: #ffc107;
 }
@@ -696,10 +765,11 @@ input[type="checkbox"]:hover {
 }
 
 .btn-action {
-  background: rgba(255, 255, 255, 0.1);  /* Changed */
-  border: none;
-  color: #ffffff;  /* Changed */
-  padding: 0.375rem 0.625rem;
+    background: #ffffff1a;
+    border: none;
+    color: #fff;
+    padding: .5rem .75rem;
+    font-size: 1.25rem;
 }
 
 .btn-action:hover {
@@ -904,7 +974,7 @@ input[type="checkbox"]:hover {
 
 .page-header-card {
     background: #191C24 !important;
-    border: 1px solid rgba(255, 167, 38, 0.2); */
+    border: 1px solid rgba(255, 167, 38, 0.2);
     border-radius: 14px;
     margin-bottom: 1.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 167, 38, 0.08);
@@ -1125,20 +1195,22 @@ function bulkDeleteProducts() {
     return;
   }
   
-  if (!confirm(`Delete ${checked.length} product payment(s)? This cannot be undone.`)) return;
+  pendingDeleteAction = function() {
+    const form = document.getElementById('bulkDeleteProductForm');
+    form.innerHTML = '@csrf @method("DELETE")';
+    
+    checked.forEach(cb => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'ids[]';
+      input.value = cb.value;
+      form.appendChild(input);
+    });
+    
+    form.submit();
+  };
   
-  const form = document.getElementById('bulkDeleteProductForm');
-  form.innerHTML = '@csrf @method("DELETE")';
-  
-  checked.forEach(cb => {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'ids[]';
-    input.value = cb.value;
-    form.appendChild(input);
-  });
-  
-  form.submit();
+  showDeleteModal(checked.length + ' product payment(s)');
 }
 
 function bulkDeleteMemberships() {
@@ -1148,20 +1220,22 @@ function bulkDeleteMemberships() {
     return;
   }
   
-  if (!confirm(`Delete ${checked.length} membership payment(s)? This cannot be undone.`)) return;
+  pendingDeleteAction = function() {
+    const form = document.getElementById('bulkDeleteMembershipForm');
+    form.innerHTML = '@csrf @method("DELETE")';
+    
+    checked.forEach(cb => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'ids[]';
+      input.value = cb.value;
+      form.appendChild(input);
+    });
+    
+    form.submit();
+  };
   
-  const form = document.getElementById('bulkDeleteMembershipForm');
-  form.innerHTML = '@csrf @method("DELETE")';
-  
-  checked.forEach(cb => {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'ids[]';
-    input.value = cb.value;
-    form.appendChild(input);
-  });
-  
-  form.submit();
+  showDeleteModal(checked.length + ' membership payment(s)');
 }
 
 function bulkDeleteRefunds() {
@@ -1171,71 +1245,94 @@ function bulkDeleteRefunds() {
     return;
   }
   
-  if (!confirm(`Delete ${checked.length} refunded payment(s)? This cannot be undone.`)) return;
-  
-  const products = [];
-  const memberships = [];
-  
-  checked.forEach(cb => {
-    const type = cb.dataset.type;
-    const id = cb.value;
-    if (type === 'product') products.push(id);
-    else memberships.push(id);
-  });
-  
-  if (products.length > 0) {
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '{{ route("payments.bulkDelete") }}';
-    form.innerHTML = '@csrf @method("DELETE")';
-    products.forEach(id => {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = 'ids[]';
-      input.value = id;
-      form.appendChild(input);
+  pendingDeleteAction = function() {
+    const products = [];
+    const memberships = [];
+    
+    checked.forEach(cb => {
+      const type = cb.dataset.type;
+      const id = cb.value;
+      if (type === 'product') products.push(id);
+      else memberships.push(id);
     });
-    document.body.appendChild(form);
-    form.submit();
-  }
+    
+    if (products.length > 0) {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '{{ route("payments.bulkDelete") }}';
+      form.innerHTML = '@csrf @method("DELETE")';
+      products.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'ids[]';
+        input.value = id;
+        form.appendChild(input);
+      });
+      document.body.appendChild(form);
+      form.submit();
+    }
+    
+    if (memberships.length > 0) {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '{{ route("membership.payment.bulkDelete") }}';
+      form.innerHTML = '@csrf @method("DELETE")';
+      memberships.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'ids[]';
+        input.value = id;
+        form.appendChild(input);
+      });
+      document.body.appendChild(form);
+      form.submit();
+    }
+  };
   
-  if (memberships.length > 0) {
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '{{ route("membership.payment.bulkDelete") }}';
-    form.innerHTML = '@csrf @method("DELETE")';
-    memberships.forEach(id => {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = 'ids[]';
-      input.value = id;
-      form.appendChild(input);
-    });
-    document.body.appendChild(form);
-    form.submit();
-  }
+  showDeleteModal(checked.length + ' refunded payment(s)');
 }
 
-function deleteSingleTransaction(type, id) {
-  if (!confirm('Delete this transaction? This cannot be undone.')) return;
+// Delete confirmation modal
+let pendingDeleteAction = null;
+
+function confirmDeleteSingle(type, id) {
+  pendingDeleteAction = function() {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = type === 'product' ? `/payments/${id}` : `/membership-payment/${id}`;
+    form.innerHTML = `<input type="hidden" name="_token" value="${CSRF_TOKEN}"><input type="hidden" name="_method" value="DELETE">`;
+    document.body.appendChild(form);
+    form.submit();
+  };
   
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = type === 'product' ? `/payments/${id}` : `/membership-payment/${id}`;
-  form.innerHTML = `<input type="hidden" name="_token" value="${CSRF_TOKEN}"><input type="hidden" name="_method" value="DELETE">`;
-  document.body.appendChild(form);
-  form.submit();
+  showDeleteModal('1 ' + type + ' payment');
 }
 
-function deleteSingleRefund(type, id) {
-  if (!confirm('Delete this refunded transaction? This cannot be undone.')) return;
-  
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = type === 'product' ? `/payments/${id}` : `/membership-payment/${id}`;
-  form.innerHTML = `<input type="hidden" name="_token" value="${CSRF_TOKEN}"><input type="hidden" name="_method" value="DELETE">`;
-  document.body.appendChild(form);
-  form.submit();
+function showDeleteModal(itemDescription) {
+  document.getElementById('deleteItemCount').textContent = itemDescription;
+  document.getElementById('deleteConfirmModal').classList.add('show');
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteConfirmModal').classList.remove('show');
+  pendingDeleteAction = null;
+}
+
+function executeDelete() {
+  if (pendingDeleteAction) {
+    pendingDeleteAction();
+    pendingDeleteAction = null;
+  }
+  closeDeleteModal();
+}
+
+// Clear search input and submit form
+function clearSearch(inputId, formId) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    input.value = '';
+    document.getElementById(formId).submit();
+  }
 }
 
 // Refund Modal Functions
@@ -1744,6 +1841,7 @@ document.addEventListener('keydown', function(e) {
     closeRefundModal();
     closeRefundReceiptModal();
     closeViewReceiptModal();
+    closeDeleteModal();
   }
 });
 

@@ -9,7 +9,7 @@
 @section('content')
     <div class="row mb-3">
         <div class="col-12">
-            <a href="{{ route('inventory.index') }}" class="btn btn-sm btn-outline-secondary">
+            <a href="{{ route('inventory.index') }}" class="btn btn-outline-secondary">
                 <i class="mdi mdi-arrow-left"></i> Back to Inventory
             </a>
         </div>
@@ -22,7 +22,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h4 class="card-title mb-0">Product Information</h4>
-                        <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#editProductModal">
+                        <button type="button" class="btn btn-lg btn-outline-info" data-toggle="modal" data-target="#editProductModal">
                             <i class="mdi mdi-pencil"></i> Edit Product
                         </button>
                     </div>
