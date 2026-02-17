@@ -23,6 +23,7 @@ export default defineConfig({
                 'resources/css/product-payment.css',
                 'resources/css/membership-payment.css',
                 'resources/css/reports.css',
+                'resources/css/payment-history.css',
 
                 // Auth CSS
                 'resources/css/auth-login.css',

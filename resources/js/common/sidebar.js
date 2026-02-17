@@ -150,8 +150,9 @@ const Sidebar = (function() {
 
       try {
         const linkPath = new URL(href, window.location.origin).pathname;
+        // Exact match OR child route (requires trailing slash boundary)
         const isActive = currentPath === linkPath ||
-                        (linkPath !== '/' && currentPath.startsWith(linkPath));
+                        (linkPath !== '/' && currentPath.startsWith(linkPath + '/'));
 
         if (isActive) {
           const navItem = link.closest(CONFIG.selectors.navItem);

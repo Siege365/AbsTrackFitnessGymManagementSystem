@@ -7,13 +7,17 @@
 @endpush
 
 @section('content')
+<<<<<<< HEAD
 
+=======
+<div class="container-fluid">
+>>>>>>> origin/main
   <!-- Page Header -->
   <div class="card page-header-card">
       <div class="card-body">
           <div>
               <h2 class="page-header-title">Product Payment</h2>
-              <p class="page-header-subtitle">Process product sales and manage payment transactions.</p>
+              <p class="page-header-subtitle">Process product payment details</p>
           </div>
       </div>
   </div>
@@ -21,7 +25,7 @@
   <!-- Stats Grid -->
   <div class="row">
     <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-      <div class="card">
+      <div class="card stats-card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
@@ -36,7 +40,7 @@
       </div>
     </div>
     <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-      <div class="card">
+      <div class="card stats-card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
@@ -51,7 +55,7 @@
       </div>
     </div>
     <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-      <div class="card">
+      <div class="card stats-card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
@@ -66,7 +70,7 @@
       </div>
     </div>
     <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-      <div class="card">
+      <div class="card stats-card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
@@ -87,13 +91,10 @@
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="card-title mb-0">Payment Details Form</h4>
-        <div class="d-flex" style="position: relative; width: 420px;">
-          <input type="text" id="searchItem" class="form-control form-control-sm mr-2" placeholder="Search items...">
-          <button type="button" class="btn btn-sm btn-primary mr-2" id="addItemBtn">
+        <div class="d-flex">
+          <input type="text" id="searchItem" class="form-control form-control-sm mr-2" placeholder="Search items..." style="width: 450px;">
+          <button type="button" class="btn btn-lg btn-primary mr-2" style="white-space: nowrap;" id="addItemBtn">
             Add Item
-          </button>
-          <button type="button" class="btn btn-sm btn-warning" id="searchClearBtn">
-            Clear
           </button>
           <div id="searchResults" class="search-results" style="display: none;"></div>
         </div>
@@ -224,14 +225,14 @@
       <h3 class="modal-title">Confirm Payment</h3>
       <button class="modal-close" onclick="closePaymentConfirmation()">&times;</button>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" style="font-size: 1.125rem;">
       <div class="confirmation-icon warning">
         <i class="mdi mdi-alert-circle-outline"></i>
       </div>
       <p class="confirmation-message">Please review the payment details before proceeding.</p>
       <div class="confirmation-details" id="paymentConfirmationDetails"></div>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer" style="font-size: 1.125rem;">
       <button type="button" class="btn btn-secondary" onclick="closePaymentConfirmation()">
         <i class="mdi mdi-close"></i> Cancel
       </button>
@@ -243,24 +244,19 @@
 </div>
 
 <!-- Receipt Modal -->
-<div id="receiptModal" class="receipt-modal">
-  <div class="receipt-modal-content">
-    <div class="receipt-modal-header">
-      <h3>Receipt</h3>
-      <button class="receipt-modal-close" onclick="closeReceiptModal()">&times;</button>
+<div id="receiptModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Receipt Details</h3>
+      <button class="modal-close" onclick="closeReceiptModal()">&times;</button>
     </div>
-    <div class="receipt-modal-body" id="receiptModalBody">
-      <div class="text-center" style="padding: 40px; color: #666;">
-        <i class="mdi mdi-loading mdi-spin" style="font-size: 48px;"></i>
-        <p>Loading receipt...</p>
-      </div>
+    <div class="modal-body" id="receiptModalBody">
+      <div class="loading-spinner"><div class="spinner"></div><p>Loading receipt...</p></div>
     </div>
-    <div class="receipt-modal-footer">
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeReceiptModal()">Close</button>
       <button type="button" class="btn btn-primary" onclick="printReceipt()">
-        <i class="mdi mdi-printer"></i> Print Receipt
-      </button>
-      <button type="button" class="btn btn-secondary" onclick="closeReceiptModal()">
-        Close
+        <i class="mdi mdi-printer"></i> Print
       </button>
     </div>
   </div>
@@ -270,6 +266,20 @@
 
 @push('scripts')
 @vite(['resources/js/common/table-dropdown.js'])
+<script>
+// Fallback ToastUtils if the main library fails to load
+if (typeof ToastUtils === 'undefined') {
+  window.ToastUtils = {
+    showSuccess: function(msg) { console.log('Success:', msg); alert('Success: ' + msg); },
+    showError: function(msg) { console.error('Error:', msg); alert('Error: ' + msg); },
+    showWarning: function(msg) { console.warn('Warning:', msg); alert('Warning: ' + msg); },
+    showInfo: function(msg) { console.info('Info:', msg); }
+  };
+}
+</script>
+@vite(['resources/js/common/avatar-utils.js'])
+@vite(['resources/js/common/form-utils.js'])
+@vite(['resources/js/common/bulk-selection.js'])
 <script>
   let cartItems = [];
   let inventoryItems = @json($inventoryItems ?? []);
@@ -381,7 +391,7 @@
           const price = parseFloat(this.dataset.price);
 
           if (isNaN(stock) || stock <= 0) {
-            alert('This item is out of stock and cannot be selected.');
+            ToastUtils.showWarning('This item is out of stock and cannot be selected.');
             return;
           }
 
@@ -398,7 +408,7 @@
 
   function addItemToCart(item) {
     if (!item || typeof item.stock === 'undefined' || item.stock <= 0) {
-      alert('Cannot add item — Insufficient stock.');
+      ToastUtils.showError('Cannot add item — Insufficient stock.');
       return;
     }
 
@@ -408,7 +418,7 @@
       if (existingItem.qty < item.stock) {
         existingItem.qty++;
       } else {
-        alert('Cannot add more. Insufficient stock!');
+        ToastUtils.showWarning('Cannot add more. Insufficient stock!');
         return;
       }
     } else {
@@ -459,7 +469,7 @@
       renderCart();
       calculateTotals();
     } else {
-      alert('Invalid quantity or insufficient stock!');
+      ToastUtils.showWarning('Invalid quantity or insufficient stock!');
       renderCart();
     }
     saveState();
@@ -499,16 +509,16 @@
     if (!selectedSearchItem) {
       const name = document.getElementById('searchItem').value.trim();
       if (!name) {
-        alert('Please select an item first from the search results.');
+        ToastUtils.showWarning('Please select an item first from the search results.');
         return;
       }
       const found = inventoryItems.find(i => i.product_name.toLowerCase() === name.toLowerCase());
       if (!found) {
-        alert('Selected item not found. Please choose from the search results.');
+        ToastUtils.showError('Selected item not found. Please choose from the search results.');
         return;
       }
       if (found.stock_qty <= 0) {
-        alert('This item is out of stock and cannot be added.');
+        ToastUtils.showError('This item is out of stock and cannot be added.');
         return;
       }
       selectedSearchItem = { id: found.id, name: found.product_name, price: parseFloat(found.unit_price), stock: found.stock_qty };
@@ -525,25 +535,28 @@
     selectedSearchItem = null;
   });
 
-  document.getElementById('searchClearBtn').addEventListener('click', function() {
-    document.getElementById('searchItem').value = '';
-    document.getElementById('searchResults').style.display = 'none';
-    selectedSearchItem = null;
-  });
+  const searchClearBtn = document.getElementById('searchClearBtn');
+  if (searchClearBtn) {
+    searchClearBtn.addEventListener('click', function() {
+      document.getElementById('searchItem').value = '';
+      document.getElementById('searchResults').style.display = 'none';
+      selectedSearchItem = null;
+    });
+  }
   
   // Process Payment Button Handler
   document.getElementById('processPaymentBtn').addEventListener('click', function(e) {
     e.preventDefault();
 
     if (cartItems.length === 0) {
-      alert('Please add at least one item to the cart!');
+      ToastUtils.showWarning('Please add at least one item to the cart!');
       return;
     }
 
     const total = parseFloat(document.getElementById('totalAmount').value) || 0;
     const paid = parseFloat(document.getElementById('paidAmount').value) || 0;
     if (paid < total) {
-      alert('Payment incomplete: Paid amount must be equal to or greater than the total amount.');
+      ToastUtils.showError('Payment incomplete: Paid amount must be equal to or greater than the total amount.');
       const paidEl = document.getElementById('paidAmount');
       if (paidEl) paidEl.focus();
       return;
@@ -714,7 +727,7 @@
         const ids = Array.from(checkedBoxes).map(cb => cb.value);
         
         if (ids.length === 0) {
-          alert('Please select at least one transaction to delete.');
+          ToastUtils.showWarning('Please select at least one transaction to delete.');
           return;
         }
 
@@ -728,7 +741,7 @@
     document.querySelectorAll('.delete-form-payment').forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            if (confirm('Are you sure you want to delete this transaction? This action cannot be undone.')) {
+            if (confirm('Are you sure you want to delete this transaction?')) {
                 this.submit();
             }
         });
@@ -772,14 +785,14 @@
         clearFormData();
         
       } else {
-        alert(data.message || 'Failed to process payment');
+        ToastUtils.showError(data.message || 'Failed to process payment');
         btn.disabled = false;
         btn.innerHTML = originalText;
       }
     })
     .catch(err => {
       console.error('Product payment error', err);
-      alert('Failed to process payment. Please try again.');
+      ToastUtils.showError('Failed to process payment. Please try again.');
       btn.disabled = false;
       btn.innerHTML = originalText;
     });
@@ -804,36 +817,29 @@
     const modalBody = document.getElementById('receiptModalBody');
     
     modal.classList.add('show');
-    modalBody.innerHTML = `
-      <div class="text-center" style="padding: 40px; color: #666;">
-        <i class="mdi mdi-loading mdi-spin" style="font-size: 48px;"></i>
-        <p>Loading receipt...</p>
-      </div>
-    `;
+    modalBody.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><p>Loading receipt...</p></div>';
     
     fetch(`/payments/${paymentId}/receipt-data`)
       .then(response => response.json())
       .then(data => {
         modalBody.innerHTML = generateReceiptHTML(data);
+        ToastUtils.showSuccess('Payment processed successfully!');
       })
       .catch(error => {
         console.error('Error loading receipt:', error);
-        modalBody.innerHTML = `
-          <div class="text-center" style="padding: 40px; color: #dc3545;">
-            <i class="mdi mdi-alert-circle" style="font-size: 48px;"></i>
-            <p>Failed to load receipt. Please try again.</p>
-          </div>
-        `;
+        ToastUtils.showError('Failed to load receipt. Please try again.');
+        modalBody.innerHTML = '<div style="padding:2rem;color:#dc3545;text-align:center;"><i class="mdi mdi-alert-circle" style="font-size:48px;"></i><p>Failed to load receipt.</p></div>';
       });
   }
 
-  function generateReceiptHTML(payment) {
-    const itemsHTML = payment.items.map(item => `
+  function generateReceiptHTML(data) {
+    const items = data.items || [];
+    const itemsHTML = items.map(item => `
       <tr>
         <td>${item.product_name}</td>
         <td style="text-align: center;">${item.quantity}</td>
         <td style="text-align: right;">₱${parseFloat(item.unit_price).toFixed(2)}</td>
-        <td style="text-align: right;">₱${parseFloat(item.subtotal).toFixed(2)}</td>
+        <td style="text-align: right;">₱${parseFloat(item.subtotal || item.total_price || (item.unit_price * item.quantity)).toFixed(2)}</td>
       </tr>
     `).join('');
 
@@ -841,35 +847,34 @@
       <div class="receipt-container">
         <div class="receipt-header">
           <h2>RECEIPT</h2>
-          <p>Abstrack Fitness Gym</p>
+          <p><strong>Abstrack Fitness Gym</strong></p>
           <p>Toril, Davao Del Sur</p>
-          <p>Phone: (123) 456-7890</p>
         </div>
 
-        <div class="receipt-info">
-          <div class="receipt-info-item">
-            <strong>Receipt Number</strong>
-            <span>#${payment.receipt_number}</span>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Receipt Number</strong>
+            <span style="display: block; font-weight: 600;">#${data.receipt_number}</span>
           </div>
-          <div class="receipt-info-item">
-            <strong>Date & Time</strong>
-            <span>${payment.formatted_date}</span>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Date & Time</strong>
+            <span style="display: block; font-weight: 600;">${data.formatted_date || new Date(data.created_at).toLocaleString()}</span>
           </div>
-          <div class="receipt-info-item">
-            <strong>Customer Name</strong>
-            <span>${payment.customer_name}</span>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Customer Name</strong>
+            <span style="display: block; font-weight: 600;">${data.customer_name || 'N/A'}</span>
           </div>
-          <div class="receipt-info-item">
-            <strong>Cashier</strong>
-            <span>${payment.cashier_name}</span>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Cashier</strong>
+            <span style="display: block; font-weight: 600;">${data.cashier_name || ''}</span>
           </div>
-          <div class="receipt-info-item">
-            <strong>Payment Method</strong>
-            <span>${payment.payment_method}</span>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Payment Method</strong>
+            <span style="display: block; font-weight: 600;">${data.payment_method || 'N/A'}</span>
           </div>
-          <div class="receipt-info-item">
-            <strong>Transaction Type</strong>
-            <span>${payment.transaction_type}</span>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Transaction Type</strong>
+            <span style="display: block; font-weight: 600;">${data.transaction_type || 'N/A'}</span>
           </div>
         </div>
 
@@ -888,27 +893,26 @@
         </table>
 
         <div class="receipt-total">
-          <div class="receipt-total-row">
-            <strong>Subtotal:</strong>
-            <span>₱${parseFloat(payment.total_amount).toFixed(2)}</span>
+          <div class="receipt-row">
+            <span>Subtotal:</span>
+            <span>₱${parseFloat(data.total_amount || 0).toFixed(2)}</span>
           </div>
-          <div class="receipt-total-row grand-total">
-            <strong>Total:</strong>
-            <span>₱${parseFloat(payment.total_amount).toFixed(2)}</span>
+          <div class="receipt-row" style="font-size: 1.3rem;">
+            <span><strong>Total:</strong></span>
+            <span><strong>₱${parseFloat(data.total_amount || 0).toFixed(2)}</strong></span>
           </div>
-          <div class="receipt-total-row" style="margin-top: 20px;">
-            <strong>Paid Amount:</strong>
-            <span>₱${parseFloat(payment.paid_amount).toFixed(2)}</span>
+          <div class="receipt-row" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+            <span>Paid Amount:</span>
+            <span>₱${parseFloat(data.paid_amount || data.paid || 0).toFixed(2)}</span>
           </div>
-          <div class="receipt-total-row">
-            <strong>Change:</strong>
-            <span>₱${parseFloat(payment.return_amount).toFixed(2)}</span>
+          <div class="receipt-row">
+            <span>Change:</span>
+            <span>₱${parseFloat(data.return_amount || data.change || 0).toFixed(2)}</span>
           </div>
         </div>
 
         <div class="receipt-footer">
-          <p>Thank you for your purchase!</p>
-          <p style="font-size: 14px; margin-top: 10px;">Please come again!</p>
+          <p><strong>Thank you for your purchase!</strong></p>
         </div>
       </div>
     `;
@@ -925,21 +929,40 @@
   }
 
   function printReceipt() {
-    window.print();
+    const content = document.getElementById('receiptModalBody').innerHTML;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Receipt</title>
+        <style>
+          body { font-family: 'Courier New', monospace; }
+          .receipt-container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .receipt-header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px dashed #333; }
+          .receipt-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          .receipt-table th { background: #333; color: white; padding: 10px; text-align: left; }
+          .receipt-table td { padding: 10px; border-bottom: 1px solid #ddd; }
+          .receipt-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+          .receipt-total { margin-top: 20px; padding-top: 20px; border-top: 2px solid #333; }
+          .receipt-footer { margin-top: 30px; padding-top: 20px; border-top: 2px dashed #333; text-align: center; }
+        </style>
+      </head>
+      <body>${content}</body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
   }
 
-  // Close modal when clicking outside
-  window.onclick = function(event) {
-    const confirmModal = document.getElementById('paymentConfirmationModal');
-    const receiptModal = document.getElementById('receiptModal');
-    
-    if (event.target === confirmModal) {
-      closePaymentConfirmation();
-    }
-    if (event.target === receiptModal) {
-      closeReceiptModal();
-    }
-  }
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(modal => {
+    modal.addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.remove('show');
+      }
+    });
+  });
 
   // Product Refund Modal Functions
   let currentProductRefundId = null;
@@ -998,14 +1021,36 @@
       .then(r => r.json())
       .then(data => {
         if (data.success) {
-          alert(data.message || 'Refund processed');
+          ToastUtils.showSuccess(data.message || 'Refund processed successfully!');
           closeProductRefundModal();
-          setTimeout(() => window.location.reload(), 500);
+          setTimeout(() => window.location.reload(), 1500);
         } else {
-          alert(data.message || 'Failed to process refund');
+          ToastUtils.showError(data.message || 'Failed to process refund');
         }
       })
-      .catch(err => { console.error(err); alert('Failed to process refund'); });
+      .catch(err => { console.error(err); ToastUtils.showError('Failed to process refund'); });
   }
+
+  // Close modals on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closePaymentConfirmation();
+      closeReceiptModal();
+      closeProductRefundModal();
+    }
+  });
+
+  // Display Laravel messages
+  @if(session('success'))
+    ToastUtils.showSuccess('{{ session('success') }}');
+  @endif
+
+  @if(session('error'))
+    ToastUtils.showError('{{ session('error') }}');
+  @endif
+
+  @if($errors->any())
+    ToastUtils.showError('{{ $errors->first() }}');
+  @endif
 </script>
 @endpush

@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('membership_payments', function (Blueprint $table) {
             $table->id();
-            $table->string('receipt_number')->unique();
+            $table->string('receipt_number');
             $table->foreignId('membership_id')->constrained('memberships')->onDelete('cascade');
             $table->string('member_name');
-            $table->enum('plan_type', ['Monthly', 'Session']);
+            $table->string('plan_type');
             $table->enum('payment_type', ['new', 'renewal', 'extension']);
             $table->string('payment_method');
             $table->decimal('amount', 10, 2);
@@ -25,6 +25,9 @@ return new class extends Migration
             $table->date('new_due_date');
             $table->text('notes')->nullable();
             $table->string('processed_by');
+            $table->unsignedBigInteger('buddy_member_id')->nullable();
+            $table->string('buddy_name')->nullable();
+            $table->string('buddy_contact')->nullable();
             $table->timestamps();
 
             $table->index('receipt_number');

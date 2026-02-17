@@ -9,7 +9,7 @@
 @section('content')
     <div class="row mb-3">
         <div class="col-12">
-            <a href="{{ route('inventory.index') }}" class="btn btn-sm btn-outline-secondary">
+            <a href="{{ route('inventory.index') }}" class="btn btn-outline-secondary">
                 <i class="mdi mdi-arrow-left"></i> Back to Inventory
             </a>
         </div>
@@ -20,7 +20,12 @@
         <div class="col-12 grid-margin">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title mb-4">Product Information</h4>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="card-title mb-0">Product Information</h4>
+                        <button type="button" class="btn btn-lg btn-outline-info" data-toggle="modal" data-target="#editProductModal">
+                            <i class="mdi mdi-pencil"></i> Edit Product
+                        </button>
+                    </div>
                     <div class="row">
                         <div class="col-md-3">
                             <p class="mb-2"><strong>Product Number:</strong></p>
@@ -86,7 +91,7 @@
                             <p class="text-muted mt-3">No transactions recorded yet</p>
                         </div>
                     @else
-                        <div class="timeline">
+                        <div class="timeline" style="max-height: 680px; overflow-y: auto; padding-right: 10px;">
                             <div class="timeline-inner">
                             @foreach($item->transactions as $transaction)
                                 <div class="timeline-item {{ $transaction->transaction_type }}">
@@ -210,4 +215,103 @@
             </div>
         </div>
     </div>
+
+    <!-- Edit Product Modal -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" role="dialog" aria-labelledby="editProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="editProductModalLabel">
+                        <i class="mdi mdi-pencil"></i> Edit Product
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('inventory.update', $item->id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-body">
+                        <!-- Product Number (Read-only) -->
+                        <div class="form-group">
+                            <label class="form-label">Product Number</label>
+                            <input type="text" 
+                                   class="form-control bg-light" 
+                                   value="{{ $item->product_number }}" 
+                                   readonly
+                                   style="cursor: not-allowed;">
+                            <small class="text-muted">Product number cannot be changed</small>
+                        </div>
+
+                        <!-- Product Name -->
+                        <div class="form-group">
+                            <label class="form-label">Product Name <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   class="form-control @error('product_name') is-invalid @enderror" 
+                                   name="product_name" 
+                                   value="{{ old('product_name', $item->product_name) }}" 
+                                   required>
+                            @error('product_name')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Category Dropdown -->
+                        <div class="form-group">
+                            <label class="form-label">Category <span class="text-danger">*</span></label>
+                            <select class="form-control @error('category') is-invalid @enderror" 
+                                    name="category" 
+                                    required>
+                                <option value="Food" {{ old('category', $item->category) == 'Food' ? 'selected' : '' }}>Food</option>
+                                <option value="Drink" {{ old('category', $item->category) == 'Drink' ? 'selected' : '' }}>Drink</option>
+                                <option value="Supplement" {{ old('category', $item->category) == 'Supplement' ? 'selected' : '' }}>Supplement</option>
+                            </select>
+                            @error('category')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Unit Price -->
+                        <div class="form-group">
+                            <label class="form-label">Unit Price <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">₱</span>
+                                </div>
+                                <input type="number" 
+                                       step="0.01" 
+                                       min="0" 
+                                       class="form-control @error('unit_price') is-invalid @enderror" 
+                                       name="unit_price" 
+                                       value="{{ old('unit_price', $item->unit_price) }}" 
+                                       required>
+                            </div>
+                            @error('unit_price')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="mdi mdi-close"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="mdi mdi-check"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show edit modal if there are validation errors
+    @if($errors->any())
+        $('#editProductModal').modal('show');
+    @endif
+});
+</script>
+@endpush

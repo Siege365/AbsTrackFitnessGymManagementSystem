@@ -30,7 +30,7 @@ const ToastUtils = (function() {
         position: fixed;
         top: 70px;
         right: 20px;
-        z-index: 10500;
+        z-index: 999999;
         min-width: 300px;
         max-width: 400px;
         pointer-events: none;

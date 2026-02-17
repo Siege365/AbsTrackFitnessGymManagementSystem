@@ -161,7 +161,9 @@
                 </th>
                 <th>Id#</th>
                 <th>Name</th>
+                <th>Sex</th>
                 <th>Plan Type</th>
+                <th>Student ID</th>
                 <th>Start Date</th>
                 <th>Due Date</th>
                 <th>Status</th>
@@ -194,7 +196,9 @@
                     <span>{{ $membership->name }}</span>
                   </div>
                 </td>
+                <td>{{ $membership->sex ?? '—' }}</td>
                 <td>{{ $membership->plan_type }}</td>
+                <td>{{ $membership->student_id ?? '—' }}</td>
                 <td>{{ $membership->start_date->format('d M Y') }}</td>
                 <td>{{ $membership->due_date->format('d M Y') }}</td>
                 <td>
@@ -236,7 +240,7 @@
               </tr>
               @empty
               <tr>
-                <td colspan="9" class="text-center py-5">
+                <td colspan="11" class="text-center py-5">
                   <div class="text-muted">
                     <i class="mdi mdi-{{ request('search') ? 'magnify-close' : 'account-off' }}" style="font-size: 48px; opacity: 0.5;"></i>
                     @if(request('search'))
@@ -296,6 +300,7 @@
                       </div>
                     </div>
 
+<<<<<<< HEAD
                     <!-- Row 3: Start Date and End Date -->
                     <div class="form-row">
                       <div class="form-group col-md-6">
@@ -306,6 +311,40 @@
                         <label>End Date</label>
                         <input type="date" name="due_date" id="editEndDate{{ $membership->id }}" class="form-control" value="{{ $membership->due_date->format('Y-m-d') }}" readonly>
                       </div>
+=======
+                    <!-- Sex -->
+                    <div class="form-group">
+                      <label>Sex</label>
+                      <select name="sex" id="editSex{{ $membership->id }}" class="form-control">
+                        <option value="" disabled {{ !$membership->sex ? 'selected' : '' }}>Select sex</option>
+                        <option value="Male" {{ $membership->sex == 'Male' ? 'selected' : '' }}>Male</option>
+                        <option value="Female" {{ $membership->sex == 'Female' ? 'selected' : '' }}>Female</option>
+                      </select>
+                    </div>
+
+                    <!-- Student ID -->
+                    <div class="form-group">
+                      <label>Student ID</label>
+                      <input type="text" name="student_id" id="editStudentId{{ $membership->id }}" class="form-control" value="{{ $membership->student_id }}" placeholder="Leave blank if not a student">
+                    </div>
+
+                    <!-- Contact Number -->
+                    <div class="form-group">
+                      <label>Contact Number</label>
+                      <input type="text" name="contact" id="editContact{{ $membership->id }}" class="form-control contact-input" value="{{ $membership->contact }}" required maxlength="13" pattern="^(\+63|0)[0-9]{10}$" title="Enter 11 digits (e.g., 09123456789) or +63 format (e.g., +639123456789)" oninput="validateContactInput(this)">
+                      <small class="form-text text-muted">Format: 09XX-XXX-XXXX or +639XX-XXX-XXXX</small>                      <div id="editContact{{ $membership->id }}Error" class="invalid-feedback" style="display: none;"></div>                    </div>
+
+                    <!-- Membership Plan -->
+                    <div class="form-group">
+                      <label>Membership Plan</label>
+                      <select name="plan_type" id="editPlanType{{ $membership->id }}" class="form-control" required onchange="calculateEditEndDate({{ $membership->id }})">
+                        <option value="Regular" {{ $membership->plan_type == 'Regular' ? 'selected' : '' }}>Regular</option>
+                        <option value="Student" {{ $membership->plan_type == 'Student' ? 'selected' : '' }}>Student</option>
+                        <option value="GymBuddy" {{ $membership->plan_type == 'GymBuddy' ? 'selected' : '' }}>Gym Buddy</option>
+                        <option value="ThreeMonths" {{ $membership->plan_type == 'ThreeMonths' ? 'selected' : '' }}>3 Months</option>
+                        <option value="Session" {{ $membership->plan_type == 'Session' ? 'selected' : '' }}>Session</option>
+                      </select>
+>>>>>>> origin/main
                     </div>
 
                     <!-- Row 4: Avatar (Full Width) -->
@@ -449,6 +488,7 @@
               </div>
             </div>
 
+<<<<<<< HEAD
             <!-- Row 3: Start Date and End Date -->
             <div class="form-row">
               <div class="form-group col-md-6">
@@ -459,6 +499,42 @@
                 <label>End Date</label>
                 <input type="date" name="due_date" id="newMemberEndDate" class="form-control" readonly>
               </div>
+=======
+            <div class="form-group">
+              <label>Sex</label>
+              <select name="sex" id="newMemberSex" class="form-control" required>
+                <option value="" disabled selected>Select sex</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Contact Number</label>
+              <input type="text" name="contact" id="newMemberContact" class="form-control contact-input" placeholder="09123456789" required maxlength="13" pattern="^(\+63|0)[0-9]{10}$" title="Enter 11 digits (e.g., 09123456789) or +63 format (e.g., +639123456789)" oninput="validateContactInput(this)">
+              <small class="form-text text-muted">Format: 09XX-XXX-XXXX or +639XX-XXX-XXXX</small>              <div id="newMemberContactError" class="invalid-feedback" style="display: none;"></div>            </div>
+
+            <div class="form-group">
+              <label>Membership Plan</label>
+              <select name="plan_type" id="newMemberPlan" class="form-control" required onchange="calculateEndDate()">
+                <option value="">Select Plan</option>
+                <option value="Regular">Regular</option>
+                <option value="Student">Student</option>
+                <option value="GymBuddy">Gym Buddy</option>
+                <option value="ThreeMonths">3 Months</option>
+                <option value="Session">Session</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Start Date</label>
+              <input type="date" name="start_date" id="newMemberStartDate" class="form-control" onchange="calculateEndDate()" required>
+            </div>
+
+            <div class="form-group">
+              <label>End Date</label>
+              <input type="date" name="due_date" id="newMemberEndDate" class="form-control" readonly>
+>>>>>>> origin/main
             </div>
 
             <!-- Row 4: Avatar (Full Width) -->

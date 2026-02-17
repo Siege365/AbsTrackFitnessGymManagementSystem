@@ -12,6 +12,7 @@ use App\Models\InventoryAdjustment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Exception;
+use Carbon\Carbon;
 
 class RefundService
 {
@@ -293,6 +294,7 @@ class RefundService
 
     /**
      * Reverse membership extension from a payment
+     * FIXED: Now properly recalculates status after date adjustment
      *
      * @param Membership $member
      * @param MembershipPayment $payment
@@ -304,27 +306,25 @@ class RefundService
 
         if ($member->due_date) {
             // Subtract the duration
-            $newDueDate = $member->due_date->subDays($duration);
+            $newDueDate = $member->due_date->copy()->subDays($duration);
             
-            // If new due date is in the past, set to expired
-            if ($newDueDate < now()) {
-                $member->status = 'Expired';
-                $member->due_date = $newDueDate;
-            } else {
-                $member->due_date = $newDueDate;
-                // Update status based on new due date
-                $member->status = 'Active';
-            }
+            // Update the due date
+            $member->due_date = $newDueDate;
+            
+            // FIXED: Recalculate status based on the new due date
+            $member->status = $this->calculateMembershipStatus($newDueDate);
+            
+            $member->save();
         } else {
-            // If no due date, set to inactive/expired
+            // If no due date, set to expired
             $member->status = 'Expired';
+            $member->save();
         }
-
-        $member->save();
     }
 
     /**
      * Adjust membership proportionally for partial refund
+     * FIXED: Now properly recalculates status after date adjustment
      *
      * @param Membership $member
      * @param MembershipPayment $payment
@@ -338,14 +338,48 @@ class RefundService
         $daysToRemove = (int) round($duration * $refundPercentage);
 
         if ($member->due_date && $daysToRemove > 0) {
-            $newDueDate = $member->due_date->subDays($daysToRemove);
+            $newDueDate = $member->due_date->copy()->subDays($daysToRemove);
             
-            if ($newDueDate < now()) {
-                $member->status = 'Expired';
+            // Update the due date
+            $member->due_date = $newDueDate;
+            
+            // FIXED: Recalculate status based on the new due date
+            $member->status = $this->calculateMembershipStatus($newDueDate);
+            
+            $member->save();
+        }
+    }
+
+    /**
+     * Calculate membership status based on due date
+     * This matches the logic in MembershipController::calculateStatus()
+     *
+     * @param Carbon $dueDate
+     * @return string
+     */
+    protected function calculateMembershipStatus($dueDate)
+    {
+        try {
+            $today = Carbon::now()->startOfDay();
+            $dueDate = Carbon::parse($dueDate)->startOfDay();
+            $daysUntilDue = $today->diffInDays($dueDate, false);
+
+            // If due date has passed (negative days), status is Expired
+            if ($daysUntilDue < 0) {
+                return 'Expired';
             }
             
-            $member->due_date = $newDueDate;
-            $member->save();
+            // If due date is within 7 days, status is Due soon
+            if ($daysUntilDue <= 7) {
+                return 'Due soon';
+            }
+            
+            // Otherwise, status is Active
+            return 'Active';
+        } catch (\Exception $e) {
+            // Default to Active if there's any error in calculation
+            \Log::warning("Error calculating status in RefundService: " . $e->getMessage());
+            return 'Active';
         }
     }
 

@@ -87,6 +87,16 @@
     </script>
     @endif
     
+    @if($errors->any())
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @foreach($errors->all() as $error)
+                ToastUtils.showError('{{ addslashes($error) }}', 'Validation Error');
+            @endforeach
+        });
+    </script>
+    @endif
+    
     @stack('scripts')
 </body>
 </html>

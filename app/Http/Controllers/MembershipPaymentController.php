@@ -4,21 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Membership;
 use App\Models\MembershipPayment;
+use App\Models\InventorySupply;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
-use App\Services\RefundService;
 
 class MembershipPaymentController extends Controller
 {
-    protected $refundService;
-
-    public function __construct(RefundService $refundService)
-    {
-        $this->refundService = $refundService;
-    }
 
     /**
      * Display the membership payment page with statistics and transaction history
@@ -34,80 +28,35 @@ class MembershipPaymentController extends Controller
             ->whereYear('created_at', now()->year)
             ->sum('amount');
 
-        // Refunded Today Stats
-        $refundedToday = MembershipPayment::whereNotNull('refunded_at')
-            ->whereDate('refunded_at', today())
-            ->sum('amount');
-
-        $refundedTodayCount = MembershipPayment::whereNotNull('refunded_at')
-            ->whereDate('refunded_at', today())
-            ->count();
-
-        // Total Refunded Stats
-        $totalRefunded = MembershipPayment::whereNotNull('refunded_at')
-            ->sum('amount');
-
-        $totalRefundedCount = MembershipPayment::whereNotNull('refunded_at')
-            ->count();
-
         $todayRevenue = MembershipPayment::whereNull('refunded_at')
             ->whereDate('created_at', today())
             ->sum('amount');
 
-        // Get transaction history with search and filters
-        $query = MembershipPayment::with('membership');
+        $transactionCount = MembershipPayment::whereDate('created_at', today())->count();
 
-        // Apply search filter
-        if ($request->has('search') && $request->search != '') {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('receipt_number', 'LIKE', "%{$search}%")
-                  ->orWhere('member_name', 'LIKE', "%{$search}%")
-                  ->orWhereHas('membership', function($memberQuery) use ($search) {
-                      $memberQuery->where('name', 'LIKE', "%{$search}%");
-                  });
-            });
-        }
-
-        // Apply plan type filter
-        if ($request->has('filter_plan') && $request->filter_plan != '') {
-            $query->where('plan_type', $request->filter_plan);
-        }
-
-        // Apply payment method filter
-        if ($request->has('filter_method') && $request->filter_method != '') {
-            $query->where('payment_method', $request->filter_method);
-        }
-
-        // Apply sorting
-        $sort = $request->get('sort', 'date_newest');
-        switch($sort) {
-            case 'date_oldest':
-                $query->orderBy('created_at', 'asc');
-                break;
-            case 'name_asc':
-                $query->orderBy('member_name', 'asc');
-                break;
-            case 'name_desc':
-                $query->orderBy('member_name', 'desc');
-                break;
-            case 'date_newest':
-            default:
-                $query->orderBy('created_at', 'desc');
-                break;
-        }
-
-        $transactions = $query->paginate(10)->withQueryString();
+        // Product payment data
+        $inventoryItems = InventorySupply::all();
 
         return view('PaymentAndBillings.MembershipPayment', compact(
             'monthlyRevenue',
-            'refundedToday',
-            'refundedTodayCount',
-            'totalRefunded',
-            'totalRefundedCount',
             'todayRevenue',
-            'transactions'
+            'transactionCount',
+            'inventoryItems'
         ));
+    }
+
+    /**
+     * Plan type configuration - prices and durations
+     */
+    public static function planConfig()
+    {
+        return [
+            'Regular'     => ['price' => 600,  'duration' => 30, 'label' => 'Regular Gym Rate',     'requires_student' => false, 'requires_buddy' => false],
+            'Student'     => ['price' => 500,  'duration' => 30, 'label' => 'Student Rate',          'requires_student' => true,  'requires_buddy' => false],
+            'GymBuddy'    => ['price' => 900,  'duration' => 30, 'label' => 'Gym Buddy Rate',        'requires_student' => false, 'requires_buddy' => true],
+            'ThreeMonths' => ['price' => 1650, 'duration' => 90, 'label' => '3 Months Membership',   'requires_student' => false, 'requires_buddy' => false],
+            'Session'     => ['price' => 50,   'duration' => 1,  'label' => 'Session Pass',          'requires_student' => false, 'requires_buddy' => false],
+        ];
     }
 
     /**
@@ -118,10 +67,12 @@ class MembershipPaymentController extends Controller
         // Set timezone to Philippine Time
         date_default_timezone_set('Asia/Manila');
 
+        $validPlanTypes = implode(',', array_keys(self::planConfig()));
+
         // Validation rules based on payment type
         $rules = [
             'payment_type' => 'required|in:new,renewal,extension',
-            'plan_type' => 'required|in:Monthly,Session',
+            'plan_type' => "required|in:{$validPlanTypes}",
             'payment_method' => 'required|in:Cash,Credit Card,Debit Card,GCash,PayMaya,Bank Transfer',
             'amount' => 'required|numeric|min:0',
             'notes' => 'nullable|string|max:1000',
@@ -132,8 +83,24 @@ class MembershipPaymentController extends Controller
             $rules['new_member_name'] = 'required|string|max:255';
             $rules['new_member_contact'] = ['required', 'regex:/^(09\d{9}|\+639\d{9})$/'];
             $rules['new_member_avatar'] = 'nullable|image|max:2048';
+
+            // Student plan requires student_id
+            if ($request->plan_type === 'Student') {
+                $rules['student_id'] = 'required|string|max:100';
+            }
+
+            // Gym Buddy plan requires buddy info
+            if ($request->plan_type === 'GymBuddy') {
+                $rules['buddy_name'] = 'required|string|max:255';
+                $rules['buddy_contact'] = ['required', 'regex:/^(09\d{9}|\+639\d{9})$/'];
+            }
         } else {
             $rules['member_id'] = 'required|exists:memberships,id';
+
+            // Gym Buddy renewal/extension also requires buddy
+            if ($request->plan_type === 'GymBuddy') {
+                $rules['buddy_member_id'] = 'required|exists:memberships,id';
+            }
         }
 
         $validator = Validator::make($request->all(), $rules);
@@ -152,18 +119,22 @@ class MembershipPaymentController extends Controller
             DB::beginTransaction();
 
             $planType = $request->plan_type;
+            $planConfig = self::planConfig()[$planType];
             $previousDueDate = null;
+            $buddyPreviousDueDate = null;
             $newDueDate = null;
-            $duration = 0;
+            $duration = $planConfig['duration'];
 
-            // Calculate duration based on plan type
-            if ($planType === 'Monthly') {
-                $duration = 30;
-            } elseif ($planType === 'Session') {
-                $duration = 1;
+            // Validate student plan for renewals/extensions
+            if ($planType === 'Student' && $request->payment_type !== 'new') {
+                $existingMember = Membership::findOrFail($request->member_id);
+                if (!$existingMember->is_student) {
+                    throw new \Exception('Student rate is only available for members registered as students.');
+                }
             }
 
             $member = null;
+            $buddyMember = null;
 
             // Handle different payment types
             if ($request->payment_type === 'new') {
@@ -173,24 +144,61 @@ class MembershipPaymentController extends Controller
                     $avatarPath = $request->file('new_member_avatar')->store('avatars', 'public');
                 }
 
+                // Determine if student (from toggle checkbox)
+                $isStudent = $request->has('member1_is_student') && $request->member1_is_student;
+
                 // Create new member
                 $member = Membership::create([
                     'name' => $request->new_member_name,
                     'contact' => $request->new_member_contact,
+                    'age' => $request->new_member_age,
+                    'sex' => $request->new_member_sex,
                     'avatar' => $avatarPath,
                     'plan_type' => $planType,
                     'start_date' => now(),
                     'due_date' => now()->addDays($duration),
                     'status' => 'Active',
+                    'is_student' => $isStudent,
+                    'student_id' => $isStudent ? $request->student_id : null,
                 ]);
 
                 $newDueDate = $member->due_date;
+
+                // Handle Gym Buddy: create second member with full details
+                if ($planType === 'GymBuddy') {
+                    $buddyAvatarPath = null;
+                    if ($request->hasFile('buddy_avatar')) {
+                        $buddyAvatarPath = $request->file('buddy_avatar')->store('avatars', 'public');
+                    }
+
+                    $buddyIsStudent = $request->has('buddy_is_student') && $request->buddy_is_student;
+
+                    $buddyMember = Membership::create([
+                        'name' => $request->buddy_name,
+                        'contact' => $request->buddy_contact,
+                        'age' => $request->buddy_age,
+                        'sex' => $request->buddy_sex,
+                        'avatar' => $buddyAvatarPath,
+                        'plan_type' => $planType,
+                        'start_date' => now(),
+                        'due_date' => now()->addDays($duration),
+                        'status' => 'Active',
+                        'is_student' => $buddyIsStudent,
+                        'student_id' => $buddyIsStudent ? $request->buddy_student_id : null,
+                    ]);
+                }
 
             } else {
                 // Get existing member
                 $member = Membership::findOrFail($request->member_id);
                 $previousDueDate = $member->due_date;
                 $previousPlanType = $member->plan_type;
+
+                // Handle Gym Buddy: get buddy member
+                if ($planType === 'GymBuddy') {
+                    $buddyMember = Membership::findOrFail($request->buddy_member_id);
+                    $buddyPreviousDueDate = $buddyMember->due_date;
+                }
 
                 // Prevent renewal if member is active
                 if ($request->payment_type === 'renewal') {
@@ -215,6 +223,16 @@ class MembershipPaymentController extends Controller
                         'due_date' => $newDueDate,
                     ]);
 
+                    // Update buddy member too
+                    if ($buddyMember) {
+                        $buddyMember->update([
+                            'status' => 'Active',
+                            'plan_type' => $planType,
+                            'start_date' => now(),
+                            'due_date' => $newDueDate,
+                        ]);
+                    }
+
                 } elseif ($request->payment_type === 'extension') {
                     if (!$member->due_date) {
                         throw new \Exception('Cannot extend: Member has no due date.');
@@ -236,48 +254,108 @@ class MembershipPaymentController extends Controller
                         'plan_type' => $planType,
                         'due_date' => $newDueDate,
                     ]);
+
+                    // Update buddy member too
+                    if ($buddyMember) {
+                        $buddyDueDate = Carbon::parse($buddyMember->due_date)->isFuture()
+                            ? Carbon::parse($buddyMember->due_date)->addDays($duration)
+                            : now()->addDays($duration);
+                        $buddyMember->update([
+                            'status' => 'Active',
+                            'plan_type' => $planType,
+                            'due_date' => $buddyDueDate,
+                        ]);
+                    }
                 }
             }
 
             // Generate receipt number
             $receiptNumber = $this->generateReceiptNumber();
 
-            // Create payment record
-            $payment = MembershipPayment::create([
-                'receipt_number' => $receiptNumber,
-                'membership_id' => $member->id,
-                'member_name' => $member->name,
-                'plan_type' => $planType,
-                'payment_type' => $request->payment_type,
-                'payment_method' => $request->payment_method,
-                'amount' => $request->amount,
-                'duration_days' => $duration,
-                'previous_due_date' => $previousDueDate,
-                'new_due_date' => $newDueDate,
-                'notes' => $request->notes,
-                'processed_by' => Auth::user()->name ?? 'Admin',
-            ]);
+            // Create payment record(s)
+            if ($planType === 'GymBuddy' && $buddyMember) {
+                // GymBuddy: create TWO payment records (one per member) with split amount
+                $halfAmount = $request->amount / 2;
+                $buddyNewDueDate = $buddyMember->due_date ?? $newDueDate;
+
+                $payment = MembershipPayment::create([
+                    'receipt_number' => $receiptNumber,
+                    'membership_id' => $member->id,
+                    'member_name' => $member->name,
+                    'plan_type' => $planType,
+                    'payment_type' => $request->payment_type,
+                    'payment_method' => $request->payment_method,
+                    'amount' => $halfAmount,
+                    'duration_days' => $duration,
+                    'previous_due_date' => $previousDueDate,
+                    'new_due_date' => $newDueDate,
+                    'notes' => $request->notes,
+                    'processed_by' => Auth::user()->name ?? 'Admin',
+                    'buddy_member_id' => $buddyMember->id,
+                    'buddy_name' => $buddyMember->name,
+                    'buddy_contact' => $buddyMember->contact ?? $request->buddy_contact,
+                ]);
+
+                $buddyPayment = MembershipPayment::create([
+                    'receipt_number' => $receiptNumber,
+                    'membership_id' => $buddyMember->id,
+                    'member_name' => $buddyMember->name,
+                    'plan_type' => $planType,
+                    'payment_type' => $request->payment_type,
+                    'payment_method' => $request->payment_method,
+                    'amount' => $halfAmount,
+                    'duration_days' => $duration,
+                    'previous_due_date' => $buddyPreviousDueDate,
+                    'new_due_date' => $buddyNewDueDate,
+                    'notes' => $request->notes,
+                    'processed_by' => Auth::user()->name ?? 'Admin',
+                    'buddy_member_id' => $member->id,
+                    'buddy_name' => $member->name,
+                    'buddy_contact' => $member->contact ?? $request->new_member_contact,
+                ]);
+            } else {
+                $payment = MembershipPayment::create([
+                    'receipt_number' => $receiptNumber,
+                    'membership_id' => $member->id,
+                    'member_name' => $member->name,
+                    'plan_type' => $planType,
+                    'payment_type' => $request->payment_type,
+                    'payment_method' => $request->payment_method,
+                    'amount' => $request->amount,
+                    'duration_days' => $duration,
+                    'previous_due_date' => $previousDueDate,
+                    'new_due_date' => $newDueDate,
+                    'notes' => $request->notes,
+                    'processed_by' => Auth::user()->name ?? 'Admin',
+                ]);
+            }
 
             DB::commit();
 
             $message = 'Payment processed successfully! ';
             if ($request->payment_type === 'new') {
                 $message .= 'New member registered.';
+                if ($buddyMember) {
+                    $message .= ' Gym buddy also registered.';
+                }
             } elseif ($request->payment_type === 'renewal') {
                 $message .= 'Membership renewed.';
             } else {
                 $message .= 'Membership extended.';
             }
 
-            if ($request->expectsJson()) {
+            if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => $message,
-                    'payment' => $payment
+                    'payment' => [
+                        'id' => $payment->id,
+                        'receipt_number' => $payment->receipt_number ?? $payment->id,
+                    ]
                 ]);
             }
 
-            return redirect()->route('membership.payment.index')->with('success', $message);
+            return redirect()->back()->with('success', $message);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -294,41 +372,6 @@ class MembershipPaymentController extends Controller
     }
 
     /**
-     * Process a refund for a payment
-     */
-    public function refund(Request $request, $id)
-    {
-        date_default_timezone_set('Asia/Manila');
-
-        $validated = $request->validate([
-            'reason' => 'nullable|string|max:1000',
-        ]);
-
-        try {
-            $result = $this->refundService->refundMembershipPayment($id, [
-                'reason' => $validated['reason'] ?? null,
-            ]);
-
-            if ($request->expectsJson()) {
-                return response()->json($result);
-            }
-
-            return redirect()->route('membership.payment.index')
-                ->with('success', $result['message']);
-
-        } catch (\Exception $e) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage(),
-                ], 500);
-            }
-
-            return back()->withErrors(['error' => $e->getMessage()]);
-        }
-    }
-
-    /**
      * Get receipt data for a specific payment
      */
     public function receiptData($id)
@@ -337,6 +380,21 @@ class MembershipPaymentController extends Controller
             date_default_timezone_set('Asia/Manila');
 
             $payment = MembershipPayment::with('membership')->findOrFail($id);
+
+            // For GymBuddy, find the buddy's linked payment record
+            $buddyPaymentData = null;
+            if ($payment->plan_type === 'GymBuddy' && $payment->buddy_member_id) {
+                $buddyPay = MembershipPayment::where('receipt_number', $payment->receipt_number)
+                    ->where('membership_id', $payment->buddy_member_id)
+                    ->first();
+                if ($buddyPay) {
+                    $buddyPaymentData = [
+                        'member_name' => $buddyPay->member_name,
+                        'amount' => $buddyPay->amount,
+                        'new_due_date' => $buddyPay->new_due_date ? Carbon::parse($buddyPay->new_due_date)->format('F d, Y') : null,
+                    ];
+                }
+            }
 
             return response()->json([
                 'success' => true,
@@ -360,6 +418,10 @@ class MembershipPaymentController extends Controller
                     ? Carbon::parse($payment->refunded_at)->format('F d, Y - h:i A') 
                     : null,
                 'refund_reason' => $payment->refund_reason,
+                'buddy_member_id' => $payment->buddy_member_id,
+                'buddy_name' => $payment->buddy_name,
+                'buddy_contact' => $payment->buddy_contact,
+                'buddy_payment' => $buddyPaymentData,
             ]);
 
         } catch (\Exception $e) {
@@ -367,109 +429,6 @@ class MembershipPaymentController extends Controller
                 'success' => false,
                 'message' => 'Failed to load receipt: ' . $e->getMessage()
             ], 404);
-        }
-    }
-
-    /**
-     * Delete a payment transaction
-     */
-    public function destroy($id)
-    {
-        try {
-            DB::beginTransaction();
-
-            $payment = MembershipPayment::findOrFail($id);
-            $member = Membership::find($payment->membership_id);
-
-            if ($member) {
-                // Find the latest non-deleted, non-refunded payment
-                $latestPayment = MembershipPayment::where('membership_id', $member->id)
-                    ->where('id', '!=', $payment->id)
-                    ->whereNull('refunded_at')
-                    ->orderBy('created_at', 'desc')
-                    ->first();
-
-                if ($latestPayment) {
-                    $member->update([
-                        'due_date' => $latestPayment->new_due_date,
-                        'plan_type' => $latestPayment->plan_type,
-                        'status' => Carbon::parse($latestPayment->new_due_date)->isFuture() 
-                            ? 'Active' 
-                            : 'Expired',
-                    ]);
-                } else {
-                    $member->update([
-                        'status' => 'Expired',
-                        'due_date' => null,
-                    ]);
-                }
-            }
-
-            $payment->delete();
-
-            DB::commit();
-
-            return back()->with('success', 'Transaction deleted successfully.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withErrors(['error' => 'Failed to delete transaction: ' . $e->getMessage()]);
-        }
-    }
-
-    /**
-     * Bulk delete payments
-     */
-    public function bulkDelete(Request $request)
-    {
-        $ids = json_decode($request->ids, true);
-
-        if (!is_array($ids) || empty($ids)) {
-            return back()->withErrors(['error' => 'No transactions selected.']);
-        }
-
-        try {
-            DB::beginTransaction();
-
-            foreach ($ids as $id) {
-                $payment = MembershipPayment::find($id);
-                if ($payment) {
-                    $member = Membership::find($payment->membership_id);
-
-                    if ($member) {
-                        $latestPayment = MembershipPayment::where('membership_id', $member->id)
-                            ->where('id', '!=', $payment->id)
-                            ->whereNull('refunded_at')
-                            ->orderBy('created_at', 'desc')
-                            ->first();
-
-                        if ($latestPayment) {
-                            $member->update([
-                                'due_date' => $latestPayment->new_due_date,
-                                'plan_type' => $latestPayment->plan_type,
-                                'status' => Carbon::parse($latestPayment->new_due_date)->isFuture() 
-                                    ? 'Active' 
-                                    : 'Expired',
-                            ]);
-                        } else {
-                            $member->update([
-                                'status' => 'Expired',
-                                'due_date' => null,
-                            ]);
-                        }
-                    }
-
-                    $payment->delete();
-                }
-            }
-
-            DB::commit();
-
-            return back()->with('success', count($ids) . ' transaction(s) deleted successfully.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withErrors(['error' => 'Failed to delete transactions: ' . $e->getMessage()]);
         }
     }
 

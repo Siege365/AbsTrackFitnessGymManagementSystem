@@ -10,6 +10,35 @@ use Carbon\Carbon;
 
 class InventorySupplyController extends Controller
 {
+    /**
+     * Generate the next product number in format PRD-0001
+     */
+    public function getNextProductNumber()
+    {
+        $lastProduct = InventorySupply::orderBy('id', 'desc')->first();
+        
+        if ($lastProduct && preg_match('/PRD-(\d+)/', $lastProduct->product_number, $matches)) {
+            $nextNumber = intval($matches[1]) + 1;
+        } else {
+            // Check for any existing products with PRD- prefix
+            $maxNumber = InventorySupply::where('product_number', 'LIKE', 'PRD-%')
+                ->get()
+                ->map(function($item) {
+                    if (preg_match('/PRD-(\d+)/', $item->product_number, $matches)) {
+                        return intval($matches[1]);
+                    }
+                    return 0;
+                })
+                ->max();
+            
+            $nextNumber = $maxNumber ? $maxNumber + 1 : 1;
+        }
+        
+        return response()->json([
+            'product_number' => 'PRD-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT)
+        ]);
+    }
+
     public function index(Request $request)
     {
         // Start query
@@ -46,6 +75,20 @@ class InventorySupplyController extends Controller
                 case 'stock_desc':
                     $query->orderBy('stock_qty', 'desc');
                     break;
+                case 'in_stock':
+                    $query->whereColumn('stock_qty', '>=', 'low_stock_threshold')
+                          ->where('stock_qty', '>', 0)
+                          ->orderBy('created_at', 'desc');
+                    break;
+                case 'low_stock':
+                    $query->whereColumn('stock_qty', '<', 'low_stock_threshold')
+                          ->where('stock_qty', '>', 0)
+                          ->orderBy('created_at', 'desc');
+                    break;
+                case 'out_of_stock':
+                    $query->where('stock_qty', 0)
+                          ->orderBy('created_at', 'desc');
+                    break;
                 default:
                     $query->orderBy('created_at', 'desc');
             }
@@ -64,12 +107,43 @@ class InventorySupplyController extends Controller
         $outOfStockItems = InventorySupply::where('stock_qty', 0)->count();
         $stockValue = InventorySupply::sum(DB::raw('unit_price * stock_qty'));
         
+        // Get recent activity with filtering
+        $activityQuery = InventoryTransaction::with('inventorySupply')
+            ->whereHas('inventorySupply');
+        
+        // Apply activity filter
+        $activityFilter = $request->get('activity_filter', 'newest');
+        switch($activityFilter) {
+            case 'oldest':
+                $activityQuery->orderBy('created_at', 'asc');
+                break;
+            case 'stock_in':
+                $activityQuery->where('transaction_type', 'stock_in')->orderBy('created_at', 'desc');
+                break;
+            case 'stock_out':
+                $activityQuery->where('transaction_type', 'stock_out')->orderBy('created_at', 'desc');
+                break;
+            case 'Food':
+            case 'Drink':
+            case 'Supplement':
+                $activityQuery->whereHas('inventorySupply', function($q) use ($activityFilter) {
+                    $q->where('category', $activityFilter);
+                })->orderBy('created_at', 'desc');
+                break;
+            default: // newest
+                $activityQuery->orderBy('created_at', 'desc');
+        }
+        
+        $recentActivity = $activityQuery->limit(50)->get();
+        
         return view('inventorySupplies.inventory', compact(
             'inventoryItems',
             'totalProducts',
             'lowStockItems',
             'outOfStockItems',
-            'stockValue'
+            'stockValue',
+            'recentActivity',
+            'activityFilter'
         ));
     }
 
@@ -121,6 +195,36 @@ class InventorySupplyController extends Controller
 
             return redirect()->route('inventory.index')
                             ->with('success', 'Product added successfully!');
+                            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                            ->withErrors($e->validator)
+                            ->withInput();
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $item = InventorySupply::findOrFail($id);
+            
+            $validated = $request->validate([
+                'product_name' => 'required|string|max:255',
+                'category' => 'required|string|in:Food,Drink,Supplement',
+                'unit_price' => 'required|numeric|min:0',
+            ], [
+                'product_name.required' => 'Product name is required.',
+                'category.required' => 'Category is required.',
+                'category.in' => 'Category must be Food, Drink, or Supplement.',
+                'unit_price.required' => 'Unit price is required.',
+                'unit_price.numeric' => 'Unit price must be a number.',
+                'unit_price.min' => 'Unit price must be at least 0.',
+            ]);
+
+            $item->update($validated);
+
+            return redirect()->back()
+                            ->with('success', 'Product updated successfully!');
                             
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()

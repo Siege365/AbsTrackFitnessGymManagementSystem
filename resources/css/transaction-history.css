@@ -37,3 +37,23 @@
 .timeline-item.stock-out::before {
     border-color: #ffc107;
 }
+
+/* Scrollable timeline */
+.timeline::-webkit-scrollbar {
+    width: 6px;
+}
+.timeline::-webkit-scrollbar-track {
+    background: #191C24;
+    border-radius: 3px;
+}
+.timeline::-webkit-scrollbar-thumb {
+    background-color: #3a3f4b;
+    border-radius: 3px;
+}
+.timeline::-webkit-scrollbar-thumb:hover {
+    background-color: #4a4f5b;
+}
+.timeline {
+    scrollbar-width: thin;
+    scrollbar-color: #3a3f4b #191C24;
+}
