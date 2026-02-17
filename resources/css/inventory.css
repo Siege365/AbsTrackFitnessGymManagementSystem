@@ -101,6 +101,11 @@ body {
 }
 
 /* Table Styles */
+.table-responsive {
+    overflow: visible !important;
+    overflow-x: auto;
+}
+
 .table {
   color: #ffffff;
   background: transparent;
@@ -185,7 +190,7 @@ body {
 
 .form-control[readonly] {
   background-color: #2A3038 !important;
-  color: #495057 !important;
+  /* color: #495057 !important; */
 }
 
 /* Buttons */

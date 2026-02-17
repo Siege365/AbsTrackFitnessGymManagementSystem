@@ -4,6 +4,7 @@
 
 @push('styles')
 @vite(['resources/css/membership-payment.css'])
+<!-- @vite(['resources/css/product-payment.css']) -->
 @endpush
 
 @section('content')
@@ -13,7 +14,7 @@
       <div class="card-body">
           <div>
               <h2 class="page-header-title">Payment System</h2>
-              <p class="page-header-subtitle">Process membership & personal training payments</p>
+              <p class="page-header-subtitle">Process membership, personal training & product payments</p>
           </div>
       </div>
   </div>
@@ -30,6 +31,10 @@
       <i class="mdi mdi-dumbbell"></i>
       <span>Personal Training Payment</span>
     </button>
+    <button class="page-toggle-btn" data-page="product">
+      <i class="mdi mdi-cart-outline"></i>
+      <span>Product Payment</span>
+    </button>
   </div>
 
   <!-- ========================================== -->
@@ -38,47 +43,6 @@
   <div class="pages-slider">
     <!-- ====== MEMBERSHIP PAGE ====== -->
     <div class="page-panel active" id="membershipPage">
-
-      <!-- Stats Grid -->
-      <!-- <div class="row">
-        <div class="col-xl-4 col-sm-6 grid-margin stretch-card">
-            <div class="card stats-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h2 class="mb-0">₱{{ number_format($monthlyRevenue ?? 0, 2) }}</h2>
-                            <p class="text-muted mb-0">Monthly Revenue</p>
-                        </div>
-                    </div>
-                </div>    
-            </div>
-        </div>
-        <div class="col-xl-4 col-sm-6 grid-margin stretch-card">
-            <div class="card stats-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                         <div>
-                            <h2 class="mb-0">₱{{ number_format($todayRevenue ?? 0, 2) }}</h2>
-                            <p class="text-muted mb-0">Today's Revenue</p>
-                        </div>
-                    </div>
-                </div>    
-            </div>
-        </div>
-        <div class="col-xl-4 col-sm-6 grid-margin stretch-card">
-            <div class="card stats-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                         <div>
-                            <h2 class="mb-0">{{ $transactionCount ?? 0 }}</h2>
-                            <p class="text-muted mb-0">Transactions Today</p>
-                        </div>
-                    </div>
-                </div>    
-            </div>
-        </div>
-      </div> -->
-
       <!-- Payment Form Card -->
       <div class="card">
         <div class="card-body">
@@ -112,96 +76,114 @@
 
             <!-- New Member Details (Shown only for New Membership) -->
             <div class="form-section" id="newMemberSection" style="display: none;">
-                <!-- Person 1 -->
-                <h4 style="color: #fff; margin-bottom: 1rem; font-weight: 600;"><i class="mdi mdi-account"></i> Member 1</h4>
-                <div class="form-grid">
-                <div class="form-group">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" class="form-control" name="new_member_name" id="newMemberName" placeholder="Enter full name">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Contact Number</label>
-                    <input type="text" class="form-control" name="new_member_contact" id="newMemberContact" placeholder="09XXXXXXXXX or +639XXXXXXXXX">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Avatar (Optional)</label>
-                    <input type="file" class="form-control" name="new_member_avatar" id="newMemberAvatar" accept="image/*">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Age</label>
-                    <input type="number" class="form-control" name="new_member_age" id="newMemberAge" placeholder="Enter" min="1" max="120">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Sex</label>
-                    <select class="form-select" name="new_member_sex" id="newMemberSex">
-                        <option value="" disabled selected>Select</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                    </select>
-                </div>
-                </div>
-                <div class="form-grid">
-                <div class="form-group">
-                    <label class="form-label"><i class="mdi mdi-school"></i> Is this member a student?</label>
-                    <div class="student-toggle">
-                        <label class="toggle-switch">
-                            <input type="checkbox" name="member1_is_student" id="member1IsStudent" value="1">
-                            <span class="toggle-slider"></span>
-                        </label>
-                        <span class="toggle-label" id="member1StudentLabel">No</span>
+                <!-- Person 1 Card -->
+                <div class="member-card">
+                    <div class="member-card-header">
+                        <div class="member-card-icon"><i class="mdi mdi-account"></i></div>
+                        <h4 class="member-card-title">Member Details</h4>
                     </div>
-                </div>
-                <div class="form-group" id="member1StudentIdSection" style="display: none;">
-                    <label class="form-label">Student ID Number</label>
-                    <input type="text" class="form-control" name="student_id" id="studentIdInput" placeholder="Enter student ID">
-                </div>
-                </div>
-
-                <!-- Person 2 (Gym Buddy) -->
-                <div id="buddyNewSection">
-                    <hr style="border-color: #444; margin: 1.5rem 0;">
-                    <h4 style="margin-bottom: 1rem; font-weight: 600;"><i class="mdi mdi-account-multiple"></i> Member 2 (Gym Buddy)</h4>
-                    <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Full Name</label>
-                        <input type="text" class="form-control" name="buddy_name" id="buddyName" placeholder="Enter full name">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Contact Number</label>
-                        <input type="text" class="form-control" name="buddy_contact" id="buddyContact" placeholder="09XXXXXXXXX or +639XXXXXXXXX">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Avatar (Optional)</label>
-                        <input type="file" class="form-control" name="buddy_avatar" id="buddyAvatar" accept="image/*">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Age</label>
-                        <input type="number" class="form-control" name="buddy_age" id="buddyAge" placeholder="Enter" min="1" max="120">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Sex</label>
-                        <select class="form-select" name="buddy_sex" id="buddySex">
-                            <option value="" disabled selected>Select</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                        </select>
-                    </div>
-                    </div>
-                    <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label"><i class="mdi mdi-school"></i> Is this member a student?</label>
-                        <div class="student-toggle">
-                            <label class="toggle-switch">
-                                <input type="checkbox" name="buddy_is_student" id="buddyIsStudent" value="1">
-                                <span class="toggle-slider"></span>
-                            </label>
-                            <span class="toggle-label" id="buddyStudentLabel">No</span>
+                    <div class="member-card-body">
+                        <div class="member-form-row">
+                            <div class="member-form-col member-form-col-2">
+                                <label class="form-label">Full Name <span class="required-mark">*</span></label>
+                                <input type="text" class="form-control" name="new_member_name" id="newMemberName" placeholder="Enter full name">
+                            </div>
+                            <div class="member-form-col member-form-col-2">
+                                <label class="form-label">Contact Number <span class="required-mark">*</span></label>
+                                <input type="text" class="form-control" name="new_member_contact" id="newMemberContact" placeholder="09XXXXXXXXX or +639XXXXXXXXX">
+                            </div>
+                            <div class="member-form-col member-form-col-3">
+                                <label class="form-label">Avatar <span style="color:#666; font-weight:400;">(Optional)</span></label>
+                                <input type="file" class="form-control" name="new_member_avatar" id="newMemberAvatar" accept="image/*">
+                            </div>
+                        </div>
+                        <div class="member-form-row">
+                            <div class="member-form-col member-form-col-3">
+                                <label class="form-label">Age</label>
+                                <input type="number" class="form-control" name="new_member_age" id="newMemberAge" placeholder="Enter" min="1" max="120">
+                            </div>
+                            <div class="member-form-col member-form-col-3">
+                                <label class="form-label">Sex</label>
+                                <select class="form-select" name="new_member_sex" id="newMemberSex">
+                                    <option value="" disabled selected>Select</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div class="member-form-col" id="member1StudentIdSection" style="display: none; flex: 1;">
+                                <label class="form-label">Student ID</label>
+                                <input type="text" class="form-control" name="student_id" id="studentIdInput" placeholder="Enter student ID">
+                            </div>
+                        </div>
+                        <div class="member-form-row member-student-row">
+                            <div class="member-form-col" style="flex: 0 0 auto;">
+                                <label class="form-label"><i class="mdi mdi-school"></i> Student?</label>
+                                <div class="student-toggle">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" name="member1_is_student" id="member1IsStudent" value="1">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span class="toggle-label" id="member1StudentLabel">No</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group" id="buddyStudentIdSection" style="display: none;">
-                        <label class="form-label">Student ID Number</label>
-                        <input type="text" class="form-control" name="buddy_student_id" id="buddyStudentIdInput" placeholder="Enter student ID">
-                    </div>
+                </div>
+
+                <!-- Person 2 (Gym Buddy) Card -->
+                <div id="buddyNewSection">
+                    <div class="member-card buddy-card">
+                        <div class="member-card-header buddy-header">
+                            <div class="member-card-icon buddy-icon"><i class="mdi mdi-account-multiple"></i></div>
+                            <h4 class="member-card-title">Member Details</h4>
+                            <span class="buddy-tag">Buddy</span>
+                        </div>
+                        <div class="member-card-body">
+                            <div class="member-form-row">
+                                <div class="member-form-col member-form-col-2">
+                                    <label class="form-label">Full Name <span class="required-mark">*</span></label>
+                                    <input type="text" class="form-control" name="buddy_name" id="buddyName" placeholder="Enter full name">
+                                </div>
+                                <div class="member-form-col member-form-col-2">
+                                    <label class="form-label">Contact Number <span class="required-mark">*</span></label>
+                                    <input type="text" class="form-control" name="buddy_contact" id="buddyContact" placeholder="09XXXXXXXXX or +639XXXXXXXXX">
+                                </div>
+                                <div class="member-form-col member-form-col-3">
+                                    <label class="form-label">Avatar <span style="color:#666; font-weight:400;">(Optional)</span></label>
+                                    <input type="file" class="form-control" name="buddy_avatar" id="buddyAvatar" accept="image/*">
+                                </div>
+                            </div>
+                            <div class="member-form-row">
+                                <div class="member-form-col member-form-col-3">
+                                    <label class="form-label">Age</label>
+                                    <input type="number" class="form-control" name="buddy_age" id="buddyAge" placeholder="Enter" min="1" max="120">
+                                </div>
+                                <div class="member-form-col member-form-col-3">
+                                    <label class="form-label">Sex</label>
+                                    <select class="form-select" name="buddy_sex" id="buddySex">
+                                        <option value="" disabled selected>Select</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                </div>
+                                <div class="member-form-col" id="buddyStudentIdSection" style="display: none; flex: 1;">
+                                    <label class="form-label">Student ID</label>
+                                    <input type="text" class="form-control" name="buddy_student_id" id="buddyStudentIdInput" placeholder="Enter student ID">
+                                </div>
+                            </div>
+                            <div class="member-form-row member-student-row">
+                                <div class="member-form-col" style="flex: 0 0 auto;">
+                                    <label class="form-label"><i class="mdi mdi-school"></i> Student?</label>
+                                    <div class="student-toggle">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" name="buddy_is_student" id="buddyIsStudent" value="1">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <span class="toggle-label" id="buddyStudentLabel">No</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -209,7 +191,7 @@
             <!-- Buddy Selection for Renewal/Extension -->
             <div class="form-section" id="buddySelectSection">
                 <div class="form-group">
-                <label class="form-label">Search Buddy Member</label>
+                <label class="form-label"><i class="mdi mdi-account-multiple"></i> Search Buddy Member</label>
                 <div style="position: relative;">
                     <input 
                     type="text" 
@@ -258,10 +240,11 @@
                 <label class="form-label">Plan Selection</label>
                 <div class="plan-type-selector">
 
-                <div class="plan-type-card active" data-plan="Regular" data-price="600" data-duration="30" data-requires-student="false" data-requires-buddy="false">
-                    <div class="plan-name">Regular Gym Rate</div>
-                    <div class="plan-duration">30 Days Access</div>
-                    <div class="plan-price">₱600.00</div>
+                <div class="plan-type-card" data-plan="ThreeMonths" data-price="1650" data-duration="90" data-requires-student="false" data-requires-buddy="false">
+                    <div class="plan-name">3 Months Membership</div>
+                    <div class="plan-duration">90 Days Access</div>
+                    <div class="plan-price">₱1,650.00</div>
+                    <div class="plan-badge promo">Best Value</div>
                 </div>
 
                 <div class="plan-type-card" data-plan="Student" data-price="500" data-duration="30" data-requires-student="true" data-requires-buddy="false">
@@ -278,11 +261,10 @@
                     <div class="plan-badge buddy">2 People</div>
                 </div>
 
-                <div class="plan-type-card" data-plan="ThreeMonths" data-price="1650" data-duration="90" data-requires-student="false" data-requires-buddy="false">
-                    <div class="plan-name">3 Months Membership</div>
-                    <div class="plan-duration">90 Days Access</div>
-                    <div class="plan-price">₱1,650.00</div>
-                    <div class="plan-badge promo">Best Value</div>
+                <div class="plan-type-card active" data-plan="Regular" data-price="600" data-duration="30" data-requires-student="false" data-requires-buddy="false">
+                    <div class="plan-name">Regular Gym Rate</div>
+                    <div class="plan-duration">30 Days Access</div>
+                    <div class="plan-price">₱600.00</div>
                 </div>
 
                 <div class="plan-type-card" data-plan="Session" data-price="50" data-duration="1" data-requires-student="false" data-requires-buddy="false">
@@ -305,38 +287,67 @@
 
             <!-- Payment Details -->
             <div class="form-section">
-                <div class="form-grid" style="white-space: nowrap;">
-                <div class="form-group">
-                    <label class="form-label">Payment Method</label>
-                    <select class="form-select" name="payment_method" id="paymentMethod" required>
-                        <option value="Cash">Cash</option>
-                        <option value="Credit Card">Credit Card</option>
-                        <option value="Debit Card">Debit Card</option>
-                        <option value="GCash">GCash</option>
-                        <option value="PayMaya">PayMaya</option>
-                        <option value="Bank Transfer">Bank Transfer</option>
-                    </select>
+                <div class="payment-details-card">
+                    <div class="payment-details-header">
+                        <h4 class="payment-details-title">Membership Duration</h4>
+                    </div>
+                    <div class="payment-details-body">
+                        <div class="payment-details-row">
+                            <div class="payment-details-col payment-details-col-3">
+                                <label class="form-label">Current Due Date</label>
+                                <input type="text" class="form-control" id="currentDueDate" readonly placeholder="N/A">
+                            </div>
+                            <div class="payment-details-col payment-details-col-3">
+                                <label class="form-label">New Due Date</label>
+                                <input type="text" class="form-control" name="new_due_date" id="newDueDate" readonly placeholder="Will be calculated">
+                            </div>
+                            <div class="payment-details-col payment-details-col-3">
+                                <label class="form-label">Additional Days</label>
+                                <input type="number" class="form-control" id="additionalDays" readonly placeholder="0" value="30">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Amount</label>
-                    <input type="number" class="form-control" name="amount" id="amount" placeholder="₱0.00" step="0.01" value="600.00" readonly>
+                <!-- Buddy Due Date Fields (shown only for GymBuddy renewal/extension) -->
+                <div id="buddyDueDateSection" class="payment-details-card buddy-dates-card" style="display: none;">
+                    <div class="payment-details-body">
+                        <div class="payment-details-row">
+                            <div class="payment-details-col payment-details-col-3">
+                                <label class="form-label">Buddy Current Due Date</label>
+                                <input type="text" class="form-control" id="buddyCurrentDueDate" readonly placeholder="N/A">
+                            </div>
+                            <div class="payment-details-col payment-details-col-3">
+                                <label class="form-label">Buddy New Due Date</label>
+                                <input type="text" class="form-control" name="buddy_new_due_date" id="buddyNewDueDate" readonly placeholder="Will be calculated">
+                            </div>
+                            <div class="payment-details-col payment-details-col-3">
+                                <label class="form-label">Additional Days</label>
+                                <input type="number" class="form-control" id="additionalDays" readonly placeholder="0" value="30">
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <label class="form-label">Current Due Date</label>
-                    <input type="text" class="form-control" id="currentDueDate" readonly placeholder="N/A">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">New Due Date</label>
-                    <input type="text" class="form-control" name="new_due_date" id="newDueDate" readonly placeholder="Will be calculated">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Additional Days</label>
-                    <input type="number" class="form-control" id="additionalDays" readonly placeholder="0" value="30">
-                </div>
+                <div class="payment-details-card">
+                    <div class="payment-details-body">
+                        <div class="payment-details-row">
+                            <div class="payment-details-col payment-details-col-2">
+                                <label class="form-label">Payment Method</label>
+                                <select class="form-select" name="payment_method" id="paymentMethod" required>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Credit Card">Credit Card</option>
+                                    <option value="Debit Card">Debit Card</option>
+                                    <option value="GCash">GCash</option>
+                                    <option value="PayMaya">PayMaya</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                </select>
+                            </div>
+                            <div class="payment-details-col payment-details-col-2">
+                                <label class="form-label">Amount</label>
+                                <input type="number" class="form-control" name="amount" id="amount" placeholder="₱0.00" step="0.01" value="600.00" readonly>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -367,6 +378,128 @@
         </div>
       </div>
     </div><!-- /ptPage -->
+
+    <!-- ====== PRODUCT PAYMENT PAGE ====== -->
+    <div class="page-panel" id="productPage">
+      <!-- Payment Form Card -->
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="card-title mb-0">Product Payment</h4>
+            <div class="d-flex">
+              <input type="text" id="productSearchItem" class="form-control form-control-sm mr-2" placeholder="Search items..." style="width: 418px;">
+              <button type="button" class="btn btn-lg btn-primary mr-2" style="white-space: nowrap;" id="productAddItemBtn">
+                Add Item
+              </button>
+              <div id="productSearchResults" class="search-results" style="display: none;"></div>
+            </div>
+          </div>
+
+          <form action="{{ route('payments.store') }}" method="POST" id="productPaymentForm">
+            @csrf
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="productCustomerName" class="form-label">Customer Name</label>
+                  <div style="position: relative;">
+                    <input type="text" class="form-control" id="productCustomerName" name="customer_name" placeholder="Name" autocomplete="off" required>
+                    <input type="hidden" id="productCustomerId" name="customer_id">
+                    <div id="productCustomerResults" class="search-results" style="display:none;"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="productTotalAmount" class="form-label">Total Amount</label>
+                  <input type="number" class="form-control" id="productTotalAmount" name="total_amount" placeholder="₱0.00" readonly>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="productTransactionType" class="form-label">Transaction Type</label>
+                  <select class="form-control" id="productTransactionType" name="transaction_type">
+                    <option>Mixed</option>
+                    <option>Cash</option>
+                    <option>Credit Card</option>
+                    <option>Online Payment</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="productPaidAmount" class="form-label">Paid Amount</label>
+                  <input type="number" class="form-control" id="productPaidAmount" name="paid_amount" placeholder="₱0.00" step="0.01">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="productPaymentMethod" class="form-label">Payment Method</label>
+                  <select class="form-control" id="productPaymentMethod" name="payment_method">
+                    <option>Cash</option>
+                    <option>Credit Card</option>
+                    <option>Debit Card</option>
+                    <option>GCash</option>
+                    <option>Online Payment</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="productReturnAmount" class="form-label">Return Amount</label>
+                  <input type="number" class="form-control" id="productReturnAmount" placeholder="₱0.00" readonly>
+                </div>
+              </div>
+            </div>
+
+            <div class="row mt-3">
+              <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h5 class="mb-0">Items</h5>
+                </div>
+                <div class="table-responsive" style="min-height: 300px; overflow-y: auto;">
+                  <table class="table table-bordered" id="productItemsTable">
+                    <thead>
+                      <tr>
+                        <th style="min-width: 200px;">Item</th>
+                        <th style="min-width: 80px;">Qty</th>
+                        <th style="min-width: 120px;">Unit Price (₱)</th>
+                        <th style="min-width: 120px;">Subtotal (₱)</th>
+                        <th style="min-width: 100px;">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="productItemsTableBody">
+                      <tr><td colspan="5" class="text-center text-muted">No items added</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <input type="hidden" id="productItemsData" name="items_data">
+
+            <div class="row mt-3">
+              <div class="col-12">
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                  <button type="button" class="btn btn-secondary" id="productClearBtn">
+                    <i class="mdi mdi-close"></i> Clear
+                  </button>
+                  <button type="button" class="btn btn-primary" id="productProcessPaymentBtn">
+                    <i class="mdi mdi-check"></i> Process Payment
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div><!-- /productPage -->
   </div><!-- /pages-slider -->
 </div>
 
@@ -390,6 +523,50 @@
       </button>
       <button type="button" class="btn btn-primary" onclick="confirmPayment()">
         <i class="mdi mdi-check"></i> Confirm & Process
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Product Payment Confirmation Modal -->
+<div id="productConfirmationModal" class="modal-overlay">
+  <div class="modal-content small">
+    <div class="modal-header">
+      <h3 class="modal-title">Confirm Payment</h3>
+      <button class="modal-close" onclick="closeProductConfirmation()">&times;</button>
+    </div>
+    <div class="modal-body" style="font-size: 1.125rem;">
+      <div class="confirmation-icon warning">
+        <i class="mdi mdi-alert-circle-outline"></i>
+      </div>
+      <p class="confirmation-message">Please review the payment details before proceeding.</p>
+      <div class="confirmation-details" id="productConfirmationDetails"></div>
+    </div>
+    <div class="modal-footer" style="font-size: 1.125rem;">
+      <button type="button" class="btn btn-secondary" onclick="closeProductConfirmation()">
+        <i class="mdi mdi-close"></i> Cancel
+      </button>
+      <button type="button" class="btn btn-primary" id="confirmProductPaymentBtn">
+        <i class="mdi mdi-check"></i> Confirm & Process
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Product Receipt Modal -->
+<div id="productReceiptModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Receipt Details</h3>
+      <button class="modal-close" onclick="closeProductReceiptModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="productReceiptModalBody">
+      <div class="loading-spinner"><div class="spinner"></div><p>Loading receipt...</p></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeProductReceiptModal()">Close</button>
+      <button type="button" class="btn btn-primary" onclick="printProductReceipt()">
+        <i class="mdi mdi-printer"></i> Print
       </button>
     </div>
   </div>
@@ -436,20 +613,31 @@ document.addEventListener('DOMContentLoaded', function() {
   // PAGE TOGGLE (Membership / PT)
   // ========================================
   const pageToggleBtns = document.querySelectorAll('.page-toggle-btn');
+  const pageMap = {
+    'membership': 'membershipPage',
+    'pt': 'ptPage',
+    'product': 'productPage'
+  };
+  const pageOrder = ['membership', 'pt', 'product'];
 
   pageToggleBtns.forEach(btn => {
     btn.addEventListener('click', function() {
       const targetPage = this.dataset.page;
+      const targetPanelId = pageMap[targetPage];
 
       pageToggleBtns.forEach(b => b.classList.remove('active'));
       this.classList.add('active');
 
       const currentActive = document.querySelector('.page-panel.active');
-      const targetPanel = document.getElementById(targetPage === 'membership' ? 'membershipPage' : 'ptPage');
+      const targetPanel = document.getElementById(targetPanelId);
 
       if (currentActive === targetPanel) return;
 
-      const goingRight = targetPage === 'pt';
+      // Determine direction based on page order
+      const currentPageKey = Object.keys(pageMap).find(k => pageMap[k] === currentActive.id);
+      const currentIndex = pageOrder.indexOf(currentPageKey);
+      const targetIndex = pageOrder.indexOf(targetPage);
+      const goingRight = targetIndex > currentIndex;
 
       currentActive.classList.add(goingRight ? 'slide-out-left' : 'slide-out-right');
       targetPanel.classList.add(goingRight ? 'slide-in-right' : 'slide-in-left');
@@ -462,12 +650,27 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  // Auto-switch to tab from URL query parameter (?tab=product or ?tab=pt)
+  const urlParams = new URLSearchParams(window.location.search);
+  const tabParam = urlParams.get('tab');
+  if (tabParam && pageMap[tabParam]) {
+    const targetBtn = document.querySelector(`.page-toggle-btn[data-page="${tabParam}"]`);
+    if (targetBtn) {
+      // Instant switch without animation on page load
+      pageToggleBtns.forEach(b => b.classList.remove('active'));
+      targetBtn.classList.add('active');
+      document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById(pageMap[tabParam]).classList.add('active');
+    }
+  }
+
   // ========================================
   // MEMBERSHIP PAYMENT LOGIC
   // ========================================
   let selectedMemberStatus = '';
   let selectedMemberDueDate = '';
   let selectedMemberIsStudent = false;
+  let selectedBuddyDueDate = '';
 
   // Payment Type Selection
   const paymentTypePills = document.querySelectorAll('.payment-type-pill');
@@ -630,12 +833,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Buddy selection for renewal/extension
     const buddySelectSection = document.getElementById('buddySelectSection');
+    const buddyDueDateSection = document.getElementById('buddyDueDateSection');
     if (requiresBuddy && currentPaymentType !== 'new') {
       buddySelectSection.classList.add('buddy-visible');
+      buddyDueDateSection.style.display = 'block';
     } else {
       buddySelectSection.classList.remove('buddy-visible');
+      buddyDueDateSection.style.display = 'none';
       document.getElementById('buddyMemberId').value = '';
       document.getElementById('buddyMemberSearch').value = '';
+      document.getElementById('buddyCurrentDueDate').value = '';
+      document.getElementById('buddyNewDueDate').value = '';
+      selectedBuddyDueDate = '';
     }
 
     // Student warning
@@ -812,9 +1021,12 @@ document.addEventListener('DOMContentLoaded', function() {
           }
 
           resultsContainer.innerHTML = filtered.map(member => `
-            <div class="autocomplete-item" data-id="${member.id}" data-name="${member.name}">
+            <div class="autocomplete-item" data-id="${member.id}" data-name="${member.name}" data-due-date="${member.due_date || ''}" data-status="${member.status}">
               <strong>${member.name}</strong>
-              <div style="font-size: 0.875rem; color: #999;">Contact: ${member.contact || 'N/A'}</div>
+              <div style="font-size: 0.875rem; color: #999;">
+                Contact: ${member.contact || 'N/A'} | Status: ${member.status}
+                ${member.due_date ? `| Due: ${new Date(member.due_date).toLocaleDateString()}` : '| No due date'}
+              </div>
             </div>
           `).join('');
           resultsContainer.style.display = 'block';
@@ -823,6 +1035,15 @@ document.addEventListener('DOMContentLoaded', function() {
             item.addEventListener('click', function() {
               buddyMemberSearch.value = this.dataset.name;
               document.getElementById('buddyMemberId').value = this.dataset.id;
+              
+              // Store buddy due date and update buddy due date fields
+              const buddyDueDate = this.dataset.dueDate;
+              selectedBuddyDueDate = buddyDueDate;
+              document.getElementById('buddyCurrentDueDate').value = buddyDueDate ? 
+                new Date(buddyDueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 
+                'No due date';
+              
+              calculateNewDueDate();
               resultsContainer.style.display = 'none';
             });
           });
@@ -860,6 +1081,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (duration === 0) {
       document.getElementById('newDueDate').value = '';
+      document.getElementById('buddyNewDueDate').value = '';
       return;
     }
 
@@ -891,6 +1113,40 @@ document.addEventListener('DOMContentLoaded', function() {
       month: 'long', 
       day: 'numeric' 
     });
+
+    // Calculate buddy due date for GymBuddy renewal/extension
+    if (planTypeInput.value === 'GymBuddy' && paymentType !== 'new') {
+      const buddyCurrentDueDateText = document.getElementById('buddyCurrentDueDate').value;
+      let buddyStartDate;
+
+      if (paymentType === 'renewal') {
+        if (buddyCurrentDueDateText && buddyCurrentDueDateText !== 'No due date' && buddyCurrentDueDateText !== 'N/A') {
+          const buddyCurrent = new Date(buddyCurrentDueDateText);
+          buddyStartDate = buddyCurrent > today ? buddyCurrent : today;
+        } else {
+          buddyStartDate = today;
+        }
+      } else if (paymentType === 'extension') {
+        if (buddyCurrentDueDateText && buddyCurrentDueDateText !== 'No due date' && buddyCurrentDueDateText !== 'N/A') {
+          buddyStartDate = new Date(buddyCurrentDueDateText);
+        } else {
+          document.getElementById('buddyNewDueDate').value = '';
+          return;
+        }
+      }
+
+      if (buddyStartDate) {
+        const buddyNewDueDate = new Date(buddyStartDate);
+        buddyNewDueDate.setDate(buddyNewDueDate.getDate() + duration);
+        document.getElementById('buddyNewDueDate').value = buddyNewDueDate.toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+      }
+    } else {
+      document.getElementById('buddyNewDueDate').value = '';
+    }
   }
 
   // Form Submission with Confirmation
@@ -976,11 +1232,23 @@ document.addEventListener('DOMContentLoaded', function() {
       const buddyNameVal = paymentType === 'new' 
         ? document.getElementById('buddyName').value 
         : document.getElementById('buddyMemberSearch').value;
+      const buddyCurrentDue = document.getElementById('buddyCurrentDueDate').value;
+      const buddyNewDue = document.getElementById('buddyNewDueDate').value;
       buddyInfo = `
         <div class="confirmation-detail-row">
           <span class="confirmation-detail-label">Gym Buddy:</span>
           <span class="confirmation-detail-value">${buddyNameVal}</span>
         </div>
+        ${paymentType !== 'new' && buddyCurrentDue ? `
+        <div class="confirmation-detail-row">
+          <span class="confirmation-detail-label">Buddy Current Due:</span>
+          <span class="confirmation-detail-value">${buddyCurrentDue}</span>
+        </div>
+        <div class="confirmation-detail-row">
+          <span class="confirmation-detail-label">Buddy New Due:</span>
+          <span class="confirmation-detail-value" style="color: #28a745;">${buddyNewDue}</span>
+        </div>
+        ` : ''}
       `;
     }
 
@@ -1091,6 +1359,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('newDueDate').value = '';
     document.getElementById('buddyMemberId').value = '';
     document.getElementById('buddyMemberSearch').value = '';
+    document.getElementById('buddyCurrentDueDate').value = '';
+    document.getElementById('buddyNewDueDate').value = '';
+    selectedBuddyDueDate = '';
+    document.getElementById('buddyDueDateSection').style.display = 'none';
     
     // Reset student toggles
     document.getElementById('member1IsStudent').checked = false;
@@ -1268,12 +1540,597 @@ function printReceipt() {
 }
 
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') { closeModal(); closeConfirmationModal(); }
+  if (e.key === 'Escape') { closeModal(); closeConfirmationModal(); closeProductConfirmation(); closeProductReceiptModal(); }
 });
 
 document.querySelectorAll('.modal-overlay').forEach(modal => {
   modal.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
 });
+
+// ========================================
+// PRODUCT PAYMENT LOGIC
+// ========================================
+(function() {
+  let cartItems = [];
+  let inventoryItems = @json($inventoryItems ?? []);
+  let selectedSearchItem = null;
+  let isProductSubmitting = false;
+  const STORAGE_KEY = 'paymentFormState_v1';
+
+  // Save state
+  function saveState() {
+    try {
+      const state = {
+        cartItems: cartItems,
+        customer_name: document.getElementById('productCustomerName')?.value || '',
+        customer_id: document.getElementById('productCustomerId')?.value || '',
+        transaction_type: document.getElementById('productTransactionType')?.value || '',
+        payment_method: document.getElementById('productPaymentMethod')?.value || '',
+        paid_amount: document.getElementById('productPaidAmount')?.value || '',
+        total_amount: document.getElementById('productTotalAmount')?.value || ''
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.warn('Failed to save payment form state', e);
+    }
+  }
+
+  // Load state
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const state = JSON.parse(raw);
+      if (state) {
+        cartItems = Array.isArray(state.cartItems) ? state.cartItems : [];
+        if (document.getElementById('productCustomerName')) document.getElementById('productCustomerName').value = state.customer_name || '';
+        if (document.getElementById('productCustomerId')) document.getElementById('productCustomerId').value = state.customer_id || '';
+
+        if ((state.customer_id || state.customer_name) && window.fetch) {
+          fetch(`{{ url('/members/search') }}?q=${encodeURIComponent(state.customer_name || '')}`)
+            .then(r => r.json())
+            .then(data => {
+              const exists = Array.isArray(data) && data.some(m => String(m.id) === String(state.customer_id) || String(m.name).toLowerCase() === String((state.customer_name||'')).toLowerCase());
+              if (!exists) {
+                if (document.getElementById('productCustomerName')) document.getElementById('productCustomerName').value = '';
+                if (document.getElementById('productCustomerId')) document.getElementById('productCustomerId').value = '';
+                state.customer_name = '';
+                state.customer_id = '';
+                try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+              }
+            })
+            .catch(() => {});
+        }
+        if (document.getElementById('productTransactionType')) document.getElementById('productTransactionType').value = state.transaction_type || '';
+        if (document.getElementById('productPaymentMethod')) document.getElementById('productPaymentMethod').value = state.payment_method || '';
+        if (document.getElementById('productPaidAmount')) document.getElementById('productPaidAmount').value = state.paid_amount || '';
+        if (document.getElementById('productTotalAmount')) document.getElementById('productTotalAmount').value = state.total_amount || '';
+        renderCart();
+        calculateTotals();
+      }
+    } catch (e) {
+      console.warn('Failed to load payment form state', e);
+    }
+  }
+
+  function clearState() {
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { }
+  }
+
+  // Initialize on DOM ready
+  loadState();
+
+  window.addEventListener('beforeunload', function() {
+    if (!isProductSubmitting) saveState();
+  });
+
+  console.log('Inventory Items Loaded:', inventoryItems.length);
+
+  // Search functionality
+  document.getElementById('productSearchItem').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const searchResults = document.getElementById('productSearchResults');
+
+    if (searchTerm.length < 2) {
+      searchResults.style.display = 'none';
+      return;
+    }
+
+    const filtered = inventoryItems.filter(item =>
+      item.product_name.toLowerCase().includes(searchTerm) ||
+      item.product_number.toLowerCase().includes(searchTerm)
+    );
+
+    if (filtered.length > 0) {
+      searchResults.innerHTML = filtered.map(item => `
+        <div class="search-result-item product-search-result-item" data-id="${item.id}" data-name="${item.product_name}"
+             data-price="${item.unit_price}" data-stock="${item.stock_qty}">
+          <strong>${item.product_name}</strong> - ₱${parseFloat(item.unit_price).toFixed(2)}
+          <span class="text-muted">(Stock: ${item.stock_qty})</span>
+        </div>
+      `).join('');
+      searchResults.style.display = 'block';
+
+      searchResults.querySelectorAll('.product-search-result-item').forEach(item => {
+        item.addEventListener('click', function() {
+          const stock = parseInt(this.dataset.stock);
+          const name = this.dataset.name;
+          const id = this.dataset.id;
+          const price = parseFloat(this.dataset.price);
+
+          if (isNaN(stock) || stock <= 0) {
+            ToastUtils.showWarning('This item is out of stock and cannot be selected.');
+            return;
+          }
+
+          selectedSearchItem = { id: id, name: name, price: price, stock: stock };
+          document.getElementById('productSearchItem').value = name;
+          searchResults.style.display = 'none';
+        });
+      });
+    } else {
+      searchResults.innerHTML = '<div class="search-result-item">No items found</div>';
+      searchResults.style.display = 'block';
+    }
+  });
+
+  function addItemToCart(item) {
+    if (!item || typeof item.stock === 'undefined' || item.stock <= 0) {
+      ToastUtils.showError('Cannot add item — Insufficient stock.');
+      return;
+    }
+
+    const existingItem = cartItems.find(i => i.id == item.id);
+
+    if (existingItem) {
+      if (existingItem.qty < item.stock) {
+        existingItem.qty++;
+      } else {
+        ToastUtils.showWarning('Cannot add more. Insufficient stock!');
+        return;
+      }
+    } else {
+      cartItems.push({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        qty: 1,
+        stock: item.stock
+      });
+    }
+
+    renderCart();
+    calculateTotals();
+    saveState();
+  }
+
+  function renderCart() {
+    const tbody = document.getElementById('productItemsTableBody');
+
+    if (cartItems.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No items added</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = cartItems.map((item, index) => `
+      <tr>
+        <td>${item.name}</td>
+        <td>
+          <input type="number" class="form-control form-control-sm" value="${item.qty}"
+                 min="1" max="${item.stock}" onchange="window._productUpdateQty(${index}, this.value)">
+        </td>
+        <td>₱${item.price.toFixed(2)}</td>
+        <td>₱${(item.price * item.qty).toFixed(2)}</td>
+        <td>
+          <button type="button" class="btn btn-sm btn-danger" onclick="window._productRemoveItem(${index})">
+            <i class="mdi mdi-delete"></i>
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  window._productUpdateQty = function(index, newQty) {
+    newQty = parseInt(newQty);
+    if (newQty > 0 && newQty <= cartItems[index].stock) {
+      cartItems[index].qty = newQty;
+      renderCart();
+      calculateTotals();
+    } else {
+      ToastUtils.showWarning('Invalid quantity or insufficient stock!');
+      renderCart();
+    }
+    saveState();
+  };
+
+  window._productRemoveItem = function(index) {
+    cartItems.splice(index, 1);
+    renderCart();
+    calculateTotals();
+    saveState();
+  };
+
+  function calculateTotals() {
+    const total = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    document.getElementById('productTotalAmount').value = total.toFixed(2);
+
+    const paidAmount = parseFloat(document.getElementById('productPaidAmount').value) || 0;
+    const returnAmount = paidAmount - total;
+    document.getElementById('productReturnAmount').value = returnAmount >= 0 ? returnAmount.toFixed(2) : '0.00';
+  }
+
+  document.getElementById('productPaidAmount').addEventListener('input', function() {
+    calculateTotals();
+    saveState();
+  });
+
+  // Clear form button
+  document.getElementById('productClearBtn').addEventListener('click', function() {
+    cartItems = [];
+    renderCart();
+    document.getElementById('productPaymentForm').reset();
+    document.getElementById('productTotalAmount').value = '';
+    document.getElementById('productReturnAmount').value = '';
+    selectedSearchItem = null;
+    clearState();
+  });
+
+  document.getElementById('productAddItemBtn').addEventListener('click', function() {
+    if (!selectedSearchItem) {
+      const name = document.getElementById('productSearchItem').value.trim();
+      if (!name) {
+        ToastUtils.showWarning('Please select an item first from the search results.');
+        return;
+      }
+      const found = inventoryItems.find(i => i.product_name.toLowerCase() === name.toLowerCase());
+      if (!found) {
+        ToastUtils.showError('Selected item not found. Please choose from the search results.');
+        return;
+      }
+      if (found.stock_qty <= 0) {
+        ToastUtils.showError('This item is out of stock and cannot be added.');
+        return;
+      }
+      selectedSearchItem = { id: found.id, name: found.product_name, price: parseFloat(found.unit_price), stock: found.stock_qty };
+    }
+
+    addItemToCart(selectedSearchItem);
+    const searchEl = document.getElementById('productSearchItem');
+    if (searchEl) {
+      searchEl.value = '';
+      searchEl.focus();
+    }
+    const sr = document.getElementById('productSearchResults');
+    if (sr) sr.style.display = 'none';
+    selectedSearchItem = null;
+  });
+
+  // Process Payment Button Handler
+  document.getElementById('productProcessPaymentBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+
+    if (cartItems.length === 0) {
+      ToastUtils.showWarning('Please add at least one item to the cart!');
+      return;
+    }
+
+    const total = parseFloat(document.getElementById('productTotalAmount').value) || 0;
+    const paid = parseFloat(document.getElementById('productPaidAmount').value) || 0;
+    if (paid < total) {
+      ToastUtils.showError('Payment incomplete: Paid amount must be equal to or greater than the total amount.');
+      const paidEl = document.getElementById('productPaidAmount');
+      if (paidEl) paidEl.focus();
+      return;
+    }
+
+    // Prepare items data
+    document.getElementById('productItemsData').value = JSON.stringify(cartItems);
+
+    // Build confirmation details
+    const itemsHtml = cartItems.map(i => `
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">${i.name} x ${i.qty}</span>
+        <span class="confirmation-detail-value">₱${(i.price * i.qty).toFixed(2)}</span>
+      </div>
+    `).join('');
+
+    const customerName = document.getElementById('productCustomerName')?.value || 'Walk-in Customer';
+    const paymentMethod = document.getElementById('productPaymentMethod')?.value || 'Cash';
+
+    const details = `
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Customer:</span>
+        <span class="confirmation-detail-value">${customerName}</span>
+      </div>
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Payment Type:</span>
+        <span class="confirmation-detail-value">PRODUCT</span>
+      </div>
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Items:</span>
+        <span class="confirmation-detail-value">${cartItems.length} item(s)</span>
+      </div>
+      ${itemsHtml}
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Payment Method:</span>
+        <span class="confirmation-detail-value">${paymentMethod}</span>
+      </div>
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Total Amount:</span>
+        <span class="confirmation-detail-value">₱${total.toFixed(2)}</span>
+      </div>
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Paid Amount:</span>
+        <span class="confirmation-detail-value">₱${paid.toFixed(2)}</span>
+      </div>
+      <div class="confirmation-detail-row">
+        <span class="confirmation-detail-label">Change:</span>
+        <span class="confirmation-detail-value">₱${(paid - total).toFixed(2)}</span>
+      </div>
+    `;
+
+    document.getElementById('productConfirmationDetails').innerHTML = details;
+    document.getElementById('productConfirmationModal').classList.add('show');
+  });
+
+  // Close search results when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('#productSearchItem') && !e.target.closest('#productSearchResults')) {
+      document.getElementById('productSearchResults').style.display = 'none';
+    }
+    if (!e.target.closest('#productCustomerName') && !e.target.closest('#productCustomerResults')) {
+      const cr = document.getElementById('productCustomerResults');
+      if (cr) cr.style.display = 'none';
+    }
+  });
+
+  // Customer autocomplete for product payment
+  (function() {
+    const input = document.getElementById('productCustomerName');
+    const resultsEl = document.getElementById('productCustomerResults');
+    const customerIdEl = document.getElementById('productCustomerId');
+    let debounceTimer;
+
+    if (!input) return;
+
+    input.addEventListener('input', function(e) {
+      const q = this.value.trim();
+      customerIdEl.value = '';
+
+      clearTimeout(debounceTimer);
+      if (q.length < 1) {
+        resultsEl.style.display = 'none';
+        return;
+      }
+
+      debounceTimer = setTimeout(() => {
+        fetch(`{{ url('/members/search') }}?q=${encodeURIComponent(q)}`)
+          .then(r => r.json())
+          .then(data => {
+            if (!Array.isArray(data) || data.length === 0) {
+              resultsEl.innerHTML = '<div class="search-result-item">No members found</div>';
+              resultsEl.style.display = 'block';
+              return;
+            }
+
+            resultsEl.innerHTML = data.map(m => `
+              <div class="search-result-item" data-id="${m.id}" data-name="${m.name}">
+                <strong>${m.name}</strong> <span class="text-muted">${m.contact || ''}</span>
+              </div>
+            `).join('');
+            resultsEl.style.display = 'block';
+
+            resultsEl.querySelectorAll('.search-result-item').forEach(el => {
+              el.addEventListener('click', function() {
+                input.value = this.dataset.name;
+                if (customerIdEl) customerIdEl.value = this.dataset.id;
+                resultsEl.style.display = 'none';
+              });
+            });
+          })
+          .catch(err => {
+            console.error('Member search error', err);
+            resultsEl.style.display = 'none';
+          });
+      }, 250);
+    });
+  })();
+
+  // Confirm product payment
+  window.closeProductConfirmation = function() {
+    const m = document.getElementById('productConfirmationModal');
+    if (m) m.classList.remove('show');
+  };
+
+  function confirmProductPayment() {
+    const btn = document.getElementById('confirmProductPaymentBtn');
+    if (!btn) return;
+
+    btn.disabled = true;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+
+    const form = document.getElementById('productPaymentForm');
+    if (!form) return;
+    const fd = new FormData(form);
+
+    fetch(form.action, {
+      method: 'POST',
+      body: fd,
+      headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        closeProductConfirmation();
+
+        setTimeout(() => {
+          loadProductReceiptModal(data.payment.id);
+        }, 300);
+
+        clearFormData();
+      } else {
+        ToastUtils.showError(data.message || 'Failed to process payment');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
+    })
+    .catch(err => {
+      console.error('Product payment error', err);
+      ToastUtils.showError('Failed to process payment. Please try again.');
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    });
+  }
+
+  document.getElementById('confirmProductPaymentBtn').addEventListener('click', confirmProductPayment);
+
+  function clearFormData() {
+    cartItems = [];
+    renderCart();
+    document.getElementById('productPaymentForm').reset();
+    document.getElementById('productTotalAmount').value = '';
+    document.getElementById('productReturnAmount').value = '';
+    selectedSearchItem = null;
+    clearState();
+  }
+
+  // Product Receipt Modal Functions
+  function loadProductReceiptModal(paymentId) {
+    const modal = document.getElementById('productReceiptModal');
+    const modalBody = document.getElementById('productReceiptModalBody');
+
+    modal.classList.add('show');
+    modalBody.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><p>Loading receipt...</p></div>';
+
+    fetch(`/payments/${paymentId}/receipt-data`)
+      .then(response => response.json())
+      .then(data => {
+        modalBody.innerHTML = generateProductReceiptHTML(data);
+        ToastUtils.showSuccess('Payment processed successfully!');
+      })
+      .catch(error => {
+        console.error('Error loading receipt:', error);
+        ToastUtils.showError('Failed to load receipt. Please try again.');
+        modalBody.innerHTML = '<div style="padding:2rem;color:#dc3545;text-align:center;"><i class="mdi mdi-alert-circle" style="font-size:48px;"></i><p>Failed to load receipt.</p></div>';
+      });
+  }
+
+  function generateProductReceiptHTML(data) {
+    const items = data.items || [];
+    const itemsHTML = items.map(item => `
+      <tr>
+        <td>${item.product_name}</td>
+        <td style="text-align: center;">${item.quantity}</td>
+        <td style="text-align: right;">₱${parseFloat(item.unit_price).toFixed(2)}</td>
+        <td style="text-align: right;">₱${parseFloat(item.subtotal || item.total_price || (item.unit_price * item.quantity)).toFixed(2)}</td>
+      </tr>
+    `).join('');
+
+    return `
+      <div class="receipt-container">
+        <div class="receipt-header">
+          <h2>RECEIPT</h2>
+          <p><strong>Abstrack Fitness Gym</strong></p>
+          <p>Toril, Davao Del Sur</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Receipt Number</strong>
+            <span style="display: block; font-weight: 600;">#${data.receipt_number}</span>
+          </div>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Date & Time</strong>
+            <span style="display: block; font-weight: 600;">${data.formatted_date || new Date(data.created_at).toLocaleString()}</span>
+          </div>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Customer Name</strong>
+            <span style="display: block; font-weight: 600;">${data.customer_name || 'N/A'}</span>
+          </div>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Cashier</strong>
+            <span style="display: block; font-weight: 600;">${data.cashier_name || ''}</span>
+          </div>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Payment Method</strong>
+            <span style="display: block; font-weight: 600;">${data.payment_method || 'N/A'}</span>
+          </div>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Transaction Type</strong>
+            <span style="display: block; font-weight: 600;">${data.transaction_type || 'N/A'}</span>
+          </div>
+        </div>
+
+        <table class="receipt-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th style="text-align: center;">Quantity</th>
+              <th style="text-align: right;">Unit Price</th>
+              <th style="text-align: right;">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsHTML}
+          </tbody>
+        </table>
+
+        <div class="receipt-total">
+          <div class="receipt-row" style="font-size: 1.3rem;">
+            <span><strong>Total:</strong></span>
+            <span><strong>₱${parseFloat(data.total_amount || 0).toFixed(2)}</strong></span>
+          </div>
+          <div class="receipt-row" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+            <span>Paid Amount:</span>
+            <span>₱${parseFloat(data.paid_amount || data.paid || 0).toFixed(2)}</span>
+          </div>
+          <div class="receipt-row">
+            <span>Change:</span>
+            <span>₱${parseFloat(data.return_amount || data.change || 0).toFixed(2)}</span>
+          </div>
+        </div>
+
+        <div class="receipt-footer">
+          <p><strong>Thank you for your purchase!</strong></p>
+        </div>
+      </div>
+    `;
+  }
+
+  window.closeProductReceiptModal = function() {
+    const modal = document.getElementById('productReceiptModal');
+    modal.classList.remove('show');
+    setTimeout(() => { window.location.reload(); }, 300);
+  };
+
+  window.printProductReceipt = function() {
+    const content = document.getElementById('productReceiptModalBody').innerHTML;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Receipt</title>
+        <style>
+          body { font-family: 'Courier New', monospace; }
+          .receipt-container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .receipt-header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px dashed #333; }
+          .receipt-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          .receipt-table th { background: #333; color: white; padding: 10px; text-align: left; }
+          .receipt-table td { padding: 10px; border-bottom: 1px solid #ddd; }
+          .receipt-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+          .receipt-total { margin-top: 20px; padding-top: 20px; border-top: 2px solid #333; }
+          .receipt-footer { margin-top: 30px; padding-top: 20px; border-top: 2px dashed #333; text-align: center; }
+        </style>
+      </head>
+      <body>${content}</body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
+})(); // End Product Payment IIFE
 
 @if(session('success'))
   ToastUtils.showSuccess('{{ session('success') }}');

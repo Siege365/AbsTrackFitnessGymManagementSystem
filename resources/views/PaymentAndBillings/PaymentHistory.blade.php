@@ -1102,10 +1102,6 @@ function generateOriginalReceipt(type, data) {
         </table>
 
         <div class="receipt-total">
-          <div class="receipt-row">
-            <span>Subtotal:</span>
-            <span>₱${parseFloat(data.total_amount || 0).toFixed(2)}</span>
-          </div>
           <div class="receipt-row" style="font-size: 1.3rem;">
             <span><strong>Total:</strong></span>
             <span><strong>₱${parseFloat(data.total_amount || 0).toFixed(2)}</strong></span>

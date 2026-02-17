@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Membership;
 use App\Models\MembershipPayment;
+use App\Models\InventorySupply;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -33,10 +34,14 @@ class MembershipPaymentController extends Controller
 
         $transactionCount = MembershipPayment::whereDate('created_at', today())->count();
 
+        // Product payment data
+        $inventoryItems = InventorySupply::all();
+
         return view('PaymentAndBillings.MembershipPayment', compact(
             'monthlyRevenue',
             'todayRevenue',
-            'transactionCount'
+            'transactionCount',
+            'inventoryItems'
         ));
     }
 

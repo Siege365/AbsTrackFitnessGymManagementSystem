@@ -110,7 +110,7 @@
                 </form> 
                 <!-- Filter Dropdown -->
                 <div class="dropdown d-inline-block mr-2">
-                  <button type="button" class="btn btn-sm filter-button dropdown-toggle" type="button" id="filterDropdown" data-toggle="dropdown" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+                  <button type="button" class="btn btn-sm filter-button dropdown-toggle" type="button" id="filterDropdown" data-toggle="dropdown"  aria-haspopup="true" aria-expanded="false">
                     <i class="mdi mdi-filter-variant"></i> Filter
                   </button>
                   <div class="dropdown-menu dropdown-menu-right" aria-labelledby="filterDropdown">
@@ -206,7 +206,7 @@
                     </td>
                     <td>
                         <div class="dropdown">
-                          <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+                          <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="0,2" aria-haspopup="true" aria-expanded="false">
                               <i class="mdi mdi-dots-vertical"></i>
                           </button>
                           <div class="dropdown-menu dropdown-menu-right">
@@ -281,17 +281,8 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h4 class="card-title mb-0">Recent Activity</h4>
               <div class="dropdown">
-                <button class="btn btn-sm filter-button dropdown-toggle" type="button" id="activityFilterDropdown" data-toggle="dropdown" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
-                  <i class="mdi mdi-filter-variant"></i> 
-                  @switch($activityFilter ?? 'newest')
-                    @case('oldest') Oldest First @break
-                    @case('stock_in') Stock In @break
-                    @case('stock_out') Stock Out @break
-                    @case('Food') Food @break
-                    @case('Drink') Drink @break
-                    @case('Supplement') Supplement @break
-                    @default Newest First
-                  @endswitch
+                <button class="btn btn-sm filter-button dropdown-toggle" type="button" id="activityFilterDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="mdi mdi-filter-variant"></i> Filter
                 </button>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="activityFilterDropdown">
                   <h6 class="dropdown-header">Sort By</h6>
@@ -304,7 +295,6 @@
                     <i class="mdi mdi-sort-calendar-ascending"></i> Oldest First
                   </a>
                   <div class="dropdown-divider"></div>
-                  <h6 class="dropdown-header">Transaction Type</h6>
                   <a class="dropdown-item {{ ($activityFilter ?? '') == 'stock_in' ? 'active' : '' }}" 
                     href="{{ route('inventory.index', array_merge(request()->except('activity_filter'), ['activity_filter' => 'stock_in'])) }}">
                     <i class="mdi mdi-plus-circle text-success"></i> Stock In
@@ -314,7 +304,6 @@
                     <i class="mdi mdi-minus-circle text-warning"></i> Stock Out
                   </a>
                   <div class="dropdown-divider"></div>
-                  <h6 class="dropdown-header">Category</h6>
                   <a class="dropdown-item {{ ($activityFilter ?? '') == 'Food' ? 'active' : '' }}" 
                     href="{{ route('inventory.index', array_merge(request()->except('activity_filter'), ['activity_filter' => 'Food'])) }}">
                     <i class="mdi mdi-food"></i> Food
@@ -330,7 +319,7 @@
                 </div>
               </div>
             </div>
-            <div class="table-responsive activity-table-container" style="max-height: 480px; overflow-y: auto;">
+            <div class="table-responsive activity-table-container" style="max-height: 480px;">
               <table class="table table-hover">
                 <thead style="position: sticky; top: 0; background: #191C24; z-index: 1;">
                   <tr>

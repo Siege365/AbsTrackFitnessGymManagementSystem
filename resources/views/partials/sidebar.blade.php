@@ -54,10 +54,7 @@
       <div class="collapse" id="payments-menu">
         <ul class="nav flex-column sub-menu">
           <li class="nav-item">
-            <a class="nav-link" href="{{ route('membership.payment.index') }}">Membership Payment</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ route('payments.index') }}">Product Payment</a>
+            <a class="nav-link" href="{{ route('membership.payment.index') }}">Payment System</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ route('payments.history') }}">Payment History</a>

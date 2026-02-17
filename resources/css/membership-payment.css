@@ -143,7 +143,7 @@
   .form-control {
     width: 100%;
     padding: 0.875rem 1rem;
-    background: #191C24;
+    background: #282A36;
     border: 1px solid #555;
     border-radius: 6px;
     color: #ffffff;
@@ -153,7 +153,7 @@
   .form-select {
       width: 100%;
       padding: 0.875rem 1rem;
-      background: #191C24;
+      background: #282A36;
       border: 1px solid #555;
       border-radius: 6px;
       color: #ffffff;
@@ -180,7 +180,6 @@
   }
 
   .autocomplete-results {
-    /* position: absolute; */
     top: 100%;
     left: 0;
     right: 0;
@@ -201,7 +200,6 @@
     transition: all 0.2s ease;
     color: #ffffff;
     z-index: 1000;
-    /* position: absolute; */
   }
 
   .autocomplete-item:hover {
@@ -370,7 +368,7 @@
 
   .plan-badge {
     position: absolute;
-    top: 10px;
+    top: 22.5px;
     right: -28px;
     background: #ffc107;
     color: #000;
@@ -413,6 +411,265 @@
     opacity: 1;
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
+  }
+
+  /* ========================================
+     New Member Card Design
+     ======================================== */
+  .member-card {
+    background: #1e2130;
+    border: 1px solid #3a3d4d;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+  .member-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: #282A36;
+    border-bottom: 1px solid #3a3d4d;
+  }
+
+  .member-card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(13, 110, 253, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0d6efd;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .member-card-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .member-card-body {
+    padding: 1.25rem;
+    background: rgb(25, 28, 36);
+  }
+
+  .member-form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    white-space: nowrap;
+  }
+
+  .member-form-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .member-form-col {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .member-form-col-2 {
+    flex: 1 1 calc(50% - 0.5rem);
+  }
+
+  .member-form-col-3 {
+    flex: 1 1 calc(33.333% - 0.667rem);
+  }
+
+  .member-student-row {
+    align-items: flex-end;
+    gap: 1.5rem;
+  }
+
+  .required-mark {
+    color: #dc3545;
+    font-weight: 700;
+  }
+
+  /* Buddy card variant */
+  .buddy-card {
+    background: #1e2130;
+    border: 1px solid #3a3d4d;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .buddy-header {
+    background: #282A36;
+    position: relative;
+  }
+
+  .buddy-icon {
+    background: rgba(13, 110, 253, 0.2);
+  }
+
+  .buddy-tag {
+    margin-left: auto;
+    background: rgba(13, 110, 253, 0.15);
+    color: #5a9cfc;
+    padding: 0.2rem 0.65rem;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Student Toggle (improved) */
+  .student-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-top: 0.25rem;
+  }
+
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    cursor: pointer;
+  }
+
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #555;
+    transition: 0.3s;
+    border-radius: 24px;
+  }
+
+  .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #fff;
+    transition: 0.3s;
+    border-radius: 50%;
+  }
+
+  .toggle-switch input:checked + .toggle-slider {
+    background-color: #0d6efd;
+  }
+
+  .toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+  }
+
+  .toggle-label {
+    font-size: 0.9rem;
+    color: #ccc;
+    font-weight: 500;
+    user-select: none;
+  }
+
+  /* ========================================
+     Payment Details Card Design
+     ======================================== */
+  .payment-details-card {
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+
+  .payment-details-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: rgba(150, 150, 150, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .payment-details-title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #ccc;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .payment-details-body {
+    padding: 1.25rem;
+  }
+
+  .payment-details-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0;
+  }
+
+  .payment-details-col {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .payment-details-col-2 {
+    flex: 1 1 calc(50% - 0.5rem);
+  }
+
+  .payment-details-col-3 {
+    flex: 1 1 calc(33.333% - 0.667rem);
+  }
+
+  .buddy-dates-card {
+    border-color: #3a3d4d;
+  }
+
+  .buddy-dates-card .payment-details-icon {
+    background: rgba(150, 150, 150, 0.15);
+    color: #aaa;
+  }
+
+  /* Responsive: payment details cards */
+  @media (max-width: 768px) {
+    .payment-details-row {
+      flex-direction: column;
+      gap: 0;
+    }
+    .payment-details-col-2,
+    .payment-details-col-3 {
+      flex: 1 1 100%;
+    }
+  }
+
+  /* Responsive: member cards */
+  @media (max-width: 768px) {
+    .member-form-row {
+      flex-direction: column;
+      gap: 0;
+    }
+    .member-form-col-2,
+    .member-form-col-3 {
+      flex: 1 1 100%;
+    }
+    .member-student-row {
+      align-items: stretch;
+    }
   }
 
   .table-responsive {
@@ -1130,8 +1387,8 @@
   }
 
   .page-toggle-btn.active {
-    background: #282A36;
-    color: #fff;
+    background: linear-gradient(135deg, #FFA726, #FFB84D);
+    color: #000;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   }
 
