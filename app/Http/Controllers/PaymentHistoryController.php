@@ -144,7 +144,22 @@ class PaymentHistoryController extends Controller
         );
         $combinedRefunds->appends($request->except('refunded_page'));
 
-        return view('PaymentAndBillings.PaymentHistory', compact('productPayments', 'membershipPayments', 'combinedRefunds'));
+        // Stats: income totals (non-refunded payments only)
+        $membershipIncome = MembershipPayment::where('is_refunded', false)->sum('amount');
+        $productIncome    = Payment::where('is_refunded', false)->sum('total_amount');
+        $refundedTotal    = Payment::where('is_refunded', true)->sum('refunded_amount')
+                          + MembershipPayment::where('is_refunded', true)->sum('refunded_amount');
+        $ptIncome         = 0; // PT payments not yet implemented
+
+        return view('PaymentAndBillings.PaymentHistory', compact(
+            'productPayments',
+            'membershipPayments',
+            'combinedRefunds',
+            'membershipIncome',
+            'productIncome',
+            'refundedTotal',
+            'ptIncome'
+        ));
     }
 
     /**

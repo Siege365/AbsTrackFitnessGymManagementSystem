@@ -18,279 +18,389 @@
       </div>
   </div>
 
-  <!-- Product Payments Table -->
-  <div class="card mt-3">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Product Payments</h4>
-        <div class="d-flex align-items-center">
-          <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" id="productSearchForm">
-            @foreach(request()->except(['product_search', 'product_page']) as $key => $value)
-              @if(!is_array($value))
-                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-              @endif
-            @endforeach
-            <div class="search-wrapper mr-2">
-              <input type="text" 
-                name="product_search" 
-                class="form-control form-control-sm" 
-                placeholder="Search..." 
-                value="{{ request('product_search') }}" 
-                style="width: 450px;"
-                id="productSearchInput">
-              @if(request('product_search'))
-              <button type="button" class="search-clear-btn" onclick="clearSearch('productSearchInput', 'productSearchForm')">&times;</button>
-              @endif
+  <!-- Stats Cards -->
+  <div class="row">
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+      <div class="card stats-card" data-filter="all">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h2 class="mb-0">₱{{ number_format($membershipIncome ?? 0, 2) }}</h2>
+              <p class="text-muted mb-0">Membership Income</p>
             </div>
-          </form>
-          <div class="dropdown d-inline-block mr-2">
-            <button type="button" class="btn btn-sm filter-button dropdown-toggle" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
-              <i class="mdi mdi-sort-variant"></i> Filter
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
-              <h6 class="dropdown-header">Filter By</h6>
-              <a class="dropdown-item {{ request('product_sort', 'newest') === 'newest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['product_sort', 'product_page']), ['product_sort' => 'newest'])) }}"> <i class="mdi mdi-sort-descending mr-2"></i>Newest First</a>
-              <a class="dropdown-item {{ request('product_sort') === 'oldest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['product_sort', 'product_page']), ['product_sort' => 'oldest'])) }}"> <i class="mdi mdi-sort-ascending mr-2"></i>Oldest First</a>
+            <div class="stats-icon bg-danger">
+              <i class="mdi mdi-account-group" style="font-size: 24px;"></i>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th style="width: 50px;">
-                <div class="form-check">
-                  <label class="form-check-label">
-                    <input type="checkbox" class="form-check-input" id="selectAllProduct">
-                  </label>
-                </div>
-              </th>
-              <th class="text-left">Receipt #</th>
-              <th class="text-left">Customer</th>
-              <th class="text-left"> Date</th>
-              <th class="text-left">Amount</th>
-              <th class="text-left">Cashier</th>
-              <th class="text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @forelse($productPayments ?? [] as $p)
-            <tr>
-              <td>
-                <div class="form-check">
-                  <label class="form-check-label">
-                    <input type="checkbox" class="form-check-input product-checkbox" value="{{ $p->id }}">
-                  </label>
-                </div>
-              </td>
-              <td>{{ $p->receipt_number }}</td>
-              <td>{{ $p->customer_name }}</td>
-              <td>{{ $p->created_at->format('M d, Y - h:i A') }}</td>
-              <td>₱{{ number_format($p->total_amount,2) }}</td>
-              <td>{{ $p->cashier_name }}</td>
-              <td>
-                <div class="dropdown">
-                  <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
-                    <i class="mdi mdi-dots-vertical"></i>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-right">
-                    <button type="button" class="dropdown-item" onclick="viewHistoryReceipt('product', {{ $p->id }})">
-                      <i class="mdi mdi-eye mr-2"></i> View Receipt
-                    </button>
-                    <button type="button" class="dropdown-item text-warning" onclick="openRefundModal('product', {{ $p->id }}, '{{ $p->receipt_number }}', {{ $p->total_amount }}, '{{ addslashes($p->customer_name) }}')">
-                      <i class="mdi mdi-cash-refund mr-2"></i> Refund
-                    </button>
-                    <button type="button" class="dropdown-item text-danger" onclick="confirmDeleteSingle('product', {{ $p->id }})">
-                      <i class="mdi mdi-delete mr-2"></i> Delete
-                    </button>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            @empty
-            <tr>
-              <td colspan="7" class="text-center">No product payments found</td>
-            </tr>
-            @endforelse
-          </tbody>
-        </table>
-      </div>
-
-      <div class="pagination-wrapper mt-4">
-        <div class="row align-items-center">
-          <div class="col-md-6">
-            <button type="button" onclick="bulkDeleteProducts()" class="btn btn-sm btn-delete-selected" id="deleteProductBtn" disabled>
-              <i class="mdi mdi-delete"></i> Delete Selected (<span id="productCount">0</span>)
-            </button>
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+      <div class="card stats-card" data-filter="active">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h2 class="mb-0">₱{{ number_format($ptIncome ?? 0, 2) }}</h2>
+              <p class="text-muted mb-0">PT Income</p>
+            </div>
+            <div class="stats-icon bg-primary">
+              <i class="mdi mdi-dumbbell" style="font-size: 24px;"></i>
+            </div>
           </div>
-          <div class="col-md-6">
-            {{ $productPayments->links('vendor.pagination.custom') }}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+      <div class="card stats-card" data-filter="expiring">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h2 class="mb-0">₱{{ number_format($productIncome ?? 0, 2) }}</h2>
+              <p class="text-muted mb-0">Product Income</p>
+            </div>
+            <div class="stats-icon bg-warning">
+              <i class="mdi mdi-basket text-white" style="font-size: 24px;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+      <div class="card stats-card" data-filter="new">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h2 class="mb-0">₱{{ number_format($refundedTotal ?? 0, 2) }}</h2>
+              <p class="text-muted mb-0">Total Refunded</p>
+            </div>
+            <div class="stats-icon bg-info">
+              <i class="mdi mdi-cash-refund text-white" style="font-size: 24px;"></i>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Membership Payments Table -->
-  <div class="card mt-4">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Membership Payments</h4>
-        <div class="d-flex align-items-center">
-          <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" id="membershipSearchForm">
-            @foreach(request()->except(['membership_search', 'membership_page']) as $key => $value)
-              @if(!is_array($value))
-                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-              @endif
-            @endforeach
-            <div class="search-wrapper mr-2">
-              <input type="text" 
-                name="membership_search" 
-                class="form-control form-control-sm" 
-                placeholder="Search..." 
-                value="{{ request('membership_search') }}"
-                style="width: 450px;"
-                id="membershipSearchInput">
-              @if(request('membership_search'))
-              <button type="button" class="search-clear-btn" onclick="clearSearch('membershipSearchInput', 'membershipSearchForm')">&times;</button>
-              @endif
-            </div>
-          </form>
-          <div class="dropdown d-inline-block mr-2">
-            <button type="button" class="btn btn-sm filter-button dropdown-toggle" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
-              <i class="mdi mdi-sort-variant"></i> Filter
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
-              <h6 class="dropdown-header">Sort Order</h6>
-              <a class="dropdown-item {{ request('membership_sort', 'newest') === 'newest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_sort', 'membership_page']), ['membership_sort' => 'newest'])) }}"> <i class="mdi mdi-sort-descending mr-2"></i>Newest First</a>
-              <a class="dropdown-item {{ request('membership_sort') === 'oldest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_sort', 'membership_page']), ['membership_sort' => 'oldest'])) }}"> <i class="mdi mdi-sort-ascending mr-2"></i>Oldest First</a>
-              <div class="dropdown-divider"></div>
-              <h6 class="dropdown-header">Payment Type</h6>
-              <a class="dropdown-item {{ !request('membership_type_filter') ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), [])) }}"> <i class="mdi mdi-filter-remove mr-2"></i>All Types</a>
-              <a class="dropdown-item {{ request('membership_type_filter') === 'new' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'new'])) }}"> <i class="mdi mdi-account-plus mr-2"></i>New</a>
-              <a class="dropdown-item {{ request('membership_type_filter') === 'renewal' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'renewal'])) }}"> <i class="mdi mdi-autorenew mr-2"></i>Renewal</a>
-              <a class="dropdown-item {{ request('membership_type_filter') === 'extension' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'extension'])) }}"> <i class="mdi mdi-calendar-plus mr-2"></i>Extension</a>
-              <div class="dropdown-divider"></div>
-              <h6 class="dropdown-header">Plan Type</h6>
-              <a class="dropdown-item {{ !request('membership_plan_filter') ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), [])) }}"> <i class="mdi mdi-filter-remove mr-2"></i>All Plans</a>
-              <a class="dropdown-item {{ request('membership_plan_filter') === 'Regular' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Regular'])) }}"> <i class="mdi mdi-dumbbell mr-2"></i>Regular</a>
-              <a class="dropdown-item {{ request('membership_plan_filter') === 'Student' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Student'])) }}"> <i class="mdi mdi-school mr-2"></i>Student</a>
-              <a class="dropdown-item {{ request('membership_plan_filter') === 'GymBuddy' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'GymBuddy'])) }}"> <i class="mdi mdi-account-multiple mr-2"></i>Gym Buddy</a>
-              <a class="dropdown-item {{ request('membership_plan_filter') === 'ThreeMonths' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'ThreeMonths'])) }}"> <i class="mdi mdi-calendar-range mr-2"></i>3 Months</a>
-              <a class="dropdown-item {{ request('membership_plan_filter') === 'Session' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Session'])) }}"> <i class="mdi mdi-clock-outline mr-2"></i>Session</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th style="width: 50px;">
-                <div class="form-check">
-                  <label class="form-check-label">
-                    <input type="checkbox" class="form-check-input" id="selectAllMembership">
-                  </label>
-                </div>
-              </th>
-              <th class="text-left">Receipt #</th>
-              <th class="text-left">Member</th>
-              <th class="text-left">Plan Type</th>
-              <th class="text-left">Payment Type</th>
-              <th class="text-left"> Date</th>
-              <th class="text-left">Amount</th>
-              <th class="text-left">Cashier</th>
-              <th class="text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @forelse($membershipPayments ?? [] as $m)
-            <tr>
-              <td>
-                <div class="form-check">
-                  <label class="form-check-label">
-                    <input type="checkbox" class="form-check-input membership-checkbox" value="{{ $m->id }}">
-                  </label>
-                </div>
-              </td>
-              <td>{{ $m->receipt_number }}</td>
-              <td>{{ $m->member_name }}</td>
-              <td>
-                @php
-                  $planLabels = [
-                    'Regular' => 'Regular',
-                    'Student' => 'Student',
-                    'GymBuddy' => 'Gym Buddy',
-                    'ThreeMonths' => '3 Months',
-                    'Session' => 'Session',
-                  ];
-                  $planBadgeColors = [
-                    'Regular' => 'primary',
-                    'Student' => 'info',
-                    'GymBuddy' => 'success',
-                    'ThreeMonths' => 'warning',
-                    'Session' => 'light',
-                  ];
-                @endphp
-                <span class="badge badge-{{ $planBadgeColors[$m->plan_type] ?? 'secondary' }}">
-                  {{ $planLabels[$m->plan_type] ?? $m->plan_type }}
-                </span>
-              </td>
-              <td>
-                <span class="badge badge-{{ $m->payment_type === 'new' ? 'success' : ($m->payment_type === 'renewal' ? 'primary' : 'info') }}">
-                  {{ ucfirst($m->payment_type) }}
-                </span>
-              </td>
-              <td>{{ $m->created_at->format('M d, Y - h:i A') }}</td>
-              <td>₱{{ number_format($m->amount,2) }}</td>
-              <td>{{ $m->processed_by }}</td>
-              <td>
-                <div class="dropdown">
-                  <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
-                    <i class="mdi mdi-dots-vertical"></i>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-right">
-                    <button type="button" class="dropdown-item" onclick="viewHistoryReceipt('membership', {{ $m->id }})">
-                      <i class="mdi mdi-eye mr-2"></i> View Receipt
-                    </button>
-                    <button type="button" class="dropdown-item text-warning" onclick="openRefundModal('membership', {{ $m->id }}, '{{ $m->receipt_number }}', {{ $m->amount }}, '{{ addslashes($m->member_name) }}')">
-                      <i class="mdi mdi-cash-refund mr-2"></i> Refund
-                    </button>
-                    <button type="button" class="dropdown-item text-danger" onclick="confirmDeleteSingle('membership', {{ $m->id }})">
-                      <i class="mdi mdi-delete mr-2"></i> Delete
-                    </button>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            @empty
-            <tr>
-              <td colspan="9" class="text-center">No membership payments found</td>
-            </tr>
-            @endforelse
-          </tbody>
-        </table>
-      </div>
-
-      <div class="pagination-wrapper mt-4">
-        <div class="row align-items-center">
-          <div class="col-md-6">
-            <button type="button" onclick="bulkDeleteMemberships()" class="btn btn-sm btn-delete-selected" id="deleteMembershipBtn" disabled>
-              <i class="mdi mdi-delete"></i> Delete Selected (<span id="membershipCount">0</span>)
-            </button>
-          </div>
-          <div class="col-md-6">
-            {{ $membershipPayments->links('vendor.pagination.custom') }}
-          </div>
-        </div>
-      </div>
-    </div>
+  <!-- ========================================== -->
+  <!-- PAGE TOGGLE: Membership / PT / Product     -->
+  <!-- ========================================== -->
+  <div class="page-toggle-container">
+    <button class="page-toggle-btn active" data-page="membership">
+      <i class="mdi mdi-account-group"></i>
+      <span>Membership</span>
+    </button>
+    <button class="page-toggle-btn" data-page="pt">
+      <i class="mdi mdi-dumbbell"></i>
+      <span>Personal Training</span>
+    </button>
+    <button class="page-toggle-btn" data-page="product">
+      <i class="mdi mdi-basket"></i>
+      <span>Product</span>
+    </button>
   </div>
 
-  <!-- Refunded Payments Table -->
+  <!-- ========================================== -->
+  <!-- SIBLING PAGES WRAPPER                      -->
+  <!-- ========================================== -->
+  <div class="pages-slider">
+
+    <!-- ====== MEMBERSHIP PAYMENTS PAGE ====== -->
+    <div class="page-panel active" id="membershipPage">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Membership Payments</h4>
+            <div class="d-flex align-items-center">
+              <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" id="membershipSearchForm">
+                @foreach(request()->except(['membership_search', 'membership_page']) as $key => $value)
+                  @if(!is_array($value))
+                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                  @endif
+                @endforeach
+                <div class="search-wrapper mr-2">
+                  <input type="text" 
+                    name="membership_search" 
+                    class="form-control form-control-sm" 
+                    placeholder="Search..." 
+                    value="{{ request('membership_search') }}"
+                    style="width: 450px;"
+                    id="membershipSearchInput">
+                  @if(request('membership_search'))
+                  <button type="button" class="search-clear-btn" onclick="clearSearch('membershipSearchInput', 'membershipSearchForm')">&times;</button>
+                  @endif
+                </div>
+              </form>
+              <div class="dropdown d-inline-block mr-2">
+                <button type="button" class="btn btn-sm filter-button dropdown-toggle" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+                  <i class="mdi mdi-sort-variant"></i> Filter
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                  <h6 class="dropdown-header">Sort Order</h6>
+                  <a class="dropdown-item {{ request('membership_sort', 'newest') === 'newest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_sort', 'membership_page']), ['membership_sort' => 'newest'])) }}"> <i class="mdi mdi-sort-descending mr-2"></i>Newest First</a>
+                  <a class="dropdown-item {{ request('membership_sort') === 'oldest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_sort', 'membership_page']), ['membership_sort' => 'oldest'])) }}"> <i class="mdi mdi-sort-ascending mr-2"></i>Oldest First</a>
+                  <div class="dropdown-divider"></div>
+                  <h6 class="dropdown-header">Payment Type</h6>
+                  <a class="dropdown-item {{ !request('membership_type_filter') ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), [])) }}"> <i class="mdi mdi-filter-remove mr-2"></i>All Types</a>
+                  <a class="dropdown-item {{ request('membership_type_filter') === 'new' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'new'])) }}"> <i class="mdi mdi-account-plus mr-2"></i>New</a>
+                  <a class="dropdown-item {{ request('membership_type_filter') === 'renewal' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'renewal'])) }}"> <i class="mdi mdi-autorenew mr-2"></i>Renewal</a>
+                  <a class="dropdown-item {{ request('membership_type_filter') === 'extension' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'extension'])) }}"> <i class="mdi mdi-calendar-plus mr-2"></i>Extension</a>
+                  <div class="dropdown-divider"></div>
+                  <h6 class="dropdown-header">Plan Type</h6>
+                  <a class="dropdown-item {{ !request('membership_plan_filter') ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), [])) }}"> <i class="mdi mdi-filter-remove mr-2"></i>All Plans</a>
+                  <a class="dropdown-item {{ request('membership_plan_filter') === 'Regular' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Regular'])) }}"> <i class="mdi mdi-dumbbell mr-2"></i>Regular</a>
+                  <a class="dropdown-item {{ request('membership_plan_filter') === 'Student' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Student'])) }}"> <i class="mdi mdi-school mr-2"></i>Student</a>
+                  <a class="dropdown-item {{ request('membership_plan_filter') === 'GymBuddy' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'GymBuddy'])) }}"> <i class="mdi mdi-account-multiple mr-2"></i>Gym Buddy</a>
+                  <a class="dropdown-item {{ request('membership_plan_filter') === 'ThreeMonths' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'ThreeMonths'])) }}"> <i class="mdi mdi-calendar-range mr-2"></i>3 Months</a>
+                  <a class="dropdown-item {{ request('membership_plan_filter') === 'Session' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Session'])) }}"> <i class="mdi mdi-clock-outline mr-2"></i>Session</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="checkbox" class="form-check-input" id="selectAllMembership">
+                      </label>
+                    </div>
+                  </th>
+                  <th class="text-left">Receipt #</th>
+                  <th class="text-left">Member</th>
+                  <th class="text-left">Plan Type</th>
+                  <th class="text-left">Payment Type</th>
+                  <th class="text-left">Date</th>
+                  <th class="text-left">Amount</th>
+                  <th class="text-left">Cashier</th>
+                  <th class="text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @forelse($membershipPayments ?? [] as $m)
+                <tr>
+                  <td>
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="checkbox" class="form-check-input membership-checkbox" value="{{ $m->id }}">
+                      </label>
+                    </div>
+                  </td>
+                  <td>{{ $m->receipt_number }}</td>
+                  <td>{{ $m->member_name }}</td>
+                  <td>
+                    @php
+                      $planLabels = [
+                        'Regular' => 'Regular',
+                        'Student' => 'Student',
+                        'GymBuddy' => 'Gym Buddy',
+                        'ThreeMonths' => '3 Months',
+                        'Session' => 'Session',
+                      ];
+                      $planBadgeColors = [
+                        'Regular' => 'primary',
+                        'Student' => 'info',
+                        'GymBuddy' => 'success',
+                        'ThreeMonths' => 'warning',
+                        'Session' => 'light',
+                      ];
+                    @endphp
+                    <span class="badge badge-{{ $planBadgeColors[$m->plan_type] ?? 'secondary' }}">
+                      {{ $planLabels[$m->plan_type] ?? $m->plan_type }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge badge-{{ $m->payment_type === 'new' ? 'success' : ($m->payment_type === 'renewal' ? 'primary' : 'info') }}">
+                      {{ ucfirst($m->payment_type) }}
+                    </span>
+                  </td>
+                  <td>{{ $m->created_at->format('M d, Y - h:i A') }}</td>
+                  <td>₱{{ number_format($m->amount,2) }}</td>
+                  <td>{{ $m->processed_by }}</td>
+                  <td>
+                    <div class="dropdown">
+                      <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
+                        <i class="mdi mdi-dots-vertical"></i>
+                      </button>
+                      <div class="dropdown-menu dropdown-menu-right">
+                        <button type="button" class="dropdown-item" onclick="viewHistoryReceipt('membership', {{ $m->id }})">
+                          <i class="mdi mdi-eye mr-2"></i> View Receipt
+                        </button>
+                        <button type="button" class="dropdown-item text-warning" onclick="openRefundModal('membership', {{ $m->id }}, '{{ $m->receipt_number }}', {{ $m->amount }}, '{{ addslashes($m->member_name) }}')">
+                          <i class="mdi mdi-cash-refund mr-2"></i> Refund
+                        </button>
+                        <button type="button" class="dropdown-item text-danger" onclick="confirmDeleteSingle('membership', {{ $m->id }})">
+                          <i class="mdi mdi-delete mr-2"></i> Delete
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                @empty
+                <tr>
+                  <td colspan="9" class="text-center">No membership payments found</td>
+                </tr>
+                @endforelse
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination-wrapper mt-4">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <button type="button" onclick="bulkDeleteMemberships()" class="btn btn-sm btn-delete-selected" id="deleteMembershipBtn" disabled>
+                  <i class="mdi mdi-delete"></i> Delete Selected (<span id="membershipCount">0</span>)
+                </button>
+              </div>
+              <div class="col-md-6">
+                {{ $membershipPayments->links('vendor.pagination.custom') }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /membershipPage -->
+
+    <!-- ====== PERSONAL TRAINING PAGE ====== -->
+    <div class="page-panel" id="ptPage">
+      <div class="card">
+        <div class="card-body" style="text-align: center; padding: 4rem 2rem;">
+          <i class="mdi mdi-dumbbell" style="font-size: 5rem; color: #555; margin-bottom: 1rem; display: block;"></i>
+          <h2 style="color: #fff; margin-bottom: 0.5rem;">Personal Training Payment History</h2>
+          <p style="color: #999; font-size: 1.125rem;">This section is coming soon. Personal training payment history will be available in a future update.</p>
+          <div style="margin-top: 2rem; padding: 1.5rem; background: #191C24; border-radius: 8px; display: inline-block;">
+            <p style="color: #ffc107; margin: 0;"><i class="mdi mdi-information"></i> You can manage PT schedules in the <strong>Sessions</strong> module.</p>
+          </div>
+        </div>
+      </div>
+    </div><!-- /ptPage -->
+
+    <!-- ====== PRODUCT PAYMENTS PAGE ====== -->
+    <div class="page-panel" id="productPage">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Product Payments</h4>
+            <div class="d-flex align-items-center">
+              <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" id="productSearchForm">
+                @foreach(request()->except(['product_search', 'product_page']) as $key => $value)
+                  @if(!is_array($value))
+                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                  @endif
+                @endforeach
+                <div class="search-wrapper mr-2">
+                  <input type="text" 
+                    name="product_search" 
+                    class="form-control form-control-sm" 
+                    placeholder="Search..." 
+                    value="{{ request('product_search') }}" 
+                    style="width: 450px;"
+                    id="productSearchInput">
+                  @if(request('product_search'))
+                  <button type="button" class="search-clear-btn" onclick="clearSearch('productSearchInput', 'productSearchForm')">&times;</button>
+                  @endif
+                </div>
+              </form>
+              <div class="dropdown d-inline-block mr-2">
+                <button type="button" class="btn btn-sm filter-button dropdown-toggle" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+                  <i class="mdi mdi-sort-variant"></i> Filter
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                  <h6 class="dropdown-header">Filter By</h6>
+                  <a class="dropdown-item {{ request('product_sort', 'newest') === 'newest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['product_sort', 'product_page']), ['product_sort' => 'newest'])) }}"> <i class="mdi mdi-sort-descending mr-2"></i>Newest First</a>
+                  <a class="dropdown-item {{ request('product_sort') === 'oldest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['product_sort', 'product_page']), ['product_sort' => 'oldest'])) }}"> <i class="mdi mdi-sort-ascending mr-2"></i>Oldest First</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="checkbox" class="form-check-input" id="selectAllProduct">
+                      </label>
+                    </div>
+                  </th>
+                  <th class="text-left">Receipt #</th>
+                  <th class="text-left">Customer</th>
+                  <th class="text-left">Date</th>
+                  <th class="text-left">Amount</th>
+                  <th class="text-left">Cashier</th>
+                  <th class="text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @forelse($productPayments ?? [] as $p)
+                <tr>
+                  <td>
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="checkbox" class="form-check-input product-checkbox" value="{{ $p->id }}">
+                      </label>
+                    </div>
+                  </td>
+                  <td>{{ $p->receipt_number }}</td>
+                  <td>{{ $p->customer_name }}</td>
+                  <td>{{ $p->created_at->format('M d, Y - h:i A') }}</td>
+                  <td>₱{{ number_format($p->total_amount,2) }}</td>
+                  <td>{{ $p->cashier_name }}</td>
+                  <td>
+                    <div class="dropdown">
+                      <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
+                        <i class="mdi mdi-dots-vertical"></i>
+                      </button>
+                      <div class="dropdown-menu dropdown-menu-right">
+                        <button type="button" class="dropdown-item" onclick="viewHistoryReceipt('product', {{ $p->id }})">
+                          <i class="mdi mdi-eye mr-2"></i> View Receipt
+                        </button>
+                        <button type="button" class="dropdown-item text-warning" onclick="openRefundModal('product', {{ $p->id }}, '{{ $p->receipt_number }}', {{ $p->total_amount }}, '{{ addslashes($p->customer_name) }}')">
+                          <i class="mdi mdi-cash-refund mr-2"></i> Refund
+                        </button>
+                        <button type="button" class="dropdown-item text-danger" onclick="confirmDeleteSingle('product', {{ $p->id }})">
+                          <i class="mdi mdi-delete mr-2"></i> Delete
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                @empty
+                <tr>
+                  <td colspan="7" class="text-center">No product payments found</td>
+                </tr>
+                @endforelse
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination-wrapper mt-4">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <button type="button" onclick="bulkDeleteProducts()" class="btn btn-sm btn-delete-selected" id="deleteProductBtn" disabled>
+                  <i class="mdi mdi-delete"></i> Delete Selected (<span id="productCount">0</span>)
+                </button>
+              </div>
+              <div class="col-md-6">
+                {{ $productPayments->links('vendor.pagination.custom') }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /productPage -->
+
+  </div><!-- /pages-slider -->
+
+  <!-- Refunded Payments Table (always visible below tabs) -->
   <div class="card mt-4">
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-3">
@@ -342,7 +452,7 @@
               </th>
               <th class="text-left">Receipt #</th>
               <th class="text-left">Name</th>
-              <th class="text-center"> Type</th>
+              <th class="text-center">Type</th>
               <th class="text-left">Refunded At</th>
               <th class="text-left">Amount</th>
               <th class="text-left">Refunded Amount</th>
@@ -537,6 +647,7 @@ let currentRefundId = null;
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
   initializeCheckboxes();
+  initializePageToggle();
   
   // Display Laravel messages
   @if(session('success'))
@@ -553,6 +664,70 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // FIX #3: Checkbox Management
+function initializePageToggle() {
+  const pageToggleBtns = document.querySelectorAll('.page-toggle-btn');
+  const pageMap = {
+    'membership': 'membershipPage',
+    'pt': 'ptPage',
+    'product': 'productPage'
+  };
+  const pageOrder = ['membership', 'pt', 'product'];
+
+  pageToggleBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const targetPage = this.dataset.page;
+      const currentBtn = document.querySelector('.page-toggle-btn.active');
+      const currentPage = currentBtn ? currentBtn.dataset.page : 'membership';
+
+      if (targetPage === currentPage) return;
+
+      const currentIdx = pageOrder.indexOf(currentPage);
+      const targetIdx = pageOrder.indexOf(targetPage);
+      const goingRight = targetIdx > currentIdx;
+
+      const currentPanel = document.getElementById(pageMap[currentPage]);
+      const targetPanel = document.getElementById(pageMap[targetPage]);
+
+      // Animate out current
+      if (currentPanel) {
+        currentPanel.classList.remove('active');
+        currentPanel.classList.add(goingRight ? 'slide-out-left' : 'slide-out-right');
+      }
+
+      setTimeout(() => {
+        if (currentPanel) {
+          currentPanel.classList.remove('slide-out-left', 'slide-out-right');
+        }
+
+        // Animate in target
+        if (targetPanel) {
+          targetPanel.classList.add('active', goingRight ? 'slide-in-right' : 'slide-in-left');
+          setTimeout(() => {
+            targetPanel.classList.remove('slide-in-right', 'slide-in-left');
+          }, 400);
+        }
+
+        // Update active button
+        pageToggleBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+      }, 250);
+    });
+  });
+
+  // Auto-switch to tab from URL query parameter (?tab=product or ?tab=pt)
+  const urlParams = new URLSearchParams(window.location.search);
+  const tabParam = urlParams.get('tab');
+  if (tabParam && pageMap[tabParam]) {
+    const targetBtn = document.querySelector(`.page-toggle-btn[data-page="${tabParam}"]`);
+    if (targetBtn) {
+      pageToggleBtns.forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active'));
+      targetBtn.classList.add('active');
+      document.getElementById(pageMap[tabParam]).classList.add('active');
+    }
+  }
+}
+
 function initializeCheckboxes() {
   // Product checkboxes
   const selectAllProduct = document.getElementById('selectAllProduct');
