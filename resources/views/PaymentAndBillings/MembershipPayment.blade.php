@@ -4,7 +4,7 @@
 
 @push('styles')
 @vite(['resources/css/membership-payment.css'])
-<!-- @vite(['resources/css/product-payment.css']) -->
+@vite(['resources/css/product-payment.css'])
 @endpush
 
 @section('content')

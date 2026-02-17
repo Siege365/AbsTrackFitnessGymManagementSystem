@@ -110,7 +110,7 @@
                 </form> 
                 <!-- Filter Dropdown -->
                 <div class="dropdown d-inline-block mr-2">
-                  <button type="button" class="btn btn-sm filter-button dropdown-toggle" type="button" id="filterDropdown" data-toggle="dropdown"  aria-haspopup="true" aria-expanded="false">
+                  <button type="button" class="btn btn-sm filter-button dropdown-toggle" type="button" id="filterDropdown" data-toggle="dropdown" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                     <i class="mdi mdi-filter-variant"></i> Filter
                   </button>
                   <div class="dropdown-menu dropdown-menu-right" aria-labelledby="filterDropdown">
@@ -206,7 +206,7 @@
                     </td>
                     <td>
                         <div class="dropdown">
-                          <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="0,2" aria-haspopup="true" aria-expanded="false">
+                          <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                               <i class="mdi mdi-dots-vertical"></i>
                           </button>
                           <div class="dropdown-menu dropdown-menu-right">
@@ -281,7 +281,7 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h4 class="card-title mb-0">Recent Activity</h4>
               <div class="dropdown">
-                <button class="btn btn-sm filter-button dropdown-toggle" type="button" id="activityFilterDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn btn-sm filter-button dropdown-toggle" type="button" id="activityFilterDropdown" data-toggle="dropdown" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                   <i class="mdi mdi-filter-variant"></i> Filter
                 </button>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="activityFilterDropdown">
@@ -302,19 +302,6 @@
                   <a class="dropdown-item {{ ($activityFilter ?? '') == 'stock_out' ? 'active' : '' }}" 
                     href="{{ route('inventory.index', array_merge(request()->except('activity_filter'), ['activity_filter' => 'stock_out'])) }}">
                     <i class="mdi mdi-minus-circle text-warning"></i> Stock Out
-                  </a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item {{ ($activityFilter ?? '') == 'Food' ? 'active' : '' }}" 
-                    href="{{ route('inventory.index', array_merge(request()->except('activity_filter'), ['activity_filter' => 'Food'])) }}">
-                    <i class="mdi mdi-food"></i> Food
-                  </a>
-                  <a class="dropdown-item {{ ($activityFilter ?? '') == 'Drink' ? 'active' : '' }}" 
-                    href="{{ route('inventory.index', array_merge(request()->except('activity_filter'), ['activity_filter' => 'Drink'])) }}">
-                    <i class="mdi mdi-cup"></i> Drink
-                  </a>
-                  <a class="dropdown-item {{ ($activityFilter ?? '') == 'Supplement' ? 'active' : '' }}" 
-                    href="{{ route('inventory.index', array_merge(request()->except('activity_filter'), ['activity_filter' => 'Supplement'])) }}">
-                    <i class="mdi mdi-pill"></i> Supplement
                   </a>
                 </div>
               </div>

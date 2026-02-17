@@ -103,7 +103,6 @@ body {
 /* Table Styles */
 .table-responsive {
     overflow: visible !important;
-    overflow-x: auto;
 }
 
 .table {
