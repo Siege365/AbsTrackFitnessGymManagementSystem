@@ -10,16 +10,20 @@ class Membership extends Model
     protected $fillable = [
         'name',
         'age',
+        'sex',
         'avatar',
         'plan_type',
         'start_date',
         'due_date',
         'contact',
+        'is_student',
+        'student_id',
     ];
 
     protected $casts = [
         'start_date' => 'date',
         'due_date' => 'date',
+        'is_student' => 'boolean',
     ];
 
     /**

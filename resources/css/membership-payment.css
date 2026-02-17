@@ -1,4 +1,18 @@
-.table-responsive::-webkit-scrollbar {
+  .page-header-card {
+      background: #191C24 !important;
+      border: none;
+      margin-bottom: 15px !important;
+      border-radius: 8px !important;
+      overflow: visible !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 167, 38, 0.08);
+  }
+
+  .stats-card h2 {
+      font-size: 2.5rem !important;
+      font-weight: 600;
+  }
+
+  .table-responsive::-webkit-scrollbar {
     height: 8px;
   }
   
@@ -49,7 +63,7 @@
 
   .form-control[readonly] {
     background-color: #282A36 !important;
-    color: #495057 !important;
+    color: #fff !important;
   }
 
   .table thead th,
@@ -78,6 +92,15 @@
     color: #ffc107;
   }
 
+  .card-body {
+      padding: 24px 28px !important;
+      position: relative;
+  }
+  
+  .stats-card p.text-muted {
+    font-size: 1rem !important;
+  }
+
   .card {
     border-radius: 8px;
     margin-bottom: 2rem;
@@ -85,17 +108,25 @@
   }
 
   .card-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 1.5rem;
+    font-size: 1.25rem !important;
+    font-weight: 600;
+    padding-top: 1rem;
+    padding-bottom: 1.75rem;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
   }
 
   .form-grid {
-    display: grid;
+    display: flex;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
-    margin-bottom: 1.5rem;
+    /* margin-bottom: 1.5rem; */
+    flex-wrap: wrap;
+    justify-content: space-between;
   }
 
   .form-group {
@@ -104,24 +135,40 @@
 
   .form-label {
     display: block;
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: 600;
-    color: #999;
+    color: #fff;
     margin-bottom: 0.5rem;
   }
-
-  .form-control, .form-select {
+  .form-control {
     width: 100%;
     padding: 0.875rem 1rem;
     background: #191C24;
     border: 1px solid #555;
-    border-radius: 4px;
+    border-radius: 6px;
     color: #ffffff;
     font-size: 1rem;
     transition: all 0.3s ease;
   }
+  .form-select {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      background: #191C24;
+      border: 1px solid #555;
+      border-radius: 6px;
+      color: #ffffff;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M1.5 5.5l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 14px;
+  }
 
-  .form-control:focus, .form-select:focus {
+  .form-select:focus {
     outline: none;
     border-color: #0d6efd;
     box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
@@ -133,7 +180,7 @@
   }
 
   .autocomplete-results {
-    position: absolute;
+    /* position: absolute; */
     top: 100%;
     left: 0;
     right: 0;
@@ -143,7 +190,7 @@
     border: 1px solid #555;
     border-top: none;
     border-radius: 0 0 4px 4px;
-    z-index: 1000;
+    z-index: 1025;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   }
 
@@ -153,6 +200,8 @@
     border-bottom: 1px solid #555;
     transition: all 0.2s ease;
     color: #ffffff;
+    z-index: 1000;
+    /* position: absolute; */
   }
 
   .autocomplete-item:hover {
@@ -240,13 +289,13 @@
   }
 
   .payment-type-pill:hover {
-    border-color: #198754;
+    border-color: #0d6efd;
     transform: translateY(-3px);
   }
 
   .payment-type-pill.active {
     background: #282A36;
-    border-color: #198754;
+    border-color: #0d6efd;
   }
 
   .payment-type-pill .icon {
@@ -263,28 +312,41 @@
 
   .plan-type-selector {
     display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
     margin-bottom: 1.5rem;
   }
 
   .plan-type-card {
-    flex: 1;
+    flex: 1 1 calc(33.333% - 1rem);
+    min-width: 180px;
     padding: 1.5rem;
     background: #191C24;
     border: 2px solid #555;
-    border-radius: 4px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+    position: relative;
+    overflow: hidden;
   }
 
   .plan-type-card:hover {
-    border-color: #198754;
+    border-color: #0d6efd;
     transform: translateY(-3px);
   }
 
   .plan-type-card.active {
     background: #282A36;
-    border-color: #198754;
+    border-color: #0d6efd;
+  }
+
+  /* Disabled plan card styling */
+  .plan-type-card[style*="pointer-events: none"] {
+    filter: grayscale(60%);
+  }
+  .plan-type-card[style*="pointer-events: none"]:hover {
+    transform: none;
+    border-color: #555;
   }
 
   .plan-type-card .plan-name {
@@ -304,6 +366,53 @@
     font-weight: 700;
     color: #28a745;
     margin-top: 0.5rem;
+  }
+
+  .plan-badge {
+    position: absolute;
+    top: 10px;
+    right: -28px;
+    background: #ffc107;
+    color: #000;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 3px 30px;
+    transform: rotate(45deg);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .plan-badge.buddy {
+    background: #0d6efd;
+    color: #fff;
+  }
+
+  .plan-badge.promo {
+    background: #28a745;
+    color: #fff;
+  }
+
+  /* ========================================
+     Gym Buddy Section Transitions
+     ======================================== */
+  #buddyNewSection,
+  #buddySelectSection {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.4s ease 0.1s,
+                margin 0.4s ease;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  #buddyNewSection.buddy-visible,
+  #buddySelectSection.buddy-visible {
+    max-height: 800px;
+    opacity: 1;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
   }
 
   .table-responsive {
@@ -983,4 +1092,112 @@
   /* Ensure overlay prevents awkward vertical offset on small screens */
   @media (max-height: 600px) {
     .modal-overlay.show, .receipt-modal.show { align-items: flex-start !important; padding-top: 2rem; }
+  }
+
+  /* ============================================ */
+  /* PAGE TOGGLE (Membership / Personal Training) */
+  /* ============================================ */
+  .page-toggle-container {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    background: #191C24;
+    border-radius: 10px;
+    padding: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .page-toggle-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.9rem 1.5rem;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #888;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .page-toggle-btn:hover {
+    color: #ccc;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .page-toggle-btn.active {
+    background: #282A36;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  .page-toggle-btn i {
+    font-size: 1.3rem;
+  }
+
+  /* ============================================ */
+  /* SIBLING PAGES SLIDER                        */
+  /* ============================================ */
+  .pages-slider {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .page-panel {
+    display: none;
+    animation-duration: 0.4s;
+    animation-fill-mode: forwards;
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .page-panel.active {
+    display: block;
+  }
+
+  /* Slide out to the left */
+  @keyframes slideOutLeft {
+    from { transform: translateX(0); opacity: 1; }
+    to   { transform: translateX(-40px); opacity: 0; }
+  }
+
+  /* Slide out to the right */
+  @keyframes slideOutRight {
+    from { transform: translateX(0); opacity: 1; }
+    to   { transform: translateX(40px); opacity: 0; }
+  }
+
+  /* Slide in from the right */
+  @keyframes slideInRight {
+    from { transform: translateX(40px); opacity: 0; }
+    to   { transform: translateX(0); opacity: 1; }
+  }
+
+  /* Slide in from the left */
+  @keyframes slideInLeft {
+    from { transform: translateX(-40px); opacity: 0; }
+    to   { transform: translateX(0); opacity: 1; }
+  }
+
+  .page-panel.slide-out-left  { animation-name: slideOutLeft; }
+  .page-panel.slide-out-right { animation-name: slideOutRight; }
+  .page-panel.slide-in-right  { animation-name: slideInRight; }
+  .page-panel.slide-in-left   { animation-name: slideInLeft; }
+
+  /* ============================================ */
+  /* RESPONSIVE: Page Toggle                     */
+  /* ============================================ */
+  @media (max-width: 576px) {
+    .page-toggle-btn span {
+      display: none;
+    }
+    .page-toggle-btn i {
+      font-size: 1.5rem;
+    }
+    .page-toggle-btn {
+      padding: 0.75rem 1rem;
+    }
   }

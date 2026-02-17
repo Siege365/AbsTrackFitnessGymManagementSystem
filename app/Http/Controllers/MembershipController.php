@@ -78,7 +78,7 @@ class MembershipController extends Controller
             ->orderBy('name')
             // fetch a slightly larger set then dedupe in-memory to avoid returning duplicates
             ->limit(30)
-            ->get(['id', 'name', 'contact']);
+            ->get(['id', 'name', 'contact', 'plan_type', 'due_date', 'is_student', 'student_id']);
 
         // Remove duplicate entries by normalizing name + contact, keep first occurrence
         $unique = $results->unique(function ($item) {
@@ -153,9 +153,10 @@ class MembershipController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'age' => 'nullable|integer|min:1|max:120',
+                'sex' => 'nullable|in:Male,Female',
                 'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
                 'avatar_url' => 'nullable|url',
-                'plan_type' => 'required|in:Monthly,Session',
+                'plan_type' => 'required|in:Regular,Student,GymBuddy,ThreeMonths,Session',
                 'start_date' => 'required|date',
                 'due_date' => 'required|date|after:start_date',
                 'contact' => ['required', 'string', 'max:255', 'regex:/^[+]?[0-9() ]+$/'],
@@ -324,12 +325,14 @@ class MembershipController extends Controller
                 $validated = $request->validate([
                     'name' => 'required|string|max:255',
                     'age' => 'nullable|integer|min:1|max:120',
+                    'sex' => 'nullable|in:Male,Female',
                     'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
                     'avatar_url' => 'nullable|url',
-                    'plan_type' => 'required|in:Monthly,Session',
+                    'plan_type' => 'required|in:Regular,Student,GymBuddy,ThreeMonths,Session',
                     'start_date' => 'required|date',
                     'due_date' => 'required|date|after:start_date',
                     'contact' => ['required', 'string', 'max:255', 'regex:/^[+]?[0-9() ]+$/'],
+                    'student_id' => 'nullable|string|max:100',
                 ]);
 
             // Recalculate status automatically based on updated dates
@@ -374,6 +377,9 @@ class MembershipController extends Controller
 
             // Remove avatar_url from validated data as it's not in the database
             unset($validated['avatar_url']);
+
+            // Set is_student based on whether student_id is provided
+            $validated['is_student'] = !empty($validated['student_id']);
 
             $membership->update($validated);
 

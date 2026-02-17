@@ -22,6 +22,11 @@ body {
   color: #ffffff;  /* Changed to white */
 }
 
+.card-title {
+    font-size: 1.25rem !important;
+    font-weight: 600;
+}
+
 /* Tables - Adjusted colors */
 .table {
   color: #ffffff;  /* Changed to white */
@@ -154,6 +159,9 @@ body {
 }
 
 /* Badges - Matching membership colors */
+.badge {
+  width: 7rem;
+}
 .badge-success {
   background: rgba(76, 175, 80, 0.2);  /* Changed */
   color: #4CAF50;  /* Changed */
@@ -175,6 +183,13 @@ body {
 .badge-primary {
   background: rgba(13, 110, 253, 0.2);
   color: #0d6efd;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.badge-light {
   padding: 8px 14px;
   border-radius: 20px;
   font-weight: 500;
@@ -494,9 +509,10 @@ input[type="checkbox"]:hover {
 
 .page-header-card {
     background: #191C24 !important;
-    border: 1px solid rgba(255, 167, 38, 0.2);
-    border-radius: 14px;
-    margin-bottom: 1.5rem;
+    border: none;
+    margin-bottom: 15px !important;
+    border-radius: 8px !important;
+    overflow: visible !important;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 167, 38, 0.08);
 }
 

@@ -710,7 +710,7 @@
           <h5 class="modal-title"><i class="mdi mdi-alert-circle-outline"></i> Confirm Delete</h5>
           <button type="button" class="modal-close" onclick="closeDeleteModal()">&times;</button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" style="font-size: 1.125rem;">
           <div class="refund-warning" style="background: #f8d7da; border-color: #dc3545;">
             <i class="mdi mdi-alert" style="color: #dc3545;"></i>
             <div style="color: #000;">
@@ -718,19 +718,15 @@
             </div>
           </div>
           <div class="confirmation-details" id="deleteDetails">
-            <div class="confirmation-detail-row">
-              <span class="confirmation-detail-label">Items to delete:</span>
-              <span class="confirmation-detail-value" id="deleteItemCount">1</span>
-            </div>
             <div class="confirmation-detail-row" style="border-bottom: none;">
-              <span class="confirmation-detail-label" style="color: #000;">Are you sure to delete selected product?</span>
+              <span class="confirmation-detail-label" style="color: #000; font-size: 1.125rem;">Are you sure to delete selected product?</span>
             </div>
           </div>
-          <div id="selectedProductsList" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 4px; max-height: 200px; overflow-y: auto;">
+          <div id="selectedProductsList" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 4px; max-height: 200px; overflow-y: auto; font-size: 1.125rem;">
             <!-- Selected products will be listed here -->
           </div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer" style="font-size: 1.125rem;">
           <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
             <i class="mdi mdi-close"></i> Cancel
           </button>

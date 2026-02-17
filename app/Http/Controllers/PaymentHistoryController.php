@@ -58,6 +58,18 @@ class PaymentHistoryController extends Controller
             });
         }
 
+        // Apply membership plan type filter
+        $membershipPlanFilter = $request->get('membership_plan_filter', null);
+        if (!empty($membershipPlanFilter)) {
+            $membershipQuery->where('plan_type', $membershipPlanFilter);
+        }
+
+        // Apply membership payment type filter
+        $membershipTypeFilter = $request->get('membership_type_filter', null);
+        if (!empty($membershipTypeFilter)) {
+            $membershipQuery->where('payment_type', $membershipTypeFilter);
+        }
+
         // Paginate lists — 6 rows per page
         $productPayments = $productQuery->paginate(6, ['*'], 'product_page')
             ->appends($request->except('product_page'));
@@ -199,6 +211,9 @@ class PaymentHistoryController extends Controller
             'refunded_by' => $payment->refunded_by,
             'previous_due_date' => $payment->previous_due_date ? \Carbon\Carbon::parse($payment->previous_due_date)->format('F d, Y') : null,
             'new_due_date' => $payment->new_due_date ? \Carbon\Carbon::parse($payment->new_due_date)->format('F d, Y') : null,
+            'buddy_member_id' => $payment->buddy_member_id,
+            'buddy_name' => $payment->buddy_name,
+            'buddy_contact' => $payment->buddy_contact,
         ]);
     }
 
@@ -293,6 +308,43 @@ class PaymentHistoryController extends Controller
             return back()->with('success', 'Transaction deleted successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to delete transaction: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Bulk delete membership payments
+     */
+    public function bulkDeleteMembership(Request $request)
+    {
+        $ids = $request->input('ids', []);
+
+        if (!is_array($ids) || empty($ids)) {
+            return back()->withErrors(['error' => 'No payments selected.']);
+        }
+
+        try {
+            DB::transaction(function () use ($ids) {
+                foreach ($ids as $id) {
+                    $payment = MembershipPayment::find($id);
+                    if (!$payment) continue;
+
+                    // If refunded, restore the member's previous state
+                    if ($payment->is_refunded && $payment->previous_due_date) {
+                        $member = \App\Models\Membership::find($payment->membership_id);
+                        if ($member) {
+                            $member->due_date = $payment->previous_due_date;
+                            $member->status = $payment->previous_status ?? 'Active';
+                            $member->save();
+                        }
+                    }
+
+                    $payment->delete();
+                }
+            });
+
+            return back()->with('success', count($ids) . ' membership payment(s) deleted successfully.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Failed to delete payments: ' . $e->getMessage()]);
         }
     }
 

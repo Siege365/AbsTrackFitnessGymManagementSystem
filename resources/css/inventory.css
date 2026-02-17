@@ -10,13 +10,22 @@ body {
   padding-right: 0 !important;
 }
 
+.page-header-card {
+    background: #191C24 !important;
+    border: none;
+    margin-bottom: 15px !important;
+    border-radius: 8px !important;
+    overflow: visible !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 167, 38, 0.08);
+}
+
 .dropdown-menu {
     background: #191C24;
     border: 1px solid rgba(255, 255, 255, 0.1);
     animation: fadeInDown 0.2s ease;
-  /* Keep dropdown above most page elements but below navbar */
-  z-index: 15000;
-    /* min-width: 10rem; */
+    z-index: 1050;
+    min-width: 200px;
+    position: absolute;
 }
 
 .dropdown-menu-right {
@@ -62,7 +71,8 @@ body {
 }
 
 .card-body {
-  padding: 24px 28px !important;
+    padding: 24px 28px !important;
+    position: relative;
 }
 
 .card-body h4 {
@@ -214,6 +224,10 @@ body {
 }
 
 /* Badges */
+.badge {
+  width: 9rem;
+}
+
 .badge-success {
   background: rgba(76, 175, 80, 0.2);
   color: #4CAF50;

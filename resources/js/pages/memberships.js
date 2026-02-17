@@ -20,6 +20,22 @@ const MembershipsPage = (function() {
   };
 
   /**
+   * Get duration in days based on plan type
+   * @param {string} planType
+   * @returns {number}
+   */
+  function getPlanDuration(planType) {
+    const durations = {
+      'Regular': 30,
+      'Student': 30,
+      'GymBuddy': 30,
+      'ThreeMonths': 90,
+      'Session': 1
+    };
+    return durations[planType] || 30;
+  }
+
+  /**
    * Get element references for add modal
    * @returns {Object} Element references
    */
@@ -55,7 +71,9 @@ const MembershipsPage = (function() {
    */
   function calculateEndDate() {
     const elements = getAddModalElements();
-    FormUtils.calculateEndDate(elements.startDateInput, elements.endDateInput, 30);
+    const planType = elements.planInput.value;
+    const days = getPlanDuration(planType);
+    FormUtils.calculateEndDate(elements.startDateInput, elements.endDateInput, days);
   }
 
   /**
@@ -77,6 +95,7 @@ const MembershipsPage = (function() {
     const elements = getAddModalElements();
     const name = elements.nameInput.value.trim();
     const age = elements.ageInput.value;
+    const sex = document.getElementById('newMemberSex').value;
     const contact = elements.contactInput.value.trim();
     const plan = elements.planInput.value;
     const startDate = elements.startDateInput.value;
@@ -86,6 +105,7 @@ const MembershipsPage = (function() {
     const validations = [
       FormUtils.validateRequired(name, 'a name', elements.nameInput),
       FormUtils.validateAge(age, elements.ageInput),
+      FormUtils.validateRequired(sex, 'a sex', document.getElementById('newMemberSex')),
       FormUtils.validateRequired(contact, 'a contact number', elements.contactInput),
       FormUtils.validateContact(contact, elements.contactInput),
       FormUtils.validateSelect(plan, 'a membership plan', elements.planInput),
@@ -133,6 +153,7 @@ const MembershipsPage = (function() {
       const formData = new FormData();
       formData.append('name', elements.nameInput.value.trim());
       formData.append('age', elements.ageInput.value);
+      formData.append('sex', document.getElementById('newMemberSex').value);
       formData.append('contact', elements.contactInput.value.trim());
       formData.append('plan_type', elements.planInput.value);
       formData.append('start_date', elements.startDateInput.value);
@@ -236,7 +257,9 @@ const MembershipsPage = (function() {
   function calculateEditEndDate(membershipId) {
     const startDateInput = document.getElementById('editStartDate' + membershipId);
     const endDateInput = document.getElementById('editEndDate' + membershipId);
-    FormUtils.calculateEndDate(startDateInput, endDateInput, 30);
+    const planSelect = document.getElementById('editPlanType' + membershipId);
+    const days = getPlanDuration(planSelect ? planSelect.value : 'Regular');
+    FormUtils.calculateEndDate(startDateInput, endDateInput, days);
   }
 
   /**
@@ -397,21 +420,7 @@ const MembershipsPage = (function() {
     
     if (!startDateInput.value) return;
     
-    // Determine duration based on plan type
-    let durationDays = 30; // Default to 1 month
-    
-    if (planType) {
-      const planLower = planType.toLowerCase();
-      if (planLower.includes('week')) {
-        durationDays = 7;
-      } else if (planLower.includes('day')) {
-        durationDays = 1;
-      } else if (planLower.includes('6 month') || planLower.includes('6month')) {
-        durationDays = 180;
-      } else if (planLower.includes('1 year') || planLower.includes('year')) {
-        durationDays = 365;
-      }
-    }
+    const durationDays = getPlanDuration(planType);
     
     FormUtils.calculateEndDate(startDateInput, endDateInput, durationDays);
   }

@@ -29,6 +29,9 @@ class MembershipPayment extends Model
         'refund_reason',
         'refunded_by',
         'previous_status',
+        'buddy_member_id',
+        'buddy_name',
+        'buddy_contact',
     ];
 
     protected $casts = [

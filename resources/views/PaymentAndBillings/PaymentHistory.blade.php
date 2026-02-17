@@ -163,9 +163,23 @@
               <i class="mdi mdi-sort-variant"></i> Filter
             </button>
             <div class="dropdown-menu dropdown-menu-right">
-              <h6 class="dropdown-header">Filter By</h6>
+              <h6 class="dropdown-header">Sort Order</h6>
               <a class="dropdown-item {{ request('membership_sort', 'newest') === 'newest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_sort', 'membership_page']), ['membership_sort' => 'newest'])) }}"> <i class="mdi mdi-sort-descending mr-2"></i>Newest First</a>
               <a class="dropdown-item {{ request('membership_sort') === 'oldest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_sort', 'membership_page']), ['membership_sort' => 'oldest'])) }}"> <i class="mdi mdi-sort-ascending mr-2"></i>Oldest First</a>
+              <div class="dropdown-divider"></div>
+              <h6 class="dropdown-header">Payment Type</h6>
+              <a class="dropdown-item {{ !request('membership_type_filter') ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), [])) }}"> <i class="mdi mdi-filter-remove mr-2"></i>All Types</a>
+              <a class="dropdown-item {{ request('membership_type_filter') === 'new' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'new'])) }}"> <i class="mdi mdi-account-plus mr-2"></i>New</a>
+              <a class="dropdown-item {{ request('membership_type_filter') === 'renewal' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'renewal'])) }}"> <i class="mdi mdi-autorenew mr-2"></i>Renewal</a>
+              <a class="dropdown-item {{ request('membership_type_filter') === 'extension' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'extension'])) }}"> <i class="mdi mdi-calendar-plus mr-2"></i>Extension</a>
+              <div class="dropdown-divider"></div>
+              <h6 class="dropdown-header">Plan Type</h6>
+              <a class="dropdown-item {{ !request('membership_plan_filter') ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), [])) }}"> <i class="mdi mdi-filter-remove mr-2"></i>All Plans</a>
+              <a class="dropdown-item {{ request('membership_plan_filter') === 'Regular' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Regular'])) }}"> <i class="mdi mdi-dumbbell mr-2"></i>Regular</a>
+              <a class="dropdown-item {{ request('membership_plan_filter') === 'Student' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Student'])) }}"> <i class="mdi mdi-school mr-2"></i>Student</a>
+              <a class="dropdown-item {{ request('membership_plan_filter') === 'GymBuddy' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'GymBuddy'])) }}"> <i class="mdi mdi-account-multiple mr-2"></i>Gym Buddy</a>
+              <a class="dropdown-item {{ request('membership_plan_filter') === 'ThreeMonths' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'ThreeMonths'])) }}"> <i class="mdi mdi-calendar-range mr-2"></i>3 Months</a>
+              <a class="dropdown-item {{ request('membership_plan_filter') === 'Session' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Session'])) }}"> <i class="mdi mdi-clock-outline mr-2"></i>Session</a>
             </div>
           </div>
         </div>
@@ -184,6 +198,8 @@
               </th>
               <th class="text-left">Receipt #</th>
               <th class="text-left">Member</th>
+              <th class="text-left">Plan Type</th>
+              <th class="text-left">Payment Type</th>
               <th class="text-left"> Date</th>
               <th class="text-left">Amount</th>
               <th class="text-left">Cashier</th>
@@ -202,6 +218,32 @@
               </td>
               <td>{{ $m->receipt_number }}</td>
               <td>{{ $m->member_name }}</td>
+              <td>
+                @php
+                  $planLabels = [
+                    'Regular' => 'Regular',
+                    'Student' => 'Student',
+                    'GymBuddy' => 'Gym Buddy',
+                    'ThreeMonths' => '3 Months',
+                    'Session' => 'Session',
+                  ];
+                  $planBadgeColors = [
+                    'Regular' => 'primary',
+                    'Student' => 'info',
+                    'GymBuddy' => 'success',
+                    'ThreeMonths' => 'warning',
+                    'Session' => 'light',
+                  ];
+                @endphp
+                <span class="badge badge-{{ $planBadgeColors[$m->plan_type] ?? 'secondary' }}">
+                  {{ $planLabels[$m->plan_type] ?? $m->plan_type }}
+                </span>
+              </td>
+              <td>
+                <span class="badge badge-{{ $m->payment_type === 'new' ? 'success' : ($m->payment_type === 'renewal' ? 'primary' : 'info') }}">
+                  {{ ucfirst($m->payment_type) }}
+                </span>
+              </td>
               <td>{{ $m->created_at->format('M d, Y - h:i A') }}</td>
               <td>₱{{ number_format($m->amount,2) }}</td>
               <td>{{ $m->processed_by }}</td>
@@ -226,7 +268,7 @@
             </tr>
             @empty
             <tr>
-              <td colspan="7" class="text-center">No membership payments found</td>
+              <td colspan="9" class="text-center">No membership payments found</td>
             </tr>
             @endforelse
           </tbody>
@@ -372,18 +414,18 @@
 <!-- Refund Confirmation Modal -->
 <div id="refundModal" class="modal-overlay">
   <div class="modal-content small">
-    <div class="modal-header">
+    <div class="modal-header bg-warning">
       <h3 class="modal-title">Process Refund</h3>
       <button class="modal-close" onclick="closeRefundModal()">&times;</button>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" style="font-size: 1.125rem;">
       <div class="refund-warning" style="color: #000;">
         <i class="mdi mdi-alert"></i>
         <strong>Warning:</strong> This action will mark this transaction as refunded and restore inventory (for products).
       </div>
       <div class="confirmation-details" id="refundDetails"></div>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer" style="font-size: 1.125rem;">
       <button type="button" class="btn btn-secondary" onclick="closeRefundModal()">Cancel</button>
       <button type="button" class="btn btn-warning" id="confirmRefundBtn">
         <i class="mdi mdi-cash-refund"></i> Process Refund
@@ -402,7 +444,7 @@
     <div class="modal-body" id="refundReceiptContent">
       <!-- Receipt content will be loaded here -->
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer" style="font-size: 1.125rem;">
       <button type="button" class="btn btn-secondary" onclick="closeRefundReceiptModal()">Close</button>
       <button type="button" class="btn btn-primary" onclick="printRefundReceipt()">
         <i class="mdi mdi-printer"></i> Print
@@ -448,7 +490,7 @@
       <h3 class="modal-title">Confirm Delete</h3>
       <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" style="font-size: 1.125rem;">
       <div class="refund-warning" style="background: #f8d7da; border-color: #dc3545;">
         <i class="mdi mdi-alert" style="color: #dc3545;"></i>
         <div style="color: #000;">
@@ -462,7 +504,7 @@
         </div>
       </div>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer" style="font-size: 1.125rem;">
       <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
       <button type="button" class="btn btn-danger" id="confirmDeleteBtn" onclick="executeDelete()">
         <i class="mdi mdi-delete"></i> Delete
@@ -1110,6 +1152,16 @@ function generateOriginalReceipt(type, data) {
           <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Contact</strong>
           <span style="display: block; font-weight: 600;">${data.member_contact || data.contact || ''}</span>
         </div>
+        ${data.buddy_name ? `
+        <div style="padding: 10px; background: #e8f5e9; border-radius: 4px; border: 1px solid #a5d6a7;">
+          <strong style="display: block; font-size: 0.75rem; color: #2e7d32; margin-bottom: 5px;">Gym Buddy</strong>
+          <span style="display: block; font-weight: 600;">${data.buddy_name}</span>
+        </div>
+        <div style="padding: 10px; background: #e8f5e9; border-radius: 4px; border: 1px solid #a5d6a7;">
+          <strong style="display: block; font-size: 0.75rem; color: #2e7d32; margin-bottom: 5px;">Contact</strong>
+          <span style="display: block; font-weight: 600;">${data.buddy_contact || 'N/A'}</span>
+        </div>
+        ` : ''}
         <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
           <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Payment Type</strong>
           <span style="display: block; font-weight: 600;">${(data.payment_type || '').toUpperCase()}</span>
@@ -1128,6 +1180,20 @@ function generateOriginalReceipt(type, data) {
           </tr>
         </thead>
         <tbody>
+          ${data.plan_type === 'GymBuddy' ? `
+          <tr>
+            <td>
+              <strong>Gym Buddy Rate</strong><br>
+              <small style="color: #666;">Duration: ${data.duration || 'N/A'} days | 2 Persons</small><br>
+              <small style="color: #0d6efd;">Member 1: ${data.member_name}</small><br>
+              <small style="color: #0d6efd;">Member 2: ${data.buddy_name || 'N/A'}</small>
+            </td>
+            <td style="text-align: right;">
+              <span style="display: block;">₱${parseFloat(data.amount || 0).toFixed(2)}/person</span>
+              <strong style="display: block; margin-top: 4px;">Total: ₱${(parseFloat(data.amount || 0) * 2).toFixed(2)}</strong>
+            </td>
+          </tr>
+          ` : `
           <tr>
             <td>
               <strong>${data.plan_type || 'Membership'} Plan</strong><br>
@@ -1135,13 +1201,14 @@ function generateOriginalReceipt(type, data) {
             </td>
             <td style="text-align: right;">₱${parseFloat(data.amount || 0).toFixed(2)}</td>
           </tr>
+          `}
         </tbody>
       </table>
 
       <div class="receipt-total">
         <div class="receipt-row" style="font-size: 1.3rem;">
           <span><strong>Total Paid:</strong></span>
-          <span><strong>₱${parseFloat(data.amount || 0).toFixed(2)}</strong></span>
+          <span><strong>₱${data.plan_type === 'GymBuddy' ? (parseFloat(data.amount || 0) * 2).toFixed(2) : parseFloat(data.amount || 0).toFixed(2)}</strong></span>
         </div>
       </div>
 
