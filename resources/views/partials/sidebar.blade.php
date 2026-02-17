@@ -102,7 +102,7 @@
         <span class="menu-icon">
           <i class="mdi mdi-file-document-box"></i>
         </span>
-        <span class="menu-title">Guides</span>
+        <span class="menu-title">User Manual</span>
       </a>
     </li>
   </ul>

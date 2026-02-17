@@ -255,7 +255,7 @@
         <!-- Edit Member Modals -->
         @foreach($memberships as $membership)
         <div class="modal fade" id="viewModal{{ $membership->id }}" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel{{ $membership->id }}" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+          <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
             <div class="modal-content" style="position: relative;">
               <!-- Main Form Content -->
               <div id="editFormContent{{ $membership->id }}">
@@ -269,46 +269,46 @@
                     </button>
                   </div>
                   <div class="modal-body">
-                    <!-- Name -->
-                    <div class="form-group">
-                      <label>Name</label>
-                      <input type="text" name="name" id="editName{{ $membership->id }}" class="form-control" value="{{ $membership->name }}" required>
+                    <!-- Row 1: Name and Age -->
+                    <div class="form-row">
+                      <div class="form-group col-md-6">
+                        <label>Name</label>
+                        <input type="text" name="name" id="editName{{ $membership->id }}" class="form-control" value="{{ $membership->name }}" required>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label>Age</label>
+                        <input type="number" name="age" id="editAge{{ $membership->id }}" class="form-control" value="{{ $membership->age }}" min="1" max="120">
+                      </div>
                     </div>
 
-                    <!-- Age -->
-                    <div class="form-group">
-                      <label>Age</label>
-                      <input type="number" name="age" id="editAge{{ $membership->id }}" class="form-control" value="{{ $membership->age }}" min="1" max="120">
+                    <!-- Row 2: Contact Number and Membership Plan -->
+                    <div class="form-row">
+                      <div class="form-group col-md-6">
+                        <label>Contact Number</label>
+                        <input type="text" name="contact" id="editContact{{ $membership->id }}" class="form-control contact-input" value="{{ $membership->contact }}" required maxlength="13" pattern="^(\+63|0)[0-9]{10}$" title="Enter 11 digits (e.g., 09123456789) or +63 format (e.g., +639123456789)" oninput="validateContactInput(this)">
+                        <small class="form-text text-muted">Format: 09XX-XXX-XXXX or +639XX-XXX-XXXX</small>                      <div id="editContact{{ $membership->id }}Error" class="invalid-feedback" style="display: none;"></div>                    </div>
+                      <div class="form-group col-md-6">
+                        <label>Membership Plan</label>
+                        <select name="plan_type" id="editPlanType{{ $membership->id }}" class="form-control" required>
+                          <option value="Monthly" {{ $membership->plan_type == 'Monthly' ? 'selected' : '' }}>Monthly</option>
+                          <option value="Session" {{ $membership->plan_type == 'Session' ? 'selected' : '' }}>Session</option>
+                        </select>
+                      </div>
                     </div>
 
-                    <!-- Contact Number -->
-                    <div class="form-group">
-                      <label>Contact Number</label>
-                      <input type="text" name="contact" id="editContact{{ $membership->id }}" class="form-control contact-input" value="{{ $membership->contact }}" required maxlength="13" pattern="^(\+63|0)[0-9]{10}$" title="Enter 11 digits (e.g., 09123456789) or +63 format (e.g., +639123456789)" oninput="validateContactInput(this)">
-                      <small class="form-text text-muted">Format: 09XX-XXX-XXXX or +639XX-XXX-XXXX</small>                      <div id="editContact{{ $membership->id }}Error" class="invalid-feedback" style="display: none;"></div>                    </div>
-
-                    <!-- Membership Plan -->
-                    <div class="form-group">
-                      <label>Membership Plan</label>
-                      <select name="plan_type" id="editPlanType{{ $membership->id }}" class="form-control" required>
-                        <option value="Monthly" {{ $membership->plan_type == 'Monthly' ? 'selected' : '' }}>Monthly</option>
-                        <option value="Session" {{ $membership->plan_type == 'Session' ? 'selected' : '' }}>Session</option>
-                      </select>
+                    <!-- Row 3: Start Date and End Date -->
+                    <div class="form-row">
+                      <div class="form-group col-md-6">
+                        <label>Start Date</label>
+                        <input type="date" name="start_date" id="editStartDate{{ $membership->id }}" class="form-control" value="{{ $membership->start_date->format('Y-m-d') }}" onchange="calculateEditEndDate({{ $membership->id }})" required>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label>End Date</label>
+                        <input type="date" name="due_date" id="editEndDate{{ $membership->id }}" class="form-control" value="{{ $membership->due_date->format('Y-m-d') }}" readonly>
+                      </div>
                     </div>
 
-                    <!-- Start Date -->
-                    <div class="form-group">
-                      <label>Start Date</label>
-                      <input type="date" name="start_date" id="editStartDate{{ $membership->id }}" class="form-control" value="{{ $membership->start_date->format('Y-m-d') }}" onchange="calculateEditEndDate({{ $membership->id }})" required>
-                    </div>
-
-                    <!-- End Date -->
-                    <div class="form-group">
-                      <label>End Date</label>
-                      <input type="date" name="due_date" id="editEndDate{{ $membership->id }}" class="form-control" value="{{ $membership->due_date->format('Y-m-d') }}" readonly>
-                    </div>
-
-                    <!-- Avatar (optional) -->
+                    <!-- Row 4: Avatar (Full Width) -->
                     <div class="form-group">
                       <label>Avatar (optional)</label>
                       <div class="mb-2">
@@ -317,7 +317,7 @@
                             <input type="radio" name="editAvatarInputType{{ $membership->id }}" value="file" checked onclick="toggleEditAvatarInput({{ $membership->id }}, 'file')"> Upload File
                           </label>
                           <label class="btn btn-sm btn-outline-primary">
-                            <input type="radio" name="editAvatarInputType{{ $membership->id }}" value="url" onclick="toggleEditAvatarInput({{ $membership->id }}, 'url')"> Enter URL
+                            <input type="radio" name="editAvatarInputType{{ $membership->id }}" value="url" onclick="toggleEditAvatarInput({{ $membership->id }}, 'url')"> Image URL
                           </label>
                         </div>
                       </div>
@@ -409,7 +409,7 @@
 
 <!-- Add Member Modal -->
 <div class="modal fade" id="addMemberModal" tabindex="-1" role="dialog" aria-labelledby="addMemberModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+  <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
     <div class="modal-content" style="position: relative;">
       <!-- Main Form Content -->
       <div id="addMemberFormContent">
@@ -421,40 +421,47 @@
         </div>
         <div class="modal-body">
           <form id="addMemberForm">
-            <div class="form-group">
-              <label>Name</label>
-              <input type="text" name="name" id="newMemberName" class="form-control" placeholder="John Doe" required>
+            <!-- Row 1: Name and Age -->
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label>Name</label>
+                <input type="text" name="name" id="newMemberName" class="form-control" placeholder="John Doe" required>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Age</label>
+                <input type="number" name="age" id="newMemberAge" class="form-control" placeholder="24" min="1" max="120" required>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Age</label>
-              <input type="number" name="age" id="newMemberAge" class="form-control" placeholder="24" min="1" max="120" required>
+            <!-- Row 2: Contact Number and Membership Plan -->
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label>Contact Number</label>
+                <input type="text" name="contact" id="newMemberContact" class="form-control contact-input" placeholder="09123456789" required maxlength="13" pattern="^(\+63|0)[0-9]{10}$" title="Enter 11 digits (e.g., 09123456789) or +63 format (e.g., +639123456789)" oninput="validateContactInput(this)">
+                <small class="form-text text-muted">Format: 09XX-XXX-XXXX or +639XX-XXX-XXXX</small>              <div id="newMemberContactError" class="invalid-feedback" style="display: none;"></div>            </div>
+              <div class="form-group col-md-6">
+                <label>Membership Plan</label>
+                <select name="plan_type" id="newMemberPlan" class="form-control" required>
+                  <option value="">Select Plan</option>
+                  <option value="Monthly">Monthly</option>
+                  <option value="Session">Session</option>
+                </select>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Contact Number</label>
-              <input type="text" name="contact" id="newMemberContact" class="form-control contact-input" placeholder="09123456789" required maxlength="13" pattern="^(\+63|0)[0-9]{10}$" title="Enter 11 digits (e.g., 09123456789) or +63 format (e.g., +639123456789)" oninput="validateContactInput(this)">
-              <small class="form-text text-muted">Format: 09XX-XXX-XXXX or +639XX-XXX-XXXX</small>              <div id="newMemberContactError" class="invalid-feedback" style="display: none;"></div>            </div>
-
-            <div class="form-group">
-              <label>Membership Plan</label>
-              <select name="plan_type" id="newMemberPlan" class="form-control" required>
-                <option value="">Select Plan</option>
-                <option value="Monthly">Monthly</option>
-                <option value="Session">Session</option>
-              </select>
+            <!-- Row 3: Start Date and End Date -->
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label>Start Date</label>
+                <input type="date" name="start_date" id="newMemberStartDate" class="form-control" onchange="calculateEndDate()" required>
+              </div>
+              <div class="form-group col-md-6">
+                <label>End Date</label>
+                <input type="date" name="due_date" id="newMemberEndDate" class="form-control" readonly>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Start Date</label>
-              <input type="date" name="start_date" id="newMemberStartDate" class="form-control" onchange="calculateEndDate()" required>
-            </div>
-
-            <div class="form-group">
-              <label>End Date</label>
-              <input type="date" name="due_date" id="newMemberEndDate" class="form-control" readonly>
-            </div>
-
+            <!-- Row 4: Avatar (Full Width) -->
             <div class="form-group">
               <label>Avatar (optional)</label>
               <div class="mb-2">
@@ -463,7 +470,7 @@
                     <input type="radio" name="avatarInputType" value="file" checked onclick="toggleAvatarInput('file')"> Upload File
                   </label>
                   <label class="btn btn-sm btn-outline-primary">
-                    <input type="radio" name="avatarInputType" value="url" onclick="toggleAvatarInput('url')"> Enter URL
+                    <input type="radio" name="avatarInputType" value="url" onclick="toggleAvatarInput('url')"> Image URL
                   </label>
                 </div>
               </div>
@@ -520,7 +527,7 @@
 
 <!-- Renew Subscription Modal -->
 <div class="modal fade" id="renewMembershipModal" tabindex="-1" role="dialog" aria-labelledby="renewMembershipModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+  <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
     <div class="modal-content" style="position: relative;">
       <!-- Main Form Content -->
       <div id="renewFormContent">
@@ -536,24 +543,28 @@
             <input type="hidden" id="renewMembershipName" name="membership_name">
             <input type="hidden" id="renewPlanType" name="plan_type">
 
-            <div class="form-group">
-              <label>Member Name</label>
-              <input type="text" class="form-control" id="renewMemberNameDisplay" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+            <!-- Row 1: Member Name and Current Plan -->
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label>Member Name</label>
+                <input type="text" class="form-control" id="renewMemberNameDisplay" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+              </div>
+              <div class="form-group col-md-6">
+                <label>Current Plan</label>
+                <input type="text" class="form-control" id="renewPlanTypeDisplay" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Current Plan</label>
-              <input type="text" class="form-control" id="renewPlanTypeDisplay" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
-            </div>
-
-            <div class="form-group">
-              <label>Start Date <span class="text-danger">*</span></label>
-              <input type="date" name="start_date" id="renewStartDate" class="form-control" required onchange="calculateRenewEndDate()">
-            </div>
-
-            <div class="form-group">
-              <label>End Date <span class="text-danger">*</span></label>
-              <input type="date" name="due_date" id="renewEndDate" class="form-control" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+            <!-- Row 2: Start Date and End Date -->
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label>Start Date <span class="text-danger">*</span></label>
+                <input type="date" name="start_date" id="renewStartDate" class="form-control" required onchange="calculateRenewEndDate()">
+              </div>
+              <div class="form-group col-md-6">
+                <label>End Date <span class="text-danger">*</span></label>
+                <input type="date" name="due_date" id="renewEndDate" class="form-control" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+              </div>
             </div>
 
             <div class="alert alert-info" style="background-color: rgba(66, 165, 245, 0.1); border: 1px solid rgba(66, 165, 245, 0.3); color: #42A5F5;">
@@ -679,6 +690,7 @@
 
 @push('scripts')
 <!-- Common Utilities -->
+@vite(['resources/js/common/table-dropdown.js'])
 @vite(['resources/js/common/avatar-utils.js'])
 @vite(['resources/js/common/form-utils.js'])
 @vite(['resources/js/common/bulk-selection.js'])

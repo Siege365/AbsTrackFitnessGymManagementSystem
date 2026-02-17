@@ -7,7 +7,6 @@
 @endpush
 
 @section('content')
-<div class="container-fluid">
 
   <!-- Page Header -->
   <div class="card page-header-card">
@@ -82,7 +81,6 @@
         </div>
     </div>
   </div>
-</div>
 
   <!-- Payment Form Card -->
   <div class="card">
@@ -365,18 +363,18 @@
                 <td>{{ $transaction->created_at->format('M d, Y h:i A') }}</td>
                 <td>{{ $transaction->new_due_date ? date('M d, Y', strtotime($transaction->new_due_date)) : 'N/A' }}</td>
                 <td>
-                    <div class="action-dropdown">
-                    <button type="button" class="action-btn" onclick="toggleDropdown(this)">
+                    <div class="dropdown">
+                    <button type="button" class="btn btn-action" data-toggle="dropdown">
                         <i class="mdi mdi-dots-vertical"></i>
                     </button>
-                    <div class="dropdown-menu">
+                    <div class="dropdown-menu dropdown-menu-right">
                         <button type="button" class="dropdown-item" onclick="viewReceipt({{ $transaction->id }})">
                         <i class="mdi mdi-eye"></i> View Receipt
                         </button>
                         <form action="{{ route('membership.payment.destroy', $transaction->id) }}" method="POST" class="delete-form" style="margin: 0;">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="dropdown-item danger">
+                        <button type="submit" class="dropdown-item text-danger">
                             <i class="mdi mdi-delete"></i> Delete
                         </button>
                         </form>
@@ -459,7 +457,6 @@
         </div>
     </div>
   </div>
-</div>
 
 <!-- Receipt Modal -->
 <div id="receiptModal" class="modal-overlay modal-overlay-centered" role="document">
@@ -502,6 +499,7 @@
 @endsection
 
 @push('scripts')
+@vite(['resources/js/common/table-dropdown.js'])
 <script src="{{ asset('js/common/avatar-utils.js') }}?v={{ time() }}"></script>
 <script src="{{ asset('js/common/form-utils.js') }}?v={{ time() }}"></script>
 <script src="{{ asset('js/common/bulk-selection.js') }}?v={{ time() }}"></script>

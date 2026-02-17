@@ -32,15 +32,8 @@ body {
   margin-bottom: 15px !important;
 }
 
-/* Table card - stretch to edges */
-.card {
-  background: #191C24 !important;
-  border: none;
-  margin-bottom: 15px !important;
-  border-radius: 8px !important;
-}
-
-.card-body {
+/* Table card - scoped to content-wrapper */
+.content-wrapper .card-body {
   padding: 24px 28px !important;
 }
 
@@ -118,53 +111,7 @@ body {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Form Controls */
-.form-control {
-  background-color: #282A36;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  padding: 0.75rem 1.25rem;
-  font-size: 1.125rem;
-  min-height: 48px;
-}
-
-.form-control::placeholder {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.form-control:focus {
-  background-color: #282A36;
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  box-shadow: none;
-}
-
-.form-control[readonly] {
-  background-color: #2A3038 !important;
-  color: #495057 !important;
-}
-
-/* Buttons */
-.btn-primary {
-  background-color: #191C24;
-  border-color: #191C24;
-}
-
-.btn-primary:hover {
-  background-color: #0d0f14;
-  border-color: #0d0f14;
-}
-
-.btn-outline-secondary {
-  color: rgba(255, 255, 255, 0.6);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.btn-outline-secondary:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: #fff;
-}
+/* Form Controls and Buttons - handled by core.css */
 
 /* Badges */
 .badge-success {

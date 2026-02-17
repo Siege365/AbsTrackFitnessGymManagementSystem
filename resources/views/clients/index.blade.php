@@ -255,7 +255,7 @@
         <!-- Edit Client Modals -->
         @foreach($clients as $client)
         <div class="modal fade" id="viewModal{{ $client->id }}" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel{{ $client->id }}" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
             <div class="modal-content" style="position: relative;">
               <!-- Main Form Content -->
               <div id="editClientFormContent{{ $client->id }}">
@@ -269,46 +269,46 @@
                     </button>
                   </div>
                   <div class="modal-body">
-                    <!-- Name -->
-                    <div class="form-group">
-                      <label>Name</label>
-                      <input type="text" name="name" id="editClientName{{ $client->id }}" class="form-control" value="{{ $client->name }}" required>
+                    <!-- Row 1: Name and Age -->
+                    <div class="form-row">
+                      <div class="form-group col-md-6">
+                        <label>Name</label>
+                        <input type="text" name="name" id="editClientName{{ $client->id }}" class="form-control" value="{{ $client->name }}" required>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label>Age</label>
+                        <input type="number" name="age" id="editClientAge{{ $client->id }}" class="form-control" value="{{ $client->age }}" min="1" max="120">
+                      </div>
                     </div>
 
-                    <!-- Age -->
-                    <div class="form-group">
-                      <label>Age</label>
-                      <input type="number" name="age" id="editClientAge{{ $client->id }}" class="form-control" value="{{ $client->age }}" min="1" max="120">
+                    <!-- Row 2: Contact Number and Plan Type -->
+                    <div class="form-row">
+                      <div class="form-group col-md-6">
+                        <label>Contact Number</label>
+                        <input type="text" name="contact" id="editClientContact{{ $client->id }}" class="form-control contact-input" value="{{ $client->contact }}" required maxlength="13" pattern="^(\+63|0)[0-9]{10}$" title="Enter 11 digits (e.g., 09123456789) or +63 format (e.g., +639123456789)" oninput="validateContactInput(this)">
+                        <small class="form-text text-muted">Format: 09XX-XXX-XXXX or +639XX-XXX-XXXX</small>                      <div id="editClientContact{{ $client->id }}Error" class="invalid-feedback" style="display: none;"></div>                    </div>
+                      <div class="form-group col-md-6">
+                        <label>Plan Type</label>
+                        <select name="plan_type" id="editClientPlanType{{ $client->id }}" class="form-control" required>
+                          <option value="Monthly" {{ $client->plan_type == 'Monthly' ? 'selected' : '' }}>Monthly</option>
+                          <option value="Session" {{ $client->plan_type == 'Session' ? 'selected' : '' }}>Session</option>
+                        </select>
+                      </div>
                     </div>
 
-                    <!-- Contact Number -->
-                    <div class="form-group">
-                      <label>Contact Number</label>
-                      <input type="text" name="contact" id="editClientContact{{ $client->id }}" class="form-control contact-input" value="{{ $client->contact }}" required maxlength="13" pattern="^(\+63|0)[0-9]{10}$" title="Enter 11 digits (e.g., 09123456789) or +63 format (e.g., +639123456789)" oninput="validateContactInput(this)">
-                      <small class="form-text text-muted">Format: 09XX-XXX-XXXX or +639XX-XXX-XXXX</small>                      <div id="editClientContact{{ $client->id }}Error" class="invalid-feedback" style="display: none;"></div>                    </div>
-
-                    <!-- Plan Type -->
-                    <div class="form-group">
-                      <label>Plan Type</label>
-                      <select name="plan_type" id="editClientPlanType{{ $client->id }}" class="form-control" required>
-                        <option value="Monthly" {{ $client->plan_type == 'Monthly' ? 'selected' : '' }}>Monthly</option>
-                        <option value="Session" {{ $client->plan_type == 'Session' ? 'selected' : '' }}>Session</option>
-                      </select>
+                    <!-- Row 3: Start Date and End Date -->
+                    <div class="form-row">
+                      <div class="form-group col-md-6">
+                        <label>Start Date</label>
+                        <input type="date" name="start_date" id="editClientStartDate{{ $client->id }}" class="form-control" value="{{ $client->start_date->format('Y-m-d') }}" onchange="calculateEditClientEndDate({{ $client->id }})" required>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label>End Date</label>
+                        <input type="date" name="due_date" id="editClientEndDate{{ $client->id }}" class="form-control" value="{{ $client->due_date->format('Y-m-d') }}" readonly>
+                      </div>
                     </div>
 
-                    <!-- Start Date -->
-                    <div class="form-group">
-                      <label>Start Date</label>
-                      <input type="date" name="start_date" id="editClientStartDate{{ $client->id }}" class="form-control" value="{{ $client->start_date->format('Y-m-d') }}" onchange="calculateEditClientEndDate({{ $client->id }})" required>
-                    </div>
-
-                    <!-- End Date -->
-                    <div class="form-group">
-                      <label>End Date</label>
-                      <input type="date" name="due_date" id="editClientEndDate{{ $client->id }}" class="form-control" value="{{ $client->due_date->format('Y-m-d') }}" readonly>
-                    </div>
-
-                    <!-- Avatar (optional) -->
+                    <!-- Row 4: Avatar (Full Width) -->
                     <div class="form-group">
                       <label>Avatar (optional)</label>
                       <div class="mb-2">
@@ -409,7 +409,7 @@
 
 <!-- Add Client Modal -->
 <div class="modal fade" id="addClientModal" tabindex="-1" role="dialog" aria-labelledby="addClientModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+  <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
     <div class="modal-content" style="position: relative;">
       <!-- Main Form Content -->
       <div id="addClientFormContent">
@@ -421,40 +421,47 @@
         </div>
         <div class="modal-body">
           <form id="addClientForm">
-            <div class="form-group">
-              <label>Name</label>
-              <input type="text" name="name" id="newClientName" class="form-control" placeholder="John Doe" required>
+            <!-- Row 1: Name and Age -->
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label>Name</label>
+                <input type="text" name="name" id="newClientName" class="form-control" placeholder="John Doe" required>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Age</label>
+                <input type="number" name="age" id="newClientAge" class="form-control" placeholder="24" min="1" max="120" required>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Age</label>
-              <input type="number" name="age" id="newClientAge" class="form-control" placeholder="24" min="1" max="120" required>
+            <!-- Row 2: Contact Number and Membership Plan -->
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label>Contact Number</label>
+                <input type="text" name="contact" id="newClientContact" class="form-control contact-input" placeholder="09123456789" required maxlength="13" pattern="^(\+63|0)[0-9]{10}$" title="Enter 11 digits (e.g., 09123456789) or +63 format (e.g., +639123456789)" oninput="validateContactInput(this)">
+                <small class="form-text text-muted">Format: 09XX-XXX-XXXX or +639XX-XXX-XXXX</small>              <div id="newClientContactError" class="invalid-feedback" style="display: none;"></div>            </div>
+              <div class="form-group col-md-6">
+                <label>Membership Plan</label>
+                <select name="plan_type" id="newClientPlan" class="form-control" required>
+                  <option value="">Select Plan</option>
+                  <option value="Monthly">Monthly</option>
+                  <option value="Session">Session</option>
+                </select>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Contact Number</label>
-              <input type="text" name="contact" id="newClientContact" class="form-control contact-input" placeholder="09123456789" required maxlength="13" pattern="^(\+63|0)[0-9]{10}$" title="Enter 11 digits (e.g., 09123456789) or +63 format (e.g., +639123456789)" oninput="validateContactInput(this)">
-              <small class="form-text text-muted">Format: 09XX-XXX-XXXX or +639XX-XXX-XXXX</small>              <div id="newClientContactError" class="invalid-feedback" style="display: none;"></div>            </div>
-
-            <div class="form-group">
-              <label>Membership Plan</label>
-              <select name="plan_type" id="newClientPlan" class="form-control" required>
-                <option value="">Select Plan</option>
-                <option value="Monthly">Monthly</option>
-                <option value="Session">Session</option>
-              </select>
+            <!-- Row 3: Start Date and End Date -->
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label>Start Date</label>
+                <input type="date" name="start_date" id="newClientStartDate" class="form-control" onchange="calculateClientEndDate()" required>
+              </div>
+              <div class="form-group col-md-6">
+                <label>End Date</label>
+                <input type="date" name="due_date" id="newClientEndDate" class="form-control" readonly>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Start Date</label>
-              <input type="date" name="start_date" id="newClientStartDate" class="form-control" onchange="calculateClientEndDate()" required>
-            </div>
-
-            <div class="form-group">
-              <label>End Date</label>
-              <input type="date" name="due_date" id="newClientEndDate" class="form-control" readonly>
-            </div>
-
+            <!-- Row 4: Avatar (Full Width) -->
             <div class="form-group">
               <label>Avatar (optional)</label>
               <div class="mb-2">
@@ -520,7 +527,7 @@
 
 <!-- Renew Subscription Modal -->
 <div class="modal fade" id="renewClientModal" tabindex="-1" role="dialog" aria-labelledby="renewClientModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+  <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
     <div class="modal-content" style="position: relative;">
       <!-- Main Form Content -->
       <div id="renewClientFormContent">
@@ -536,24 +543,28 @@
             <input type="hidden" id="renewClientName" name="client_name">
             <input type="hidden" id="renewClientPlanType" name="plan_type">
 
-            <div class="form-group">
-              <label>Client Name</label>
-              <input type="text" class="form-control" id="renewClientNameDisplay" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+            <!-- Row 1: Client Name and Current Plan -->
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label>Client Name</label>
+                <input type="text" class="form-control" id="renewClientNameDisplay" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+              </div>
+              <div class="form-group col-md-6">
+                <label>Current Plan</label>
+                <input type="text" class="form-control" id="renewClientPlanTypeDisplay" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Current Plan</label>
-              <input type="text" class="form-control" id="renewClientPlanTypeDisplay" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
-            </div>
-
-            <div class="form-group">
-              <label>Start Date <span class="text-danger">*</span></label>
-              <input type="date" name="start_date" id="renewClientStartDate" class="form-control" required onchange="calculateRenewClientEndDate()">
-            </div>
-
-            <div class="form-group">
-              <label>End Date <span class="text-danger">*</span></label>
-              <input type="date" name="due_date" id="renewClientEndDate" class="form-control" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+            <!-- Row 2: Start Date and End Date -->
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label>Start Date <span class="text-danger">*</span></label>
+                <input type="date" name="start_date" id="renewClientStartDate" class="form-control" required onchange="calculateRenewClientEndDate()">
+              </div>
+              <div class="form-group col-md-6">
+                <label>End Date <span class="text-danger">*</span></label>
+                <input type="date" name="due_date" id="renewClientEndDate" class="form-control" readonly style="background-color: #191C24; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;">
+              </div>
             </div>
 
             <div class="alert alert-info" style="background-color: rgba(66, 165, 245, 0.1); border: 1px solid rgba(66, 165, 245, 0.3); color: #42A5F5;">
@@ -677,6 +688,7 @@
 
 @push('scripts')
 <!-- Common Utilities -->
+@vite(['resources/js/common/table-dropdown.js'])
 @vite(['resources/js/common/avatar-utils.js'])
 @vite(['resources/js/common/form-utils.js'])
 @vite(['resources/js/common/bulk-selection.js'])

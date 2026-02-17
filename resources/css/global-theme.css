@@ -16,13 +16,12 @@ body {
    ============================================ */
 .page-header-card {
     background: #191C24 !important;
-    border: 1px solid rgba(255, 167, 38, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 14px;
     margin-bottom: 1.5rem;
     box-shadow: 
         0 1px 3px rgba(0, 0, 0, 0.3),
-        0 4px 12px rgba(0, 0, 0, 0.2),
-        0 0 0 1px rgba(255, 167, 38, 0.08);
+        0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .page-header-card .card-body {
@@ -35,7 +34,7 @@ body {
 }
 
 .page-header-title {
-    font-size: 1.75rem;
+    font-size: 2rem;
     font-weight: 700;
     color: #ffffff;
     margin-bottom: 0.25rem;
@@ -44,7 +43,7 @@ body {
 }
 
 .page-header-subtitle {
-    font-size: 0.9375rem;
+    font-size: 1.0625rem;
     color: #b0b0b0;
     margin-bottom: 0;
     line-height: 1.4;
@@ -54,8 +53,8 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9375rem;
+    padding: 0.875rem 1.5rem;
+    font-size: 1.0625rem;
     font-weight: 600;
     border-radius: 10px;
     border: 2px solid #FFA726;
@@ -81,7 +80,7 @@ body {
 }
 
 .page-header-card .btn-page-action i {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
 }
 
 /* Dropdown button variant */

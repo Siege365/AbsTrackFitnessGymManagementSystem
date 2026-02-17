@@ -7,7 +7,6 @@
 @endpush
 
 @section('content')
-<div class="container-fluid">
 
   <!-- Page Header -->
   <div class="card page-header-card">
@@ -270,6 +269,7 @@
 @endsection
 
 @push('scripts')
+@vite(['resources/js/common/table-dropdown.js'])
 <script>
   let cartItems = [];
   let inventoryItems = @json($inventoryItems ?? []);

@@ -22,7 +22,11 @@ body {
   margin-right: -15px !important;
 }
 
-.col-12, .col-md-3, .col-md-6, .col-sm-6, .col-lg-3 {
+.col-12,
+.col-md-3,
+.col-md-6,
+.col-sm-6,
+.col-lg-3 {
   padding-left: 15px !important;
   padding-right: 15px !important;
 }
@@ -37,23 +41,13 @@ body {
   max-width: 25% !important;
 }
 
-/* Table card - stretch to edges */
-.card {
-  background: #191C24 !important;
-  border: none;
-  margin-bottom: 15px !important;
-  border-radius: 8px !important;
+/* Table card - scoped to content-wrapper */
+.content-wrapper .card {
   overflow: visible !important;
 }
 
-.card-body {
-  padding: 24px 28px !important;
+.content-wrapper .card-body {
   overflow: visible !important;
-}
-
-.card-title {
-  font-size: 1.25rem !important;
-  font-weight: 600;
 }
 
 .stats-card {
@@ -153,76 +147,7 @@ body {
   background-color: rgba(255, 255, 255, 0.03);
 }
 
-/* Form Controls */
-.form-control {
-  background-color: #282A36;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  padding: 0.75rem 1.25rem;
-  font-size: 1.125rem;
-  height: auto;
-  min-height: 48px;
-}
-
-.form-control-sm {
-  padding: 0.625rem 1rem;
-  font-size: 1rem;
-  min-height: 48px;
-}
-
-.form-control::placeholder {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.form-control:focus {
-  background-color: #282A36;
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  box-shadow: none;
-}
-
-.form-control[readonly] {
-  background-color: #1a1c24;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.form-control[readonly] {
-  background-color: #1a1c24;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-/* Buttons */
-.btn-primary {
-  background-color: #191C24;
-  border-color: #191C24;
-}
-
-.btn-primary:hover {
-  background-color: #0d0f14;
-  border-color: #0d0f14;
-}
-
-.btn-info {
-  background-color: #17a2b8;
-  border-color: #17a2b8;
-}
-
-.btn-info:hover {
-  background-color: #138496;
-  border-color: #138496;
-}
-
-.btn-secondary {
-  background-color: #6c757d;
-  border-color: #6c757d;
-}
-
-.btn-secondary:hover {
-  background-color: #5a6268;
-  border-color: #545b62;
-}
+/* Form Controls and Buttons - handled by core.css */
 
 /* Status Badges */
 .badge-active {
@@ -252,22 +177,14 @@ body {
   font-size: 1rem;
 }
 
-/* Dropdown */
-.dropdown-menu {
-  background: #191C24;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  animation: fadeInDown 0.2s ease;
-  z-index: 1050;
-  min-width: 10rem;
-}
-
-/* Table action dropdown - opens to left */
+/* Table Dropdown - scoped to table */
 .table .dropdown {
   position: relative;
 }
 
 .table .dropdown-menu {
-  z-index: 1060 !important;
+  z-index: 9999 !important;
+  margin: 0;
 }
 
 @keyframes fadeInDown {
@@ -275,32 +192,11 @@ body {
     opacity: 0;
     transform: translateY(-5px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.dropdown-item {
-  color: #ffffff;
-  font-size: 1rem;
-  padding: 0.625rem 1.25rem;
-  white-space: nowrap;
-}
-
-.dropdown-item:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
-}
-
-/* Modal kebab menu proper sizing */
-.modal-body .dropdown-menu {
-  min-width: 200px;
-}
-
-.modal-body .dropdown-item {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
 }
 
 /* Pagination */
@@ -414,7 +310,7 @@ body {
 
 /* Action Buttons */
 .btn-action {
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
   border: none;
   color: #ffffff;
   padding: 0.5rem 0.75rem;
@@ -422,7 +318,7 @@ body {
 }
 
 .btn-action:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
 }
 
@@ -622,6 +518,7 @@ input[type="checkbox"]:hover {
     opacity: 0;
     transform: scale(0.95) translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);

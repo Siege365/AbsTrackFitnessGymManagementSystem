@@ -3,8 +3,16 @@
 @section('title', 'Payments & Billing -> Payment History')
 
 @section('content')
-<div class="container-fluid">
-  <h2>Payment History</h2>
+  <!-- Page Header -->
+  <div class="card page-header-card">
+      <div class="card-body">
+          <div>
+              <h2 class="page-header-title">Payment History</h2>
+              <p class="page-header-subtitle">View and manage all payment transaction records.</p>
+          </div>
+      </div>
+  </div>
+
   <div class="mb-3">
     <form action="{{ route('payments.history') }}" method="GET" class="form-inline">
       <div style="display:flex; gap:0.5rem; align-items:center;">
@@ -221,8 +229,6 @@
       </div>
     </div>
   </div>
-
-</div>
 
 <!-- Refund Confirmation Modal -->
 <div id="refundModal" class="modal-overlay">
@@ -520,6 +526,7 @@
 @endpush
 
 @push('scripts')
+@vite(['resources/js/common/table-dropdown.js'])
 <script>
 const CSRF_TOKEN = '{{ csrf_token() }}';
 let currentRefundType = null;

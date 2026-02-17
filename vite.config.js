@@ -34,6 +34,7 @@ export default defineConfig({
                 'resources/js/common/form-utils.js',
                 'resources/js/common/bulk-selection.js',
                 'resources/js/common/sidebar.js',
+                'resources/js/common/table-dropdown.js',
 
                 // Page-specific JS
                 'resources/js/pages/clients.js',

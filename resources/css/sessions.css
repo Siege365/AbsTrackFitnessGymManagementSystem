@@ -2,33 +2,6 @@
    Sessions Page Styles - Dark Theme
    ============================================ */
 
-/* Figma Design System Colors */
-body {
-  background: #282A36 !important;
-}
-
-.container-fluid.page-body-wrapper {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
-
-.page-body-wrapper {
-  min-height: 100vh !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
-
-/* Row and column spacing */
-.row {
-  margin-left: -15px !important;
-  margin-right: -15px !important;
-}
-
-.col-12, .col-md-3, .col-md-6, .col-sm-6, .col-lg-3, .col-xl-3 {
-  padding-left: 15px !important;
-  padding-right: 15px !important;
-}
-
 /* Statistics Cards */
 .stats-card {
   background: #191C24 !important;
@@ -90,24 +63,13 @@ body {
   background-color: #28a745 !important;
 }
 
-/* Card and Table Container */
-.card {
-  background: #191C24 !important;
-  border: none;
-  margin-bottom: 15px !important;
-  border-radius: 8px !important;
+/* Card and Table Container - scoped to avoid overriding navbar/global */
+.content-wrapper .card {
   overflow: visible !important;
 }
 
-.card-body {
-  padding: 24px 28px !important;
+.content-wrapper .card-body {
   overflow: visible !important;
-}
-
-.card-title {
-  font-size: 1.25rem !important;
-  font-weight: 600;
-  color: #ffffff !important;
 }
 
 /* Table Styling */
@@ -314,233 +276,25 @@ body {
   margin-right: 0.5rem;
 }
 
-/* Dropdown Menu */
-.dropdown-menu {
-  background: #191C24;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  animation: fadeInDown 0.2s ease;
-  z-index: 1050;
-  min-width: 10rem;
-  border-radius: 8px;
-  padding: 8px 0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+/* Table Dropdown Menu - scoped to table only */
+.table .dropdown {
+  position: relative;
 }
 
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.dropdown-item {
-  color: #ffffff;
-  font-size: 1rem;
-  padding: 0.625rem 1.25rem;
-  white-space: nowrap;
-}
-
-.dropdown-item:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
-}
-
-.dropdown-item i {
-  width: 20px;
-  text-align: center;
-}
-
-.dropdown-header {
-  font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.6);
-  text-transform: uppercase;
-  font-weight: 600;
-  padding: 8px 16px;
-}
-
-/* Modals */
-.modal-content {
-  background: #191C24;
-  border: none;
-  border-radius: 10px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-}
-
-.modal-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 1.5rem 2rem;
-}
-
-.modal-header .modal-title {
-  font-size: 1.5rem !important;
-  font-weight: 600;
-  color: #ffffff;
-}
-
-.modal-header .close {
-  color: #ffffff;
-  opacity: 0.8;
-  font-size: 1.5rem;
-  padding: 0;
+.table .dropdown-menu {
+  z-index: 9999 !important;
   margin: 0;
-  line-height: 1;
 }
 
-.modal-header .close:hover {
-  color: #ffffff;
-  opacity: 1;
-}
+/* Modals - handled by core.css */
 
-.modal-body {
-  padding: 2rem !important;
-}
+/* Form Controls and Buttons are handled by core.css */
 
-.modal-body .form-group {
-  margin-bottom: 1.5rem !important;
-}
 
-.modal-body label {
-  color: #ffffff;
-  font-size: 1.125rem !important;
-  font-weight: 500;
-  margin-bottom: 0.75rem;
-  display: block;
-}
-
-.modal-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 1.5rem 2rem;
-}
-
-/* Form Controls */
-.form-control {
-  background-color: #282A36;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  padding: 0.875rem 1.25rem;
-  font-size: 1.125rem !important;
-  min-height: 52px;
-  border-radius: 6px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.form-control::placeholder {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.form-control:focus {
-  background-color: #282A36;
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  box-shadow: none;
-}
-
-.form-control:disabled {
-  background-color: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.4);
-  cursor: not-allowed;
-}
-
-.form-control-sm {
-  padding: 0.625rem 1rem;
-  font-size: 1rem !important;
-  min-height: 48px;
-}
-
-.form-select {
-  background-color: #282A36;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  padding: 0.875rem 1.25rem;
-  font-size: 1.125rem !important;
-  min-height: 52px;
-}
-
-.form-select:focus {
-  background-color: #282A36;
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  box-shadow: none;
-}
-
-/* Buttons */
-.btn {
-  font-size: 1.125rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  font-weight: 500;
-  min-height: 48px;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  border-color: #007bff;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-  border-color: #004085;
-  color: white;
-}
-
-.btn-warning {
-  background-color: transparent;
-  color: #FFFFFF;
-  font-weight: 500;
-}
-
-.btn-warning:hover {
-  background-color: #ff8c00;
-  color: black;
-}
-
-.btn-secondary {
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: white;
-}
-
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-}
-
-.btn-success {
-  background-color: #28a745;
-  border-color: #28a745;
-  color: white;
-}
-
-.btn-success:hover {
-  background-color: #218838;
-  color: white;
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  border-color: #dc3545;
-  color: white;
-}
-
-.btn-danger:hover {
-  background-color: #c82333;
-  color: white;
-}
-
-.btn-sm {
-  font-size: 1rem;
-  padding: 0.5rem 1rem;
-  min-height: 40px;
-}
 
 /* Action Buttons */
 .btn-action {
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
   border: none;
   color: #ffffff;
   padding: 0.5rem 0.75rem;
@@ -548,7 +302,7 @@ body {
 }
 
 .btn-action:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
 }
 
@@ -757,6 +511,7 @@ body.modal-open {
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -795,6 +550,7 @@ body.modal-open {
 .toast .mdi {
   flex-shrink: 0;
 }
+
 /* ============================================
    Select2 Dark Theme Customization
    ============================================ */
@@ -868,6 +624,7 @@ body.modal-open {
 .select2-container--default .select2-selection--single:focus {
   outline: none !important;
 }
+
 /* ============================================
    Form Validation Error Styling
    ============================================ */
@@ -902,7 +659,11 @@ body.modal-open {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+  0% {
+    transform: rotate(0deg);
+  }
 
+  100% {
+    transform: rotate(360deg);
+  }
+}
