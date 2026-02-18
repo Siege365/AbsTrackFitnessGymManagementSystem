@@ -149,6 +149,7 @@
     color: #ffffff;
     font-size: 1rem;
     transition: all 0.3s ease;
+    line-height: 0%;
   }
   .form-select {
       width: 100%;

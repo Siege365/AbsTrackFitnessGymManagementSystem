@@ -191,7 +191,7 @@
             <!-- Buddy Selection for Renewal/Extension -->
             <div class="form-section" id="buddySelectSection">
                 <div class="form-group">
-                <label class="form-label"><i class="mdi mdi-account-multiple"></i> Search Buddy Member</label>
+                <label class="form-label">Search Buddy Member</label>
                 <div style="position: relative;">
                     <input 
                     type="text" 
@@ -314,11 +314,11 @@
                     <div class="payment-details-body">
                         <div class="payment-details-row">
                             <div class="payment-details-col payment-details-col-3">
-                                <label class="form-label">Buddy Current Due Date</label>
+                                <label class="form-label">Buddy's Current Due Date</label>
                                 <input type="text" class="form-control" id="buddyCurrentDueDate" readonly placeholder="N/A">
                             </div>
                             <div class="payment-details-col payment-details-col-3">
-                                <label class="form-label">Buddy New Due Date</label>
+                                <label class="form-label">Buddy's New Due Date</label>
                                 <input type="text" class="form-control" name="buddy_new_due_date" id="buddyNewDueDate" readonly placeholder="Will be calculated">
                             </div>
                             <div class="payment-details-col payment-details-col-3">
