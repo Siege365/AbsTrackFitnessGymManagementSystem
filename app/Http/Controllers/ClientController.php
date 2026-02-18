@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\GymPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +17,34 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Client::query();
+        $query = Client::with('gymPlan');
+        
+        // Define date ranges for status filtering
+        $today = Carbon::today();
+        $sevenDaysFromNow = $today->copy()->addDays(7);
+        
+        // Status filter (based on due_date)
+        if ($request->has('status') && $request->status !== 'all') {
+            $status = $request->status;
+            if ($status === 'active') {
+                $query->whereDate('due_date', '>', $sevenDaysFromNow);
+            } elseif ($status === 'due_soon') {
+                $query->whereDate('due_date', '>=', $today)
+                      ->whereDate('due_date', '<=', $sevenDaysFromNow);
+            } elseif ($status === 'expired') {
+                $query->whereDate('due_date', '<', $today);
+            }
+        }
+        
+        // Plan type filter
+        if ($request->has('plan') && $request->plan !== 'all') {
+            $query->where('plan_type', $request->plan);
+        }
+        
+        // Gender filter
+        if ($request->has('gender') && $request->gender !== 'all') {
+            $query->where('sex', $request->gender);
+        }
         
         // Search functionality
         if ($request->has('search') && $request->search != '') {
@@ -29,12 +57,15 @@ class ClientController extends Controller
             });
         }
         
-        $clients = $query->latest()->paginate(10)->appends(['search' => $request->search]);
+        $clients = $query->latest()->paginate(10)->appends([
+            'search' => $request->search,
+            'status' => $request->status,
+            'plan' => $request->plan,
+            'gender' => $request->gender,
+        ]);
         
         // Calculate statistics using date-based queries (not status column)
         // This ensures real-time accuracy even if status column has stale data
-        $today = Carbon::today();
-        $sevenDaysFromNow = $today->copy()->addDays(7);
         $currentMonth = now()->month;
         $currentYear = now()->year;
         
@@ -53,12 +84,16 @@ class ClientController extends Controller
             ->whereYear('start_date', $currentYear)
             ->count();
         
+        // Fetch active personal training plans for dropdowns
+        $ptPlans = GymPlan::active()->personalTraining()->ordered()->get();
+        
         return view('clients.index', compact(
             'clients',
             'totalClients',
             'activeClients',
             'expiringThisWeek',
-            'newSignupsThisMonth'
+            'newSignupsThisMonth',
+            'ptPlans'
         ));
     }
 
@@ -79,14 +114,21 @@ class ClientController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'age' => 'nullable|integer|min:1|max:120',
+                'sex' => 'nullable|in:Male,Female',
                 'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
                 'avatar_url' => 'nullable|url',
-                'plan_type' => 'required|in:Monthly,Session',
+                'plan_type' => 'required|exists:gym_plans,plan_key',
                 'start_date' => 'required|date',
-                'due_date' => 'required|date|after:start_date',
-                'contact' => ['required', 'string', 'max:255', 'regex:/^[+]?[0-9() ]+$/'],
+                'due_date' => 'nullable|date',
+                'contact' => ['required', 'string', 'max:255', 'regex:/^[+]?[0-9()\- ]+$/'],
                 'confirm_similar' => 'nullable|boolean',
             ]);
+
+            // Server-side due_date calculation (never trust client)
+            $plan = GymPlan::where('plan_key', $validated['plan_type'])->firstOrFail();
+            $validated['due_date'] = Carbon::parse($validated['start_date'])
+                ->addDays($plan->duration_days)
+                ->format('Y-m-d');
 
             // Check for similar names unless user has confirmed
             if (!$request->input('confirm_similar')) {
@@ -250,13 +292,20 @@ class ClientController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'age' => 'nullable|integer|min:1|max:120',
+                'sex' => 'nullable|in:Male,Female',
                 'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
                 'avatar_url' => 'nullable|url',
-                'plan_type' => 'required|in:Monthly,Session',
+                'plan_type' => 'required|exists:gym_plans,plan_key',
                 'start_date' => 'required|date',
-                'due_date' => 'required|date|after:start_date',
-                'contact' => ['required', 'string', 'max:255', 'regex:/^[+]?[0-9() ]+$/'],
+                'due_date' => 'nullable|date',
+                'contact' => ['required', 'string', 'max:255', 'regex:/^[+]?[0-9()\- ]+$/'],
             ]);
+
+            // Server-side due_date calculation (never trust client)
+            $plan = GymPlan::where('plan_key', $validated['plan_type'])->firstOrFail();
+            $validated['due_date'] = Carbon::parse($validated['start_date'])
+                ->addDays($plan->duration_days)
+                ->format('Y-m-d');
 
             // Recalculate status automatically based on updated dates
             $validated['status'] = $this->calculateStatus($validated['start_date'], $validated['due_date']);
@@ -648,5 +697,34 @@ class ClientController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * Autocomplete API for name suggestions from Membership table
+     * Used in client add modal to pre-fill data from existing memberships
+     */
+    public function autocomplete(Request $request)
+    {
+        $query = $request->input('query', '');
+        
+        if (strlen($query) < 1) {
+            return response()->json([]);
+        }
+
+        $memberships = \App\Models\Membership::where('name', 'LIKE', "%{$query}%")
+            ->limit(10)
+            ->get([
+                'id',
+                'name',
+                'age',
+                'sex',
+                'contact',
+                'plan_type',
+                'start_date',
+                'due_date',
+                'avatar'
+            ]);
+
+        return response()->json($memberships);
     }
 }

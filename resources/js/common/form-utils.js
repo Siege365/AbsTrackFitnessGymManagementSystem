@@ -245,6 +245,28 @@ const FormUtils = (function() {
     $(`#${showModalId}`).modal('show');
   }
 
+  /**
+   * Initialize modal accessibility fixes
+   * Fixes aria-hidden attribute to prevent accessibility warnings
+   * Should be called once on page load
+   */
+  function initModalAccessibility() {
+    // Fix aria-hidden on modal show
+    $(document).on('show.bs.modal', '.modal', function() {
+      $(this).removeAttr('aria-hidden');
+    });
+
+    // Set aria-hidden on modal hide
+    $(document).on('hidden.bs.modal', '.modal', function() {
+      $(this).attr('aria-hidden', 'true');
+    });
+  }
+
+  // Initialize on document ready
+  $(document).ready(function() {
+    initModalAccessibility();
+  });
+
   // Public API
   return {
     PATTERNS,
@@ -260,7 +282,8 @@ const FormUtils = (function() {
     resetButton,
     submitFormAjax,
     setupSearchEnter,
-    transitionModals
+    transitionModals,
+    initModalAccessibility
   };
 })();
 

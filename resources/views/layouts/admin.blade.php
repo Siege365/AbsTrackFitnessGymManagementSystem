@@ -17,7 +17,8 @@
         'resources/css/sidebar.css',
         'resources/css/custom-fonts.css',
         'resources/css/notification-bell.css',
-        'resources/css/global-theme.css'
+        'resources/css/global-theme.css',
+        'resources/css/pagination.css'
     ])
     
     <!-- Page-specific styles -->

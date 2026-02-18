@@ -7,16 +7,11 @@
 @endpush
 
 @section('content')
-<<<<<<< HEAD
-=======
-<div class="container-fluid">
->>>>>>> origin/main
   <!-- Page Header -->
   <div class="card page-header-card">
       <div class="card-body">
           <div>
               <h2 class="page-header-title">Payment History</h2>
-<<<<<<< HEAD
               <p class="page-header-subtitle">View and manage all payment transaction records.</p>
           </div>
       </div>
@@ -35,11 +30,8 @@
         @if(request('search') || request('filter_type') != 'all')
         <a href="{{ route('payments.history') }}" class="btn btn-sm btn-secondary"><i class="mdi mdi-refresh"></i> Clear</a>
         @endif
-=======
-              <p class="page-header-subtitle">View and manage all payment transactions.</p>
-          </div>
->>>>>>> origin/main
       </div>
+    </form>
   </div>
 
   <!-- Stats Cards -->
@@ -275,17 +267,11 @@
             </table>
           </div>
 
-          <div class="pagination-wrapper mt-4">
-            <div class="row align-items-center">
-              <div class="col-md-6">
-                <button type="button" onclick="bulkDeleteMemberships()" class="btn btn-sm btn-delete-selected" id="deleteMembershipBtn" disabled>
-                  <i class="mdi mdi-delete"></i> Delete Selected (<span id="membershipCount">0</span>)
-                </button>
-              </div>
-              <div class="col-md-6">
-                {{ $membershipPayments->links('vendor.pagination.custom') }}
-              </div>
-            </div>
+          <div class="table-footer">
+            <button type="button" onclick="bulkDeleteMemberships()" class="btn btn-sm btn-delete-selected" id="deleteMembershipBtn" disabled>
+              <i class="mdi mdi-delete"></i> Delete Selected (<span id="membershipCount">0</span>)
+            </button>
+            {{ $membershipPayments->links('vendor.pagination.custom') }}
           </div>
         </div>
       </div>
@@ -406,17 +392,11 @@
             </table>
           </div>
 
-          <div class="pagination-wrapper mt-4">
-            <div class="row align-items-center">
-              <div class="col-md-6">
-                <button type="button" onclick="bulkDeleteProducts()" class="btn btn-sm btn-delete-selected" id="deleteProductBtn" disabled>
-                  <i class="mdi mdi-delete"></i> Delete Selected (<span id="productCount">0</span>)
-                </button>
-              </div>
-              <div class="col-md-6">
-                {{ $productPayments->links('vendor.pagination.custom') }}
-              </div>
-            </div>
+          <div class="table-footer">
+            <button type="button" onclick="bulkDeleteProducts()" class="btn btn-sm btn-delete-selected" id="deleteProductBtn" disabled>
+              <i class="mdi mdi-delete"></i> Delete Selected (<span id="productCount">0</span>)
+            </button>
+            {{ $productPayments->links('vendor.pagination.custom') }}
           </div>
         </div>
       </div>
@@ -529,24 +509,15 @@
           </tbody>
         </table>
       </div>
-      <div class="pagination-wrapper mt-4">
-        <div class="row align-items-center">
-          <div class="col-md-6">
-            <button type="button" onclick="bulkDeleteRefunds()" class="btn btn-sm btn-delete-selected" id="deleteRefundBtn" disabled>
-              <i class="mdi mdi-delete"></i> Delete Selected (<span id="refundCount">0</span>)
-            </button>
-          </div>
-          <div class="col-md-6">
-            {{ $combinedRefunds->links('vendor.pagination.custom') }}
-          </div>
-        </div>
+      <div class="table-footer">
+        <button type="button" onclick="bulkDeleteRefunds()" class="btn btn-sm btn-delete-selected" id="deleteRefundBtn" disabled>
+          <i class="mdi mdi-delete"></i> Delete Selected (<span id="refundCount">0</span>)
+        </button>
+        {{ $combinedRefunds->links('vendor.pagination.custom') }}
       </div>
     </div>
   </div>
-<<<<<<< HEAD
-=======
 </div>
->>>>>>> origin/main
 
 <!-- Refund Confirmation Modal -->
 <div id="refundModal" class="modal-overlay">

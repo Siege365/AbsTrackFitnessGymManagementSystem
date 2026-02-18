@@ -8,6 +8,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\InventorySupplyController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MembershipPaymentController;
+use App\Http\Controllers\GymConfigurationController;
 use App\Http\Controllers\API\MemberApiController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\ReportController;
@@ -132,6 +133,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/members/search', [MemberApiController::class, 'search']);
     Route::get('/api/members/{id}', [MemberApiController::class, 'show']);
     
+    // Autocomplete API for cross-referencing
+    Route::get('/api/memberships/autocomplete', [MembershipController::class, 'autocomplete'])->name('api.memberships.autocomplete');
+    Route::get('/api/clients/autocomplete', [ClientController::class, 'autocomplete'])->name('api.clients.autocomplete');
+    
     // Payment History Routes
     Route::get('/payments/history', [PaymentHistoryController::class, 'index'])->name('payments.history');
 
@@ -182,6 +187,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/UserAndAdmin/CashierActivity', function () {
         return view('UserAndAdmin.CashierActivity');
     })->name('UserAndAdmin.CashierActivity');
+
+    // ==========================================
+    // GYM CONFIGURATION ROUTES
+    // ==========================================
+    Route::prefix('configuration')->name('configuration.')->group(function () {
+        Route::get('/', [GymConfigurationController::class, 'index'])->name('index');
+        Route::post('/plans', [GymConfigurationController::class, 'store'])->name('plans.store');
+        Route::put('/plans/{id}', [GymConfigurationController::class, 'update'])->name('plans.update');
+        Route::delete('/plans/{id}', [GymConfigurationController::class, 'destroy'])->name('plans.destroy');
+        Route::post('/plans/reorder', [GymConfigurationController::class, 'reorder'])->name('plans.reorder');
+    });
+
+    // API: Active plans (for Payment page dynamic loading)
+    Route::get('/api/gym-plans/active', [GymConfigurationController::class, 'activePlans'])->name('api.gym-plans.active');
 
     // Memberships CRUD
     Route::get('memberships/kpis', [MembershipController::class, 'getKpis'])->name('memberships.kpis');

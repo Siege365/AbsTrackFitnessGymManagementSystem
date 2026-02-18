@@ -11,6 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
+        $driver = DB::getDriverName();
+
+        // SQLite uses CHECK constraints for enums; MySQL does not — skip if MySQL
+        if ($driver !== 'sqlite') {
+            // On MySQL, plan_type is a regular VARCHAR — no CHECK constraint to remove.
+            // If the column is an ENUM, convert it to VARCHAR so new plan types can be added.
+            if ($driver === 'mysql') {
+                DB::statement("ALTER TABLE memberships MODIFY COLUMN plan_type VARCHAR(50) NOT NULL DEFAULT 'Regular'");
+                DB::statement("ALTER TABLE membership_payments MODIFY COLUMN plan_type VARCHAR(50) NOT NULL DEFAULT 'Regular'");
+            }
+            return;
+        }
+
         DB::statement('PRAGMA foreign_keys = OFF');
 
         // --- memberships table ---

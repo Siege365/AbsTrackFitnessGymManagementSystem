@@ -278,27 +278,19 @@
                         </table>
                     </div>
 
-                    @if (isset($ptSchedules) && $ptSchedules->hasPages())
-                        <div class="pagination-wrapper mt-4 pt-3">
-                            <div class="row align-items-center">
-                                <div class="col-md-6 col-sm-12 mb-3 mb-md-0">
-                                    <form id="bulkDeletePTForm" action="{{ route('sessions.pt.bulk-delete') }}"
-                                        method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button" onclick="SessionsPage.bulkDeletePT()"
-                                            class="btn btn-sm btn-delete-selected">
-                                            <i class="mdi mdi-delete"></i> Delete Selected (<span
-                                                id="selectedPTCount">0</span>)
-                                        </button>
-                                    </form>
-                                </div>
-                                <div class="col-md-6 col-sm-12 d-flex justify-content-md-end">
-                                    {{ $ptSchedules->appends(request()->except('pt_page'))->links('vendor.pagination.custom') }}
-                                </div>
-                            </div>
-                        </div>
-                    @endif
+                    <div class="table-footer">
+                        <form id="bulkDeletePTForm" action="{{ route('sessions.pt.bulk-delete') }}"
+                            method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="button" onclick="SessionsPage.bulkDeletePT()"
+                                class="btn btn-sm btn-delete-selected">
+                                <i class="mdi mdi-delete"></i> Delete Selected (<span
+                                    id="selectedPTCount">0</span>)
+                            </button>
+                        </form>
+                        {{ $ptSchedules->appends(request()->except('pt_page'))->links('vendor.pagination.custom') }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -441,28 +433,20 @@
                         </table>
                     </div>
 
-                    @if (isset($attendances) && $attendances->hasPages())
-                        <div class="pagination-wrapper mt-4 pt-3">
-                            <div class="row align-items-center">
-                                <div class="col-md-6 col-sm-12 mb-3 mb-md-0">
-                                    <form id="bulkDeleteAttendanceForm"
-                                        action="{{ route('sessions.attendance.bulk-delete') }}" method="POST"
-                                        class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button" onclick="SessionsPage.bulkDeleteAttendance()"
-                                            class="btn btn-sm btn-delete-selected">
-                                            <i class="mdi mdi-delete"></i> Delete Selected (<span
-                                                id="selectedAttendanceCount">0</span>)
-                                        </button>
-                                    </form>
-                                </div>
-                                <div class="col-md-6 col-sm-12 d-flex justify-content-md-end">
-                                    {{ $attendances->appends(request()->except('attendance_page'))->links('vendor.pagination.custom') }}
-                                </div>
-                            </div>
-                        </div>
-                    @endif
+                    <div class="table-footer">
+                        <form id="bulkDeleteAttendanceForm"
+                            action="{{ route('sessions.attendance.bulk-delete') }}" method="POST"
+                            class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="button" onclick="SessionsPage.bulkDeleteAttendance()"
+                                class="btn btn-sm btn-delete-selected">
+                                <i class="mdi mdi-delete"></i> Delete Selected (<span
+                                    id="selectedAttendanceCount">0</span>)
+                            </button>
+                        </form>
+                        {{ $attendances->appends(request()->except('attendance_page'))->links('vendor.pagination.custom') }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -821,6 +805,7 @@
 @push('scripts')
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    @vite(['resources/js/common/form-utils.js'])
     @vite(['resources/js/common/table-dropdown.js'])
     @vite(['resources/js/sessions.js'])
 @endpush

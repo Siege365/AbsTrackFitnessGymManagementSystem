@@ -20,6 +20,18 @@ const ClientsPage = (function() {
   };
 
   /**
+   * Get duration in days from select option data attribute
+   * @param {HTMLSelectElement} selectElement
+   * @returns {number}
+   */
+  function getPlanDurationFromSelect(selectElement) {
+    if (!selectElement || !selectElement.value) return 30;
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const duration = selectedOption ? parseInt(selectedOption.getAttribute('data-duration')) : null;
+    return duration || 30;
+  }
+
+  /**
    * Get element references for add modal
    * @returns {Object} Element references
    */
@@ -55,7 +67,8 @@ const ClientsPage = (function() {
    */
   function calculateClientEndDate() {
     const elements = getAddModalElements();
-    FormUtils.calculateEndDate(elements.startDateInput, elements.endDateInput, 30);
+    const days = getPlanDurationFromSelect(elements.planInput);
+    FormUtils.calculateEndDate(elements.startDateInput, elements.endDateInput, days);
   }
 
   /**
@@ -105,8 +118,10 @@ const ClientsPage = (function() {
     }
 
     // Populate confirmation overlay
+    const planSelect = elements.planInput;
+    const planText = planSelect.options[planSelect.selectedIndex].text;
     document.getElementById('confirmClientNameText').textContent = name;
-    document.getElementById('confirmClientPlanText').textContent = plan;
+    document.getElementById('confirmClientPlanText').textContent = planText;
     document.getElementById('confirmClientDurationText').textContent = startDate + ' to ' + endDate;
 
     // Show confirmation overlay
@@ -133,6 +148,7 @@ const ClientsPage = (function() {
       const formData = new FormData();
       formData.append('name', elements.nameInput.value.trim());
       formData.append('age', elements.ageInput.value);
+      formData.append('sex', document.getElementById('newClientSex').value);
       formData.append('contact', elements.contactInput.value.trim());
       formData.append('plan_type', elements.planInput.value);
       formData.append('start_date', elements.startDateInput.value);
@@ -236,7 +252,9 @@ const ClientsPage = (function() {
   function calculateEditClientEndDate(clientId) {
     const startDateInput = document.getElementById('editClientStartDate' + clientId);
     const endDateInput = document.getElementById('editClientEndDate' + clientId);
-    FormUtils.calculateEndDate(startDateInput, endDateInput, 30);
+    const planSelect = document.getElementById('editClientPlanType' + clientId);
+    const days = getPlanDurationFromSelect(planSelect);
+    FormUtils.calculateEndDate(startDateInput, endDateInput, days);
   }
 
   /**
@@ -286,8 +304,10 @@ const ClientsPage = (function() {
     }
 
     // Populate confirmation overlay
+    const planSelect = document.getElementById('editClientPlanType' + clientId);
+    const planText = planSelect.options[planSelect.selectedIndex].text;
     document.getElementById('confirmEditClientName' + clientId).textContent = name;
-    document.getElementById('confirmEditClientPlan' + clientId).textContent = planType;
+    document.getElementById('confirmEditClientPlan' + clientId).textContent = planText;
     document.getElementById('confirmEditClientDuration' + clientId).textContent = `${startDate} to ${endDate}`;
 
     // Show overlay
@@ -317,6 +337,7 @@ const ClientsPage = (function() {
       formData.append('_method', 'PUT');
       formData.append('name', document.getElementById('editClientName' + clientId).value.trim());
       formData.append('age', document.getElementById('editClientAge' + clientId).value);
+      formData.append('sex', document.getElementById('editClientSex' + clientId).value);
       formData.append('contact', document.getElementById('editClientContact' + clientId).value.trim());
       formData.append('plan_type', document.getElementById('editClientPlanType' + clientId).value);
       formData.append('start_date', document.getElementById('editClientStartDate' + clientId).value);
@@ -402,19 +423,23 @@ const ClientsPage = (function() {
    * Open renew subscription modal
    * @param {number} clientId - Client ID
    * @param {string} clientName - Client name
-   * @param {string} planType - Plan type
+   * @param {string} planName - Plan display name
+   * @param {string} planKey - Plan key
+   * @param {number} durationDays - Plan duration in days
    * @param {string} startDate - Current start date
    * @param {string} dueDate - Current due date
    */
-  function openRenewClientModal(clientId, clientName, planType, startDate, dueDate) {
+  function openRenewClientModal(clientId, clientName, planName, planKey, durationDays, startDate, dueDate) {
     // Store renewal data
     document.getElementById('renewClientId').value = clientId;
     document.getElementById('renewClientName').value = clientName;
-    document.getElementById('renewClientPlanType').value = planType;
+    document.getElementById('renewClientPlanType').value = planName;
+    document.getElementById('renewClientPlanKey').value = planKey;
+    document.getElementById('renewClientDurationDays').value = durationDays;
     
     // Display client info
     document.getElementById('renewClientNameDisplay').value = clientName;
-    document.getElementById('renewClientPlanTypeDisplay').value = planType;
+    document.getElementById('renewClientPlanTypeDisplay').value = planName;
     
     // Set today's date as default start date
     const today = new Date().toISOString().split('T')[0];
@@ -428,30 +453,14 @@ const ClientsPage = (function() {
   }
 
   /**
-   * Calculate end date for renewal based on plan type
+   * Calculate end date for renewal based on plan duration
    */
   function calculateRenewClientEndDate() {
     const startDateInput = document.getElementById('renewClientStartDate');
     const endDateInput = document.getElementById('renewClientEndDate');
-    const planType = document.getElementById('renewClientPlanType').value;
+    const durationDays = parseInt(document.getElementById('renewClientDurationDays').value) || 30;
     
     if (!startDateInput.value) return;
-    
-    // Determine duration based on plan type
-    let durationDays = 30; // Default to 1 month
-    
-    if (planType) {
-      const planLower = planType.toLowerCase();
-      if (planLower.includes('week')) {
-        durationDays = 7;
-      } else if (planLower.includes('day')) {
-        durationDays = 1;
-      } else if (planLower.includes('6 month') || planLower.includes('6month')) {
-        durationDays = 180;
-      } else if (planLower.includes('1 year') || planLower.includes('year')) {
-        durationDays = 365;
-      }
-    }
     
     FormUtils.calculateEndDate(startDateInput, endDateInput, durationDays);
   }
@@ -656,35 +665,87 @@ const ClientsPage = (function() {
     setInterval(updateKPIs, 5 * 60 * 1000);
   }
 
+  // Track current filter state
+  const filterState = {
+    status: 'all',
+    plan: 'all',
+    gender: 'all'
+  };
+
   /**
-   * Filter table by status
+   * Initialize filters from URL parameters
+   */
+  function initializeFilters() {
+    const urlParams = new URLSearchParams(window.location.search);
+    filterState.status = urlParams.get('status') || 'all';
+    filterState.plan = urlParams.get('plan') || 'all';
+    filterState.gender = urlParams.get('gender') || 'all';
+  }
+
+  /**
+   * Apply filter to table by updating URL
+   * @param {string} filterType - Filter type: 'status', 'plan', 'gender'
+   * @param {string} value - Filter value
+   */
+  function applyFilter(filterType, value) {
+    // Update filter state
+    filterState[filterType] = value;
+    
+    // Build URL with all current filters
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    
+    // Update or remove filter parameters
+    if (value !== 'all') {
+      params.set(filterType, value);
+    } else {
+      params.delete(filterType);
+    }
+    
+    // Preserve search parameter if it exists
+    const currentSearch = params.get('search');
+    
+    // Navigate to filtered URL
+    window.location.href = `${url.pathname}?${params.toString()}`;
+  }
+
+  /**
+   * Clear all filters
+   */
+  function clearAllFilters() {
+    // Build URL without filter parameters
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    
+    // Remove filter parameters but keep search
+    params.delete('status');
+    params.delete('plan');
+    params.delete('gender');
+    
+    // Navigate to URL without filters
+    window.location.href = `${url.pathname}?${params.toString()}`;
+  }
+
+  /**
+   * Toggle filter section accordion
+   * @param {HTMLElement} headerElement - The clicked filter section header
+   * @param {Event} event - The click event
+   */
+  function toggleFilterSection(headerElement, event) {
+    // Prevent the dropdown from closing
+    if (event) {
+      event.stopPropagation();
+    }
+    const section = headerElement.closest('.filter-section');
+    section.classList.toggle('active');
+  }
+
+  /**
+   * Legacy function for backward compatibility
    * @param {string} status - Filter status: 'all', 'active', 'expired', 'due_soon'
    */
   function applyStatusFilter(status) {
-    const rows = document.querySelectorAll('tbody tr[data-status]');
-    const cards = document.querySelectorAll('.stats-card');
-    
-    // Remove active class from all cards
-    cards.forEach(card => card.classList.remove('active'));
-    
-    // Show all rows
-    rows.forEach(row => {
-      row.style.display = '';
-    });
-    
-    // Apply filter
-    if (status !== 'all') {
-      rows.forEach(row => {
-        const rowStatus = row.getAttribute('data-status').toLowerCase();
-        if (status === 'active' && rowStatus !== 'active') {
-          row.style.display = 'none';
-        } else if (status === 'expired' && rowStatus !== 'expired') {
-          row.style.display = 'none';
-        } else if (status === 'due_soon' && rowStatus !== 'due soon') {
-          row.style.display = 'none';
-        }
-      });
-    }
+    applyFilter('status', status);
   }
 
   /**
@@ -695,6 +756,9 @@ const ClientsPage = (function() {
    */
   function init(options) {
     config = { ...config, ...options };
+
+    // Initialize filters from URL parameters
+    initializeFilters();
 
     // Initialize bulk selection
     BulkSelection.init({
@@ -708,6 +772,45 @@ const ClientsPage = (function() {
       document.getElementById('searchInput'),
       document.getElementById('searchForm')
     );
+
+    // Initialize autocomplete for client name field
+    const nameInput = document.getElementById('newClientName');
+    if (nameInput && typeof AutocompleteUtils !== 'undefined') {
+      AutocompleteUtils.init({
+        inputElement: nameInput,
+        apiUrl: '/api/clients/autocomplete',
+        onSelect: (item) => {
+          // Autofill fields from selected membership
+          const elements = getAddModalElements();
+          
+          // Set basic info
+          if (item.age) elements.ageInput.value = item.age;
+          if (item.sex) {
+            const sexSelect = document.getElementById('newClientSex');
+            if (sexSelect) sexSelect.value = item.sex;
+          }
+          if (item.contact) elements.contactInput.value = item.contact;
+              
+          
+          // Autofill avatar if available
+          if (item.avatar) {
+            // Switch to URL input mode
+            toggleClientAvatarInput('url');
+            elements.urlInput.value = item.avatar;
+            state.avatarUrl = item.avatar;
+            // Preview the avatar
+            AvatarUtils.previewAvatar({
+              fileInput: elements.fileInput,
+              urlInput: elements.urlInput,
+              preview: elements.preview
+            }, state);
+          }
+          
+          // Recalculate end date based on plan duration
+          calculateClientEndDate();
+        }
+      });
+    }
 
   }
 
@@ -737,6 +840,9 @@ const ClientsPage = (function() {
     confirmDeleteClient,
     updateKPIs,
     applyStatusFilter,
+    applyFilter,
+    clearAllFilters,
+    toggleFilterSection,
     setupMidnightRefresh
   };
 })();

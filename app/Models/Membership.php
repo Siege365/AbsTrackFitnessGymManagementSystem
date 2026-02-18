@@ -32,6 +32,14 @@ class Membership extends Model
     protected $appends = ['status'];
 
     /**
+     * Get the gym plan associated with this membership
+     */
+    public function gymPlan()
+    {
+        return $this->belongsTo(GymPlan::class, 'plan_type', 'plan_key');
+    }
+
+    /**
      * Get the status attribute - automatically calculated based on due_date
      * This ensures status is always accurate and real-time
      * 

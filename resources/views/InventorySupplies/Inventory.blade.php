@@ -254,19 +254,13 @@
             </div>
             
             <!-- Pagination and Bulk Delete -->
-            <div class="pagination-wrapper mt-4">
-                <div class="row align-items-center">
-                  <div class="col-md-6">
-                    <button type="button" id="bulkActionBtn" class="btn btn-sm btn-delete-selected" disabled onclick="bulkDeleteInventory()">
-                        <i class="mdi mdi-delete"></i> Delete Selected (<span id="selectedCount">0</span>)
-                    </button>
-                  </div>
-                  <div class="col-md-6">
-                    @if(isset($inventoryItems))
-                      {{ $inventoryItems->links('vendor.pagination.custom') }}
-                    @endif
-                  </div>
-                </div>
+            <div class="table-footer">
+              <button type="button" id="bulkActionBtn" class="btn btn-sm btn-delete-selected" disabled onclick="bulkDeleteInventory()">
+                <i class="mdi mdi-delete"></i> Delete Selected (<span id="selectedCount">0</span>)
+              </button>
+              @if(isset($inventoryItems))
+                {{ $inventoryItems->links('vendor.pagination.custom') }}
+              @endif
             </div>
           </div>
         </div>
@@ -728,6 +722,7 @@
 @endsection
 
 @push('scripts')
+@vite(['resources/js/common/form-utils.js'])
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const checkAll = document.getElementById('checkAll');

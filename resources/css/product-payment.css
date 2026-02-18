@@ -1,6 +1,13 @@
 /* CONSISTENT COLOR SCHEME MATCHING MEMBERSHIP PAYMENT */
-<<<<<<< HEAD
-.table-responsive::-webkit-scrollbar {
+  .page-header-card {
+      background: #191C24 !important;
+      border: none;
+      margin-bottom: 15px !important;
+      border-radius: 8px !important;
+      overflow: visible !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 167, 38, 0.08);
+  }
+  .table-responsive::-webkit-scrollbar {
   height: 8px;
 }
 
@@ -313,21 +320,10 @@
   to {
     transform: scale(1) translateY(0);
     opacity: 1;
-=======
-  .page-header-card {
-      background: #191C24 !important;
-      border: none;
-      margin-bottom: 15px !important;
-      border-radius: 8px !important;
-      overflow: visible !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 167, 38, 0.08);
   }
-  .table-responsive::-webkit-scrollbar {
-    height: 8px;
->>>>>>> origin/main
-  }
-  
-  .table-responsive::-webkit-scrollbar-track {
+}
+
+.table-responsive::-webkit-scrollbar-track {
     background: #191C24;
   }
   
@@ -848,9 +844,6 @@
     border-radius: 8px;
     border-left: 4px solid #191C24;
   }
-<<<<<<< HEAD
-}
-=======
 
   .receipt-info-item strong {
     display: block;
@@ -1081,4 +1074,3 @@
   @media (max-height: 600px) {
     .modal-overlay.show, .receipt-modal.show { align-items: flex-start !important; padding-top: 2rem; }
   }
->>>>>>> origin/main

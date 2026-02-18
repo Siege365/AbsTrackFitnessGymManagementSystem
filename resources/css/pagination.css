@@ -1,0 +1,230 @@
+/**
+ * Custom Pagination Styling
+ * Modern, clean pagination with responsive layout
+ */
+
+/* ───────────────────────────────────────────────────────── */
+/* Container Layout                                           */
+/* ───────────────────────────────────────────────────────── */
+
+.pagination-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 0;
+}
+
+/* Info Text (Left) */
+.pagination-info {
+  font-size: 1.0625rem; /* 17px - larger for accessibility */
+  color: #64748B;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+/* Navigation Controls (Right) */
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem; /* 4px between buttons */
+}
+
+/* ───────────────────────────────────────────────────────── */
+/* Pagination Buttons                                         */
+/* ───────────────────────────────────────────────────────── */
+
+.pagination-btn {
+  min-width: 38px;
+  height: 38px;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 4px;
+  background: white;
+  font-size: 1.0625rem; /* 17px - larger for accessibility */
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  line-height: 1;
+}
+
+/* Hover State */
+.pagination-btn:hover:not(.disabled):not(.active) {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+  color: #475569;
+  text-decoration: none;
+}
+
+/* Active State (Current Page) */
+.pagination-btn.active {
+  background: #3B82F6;
+  color: white;
+  border-color: #3B82F6;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Disabled State */
+.pagination-btn.disabled {
+  background: #F8FAFC;
+  color: #CBD5E1;
+  border-color: #E2E8F0;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Icon Buttons (First, Prev, Next, Last) */
+.pagination-btn.icon-btn {
+  padding: 0.5rem;
+  min-width: 38px;
+}
+
+.pagination-btn .mdi {
+  font-size: 1.25rem; /* 20px - larger icons */
+  line-height: 1;
+}
+
+/* Ellipsis */
+.pagination-ellipsis {
+  min-width: 38px;
+  height: 38px;
+  padding: 0.5rem 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #94A3B8;
+  font-size: 1.0625rem; /* 17px */
+  font-weight: 500;
+  user-select: none;
+}
+
+/* ───────────────────────────────────────────────────────── */
+/* Dark Theme Adjustments (for existing dark UI)             */
+/* ───────────────────────────────────────────────────────── */
+
+.pagination-btn {
+  background: #191C24;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #B8C1D3;
+}
+
+.pagination-btn:hover:not(.disabled):not(.active) {
+  background: #212631;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #E5E7EB;
+}
+
+.pagination-btn.disabled {
+  background: #191C24;
+  color: #4B5563;
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.pagination-ellipsis {
+  color: #6B7280;
+}
+
+/* ───────────────────────────────────────────────────────── */
+/* Responsive Layout                                          */
+/* ───────────────────────────────────────────────────────── */
+
+/* Desktop: Keep info and controls on same line */
+@media (min-width: 768px) {
+  .pagination-wrapper {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+/* Mobile: Stack vertically */
+@media (max-width: 767px) {
+  .pagination-wrapper {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .pagination-controls {
+    order: 1;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .pagination-info {
+    order: 2;
+    text-align: center;
+    font-size: 1rem; /* 16px on mobile */
+  }
+
+  /* Slightly smaller buttons on mobile but still readable */
+  .pagination-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+  }
+
+  .pagination-btn.icon-btn {
+    padding: 0.5rem;
+    min-width: 36px;
+  }
+
+  .pagination-ellipsis {
+    min-width: 36px;
+    height: 36px;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+  }
+}
+
+/* ───────────────────────────────────────────────────────── */
+/* Table Footer (Delete Selected + Pagination container)     */
+/* ───────────────────────────────────────────────────────── */
+
+.table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.table-footer .pagination-wrapper {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+/* Mobile: Stack button above pagination */
+@media (max-width: 767px) {
+  .table-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .table-footer .btn-delete-selected {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* ───────────────────────────────────────────────────────── */
+/* Integration with Existing Table Styles                    */
+/* ───────────────────────────────────────────────────────── */
+
+.card-body .pagination-wrapper {
+  margin-top: 1.5rem;
+  padding-top: 0;
+  border-top: none;
+}
+
+/* Ensure proper spacing in table containers */
+.table-responsive + .pagination-wrapper {
+  margin-top: 1.5rem;
+}

@@ -176,16 +176,16 @@
 }
 
 /* Icon Colors per Menu Item */
-/* Dashboard - Purple */
+/* Dashboard - Indigo */
 .menu-items:nth-child(2) .menu-icon {
-  background: rgba(124, 77, 255, 0.15);
+  background: rgba(63, 81, 181, 0.15);
 }
 .menu-items:nth-child(2) .menu-icon i {
-  color: #7c4dff;
+  color: #3f51b5;
 }
 .menu-items:nth-child(2):hover .menu-icon,
 .menu-items:nth-child(2).active .menu-icon {
-  background: rgba(124, 77, 255, 0.25);
+  background: rgba(63, 81, 181, 0.25);
 }
 
 /* Customers - Orange/Yellow */
@@ -260,16 +260,28 @@
   background: rgba(255, 152, 0, 0.25);
 }
 
-/* Documentation - Red/Pink */
+/* Settings - Deep Pink */
 .menu-items:nth-child(9) .menu-icon {
-  background: rgba(233, 30, 99, 0.15);
+  background: rgba(236, 64, 122, 0.15);
 }
 .menu-items:nth-child(9) .menu-icon i {
-  color: #e91e63;
+  color: #ec407a;
 }
 .menu-items:nth-child(9):hover .menu-icon,
 .menu-items:nth-child(9).active .menu-icon {
-  background: rgba(233, 30, 99, 0.25);
+  background: rgba(236, 64, 122, 0.25);
+}
+
+/* User Manual - Cyan */
+.menu-items:nth-child(10) .menu-icon {
+  background: rgba(0, 188, 212, 0.15);
+}
+.menu-items:nth-child(10) .menu-icon i {
+  color: #00bcd4;
+}
+.menu-items:nth-child(10):hover .menu-icon,
+.menu-items:nth-child(10).active .menu-icon {
+  background: rgba(0, 188, 212, 0.25);
 }
 
 /* =====================================================
@@ -635,4 +647,9 @@ body.sidebar-icon-only .sidebar:hover .menu-items.active > .nav-link::before {
 
 .main-panel {
   padding-top: 75px;
+}
+
+/* When modal is open, drop navbar below modal z-index so backdrop covers it */
+body.modal-open .navbar {
+  z-index: 1040;
 }
