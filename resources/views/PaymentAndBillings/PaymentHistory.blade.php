@@ -7,15 +7,31 @@
 @endpush
 
 @section('content')
-<div class="container-fluid">
   <!-- Page Header -->
   <div class="card page-header-card">
       <div class="card-body">
           <div>
               <h2 class="page-header-title">Payment History</h2>
-              <p class="page-header-subtitle">View and manage all payment transactions.</p>
+              <p class="page-header-subtitle">View and manage all payment transaction records.</p>
           </div>
       </div>
+  </div>
+
+  <div class="mb-3">
+    <form action="{{ route('payments.history') }}" method="GET" class="form-inline">
+      <div style="display:flex; gap:0.5rem; align-items:center;">
+        <input type="text" name="search" class="form-control form-control-sm" placeholder="Search receipts, names..." value="{{ request('search') }}">
+        <select name="filter_type" class="form-control form-control-sm">
+          <option value="all" {{ request('filter_type') == 'all' ? 'selected' : '' }}>All Types</option>
+          <option value="product" {{ request('filter_type') == 'product' ? 'selected' : '' }}>Product</option>
+          <option value="membership" {{ request('filter_type') == 'membership' ? 'selected' : '' }}>Membership</option>
+        </select>
+        <button class="btn btn-sm btn-primary" type="submit"><i class="mdi mdi-magnify"></i> Search</button>
+        @if(request('search') || request('filter_type') != 'all')
+        <a href="{{ route('payments.history') }}" class="btn btn-sm btn-secondary"><i class="mdi mdi-refresh"></i> Clear</a>
+        @endif
+      </div>
+    </form>
   </div>
 
   <!-- Stats Cards -->
@@ -251,17 +267,11 @@
             </table>
           </div>
 
-          <div class="pagination-wrapper mt-4">
-            <div class="row align-items-center">
-              <div class="col-md-6">
-                <button type="button" onclick="bulkDeleteMemberships()" class="btn btn-sm btn-delete-selected" id="deleteMembershipBtn" disabled>
-                  <i class="mdi mdi-delete"></i> Delete Selected (<span id="membershipCount">0</span>)
-                </button>
-              </div>
-              <div class="col-md-6">
-                {{ $membershipPayments->links('vendor.pagination.custom') }}
-              </div>
-            </div>
+          <div class="table-footer">
+            <button type="button" onclick="bulkDeleteMemberships()" class="btn btn-sm btn-delete-selected" id="deleteMembershipBtn" disabled>
+              <i class="mdi mdi-delete"></i> Delete Selected (<span id="membershipCount">0</span>)
+            </button>
+            {{ $membershipPayments->links('vendor.pagination.custom') }}
           </div>
         </div>
       </div>
@@ -382,17 +392,11 @@
             </table>
           </div>
 
-          <div class="pagination-wrapper mt-4">
-            <div class="row align-items-center">
-              <div class="col-md-6">
-                <button type="button" onclick="bulkDeleteProducts()" class="btn btn-sm btn-delete-selected" id="deleteProductBtn" disabled>
-                  <i class="mdi mdi-delete"></i> Delete Selected (<span id="productCount">0</span>)
-                </button>
-              </div>
-              <div class="col-md-6">
-                {{ $productPayments->links('vendor.pagination.custom') }}
-              </div>
-            </div>
+          <div class="table-footer">
+            <button type="button" onclick="bulkDeleteProducts()" class="btn btn-sm btn-delete-selected" id="deleteProductBtn" disabled>
+              <i class="mdi mdi-delete"></i> Delete Selected (<span id="productCount">0</span>)
+            </button>
+            {{ $productPayments->links('vendor.pagination.custom') }}
           </div>
         </div>
       </div>
@@ -505,17 +509,11 @@
           </tbody>
         </table>
       </div>
-      <div class="pagination-wrapper mt-4">
-        <div class="row align-items-center">
-          <div class="col-md-6">
-            <button type="button" onclick="bulkDeleteRefunds()" class="btn btn-sm btn-delete-selected" id="deleteRefundBtn" disabled>
-              <i class="mdi mdi-delete"></i> Delete Selected (<span id="refundCount">0</span>)
-            </button>
-          </div>
-          <div class="col-md-6">
-            {{ $combinedRefunds->links('vendor.pagination.custom') }}
-          </div>
-        </div>
+      <div class="table-footer">
+        <button type="button" onclick="bulkDeleteRefunds()" class="btn btn-sm btn-delete-selected" id="deleteRefundBtn" disabled>
+          <i class="mdi mdi-delete"></i> Delete Selected (<span id="refundCount">0</span>)
+        </button>
+        {{ $combinedRefunds->links('vendor.pagination.custom') }}
       </div>
     </div>
   </div>
@@ -625,6 +623,7 @@
 @endsection
 
 @push('scripts')
+@vite(['resources/js/common/table-dropdown.js'])
 <script>
 // Fallback ToastUtils if the main library fails to load
 if (typeof ToastUtils === 'undefined') {

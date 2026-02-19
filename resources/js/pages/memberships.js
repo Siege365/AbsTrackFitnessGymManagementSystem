@@ -20,19 +20,15 @@ const MembershipsPage = (function() {
   };
 
   /**
-   * Get duration in days based on plan type
-   * @param {string} planType
+   * Get duration in days from select option data attribute
+   * @param {HTMLSelectElement} selectElement
    * @returns {number}
    */
-  function getPlanDuration(planType) {
-    const durations = {
-      'Regular': 30,
-      'Student': 30,
-      'GymBuddy': 30,
-      'ThreeMonths': 90,
-      'Session': 1
-    };
-    return durations[planType] || 30;
+  function getPlanDurationFromSelect(selectElement) {
+    if (!selectElement || !selectElement.value) return 30;
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const duration = selectedOption ? parseInt(selectedOption.getAttribute('data-duration')) : null;
+    return duration || 30;
   }
 
   /**
@@ -71,8 +67,7 @@ const MembershipsPage = (function() {
    */
   function calculateEndDate() {
     const elements = getAddModalElements();
-    const planType = elements.planInput.value;
-    const days = getPlanDuration(planType);
+    const days = getPlanDurationFromSelect(elements.planInput);
     FormUtils.calculateEndDate(elements.startDateInput, elements.endDateInput, days);
   }
 
@@ -125,8 +120,10 @@ const MembershipsPage = (function() {
     }
 
     // Populate overlay confirmation
+    const planSelect = elements.planInput;
+    const planText = planSelect.options[planSelect.selectedIndex].text;
     document.getElementById('confirmNameText').textContent = name;
-    document.getElementById('confirmPlanText').textContent = plan;
+    document.getElementById('confirmPlanText').textContent = planText;
     document.getElementById('confirmDurationText').textContent = startDate + ' to ' + endDate;
 
     // Show confirmation overlay
@@ -258,7 +255,7 @@ const MembershipsPage = (function() {
     const startDateInput = document.getElementById('editStartDate' + membershipId);
     const endDateInput = document.getElementById('editEndDate' + membershipId);
     const planSelect = document.getElementById('editPlanType' + membershipId);
-    const days = getPlanDuration(planSelect ? planSelect.value : 'Regular');
+    const days = getPlanDurationFromSelect(planSelect);
     FormUtils.calculateEndDate(startDateInput, endDateInput, days);
   }
 
@@ -309,8 +306,10 @@ const MembershipsPage = (function() {
     }
     
     // Populate overlay
+    const planSelect = document.getElementById('editPlanType' + membershipId);
+    const planText = planSelect.options[planSelect.selectedIndex].text;
     document.getElementById('confirmEditName' + membershipId).textContent = name;
-    document.getElementById('confirmEditPlan' + membershipId).textContent = planType;
+    document.getElementById('confirmEditPlan' + membershipId).textContent = planText;
     document.getElementById('confirmEditDuration' + membershipId).textContent = startDate + ' to ' + endDate;
     
     // Show overlay
@@ -385,19 +384,23 @@ const MembershipsPage = (function() {
    * Open renew subscription modal
    * @param {number} membershipId - Membership ID
    * @param {string} memberName - Member name
-   * @param {string} planType - Plan type
+   * @param {string} planName - Plan display name
+   * @param {string} planKey - Plan key
+   * @param {number} durationDays - Plan duration in days
    * @param {string} startDate - Current start date
    * @param {string} dueDate - Current due date
    */
-  function openRenewModal(membershipId, memberName, planType, startDate, dueDate) {
+  function openRenewModal(membershipId, memberName, planName, planKey, durationDays, startDate, dueDate) {
     // Store renewal data
     document.getElementById('renewMembershipId').value = membershipId;
     document.getElementById('renewMembershipName').value = memberName;
-    document.getElementById('renewPlanType').value = planType;
+    document.getElementById('renewPlanType').value = planName;
+    document.getElementById('renewPlanKey').value = planKey;
+    document.getElementById('renewDurationDays').value = durationDays;
     
     // Display member info
     document.getElementById('renewMemberNameDisplay').value = memberName;
-    document.getElementById('renewPlanTypeDisplay').value = planType;
+    document.getElementById('renewPlanTypeDisplay').value = planName;
     
     // Set today's date as default start date
     const today = new Date().toISOString().split('T')[0];
@@ -411,16 +414,14 @@ const MembershipsPage = (function() {
   }
 
   /**
-   * Calculate end date for renewal based on plan type
+   * Calculate end date for renewal based on plan duration
    */
   function calculateRenewEndDate() {
     const startDateInput = document.getElementById('renewStartDate');
     const endDateInput = document.getElementById('renewEndDate');
-    const planType = document.getElementById('renewPlanType').value;
+    const durationDays = parseInt(document.getElementById('renewDurationDays').value) || 30;
     
     if (!startDateInput.value) return;
-    
-    const durationDays = getPlanDuration(planType);
     
     FormUtils.calculateEndDate(startDateInput, endDateInput, durationDays);
   }
@@ -448,8 +449,10 @@ const MembershipsPage = (function() {
     }
     
     // Populate confirmation overlay
+    const planSelect = document.getElementById('renewPlanType');
+    const planText = planSelect.options[planSelect.selectedIndex].text;
     document.getElementById('confirmRenewNameText').textContent = memberName;
-    document.getElementById('confirmRenewPlanText').textContent = planType;
+    document.getElementById('confirmRenewPlanText').textContent = planText;
     document.getElementById('confirmRenewDurationText').textContent = startDate + ' to ' + endDate;
     
     // Show overlay
@@ -628,35 +631,87 @@ const MembershipsPage = (function() {
     setInterval(updateKPIs, 5 * 60 * 1000);
   }
 
+  // Track current filter state
+  const filterState = {
+    status: 'all',
+    plan: 'all',
+    gender: 'all'
+  };
+
   /**
-   * Filter table by status
+   * Initialize filters from URL parameters
+   */
+  function initializeFilters() {
+    const urlParams = new URLSearchParams(window.location.search);
+    filterState.status = urlParams.get('status') || 'all';
+    filterState.plan = urlParams.get('plan') || 'all';
+    filterState.gender = urlParams.get('gender') || 'all';
+  }
+
+  /**
+   * Apply filter to table by updating URL
+   * @param {string} filterType - Filter type: 'status', 'plan', 'gender'
+   * @param {string} value - Filter value
+   */
+  function applyFilter(filterType, value) {
+    // Update filter state
+    filterState[filterType] = value;
+    
+    // Build URL with all current filters
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    
+    // Update or remove filter parameters
+    if (value !== 'all') {
+      params.set(filterType, value);
+    } else {
+      params.delete(filterType);
+    }
+    
+    // Preserve search parameter if it exists
+    const currentSearch = params.get('search');
+    
+    // Navigate to filtered URL
+    window.location.href = `${url.pathname}?${params.toString()}`;
+  }
+
+  /**
+   * Clear all filters
+   */
+  function clearAllFilters() {
+    // Build URL without filter parameters
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    
+    // Remove filter parameters but keep search
+    params.delete('status');
+    params.delete('plan');
+    params.delete('gender');
+    
+    // Navigate to URL without filters
+    window.location.href = `${url.pathname}?${params.toString()}`;
+  }
+
+  /**
+   * Toggle filter section accordion
+   * @param {HTMLElement} headerElement - The clicked filter section header
+   * @param {Event} event - The click event
+   */
+  function toggleFilterSection(headerElement, event) {
+    // Prevent the dropdown from closing
+    if (event) {
+      event.stopPropagation();
+    }
+    const section = headerElement.closest('.filter-section');
+    section.classList.toggle('active');
+  }
+
+  /**
+   * Legacy function for backward compatibility
    * @param {string} status - Filter status: 'all', 'active', 'expired', 'due_soon'
    */
   function applyStatusFilter(status) {
-    const rows = document.querySelectorAll('tbody tr[data-status]');
-    const cards = document.querySelectorAll('.stats-card');
-    
-    // Remove active class from all cards
-    cards.forEach(card => card.classList.remove('active'));
-    
-    // Show all rows
-    rows.forEach(row => {
-      row.style.display = '';
-    });
-    
-    // Apply filter
-    if (status !== 'all') {
-      rows.forEach(row => {
-        const rowStatus = row.getAttribute('data-status').toLowerCase();
-        if (status === 'active' && rowStatus !== 'active') {
-          row.style.display = 'none';
-        } else if (status === 'expired' && rowStatus !== 'expired') {
-          row.style.display = 'none';
-        } else if (status === 'due_soon' && rowStatus !== 'due soon') {
-          row.style.display = 'none';
-        }
-      });
-    }
+    applyFilter('status', status);
   }
 
   /**
@@ -667,6 +722,9 @@ const MembershipsPage = (function() {
    */
   function init(options) {
     config = { ...config, ...options };
+
+    // Initialize filters from URL parameters
+    initializeFilters();
 
     // Initialize bulk selection
     BulkSelection.init({
@@ -680,6 +738,43 @@ const MembershipsPage = (function() {
       document.getElementById('searchInput'),
       document.getElementById('searchForm')
     );
+
+    // Initialize autocomplete for name field (fetches from Clients table)
+    const nameInput = document.getElementById('newMemberName');
+    if (nameInput && typeof AutocompleteUtils !== 'undefined') {
+      AutocompleteUtils.init({
+        inputElement: nameInput,
+        apiUrl: '/api/memberships/autocomplete',
+        onSelect: (item) => {
+          // Autofill fields from selected client
+          const elements = getAddModalElements();
+          if (item.age) elements.ageInput.value = item.age;
+          if (item.sex) {
+            const sexSelect = document.getElementById('newMemberSex');
+            if (sexSelect) sexSelect.value = item.sex;
+          }
+          if (item.contact) elements.contactInput.value = item.contact;
+          if (item.plan_type) {
+            elements.planInput.value = item.plan_type;
+            calculateEndDate(); // Recalculate end date based on plan
+          }
+          
+          // Autofill avatar if available
+          if (item.avatar) {
+            // Switch to URL input mode
+            toggleAvatarInput('url');
+            elements.urlInput.value = item.avatar;
+            state.avatarUrl = item.avatar;
+            // Preview the avatar
+            AvatarUtils.previewAvatar({
+              fileInput: elements.fileInput,
+              urlInput: elements.urlInput,
+              preview: elements.preview
+            }, state);
+          }
+        }
+      });
+    }
   }
 
   // Public API
@@ -708,6 +803,9 @@ const MembershipsPage = (function() {
     confirmDelete,
     updateKPIs,
     applyStatusFilter,
+    applyFilter,
+    clearAllFilters,
+    toggleFilterSection,
     setupMidnightRefresh
   };
 })();

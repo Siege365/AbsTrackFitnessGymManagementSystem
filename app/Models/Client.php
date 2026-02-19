@@ -10,6 +10,7 @@ class Client extends Model
     protected $fillable = [
         'name',
         'age',
+        'sex',
         'avatar',
         'plan_type',
         'start_date',
@@ -26,6 +27,14 @@ class Client extends Model
      * Always append the status accessor to array/JSON output
      */
     protected $appends = ['status'];
+
+    /**
+     * Get the gym plan associated with this client
+     */
+    public function gymPlan()
+    {
+        return $this->belongsTo(GymPlan::class, 'plan_type', 'plan_key');
+    }
 
     /**
      * Get the status attribute - automatically calculated based on due_date

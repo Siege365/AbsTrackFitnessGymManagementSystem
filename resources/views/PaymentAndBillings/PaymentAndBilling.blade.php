@@ -7,7 +7,11 @@
 @endpush
 
 @section('content')
+<<<<<<< HEAD
+
+=======
 <div class="container-fluid">
+>>>>>>> origin/main
   <!-- Page Header -->
   <div class="card page-header-card">
       <div class="card-body">
@@ -261,6 +265,7 @@
 @endsection
 
 @push('scripts')
+@vite(['resources/js/common/table-dropdown.js'])
 <script>
 // Fallback ToastUtils if the main library fails to load
 if (typeof ToastUtils === 'undefined') {

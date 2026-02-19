@@ -1,0 +1,873 @@
+/* ============================================
+   Configuration Page Styles
+   ============================================ */
+
+/* ── Section Toggle ── */
+.config-toggle-container {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 0.375rem;
+    width: fit-content;
+}
+
+.config-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: #999;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.config-toggle-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.config-toggle-btn.active {
+    background: linear-gradient(135deg, #FFA726, #FFB84D);
+    color: #1a1d24;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(255, 167, 38, 0.3);
+}
+
+.config-toggle-btn i {
+    font-size: 1.25rem;
+}
+
+/* ── Section visibility ── */
+.config-section {
+    display: none;
+}
+
+.config-section.active {
+    display: block;
+    animation: fadeInDown 0.3s ease;
+}
+
+/* ── Config Card ── */
+.config-card {
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 1.5rem;
+    overflow: visible;
+}
+
+.config-card .card-body {
+    padding: 1.5rem;
+}
+
+.config-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.config-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.config-section-title i {
+    font-size: 1.5rem;
+    color: #FFA726;
+}
+
+.config-section-title h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+}
+
+/* ── Add Plan Button ── */
+.btn-add-plan {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.125rem;
+    border: 2px solid #FFA726;
+    background: transparent;
+    color: #FFA726;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.btn-add-plan:hover {
+    background: linear-gradient(135deg, #FFA726, #FFB84D);
+    color: #1a1d24;
+    box-shadow: 0 2px 8px rgba(255, 167, 38, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-add-plan i {
+    font-size: 1.125rem;
+}
+
+/* ── Config Table ── */
+.config-table-wrapper {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.config-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+}
+
+.config-table thead th {
+    background: rgba(255, 255, 255, 0.04);
+    color: #999;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    white-space: nowrap;
+}
+
+.config-table tbody td {
+    padding: 0.875rem 1rem;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: #e0e0e0;
+    font-size: 0.9375rem;
+    vertical-align: middle;
+}
+
+.config-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.config-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.plan-name-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.plan-name-cell strong {
+    color: #fff;
+    font-weight: 600;
+}
+
+.plan-description {
+    color: #888;
+    font-size: 0.8125rem;
+    display: block;
+}
+
+.plan-price-cell {
+    font-weight: 600;
+    color: #FFA726;
+    font-size: 1rem;
+}
+
+/* ── Badges ── */
+.config-badge {
+    display: inline-flex;
+    padding: 0.25rem 0.625rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.config-badge.badge-success {
+    background: rgba(76, 175, 80, 0.15);
+    color: #66BB6A;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.config-badge.badge-info {
+    background: rgba(33, 150, 243, 0.15);
+    color: #42A5F5;
+    border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.config-badge.badge-warning {
+    background: rgba(255, 167, 38, 0.15);
+    color: #FFA726;
+    border: 1px solid rgba(255, 167, 38, 0.3);
+}
+
+.config-badge.badge-danger {
+    background: rgba(244, 67, 54, 0.15);
+    color: #EF5350;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.config-badge.badge-primary {
+    background: rgba(156, 39, 176, 0.15);
+    color: #BA68C8;
+    border: 1px solid rgba(156, 39, 176, 0.3);
+}
+
+/* ── Special Tags ── */
+.special-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.special-tag i {
+    font-size: 0.875rem;
+}
+
+.tag-student {
+    background: rgba(33, 150, 243, 0.12);
+    color: #42A5F5;
+}
+
+.tag-buddy {
+    background: rgba(255, 167, 38, 0.12);
+    color: #FFA726;
+}
+
+/* ── Status Indicator ── */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.status-indicator::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.status-active {
+    background: rgba(76, 175, 80, 0.12);
+    color: #66BB6A;
+}
+
+.status-active::before {
+    background: #66BB6A;
+}
+
+.status-inactive {
+    background: rgba(158, 158, 158, 0.12);
+    color: #9E9E9E;
+}
+
+.status-inactive::before {
+    background: #9E9E9E;
+}
+
+/* ── Action Buttons ── */
+.action-buttons {
+    display: flex;
+    gap: 0.375rem;
+}
+
+.btn-action-icon {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+}
+
+.btn-action-icon.btn-edit {
+    background: rgba(33, 150, 243, 0.12);
+    color: #42A5F5;
+}
+
+.btn-action-icon.btn-edit:hover {
+    background: rgba(33, 150, 243, 0.25);
+    transform: translateY(-1px);
+}
+
+.btn-action-icon.btn-delete {
+    background: rgba(244, 67, 54, 0.12);
+    color: #EF5350;
+}
+
+.btn-action-icon.btn-delete:hover {
+    background: rgba(244, 67, 54, 0.25);
+    transform: translateY(-1px);
+}
+
+/* ============================================
+   Client Rate Preview Cards
+   ============================================ */
+
+.preview-category {
+    margin-bottom: 2rem;
+}
+
+.preview-category-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.preview-category-header i {
+    font-size: 1.5rem;
+    color: #FFA726;
+}
+
+.preview-category-header h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+}
+
+.preview-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.preview-rate-card {
+    background: #191C24;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 1.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.preview-rate-card:hover {
+    border-color: rgba(255, 167, 38, 0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.preview-rate-card--pt {
+    border-left: 3px solid #BA68C8;
+}
+
+.preview-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 5px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.preview-plan-name {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.preview-plan-price {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #FFA726;
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.02em;
+}
+
+.preview-per-person {
+    font-size: 0.8125rem;
+    color: #999;
+    margin-bottom: 0.5rem;
+}
+
+.preview-plan-duration {
+    font-size: 0.875rem;
+    color: #b0b0b0;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+}
+
+.preview-plan-desc {
+    font-size: 0.8125rem;
+    color: #888;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+}
+
+.preview-plan-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    justify-content: center;
+    margin-top: 0.5rem;
+}
+
+.preview-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 5px;
+    font-size: 0.6875rem;
+    font-weight: 500;
+}
+
+.preview-tag.tag-student {
+    background: rgba(33, 150, 243, 0.12);
+    color: #42A5F5;
+}
+
+.preview-tag.tag-buddy {
+    background: rgba(255, 167, 38, 0.12);
+    color: #FFA726;
+}
+
+.preview-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.preview-empty i {
+    font-size: 3rem;
+    margin-bottom: 0.75rem;
+    display: block;
+    color: #555;
+}
+
+.preview-empty p {
+    font-size: 0.9375rem;
+    margin: 0;
+}
+
+/* ============================================
+   Modal Styles
+   ============================================ */
+
+#planModal .modal-content,
+#confirmSaveModal .modal-content,
+#finalSaveModal .modal-content,
+#confirmDeleteModal .modal-content,
+#finalDeleteModal .modal-content {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+}
+
+#planModal .modal-header,
+#confirmSaveModal .modal-header,
+#finalSaveModal .modal-header,
+#confirmDeleteModal .modal-header,
+#finalDeleteModal .modal-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 1.25rem 1.5rem;
+}
+
+#planModal .modal-title,
+#confirmSaveModal .modal-title,
+#finalSaveModal .modal-title,
+#confirmDeleteModal .modal-title,
+#finalDeleteModal .modal-title {
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+
+#planModal .close,
+#confirmSaveModal .close,
+#finalSaveModal .close,
+#confirmDeleteModal .close,
+#finalDeleteModal .close {
+    color: #999;
+    opacity: 1;
+    text-shadow: none;
+    font-size: 1rem;
+}
+
+#planModal .close:hover,
+#confirmSaveModal .close:hover,
+#finalSaveModal .close:hover,
+#confirmDeleteModal .close:hover,
+#finalDeleteModal .close:hover {
+    color: #fff;
+}
+
+#planModal .modal-body,
+#confirmSaveModal .modal-body,
+#finalSaveModal .modal-body,
+#confirmDeleteModal .modal-body,
+#finalDeleteModal .modal-body {
+    padding: 1.5rem;
+}
+
+#planModal .modal-footer,
+#confirmSaveModal .modal-footer,
+#finalSaveModal .modal-footer,
+#confirmDeleteModal .modal-footer,
+#finalDeleteModal .modal-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 1rem 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+/* ── Modal Form ── */
+#planModal .form-label {
+    color: #ccc;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    margin-bottom: 0.375rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+#planModal .form-control {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-radius: 8px;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.9375rem;
+    transition: border-color 0.2s ease;
+}
+
+#planModal .form-control:focus {
+    border-color: #FFA726;
+    box-shadow: 0 0 0 2px rgba(255, 167, 38, 0.15);
+    outline: none;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+#planModal .form-control::placeholder {
+    color: #666;
+}
+
+#planModal .form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+#planModal .form-group {
+    margin-bottom: 0;
+}
+
+#planModal .form-group.col-md-4 {
+    flex: 0 0 calc(33.333% - 0.667rem);
+}
+
+#planModal .form-group.col-md-8 {
+    flex: 0 0 calc(66.666% - 0.333rem);
+}
+
+.modal-divider {
+    border-color: rgba(255, 255, 255, 0.06);
+    margin: 1rem 0 0.75rem;
+}
+
+.modal-section-label {
+    color: #999;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+}
+
+.required-mark {
+    color: #EF5350;
+}
+
+/* ── Toggle Switch ── */
+.toggle-switch-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+    margin: 0;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 22px;
+    transition: 0.3s;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 3px;
+    bottom: 3px;
+    background: #aaa;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background: rgba(255, 167, 38, 0.3);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(18px);
+    background: #FFA726;
+}
+
+.toggle-text {
+    color: #999;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* ── Confirm Modal Styles ── */
+.confirm-icon {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.confirm-icon i {
+    font-size: 3.5rem;
+}
+
+.confirm-icon-save i {
+    color: #FFA726;
+}
+
+.confirm-icon-final i {
+    color: #66BB6A;
+}
+
+.confirm-icon-delete i {
+    color: #EF5350;
+}
+
+.confirm-icon-danger i {
+    color: #EF5350;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.confirm-text {
+    text-align: center;
+    color: #ccc;
+    font-size: 0.9375rem;
+    margin-bottom: 0.5rem;
+}
+
+.confirm-plan-name {
+    text-align: center;
+    color: #FFA726;
+    font-weight: 700;
+    font-size: 1.125rem;
+    margin-bottom: 0;
+}
+
+.confirm-plan-name--danger {
+    color: #EF5350;
+}
+
+/* ── Modal Buttons ── */
+.btn-cancel {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ccc;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.btn-save-plan {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: linear-gradient(135deg, #FFA726, #FFB84D);
+    border: none;
+    color: #1a1d24;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.btn-save-plan:hover {
+    box-shadow: 0 4px 12px rgba(255, 167, 38, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn-confirm-proceed {
+    background: linear-gradient(135deg, #FFA726, #FFB84D);
+    border: none;
+    color: #1a1d24;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.btn-confirm-proceed:hover {
+    box-shadow: 0 4px 12px rgba(255, 167, 38, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn-confirm-final {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: linear-gradient(135deg, #43A047, #66BB6A);
+    border: none;
+    color: #fff;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.btn-confirm-final:hover {
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn-confirm-delete-proceed {
+    background: linear-gradient(135deg, #E53935, #EF5350);
+    border: none;
+    color: #fff;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.btn-confirm-delete-proceed:hover {
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn-confirm-danger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: linear-gradient(135deg, #E53935, #EF5350);
+    border: none;
+    color: #fff;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.btn-confirm-danger:hover {
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+    transform: translateY(-1px);
+}
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+@media (max-width: 768px) {
+    .config-toggle-container {
+        width: 100%;
+    }
+
+    .config-toggle-btn {
+        flex: 1;
+        justify-content: center;
+        font-size: 0.8125rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .config-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .preview-cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+
+    #planModal .form-row {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    #planModal .form-group.col-md-4,
+    #planModal .form-group.col-md-8 {
+        flex: 1 1 100%;
+    }
+}

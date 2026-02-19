@@ -11,6 +11,8 @@ export default defineConfig({
                 'resources/css/custom-fonts.css',
                 'resources/css/notification-bell.css',
                 'resources/css/global-theme.css',
+                'resources/css/pagination.css',
+                'resources/css/autocomplete.css',
 
                 // Page-specific CSS
                 'resources/css/dashboard.css',
@@ -24,6 +26,7 @@ export default defineConfig({
                 'resources/css/membership-payment.css',
                 'resources/css/reports.css',
                 'resources/css/payment-history.css',
+                'resources/css/configuration.css',
 
                 // Auth CSS
                 'resources/css/auth-login.css',
@@ -35,6 +38,8 @@ export default defineConfig({
                 'resources/js/common/form-utils.js',
                 'resources/js/common/bulk-selection.js',
                 'resources/js/common/sidebar.js',
+                'resources/js/common/table-dropdown.js',
+                'resources/js/common/autocomplete-utils.js',
 
                 // Page-specific JS
                 'resources/js/pages/clients.js',
@@ -42,6 +47,7 @@ export default defineConfig({
                 'resources/js/pages/payments.js',
                 'resources/js/pages/reports.js',
                 'resources/js/sessions.js',
+                'resources/js/pages/configuration.js',
 
                 // Auth JS
                 'resources/js/auth-login.js',

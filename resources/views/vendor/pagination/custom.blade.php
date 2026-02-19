@@ -1,81 +1,89 @@
 @if ($paginator->hasPages())
-    <nav aria-label="Page navigation">
-        <ul class="pagination pagination-custom justify-content-end mb-0">
-            {{-- Previous Page Link --}}
-            <li class="page-item {{ $paginator->onFirstPage() ? 'disabled' : '' }}">
-                <a class="page-link" href="{{ $paginator->previousPageUrl() }}" aria-label="Previous" {{ $paginator->onFirstPage() ? 'tabindex="-1"' : '' }}>
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
-            </li>
+    <div class="pagination-wrapper">
+        {{-- Info Text (Left) --}}
+        <div class="pagination-info">
+            @if ($paginator->firstItem() && $paginator->lastItem())
+                Showing {{ $paginator->firstItem() }} to {{ $paginator->lastItem() }} of {{ $paginator->total() }} entries
+            @else
+                Showing 0 to 0 of 0 entries
+            @endif
+        </div>
+
+        {{-- Navigation Controls (Right) --}}
+        <div class="pagination-controls">
+            {{-- First Page Button --}}
+            <a href="{{ $paginator->url(1) }}" 
+               class="pagination-btn icon-btn {{ $paginator->onFirstPage() ? 'disabled' : '' }}"
+               aria-label="First"
+               {{ $paginator->onFirstPage() ? 'tabindex="-1"' : '' }}>
+                <i class="mdi mdi-chevron-double-left"></i>
+            </a>
+
+            {{-- Previous Page Button --}}
+            <a href="{{ $paginator->previousPageUrl() }}" 
+               class="pagination-btn icon-btn {{ $paginator->onFirstPage() ? 'disabled' : '' }}"
+               aria-label="Previous"
+               {{ $paginator->onFirstPage() ? 'tabindex="-1"' : '' }}>
+                <i class="mdi mdi-chevron-left"></i>
+            </a>
 
             @php
                 $currentPage = $paginator->currentPage();
                 $lastPage = $paginator->lastPage();
-                $showEllipsis = $lastPage > 5;
+                
+                // Calculate visible page range (current ± 2)
+                $startPage = max(1, $currentPage - 2);
+                $endPage = min($lastPage, $currentPage + 2);
+                
+                // Adjust if we have fewer than 5 pages visible
+                if ($endPage - $startPage < 4) {
+                    if ($startPage == 1) {
+                        $endPage = min($lastPage, $startPage + 4);
+                    } else {
+                        $startPage = max(1, $endPage - 4);
+                    }
+                }
             @endphp
 
-            @if ($showEllipsis)
-                @if ($currentPage <= 4)
-                    {{-- Near start: show 1-5, ellipsis, last page --}}
-                    @for ($i = 1; $i <= min(5, $lastPage); $i++)
-                        <li class="page-item {{ $currentPage == $i ? 'active' : '' }}">
-                            <a class="page-link" href="{{ $paginator->url($i) }}">{{ $i }}</a>
-                        </li>
-                    @endfor
-                    <li class="page-item disabled">
-                        <span class="page-link">...</span>
-                    </li>
-                    <li class="page-item {{ $currentPage == $lastPage ? 'active' : '' }}">
-                        <a class="page-link" href="{{ $paginator->url($lastPage) }}">{{ $lastPage }}</a>
-                    </li>
-                @elseif ($currentPage >= $lastPage - 3)
-                    {{-- Near end: show first page, ellipsis, last 5 --}}
-                    <li class="page-item {{ $currentPage == 1 ? 'active' : '' }}">
-                        <a class="page-link" href="{{ $paginator->url(1) }}">1</a>
-                    </li>
-                    <li class="page-item disabled">
-                        <span class="page-link">...</span>
-                    </li>
-                    @for ($i = max($lastPage - 4, 1); $i <= $lastPage; $i++)
-                        <li class="page-item {{ $currentPage == $i ? 'active' : '' }}">
-                            <a class="page-link" href="{{ $paginator->url($i) }}">{{ $i }}</a>
-                        </li>
-                    @endfor
-                @else
-                    {{-- Middle: show first page, ellipsis, current-1 to current+1, ellipsis, last page --}}
-                    <li class="page-item {{ $currentPage == 1 ? 'active' : '' }}">
-                        <a class="page-link" href="{{ $paginator->url(1) }}">1</a>
-                    </li>
-                    <li class="page-item disabled">
-                        <span class="page-link">...</span>
-                    </li>
-                    @for ($i = $currentPage - 1; $i <= $currentPage + 1; $i++)
-                        <li class="page-item {{ $currentPage == $i ? 'active' : '' }}">
-                            <a class="page-link" href="{{ $paginator->url($i) }}">{{ $i }}</a>
-                        </li>
-                    @endfor
-                    <li class="page-item disabled">
-                        <span class="page-link">...</span>
-                    </li>
-                    <li class="page-item {{ $currentPage == $lastPage ? 'active' : '' }}">
-                        <a class="page-link" href="{{ $paginator->url($lastPage) }}">{{ $lastPage }}</a>
-                    </li>
+            {{-- First page if not in range --}}
+            @if ($startPage > 1)
+                <a href="{{ $paginator->url(1) }}" class="pagination-btn">1</a>
+                @if ($startPage > 2)
+                    <span class="pagination-ellipsis">...</span>
                 @endif
-            @else
-                {{-- 5 or fewer pages: show all --}}
-                @for ($i = 1; $i <= $lastPage; $i++)
-                    <li class="page-item {{ $currentPage == $i ? 'active' : '' }}">
-                        <a class="page-link" href="{{ $paginator->url($i) }}">{{ $i }}</a>
-                    </li>
-                @endfor
             @endif
 
-            {{-- Next Page Link --}}
-            <li class="page-item {{ !$paginator->hasMorePages() ? 'disabled' : '' }}">
-                <a class="page-link" href="{{ $paginator->nextPageUrl() }}" aria-label="Next" {{ !$paginator->hasMorePages() ? 'tabindex="-1"' : '' }}>
-                    <span aria-hidden="true">&raquo;</span>
+            {{-- Page Numbers --}}
+            @for ($i = $startPage; $i <= $endPage; $i++)
+                <a href="{{ $paginator->url($i) }}" 
+                   class="pagination-btn {{ $currentPage == $i ? 'active' : '' }}">
+                    {{ $i }}
                 </a>
-            </li>
-        </ul>
-    </nav>
+            @endfor
+
+            {{-- Last page if not in range --}}
+            @if ($endPage < $lastPage)
+                @if ($endPage < $lastPage - 1)
+                    <span class="pagination-ellipsis">...</span>
+                @endif
+                <a href="{{ $paginator->url($lastPage) }}" class="pagination-btn">{{ $lastPage }}</a>
+            @endif
+
+            {{-- Next Page Button --}}
+            <a href="{{ $paginator->nextPageUrl() }}" 
+               class="pagination-btn icon-btn {{ !$paginator->hasMorePages() ? 'disabled' : '' }}"
+               aria-label="Next"
+               {{ !$paginator->hasMorePages() ? 'tabindex="-1"' : '' }}>
+                <i class="mdi mdi-chevron-right"></i>
+            </a>
+
+            {{-- Last Page Button --}}
+            <a href="{{ $paginator->url($lastPage) }}" 
+               class="pagination-btn icon-btn {{ !$paginator->hasMorePages() ? 'disabled' : '' }}"
+               aria-label="Last"
+               {{ !$paginator->hasMorePages() ? 'tabindex="-1"' : '' }}>
+                <i class="mdi mdi-chevron-double-right"></i>
+            </a>
+        </div>
+    </div>
 @endif

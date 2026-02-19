@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Membership;
 use App\Models\MembershipPayment;
 use App\Models\InventorySupply;
+use App\Models\GymPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -37,26 +38,41 @@ class MembershipPaymentController extends Controller
         // Product payment data
         $inventoryItems = InventorySupply::all();
 
+        // Dynamic plans from configuration
+        $membershipPlans = GymPlan::active()->membership()->ordered()->get();
+        $ptPlans = GymPlan::active()->personalTraining()->ordered()->get();
+
         return view('PaymentAndBillings.MembershipPayment', compact(
             'monthlyRevenue',
             'todayRevenue',
             'transactionCount',
-            'inventoryItems'
+            'inventoryItems',
+            'membershipPlans',
+            'ptPlans'
         ));
     }
 
     /**
-     * Plan type configuration - prices and durations
+     * Plan type configuration - dynamically from database.
+     * Returns an associative array keyed by plan_key for backward compatibility.
      */
     public static function planConfig()
     {
-        return [
-            'Regular'     => ['price' => 600,  'duration' => 30, 'label' => 'Regular Gym Rate',     'requires_student' => false, 'requires_buddy' => false],
-            'Student'     => ['price' => 500,  'duration' => 30, 'label' => 'Student Rate',          'requires_student' => true,  'requires_buddy' => false],
-            'GymBuddy'    => ['price' => 900,  'duration' => 30, 'label' => 'Gym Buddy Rate',        'requires_student' => false, 'requires_buddy' => true],
-            'ThreeMonths' => ['price' => 1650, 'duration' => 90, 'label' => '3 Months Membership',   'requires_student' => false, 'requires_buddy' => false],
-            'Session'     => ['price' => 50,   'duration' => 1,  'label' => 'Session Pass',          'requires_student' => false, 'requires_buddy' => false],
-        ];
+        $plans = GymPlan::active()->membership()->ordered()->get();
+
+        $config = [];
+        foreach ($plans as $plan) {
+            $config[$plan->plan_key] = [
+                'price'            => (float) $plan->price,
+                'duration'         => $plan->duration_days,
+                'label'            => $plan->plan_name,
+                'requires_student' => $plan->requires_student,
+                'requires_buddy'   => $plan->requires_buddy,
+                'buddy_count'      => $plan->buddy_count,
+            ];
+        }
+
+        return $config;
     }
 
     /**

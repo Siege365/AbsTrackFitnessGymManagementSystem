@@ -8,7 +8,7 @@
 @endpush
 
 @section('content')
-<div class="container-fluid">
+
   <!-- Page Header -->
   <div class="card page-header-card">
       <div class="card-body">
@@ -110,10 +110,6 @@
                                     <option value="Female">Female</option>
                                 </select>
                             </div>
-                            <div class="member-form-col" id="member1StudentIdSection" style="display: none; flex: 1;">
-                                <label class="form-label">Student ID</label>
-                                <input type="text" class="form-control" name="student_id" id="studentIdInput" placeholder="Enter student ID">
-                            </div>
                         </div>
                         <div class="member-form-row member-student-row">
                             <div class="member-form-col" style="flex: 0 0 auto;">
@@ -165,10 +161,6 @@
                                         <option value="Male">Male</option>
                                         <option value="Female">Female</option>
                                     </select>
-                                </div>
-                                <div class="member-form-col" id="buddyStudentIdSection" style="display: none; flex: 1;">
-                                    <label class="form-label">Student ID</label>
-                                    <input type="text" class="form-control" name="buddy_student_id" id="buddyStudentIdInput" placeholder="Enter student ID">
                                 </div>
                             </div>
                             <div class="member-form-row member-student-row">
@@ -240,41 +232,34 @@
                 <label class="form-label">Plan Selection</label>
                 <div class="plan-type-selector">
 
-                <div class="plan-type-card" data-plan="ThreeMonths" data-price="1650" data-duration="90" data-requires-student="false" data-requires-buddy="false">
-                    <div class="plan-name">3 Months Membership</div>
-                    <div class="plan-duration">90 Days Access</div>
-                    <div class="plan-price">₱1,650.00</div>
-                    <div class="plan-badge promo">Best Value</div>
+                @foreach($membershipPlans as $plan)
+                <div class="plan-type-card{{ $plan->plan_key === 'Regular' ? ' active' : '' }}"
+                     data-plan="{{ $plan->plan_key }}"
+                     data-price="{{ $plan->price }}"
+                     data-duration="{{ $plan->duration_days }}"
+                     data-requires-student="{{ $plan->requires_student ? 'true' : 'false' }}"
+                     data-requires-buddy="{{ $plan->requires_buddy ? 'true' : 'false' }}">
+                    <div class="plan-name">
+                        @if($plan->requires_student)<i class="mdi mdi-school"></i> @endif
+                        @if($plan->requires_buddy)<i class="mdi mdi-account-multiple"></i> @endif
+                        {{ $plan->plan_name }}
+                    </div>
+                    <div class="plan-duration">{{ $plan->duration_days }} {{ $plan->duration_days === 1 ? 'Day' : 'Days' }} Access{{ $plan->requires_buddy ? ' · ' . $plan->buddy_count . ' Persons' : '' }}</div>
+                    <div class="plan-price">
+                        @if($plan->requires_buddy && $plan->buddy_count > 1)
+                            ₱{{ number_format($plan->per_person_price, 2) }} <small>/person</small>
+                        @else
+                            ₱{{ number_format($plan->price, 2) }}
+                        @endif
+                    </div>
+                    @if($plan->badge_text)
+                        <div class="plan-badge {{ $plan->requires_buddy ? 'buddy' : ($plan->badge_color === 'success' ? 'promo' : '') }}">{{ $plan->badge_text }}</div>
+                    @endif
                 </div>
-
-                <div class="plan-type-card" data-plan="Student" data-price="500" data-duration="30" data-requires-student="true" data-requires-buddy="false">
-                    <div class="plan-name"><i class="mdi mdi-school"></i> Student Rate</div>
-                    <div class="plan-duration">30 Days Access</div>
-                    <div class="plan-price">₱500.00</div>
-                    <div class="plan-badge">Student Only</div>
-                </div>
-
-                <div class="plan-type-card" data-plan="GymBuddy" data-price="900" data-duration="30" data-requires-student="false" data-requires-buddy="true">
-                    <div class="plan-name"><i class="mdi mdi-account-multiple"></i> Gym Buddy Rate</div>
-                    <div class="plan-duration">30 Days Access · 2 Persons</div>
-                    <div class="plan-price">₱450.00 <small>/person</small></div>
-                    <div class="plan-badge buddy">2 People</div>
-                </div>
-
-                <div class="plan-type-card active" data-plan="Regular" data-price="600" data-duration="30" data-requires-student="false" data-requires-buddy="false">
-                    <div class="plan-name">Regular Gym Rate</div>
-                    <div class="plan-duration">30 Days Access</div>
-                    <div class="plan-price">₱600.00</div>
-                </div>
-
-                <div class="plan-type-card" data-plan="Session" data-price="50" data-duration="1" data-requires-student="false" data-requires-buddy="false">
-                    <div class="plan-name">Session Pass</div>
-                    <div class="plan-duration">1 Day Access</div>
-                    <div class="plan-price">₱50.00</div>
-                </div>
+                @endforeach
 
             </div>
-                <input type="hidden" name="plan_type" id="planType" value="Regular">
+                <input type="hidden" name="plan_type" id="planType" value="{{ $membershipPlans->firstWhere('plan_key', 'Regular')?->plan_key ?? $membershipPlans->first()?->plan_key ?? 'Regular' }}">
             </div>
 
             <!-- Student Not Eligible Warning -->
@@ -344,7 +329,7 @@
                             </div>
                             <div class="payment-details-col payment-details-col-2">
                                 <label class="form-label">Amount</label>
-                                <input type="number" class="form-control" name="amount" id="amount" placeholder="₱0.00" step="0.01" value="600.00" readonly>
+                                <input type="number" class="form-control" name="amount" id="amount" placeholder="₱0.00" step="0.01" value="{{ $membershipPlans->firstWhere('plan_key', 'Regular')?->price ?? $membershipPlans->first()?->price ?? '0.00' }}" readonly>
                             </div>
                         </div>
                     </div>
@@ -368,12 +353,40 @@
     <!-- ====== PERSONAL TRAINING PAGE ====== -->
     <div class="page-panel" id="ptPage">
       <div class="card">
-        <div class="card-body" style="text-align: center; padding: 4rem 2rem;">
-          <i class="mdi mdi-dumbbell" style="font-size: 5rem; color: #555; margin-bottom: 1rem; display: block;"></i>
-          <h2 style="color: #fff; margin-bottom: 0.5rem;">Personal Training Payments</h2>
-          <p style="color: #999; font-size: 1.125rem;">This section is coming soon. Personal training payment processing will be available in a future update.</p>
-          <div style="margin-top: 2rem; padding: 1.5rem; background: #191C24; border-radius: 8px; display: inline-block;">
-            <p style="color: #ffc107; margin: 0;"><i class="mdi mdi-information"></i> You can manage PT schedules in the <strong>Sessions</strong> module.</p>
+        <div class="card-body">
+          <div class="section-header">
+            <h2 class="card-title">Personal Training Rates</h2>
+          </div>
+
+          @if($ptPlans->count() > 0)
+          <div class="plan-type-selector">
+            @foreach($ptPlans as $plan)
+            <div class="plan-type-card{{ $loop->first ? ' active' : '' }}"
+                 data-plan="{{ $plan->plan_key }}"
+                 data-price="{{ $plan->price }}"
+                 data-duration="{{ $plan->duration_days }}">
+                <div class="plan-name">{{ $plan->plan_name }}</div>
+                <div class="plan-duration">{{ $plan->duration_label ?? ($plan->duration_days . ' ' . ($plan->duration_days === 1 ? 'Day' : 'Days')) }}</div>
+                <div class="plan-price">₱{{ number_format($plan->price, 2) }}</div>
+                @if($plan->badge_text)
+                  <div class="plan-badge">{{ $plan->badge_text }}</div>
+                @endif
+                @if($plan->description)
+                  <div class="plan-description-text" style="font-size: 0.8125rem; color: #999; margin-top: 0.25rem;">{{ $plan->description }}</div>
+                @endif
+            </div>
+            @endforeach
+          </div>
+          @else
+          <div style="text-align: center; padding: 3rem 2rem;">
+            <i class="mdi mdi-dumbbell" style="font-size: 4rem; color: #555; margin-bottom: 1rem; display: block;"></i>
+            <p style="color: #999; font-size: 1rem;">No personal training plans configured yet.</p>
+            <p style="color: #666; font-size: 0.875rem;">Go to <a href="{{ route('configuration.index') }}" style="color: #FFA726;">Configuration</a> to add PT plans.</p>
+          </div>
+          @endif
+
+          <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 193, 7, 0.08); border: 1px solid rgba(255, 193, 7, 0.2); border-radius: 8px;">
+            <p style="color: #ffc107; margin: 0; font-size: 0.875rem;"><i class="mdi mdi-information"></i> You can manage PT schedules in the <strong>Sessions</strong> module. Rates are managed in <a href="{{ route('configuration.index') }}" style="color: #FFA726;">Configuration</a>.</p>
           </div>
         </div>
       </div>
@@ -501,7 +514,6 @@
       </div>
     </div><!-- /productPage -->
   </div><!-- /pages-slider -->
-</div>
 
 <!-- Payment Confirmation Modal -->
 <div id="confirmationModal" class="modal-overlay">
@@ -570,7 +582,6 @@
       </button>
     </div>
   </div>
-</div>
 
 <!-- Receipt Modal -->
 <div id="receiptModal" class="modal-overlay" role="document">
@@ -594,6 +605,9 @@
 @endsection
 
 @push('scripts')
+@vite(['resources/js/common/table-dropdown.js'])
+@vite(['resources/js/common/avatar-utils.js'])
+@vite(['resources/js/common/form-utils.js'])
 <script>
 // Fallback ToastUtils if the main library fails to load
 if (typeof ToastUtils === 'undefined') {
@@ -605,8 +619,6 @@ if (typeof ToastUtils === 'undefined') {
   };
 }
 </script>
-@vite(['resources/js/common/avatar-utils.js'])
-@vite(['resources/js/common/form-utils.js'])
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   // ========================================
@@ -728,17 +740,11 @@ document.addEventListener('DOMContentLoaded', function() {
   const buddyStudentToggle = document.getElementById('buddyIsStudent');
 
   member1StudentToggle.addEventListener('change', function() {
-    const section = document.getElementById('member1StudentIdSection');
     const label = document.getElementById('member1StudentLabel');
     if (this.checked) {
-      section.style.display = 'block';
       label.textContent = 'Yes';
-      document.getElementById('studentIdInput').setAttribute('required', 'required');
     } else {
-      section.style.display = 'none';
       label.textContent = 'No';
-      document.getElementById('studentIdInput').removeAttribute('required');
-      document.getElementById('studentIdInput').value = '';
     }
     // Update plan restrictions based on student toggle for new member
     if (paymentTypeInput.value === 'new') {
@@ -747,17 +753,11 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   buddyStudentToggle.addEventListener('change', function() {
-    const section = document.getElementById('buddyStudentIdSection');
     const label = document.getElementById('buddyStudentLabel');
     if (this.checked) {
-      section.style.display = 'block';
       label.textContent = 'Yes';
-      document.getElementById('buddyStudentIdInput').setAttribute('required', 'required');
     } else {
-      section.style.display = 'none';
       label.textContent = 'No';
-      document.getElementById('buddyStudentIdInput').removeAttribute('required');
-      document.getElementById('buddyStudentIdInput').value = '';
     }
   });
 
@@ -1167,15 +1167,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
 
-      // Validate student ID if student toggle is on
-      if (document.getElementById('member1IsStudent').checked) {
-        const studentId = document.getElementById('studentIdInput').value.trim();
-        if (!studentId) {
-          ToastUtils.showError('Please enter the Student ID for Member 1.');
-          return;
-        }
-      }
-
       // Validate buddy fields if Gym Buddy
       if (planTypeInput.value === 'GymBuddy') {
         const buddyNameVal = document.getElementById('buddyName').value.trim();
@@ -1187,14 +1178,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!buddyContactVal || !buddyContactVal.match(/^(09\d{9}|\+639\d{9})$/)) {
           ToastUtils.showError('Invalid buddy contact number.');
           return;
-        }
-        // Validate buddy student ID if buddy student toggle is on
-        if (document.getElementById('buddyIsStudent').checked) {
-          const buddyStudentId = document.getElementById('buddyStudentIdInput').value.trim();
-          if (!buddyStudentId) {
-            ToastUtils.showError('Please enter the Student ID for the buddy.');
-            return;
-          }
         }
       }
     }

@@ -95,11 +95,19 @@
       </div>
     </li>
     <li class="nav-item menu-items">
+      <a class="nav-link" href="{{ route('configuration.index') }}">
+        <span class="menu-icon">
+          <i class="mdi mdi-settings"></i>
+        </span>
+        <span class="menu-title">Settings</span>
+      </a>
+    </li>
+    <li class="nav-item menu-items">
       <a class="nav-link" href="documentation">
         <span class="menu-icon">
           <i class="mdi mdi-file-document-box"></i>
         </span>
-        <span class="menu-title">Guides</span>
+        <span class="menu-title">User Manual</span>
       </a>
     </li>
   </ul>
