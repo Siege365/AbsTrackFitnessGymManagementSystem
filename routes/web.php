@@ -16,6 +16,7 @@ use App\Http\Controllers\PaymentHistoryController;
 use App\Http\Controllers\RefundController;
 
 //Inventory Supply Routes
+Route::middleware(['auth'])->group(function () {
 Route::get('/inventory', [InventorySupplyController::class, 'index'])->name('inventory.index');
 Route::post('/inventory', [InventorySupplyController::class, 'store'])->name('inventory.store');
 Route::put('/inventory/{id}', [InventorySupplyController::class, 'update'])->name('inventory.update');
@@ -32,8 +33,8 @@ Route::prefix('inventory')->name('inventory.')->group(function () {
     // Stock transaction routes
     Route::post('/{id}/stock-transaction', [InventorySupplyController::class, 'stockTransaction'])->name('stock-transaction');
     Route::get('/{id}/transaction-history', [InventorySupplyController::class, 'transactionHistory'])->name('transaction-history');
+    });
 });
-
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);

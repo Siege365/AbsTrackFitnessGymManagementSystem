@@ -17,7 +17,7 @@
                 style="width: 450px;"
                 id="searchInputClients">
               <div class="dropdown d-inline-block mr-2">
-                <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="filterDropdownClients" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+                <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="filterDropdownClients" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                   <i class="mdi mdi-filter-variant"></i> Filter
                 </button>
                 <div class="dropdown-menu dropdown-menu-right filter-accordion" aria-labelledby="filterDropdownClients">

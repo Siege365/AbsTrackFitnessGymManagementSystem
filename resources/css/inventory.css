@@ -24,13 +24,11 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.1);
     animation: fadeInDown 0.2s ease;
     z-index: 1050;
-    min-width: 200px;
     position: absolute;
 }
 
-.dropdown-menu-right {
-    right: 0;
-    left: auto;
+.dropdown-menu.show {
+  display: block;
 }
 
 .dropdown-item {

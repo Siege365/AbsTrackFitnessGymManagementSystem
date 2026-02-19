@@ -110,10 +110,10 @@
                 </form> 
                 <!-- Filter Dropdown -->
                 <div class="dropdown d-inline-block mr-2">
-                  <button type="button" class="btn btn-sm filter-button dropdown-toggle" type="button" id="filterDropdown" data-toggle="dropdown"  aria-haspopup="true" aria-expanded="false">
+                  <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="filterDropdown" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
                     <i class="mdi mdi-filter-variant"></i> Filter
                   </button>
-                  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="filterDropdown">
+                  <div class="dropdown-menu dropdown-menu-right">
                     <h6 class="dropdown-header">Sort By</h6>
                     <a class="dropdown-item filter-option {{ request('filter') == 'name_asc' ? 'active' : '' }}" 
                       href="{{ route('inventory.index', ['filter' => 'name_asc', 'search' => request('search')]) }}">
@@ -206,7 +206,7 @@
                     </td>
                     <td>
                         <div class="dropdown">
-                          <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="0,2" aria-haspopup="true" aria-expanded="false">
+                          <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
                               <i class="mdi mdi-dots-vertical"></i>
                           </button>
                           <div class="dropdown-menu dropdown-menu-right">
@@ -275,10 +275,10 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h4 class="card-title mb-0">Recent Activity</h4>
               <div class="dropdown">
-                <button class="btn btn-sm filter-button dropdown-toggle" type="button" id="activityFilterDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn btn-sm filter-button dropdown-toggle" id="activityFilterDropdown" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
                   <i class="mdi mdi-filter-variant"></i> Filter
                 </button>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="activityFilterDropdown">
+                <div class="dropdown-menu dropdown-menu-right">
                   <h6 class="dropdown-header">Sort By</h6>
                   <a class="dropdown-item {{ ($activityFilter ?? 'newest') == 'newest' ? 'active' : '' }}" 
                     href="{{ route('inventory.index', array_merge(request()->except('activity_filter'), ['activity_filter' => 'newest'])) }}">
