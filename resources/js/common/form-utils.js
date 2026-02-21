@@ -139,7 +139,7 @@ const FormUtils = (function() {
   function setButtonLoading(button, loadingText = 'Processing...') {
     button.disabled = true;
     button.dataset.originalText = button.innerHTML;
-    button.innerHTML = `<i class="mdi mdi-loading mdi-spin"></i> Processing...`;
+    button.innerHTML = `<i class="mdi mdi-loading mdi-spin"></i> ${loadingText}`;
   }
 
   /**

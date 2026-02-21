@@ -363,7 +363,7 @@
     </div>
 
     <!-- Add Product Modal -->
-    <div class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel">
       <div class="modal-dialog modal-dialog-centered modal-md" role="document">
         <div class="modal-content">
           <div class="modal-header bg-primary text-white">
@@ -499,7 +499,7 @@
     </div>
 
     <!-- Stock In Modal -->
-    <div class="modal fade" id="stockInModal" tabindex="-1" role="dialog" aria-labelledby="stockInModalLabel" aria-hidden="true">
+    <div class="modal fade" id="stockInModal" tabindex="-1" role="dialog" aria-labelledby="stockInModalLabel">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content stock-modal">
           <div class="modal-header bg-success text-white">
@@ -587,7 +587,7 @@
     </div>
 
     <!-- Stock Out Modal -->
-    <div class="modal fade" id="stockOutModal" tabindex="-1" role="dialog" aria-labelledby="stockOutModalLabel" aria-hidden="true">
+    <div class="modal fade" id="stockOutModal" tabindex="-1" role="dialog" aria-labelledby="stockOutModalLabel">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content stock-modal">
           <div class="modal-header bg-warning text-white">

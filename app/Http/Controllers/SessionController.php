@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PTSchedule;
 use App\Models\Attendance;
 use App\Models\Client;
+use App\Models\Membership;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -17,6 +18,9 @@ class SessionController extends Controller
     public function getKPIs()
     {
         try {
+            // Auto-expire overdue PT schedules
+            PTSchedule::expireOverdueSchedules();
+
             $today = Carbon::today();
             
             $ptSessionsToday = PTSchedule::whereDate('scheduled_date', $today)->count();
@@ -57,6 +61,9 @@ class SessionController extends Controller
     public function index(Request $request)
     {
         try {
+            // Auto-expire overdue PT schedules
+            PTSchedule::expireOverdueSchedules();
+
             // KPI Data
             $today = Carbon::today();
             
@@ -93,14 +100,19 @@ class SessionController extends Controller
             $attendances = $attendanceQuery->orderBy('time_in', 'desc')->paginate(10, ['*'], 'attendance_page');
 
             // PT Schedules with search and filter
-            $ptQuery = PTSchedule::with('client');
+            $ptQuery = PTSchedule::with(['client', 'membership']);
             
             if ($request->filled('pt_search')) {
                 $search = $request->pt_search;
                 $ptQuery->where(function($q) use ($search) {
                     $q->whereHas('client', function($q2) use ($search) {
                         $q2->where('name', 'like', "%{$search}%");
-                    })->orWhere('trainer_name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('membership', function($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhere('customer_name', 'like', "%{$search}%")
+                    ->orWhere('trainer_name', 'like', "%{$search}%");
                 });
             }
             
@@ -114,17 +126,20 @@ class SessionController extends Controller
 
             // Get all clients for dropdowns
             $clients = Client::orderBy('name')->get();
+
+            // Get all memberships for attendance search
+            $memberships = Membership::orderBy('name')->get();
             
             // Trainers list (could be from a trainers table in the future)
             $trainers = [
-                'Ronnie Coleman',
-                'Justin Troy Rosalada',
-                'Eulo Icon Sexcion',
                 'David Laid',
+                'Eulo Icon Sexcion',
+                'Justin Troy Rosalada',
                 'Nicolas Deloso Torre III',
+                'Ronnie Coleman',
             ];
 
-            return view('Sessions.Session', compact(
+            return view('Sessions.index', compact(
                 'ptSessionsToday',
                 'upcomingPTSessions',
                 'ptCancellations',
@@ -133,6 +148,7 @@ class SessionController extends Controller
                 'attendances',
                 'ptSchedules',
                 'clients',
+                'memberships',
                 'trainers'
             ));
         } catch (\Exception $e) {
@@ -141,27 +157,47 @@ class SessionController extends Controller
     }
 
     /**
-     * Store a new PT schedule
+     * Store a new PT schedule (supports clients, memberships, and walk-ins)
      */
     public function storePTSchedule(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'client_id' => 'required|exists:clients,id',
+            $customerSource = $request->input('customer_source', 'walkin');
+            $isWalkIn = $customerSource === 'walkin';
+
+            $rules = [
                 'trainer_name' => 'required|string|max:255',
                 'scheduled_date' => 'required|date|after_or_equal:today',
                 'scheduled_time' => 'required',
                 'payment_type' => 'required|string|in:Cash,Gcash,Card,Bank Transfer',
                 'notes' => 'nullable|string|max:500',
-            ], [
-                'client_id.required' => 'Please select a client.',
-                'client_id.exists' => 'Selected client does not exist.',
-                'trainer_name.required' => 'Please select a trainer.',
+            ];
+
+            $messages = [
+                'trainer_name.required' => 'Please select or enter a trainer.',
                 'scheduled_date.required' => 'Please select a date.',
                 'scheduled_date.after_or_equal' => 'Date cannot be in the past.',
                 'scheduled_time.required' => 'Please select a time.',
                 'payment_type.required' => 'Please select a payment type.',
-            ]);
+            ];
+
+            if ($isWalkIn) {
+                $rules['customer_name'] = 'required|string|max:255';
+                $rules['customer_age'] = 'nullable|integer|min:1|max:120';
+                $rules['customer_sex'] = 'nullable|string|in:Male,Female';
+                $rules['customer_contact'] = 'nullable|string|max:255';
+                $messages['customer_name.required'] = 'Please enter the customer name.';
+            } elseif ($customerSource === 'membership') {
+                $rules['membership_id'] = 'required|exists:memberships,id';
+                $messages['membership_id.required'] = 'Please select a membership.';
+                $messages['membership_id.exists'] = 'Selected membership does not exist.';
+            } else {
+                $rules['client_id'] = 'required|exists:clients,id';
+                $messages['client_id.required'] = 'Please select a client.';
+                $messages['client_id.exists'] = 'Selected client does not exist.';
+            }
+
+            $validator = Validator::make($request->all(), $rules, $messages);
 
             if ($validator->fails()) {
                 return response()->json([
@@ -171,17 +207,29 @@ class SessionController extends Controller
                 ], 422);
             }
 
-            $ptSchedule = PTSchedule::create([
-                'client_id' => $request->client_id,
+            $data = [
                 'trainer_name' => $request->trainer_name,
                 'scheduled_date' => $request->scheduled_date,
                 'scheduled_time' => $request->scheduled_time,
                 'payment_type' => $request->payment_type,
                 'status' => 'upcoming',
                 'notes' => $request->notes,
-            ]);
+                'customer_source' => $customerSource,
+            ];
 
-            $ptSchedule->load('client');
+            if ($isWalkIn) {
+                $data['customer_name'] = $request->customer_name;
+                $data['customer_age'] = $request->customer_age;
+                $data['customer_sex'] = $request->customer_sex;
+                $data['customer_contact'] = $request->customer_contact;
+            } elseif ($customerSource === 'membership') {
+                $data['membership_id'] = $request->membership_id;
+            } else {
+                $data['client_id'] = $request->client_id;
+            }
+
+            $ptSchedule = PTSchedule::create($data);
+            $ptSchedule->load(['client', 'membership']);
 
             return response()->json([
                 'success' => true,
@@ -209,7 +257,7 @@ class SessionController extends Controller
                 'scheduled_date' => 'required|date',
                 'scheduled_time' => 'required',
                 'payment_type' => 'required|string|in:Cash,Gcash,Card,Bank Transfer',
-                'status' => 'sometimes|in:upcoming,done,cancelled',
+                'status' => 'sometimes|in:upcoming,in_progress,done,cancelled,expired',
                 'notes' => 'nullable|string|max:500',
             ]);
 
@@ -275,7 +323,7 @@ class SessionController extends Controller
             $ptSchedule = PTSchedule::findOrFail($id);
             
             $validator = Validator::make($request->all(), [
-                'status' => 'required|in:upcoming,done,cancelled',
+                'status' => 'required|in:upcoming,in_progress,done,cancelled,expired',
             ]);
 
             if ($validator->fails()) {
@@ -353,18 +401,34 @@ class SessionController extends Controller
     }
 
     /**
-     * Store attendance (customer check-in)
+     * Store attendance (customer check-in).
+     * Supports existing clients, membership members, and walk-in customers.
+     * Automatically detects customer type and updates PT schedule status.
      */
     public function storeAttendance(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'client_id' => 'required|exists:clients,id',
+            $isWalkIn = !$request->filled('client_id') && !$request->filled('membership_id');
+            $hasClientId = $request->filled('client_id');
+            $hasMembershipId = $request->filled('membership_id');
+
+            $rules = [
                 'date' => 'required|date',
                 'time_in' => 'required',
-            ], [
-                'client_id.required' => 'Please select a client.',
-                'client_id.exists' => 'Selected client does not exist.',
+            ];
+
+            if ($isWalkIn) {
+                $rules['customer_name'] = 'required|string|max:255';
+                $rules['customer_contact'] = 'nullable|string|max:255';
+            } elseif ($hasClientId) {
+                $rules['client_id'] = 'required|exists:clients,id';
+            } elseif ($hasMembershipId) {
+                $rules['membership_id'] = 'required|exists:memberships,id';
+            }
+
+            $validator = Validator::make($request->all(), $rules, [
+                'client_id.exists' => 'Selected customer does not exist.',
+                'customer_name.required' => 'Please enter the customer name.',
             ]);
 
             if ($validator->fails()) {
@@ -375,36 +439,85 @@ class SessionController extends Controller
                 ], 422);
             }
 
-            // Check if client already checked in today
-            $existingAttendance = Attendance::where('client_id', $request->client_id)
-                ->whereDate('date', $request->date)
-                ->first();
-
-            if ($existingAttendance) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'This client has already checked in today.'
-                ], 422);
-            }
-
-            // Get client to determine status based on membership
-            $client = Client::findOrFail($request->client_id);
-            $status = $client->status ?? 'active';
-            
-            // Convert status to lowercase for consistency
-            $status = strtolower($status);
-            if ($status === 'due soon') {
-                $status = 'due_soon';
-            }
-
-            $attendance = Attendance::create([
-                'client_id' => $request->client_id,
+            // Determine customer type and build attendance data
+            $data = [
                 'date' => $request->date,
                 'time_in' => $request->time_in,
-                'status' => $status,
-            ]);
+            ];
 
+            if ($hasClientId) {
+                $client = Client::findOrFail($request->client_id);
+
+                // Check if already checked in today
+                $existing = Attendance::where('client_id', $client->id)
+                    ->whereDate('date', $request->date)
+                    ->first();
+                if ($existing) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'This customer has already checked in today.'
+                    ], 422);
+                }
+
+                $data['client_id'] = $client->id;
+                $status = strtolower($client->status ?? 'active');
+                $data['status'] = $status === 'due soon' ? 'due_soon' : $status;
+
+                // Detect customer type from membership record
+                $data['customer_type'] = $this->detectCustomerType($client->name, $client->contact);
+
+            } elseif ($hasMembershipId) {
+                $membership = Membership::findOrFail($request->membership_id);
+
+                // Check duplicate by name + date
+                $existing = Attendance::where('customer_name', $membership->name)
+                    ->whereDate('date', $request->date)
+                    ->first();
+                if ($existing) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'This customer has already checked in today.'
+                    ], 422);
+                }
+
+                $data['customer_name'] = $membership->name;
+                $data['customer_contact'] = $membership->contact;
+
+                // Status from membership
+                $status = strtolower($membership->status ?? 'active');
+                $data['status'] = $status === 'due soon' ? 'due_soon' : $status;
+
+                // Detect customer type from plan_type
+                $data['customer_type'] = $this->mapPlanToCustomerType($membership->plan_type);
+
+            } else {
+                // Walk-in customer
+                $customerName = $request->customer_name;
+
+                // Check duplicate by name + date
+                $existing = Attendance::where('customer_name', $customerName)
+                    ->whereDate('date', $request->date)
+                    ->first();
+                if ($existing) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'This customer has already checked in today.'
+                    ], 422);
+                }
+
+                $data['customer_name'] = $customerName;
+                $data['customer_contact'] = $request->customer_contact;
+                $data['status'] = 'active';
+
+                // Try to detect type from existing records
+                $data['customer_type'] = $this->detectCustomerType($customerName, $request->customer_contact);
+            }
+
+            $attendance = Attendance::create($data);
             $attendance->load('client');
+
+            // Auto-update PT schedule status to 'in_progress' if customer has session today
+            $this->autoUpdatePTStatus($attendance);
 
             return response()->json([
                 'success' => true,
@@ -416,6 +529,79 @@ class SessionController extends Controller
                 'success' => false,
                 'message' => 'Failed to record attendance: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Detect customer type by cross-referencing memberships table.
+     */
+    private function detectCustomerType(?string $name, ?string $contact): string
+    {
+        if (!$name) {
+            return 'walk-in';
+        }
+
+        // Check memberships table for an active membership
+        $membership = Membership::where('name', $name)
+            ->when($contact, fn($q) => $q->orWhere('contact', $contact))
+            ->orderByDesc('due_date')
+            ->first();
+
+        if ($membership && strtolower($membership->status) !== 'expired') {
+            return $this->mapPlanToCustomerType($membership->plan_type);
+        }
+
+        return 'walk-in';
+    }
+
+    /**
+     * Map a plan_type (plan_key) to a customer type string.
+     */
+    private function mapPlanToCustomerType(?string $planType): string
+    {
+        if (!$planType) {
+            return 'walk-in';
+        }
+
+        $planLower = strtolower($planType);
+
+        return match(true) {
+            str_contains($planLower, 'annual') => 'annual',
+            str_contains($planLower, 'half') => 'half-yearly',
+            str_contains($planLower, 'threemonth'), str_contains($planLower, 'quarter') => 'quarterly',
+            str_contains($planLower, 'regular'), str_contains($planLower, 'student'),
+            str_contains($planLower, 'gymbuddy') => 'monthly',
+            str_contains($planLower, 'session') => 'walk-in',
+            default => 'walk-in',
+        };
+    }
+
+    /**
+     * Auto-update PT schedule to 'in_progress' when customer checks in.
+     */
+    private function autoUpdatePTStatus(Attendance $attendance): void
+    {
+        $today = Carbon::today();
+        $customerName = $attendance->client?->name ?? $attendance->customer_name;
+
+        if (!$customerName) {
+            return;
+        }
+
+        // Find matching PT schedule for today with 'upcoming' status
+        $ptSchedule = PTSchedule::where('status', 'upcoming')
+            ->whereDate('scheduled_date', $today)
+            ->where(function ($query) use ($attendance, $customerName) {
+                if ($attendance->client_id) {
+                    $query->where('client_id', $attendance->client_id);
+                } else {
+                    $query->where('customer_name', $customerName);
+                }
+            })
+            ->first();
+
+        if ($ptSchedule) {
+            $ptSchedule->update(['status' => 'in_progress']);
         }
     }
 
@@ -481,7 +667,7 @@ class SessionController extends Controller
     public function getPTSchedule($id)
     {
         try {
-            $ptSchedule = PTSchedule::with('client')->findOrFail($id);
+            $ptSchedule = PTSchedule::with(['client', 'membership'])->findOrFail($id);
 
             return response()->json([
                 'success' => true,
@@ -570,6 +756,103 @@ class SessionController extends Controller
                 'success' => false,
                 'message' => 'Error deleting PT schedules: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Search customers across clients and memberships tables for auto-suggest.
+     * Returns deduplicated results by name.
+     */
+    public function searchCustomers(Request $request)
+    {
+        try {
+            // Accept both 'q' and 'query' parameters for compatibility
+            $search = $request->input('q') ?? $request->input('query', '');
+            
+            // Allow empty search to return recent customers (for autocomplete on focus)
+            $searchPattern = strlen($search) < 1 ? '%' : "%{$search}%";
+
+            // Search clients
+            $clients = Client::where('name', 'like', $searchPattern)
+                ->orderBy('name')
+                ->limit(10)
+                ->get()
+                ->map(fn($c) => [
+                    'id' => $c->id,
+                    'name' => $c->name,
+                    'source' => 'client',
+                    'age' => $c->age,
+                    'sex' => $c->sex,
+                    'contact' => $c->contact,
+                    'plan_type' => $c->plan_type,
+                    'avatar' => $c->avatar,
+                    'status' => $c->status,
+                ]);
+
+            // Search memberships
+            $memberships = Membership::where('name', 'like', $searchPattern)
+                ->orderBy('name')
+                ->limit(10)
+                ->get()
+                ->map(fn($m) => [
+                    'id' => $m->id,
+                    'name' => $m->name,
+                    'source' => 'membership',
+                    'age' => $m->age,
+                    'sex' => $m->sex,
+                    'contact' => $m->contact,
+                    'plan_type' => $m->plan_type,
+                    'avatar' => $m->avatar,
+                    'status' => $m->status,
+                ]);
+
+            // Merge and deduplicate by name (prefer client over membership)
+            $combined = $clients->concat($memberships)
+                ->unique('name')
+                ->sortBy('name')
+                ->values()
+                ->take(15);
+
+            return response()->json($combined);
+        } catch (\Exception $e) {
+            return response()->json([], 500);
+        }
+    }
+
+    /**
+     * Search trainers for autocomplete in PT schedule
+     */
+    public function searchTrainers(Request $request)
+    {
+        try {
+            // Accept both 'q' and 'query' parameters for compatibility
+            $search = $request->input('q') ?? $request->input('query', '');
+
+            // Static trainers list (can be moved to database in future)
+            $trainers = [
+                'Ronnie Coleman',
+                'Justin Troy Rosalada',
+                'Eulo Icon Sexcion',
+                'David Laid',
+                'Nicolas Deloso Torre III',
+            ];
+
+            // Filter trainers based on search query
+            $filtered = collect($trainers)
+                ->filter(function ($trainer) use ($search) {
+                    return empty($search) || stripos($trainer, $search) !== false;
+                })
+                ->map(function ($trainer, $index) {
+                    return [
+                        'id' => $index + 1,
+                        'name' => $trainer,
+                    ];
+                })
+                ->values();
+
+            return response()->json($filtered);
+        } catch (\Exception $e) {
+            return response()->json([], 500);
         }
     }
 }

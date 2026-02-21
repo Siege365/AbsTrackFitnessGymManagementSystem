@@ -9,6 +9,9 @@ class Attendance extends Model
 {
     protected $fillable = [
         'client_id',
+        'customer_name',
+        'customer_contact',
+        'customer_type',
         'date',
         'time_in',
         'time_out',
@@ -87,6 +90,32 @@ class Attendance extends Model
             'due_soon' => 'Due soon',
             'expired' => 'Expired',
             default => ucfirst($this->status),
+        };
+    }
+
+    /**
+     * Get the display name (client name or walk-in customer name)
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        if ($this->client) {
+            return $this->client->name;
+        }
+        return $this->customer_name ?? 'Walk-in';
+    }
+
+    /**
+     * Get customer type display label
+     */
+    public function getCustomerTypeDisplayAttribute(): string
+    {
+        return match($this->customer_type) {
+            'walk-in', 'session' => 'Walk-in',
+            'monthly' => 'Monthly',
+            'quarterly' => 'Quarterly',
+            'half-yearly' => 'Half-yearly',
+            'annual' => 'Annual',
+            default => ucfirst($this->customer_type ?? 'walk-in'),
         };
     }
 }

@@ -104,8 +104,13 @@
    * Confirm and execute bulk delete
    */
   function confirmBulkDelete() {
+    const submitBtn = event.target;
     const form = document.getElementById('bulkDeleteForm');
     const checkedBoxes = document.querySelectorAll('.membership-checkbox:checked');
+    
+    // Set button loading state
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Deleting...';
     
     // Remove any existing hidden inputs
     form.querySelectorAll('input[name="membership_ids[]"]').forEach(el => el.remove());

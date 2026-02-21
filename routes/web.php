@@ -74,23 +74,31 @@ Route::middleware(['auth'])->group(function () {
         // KPI refresh route
         Route::get('/kpis', [SessionController::class, 'getKPIs'])->name('kpis');
         
+        // PT Schedule bulk delete (must be before {id} routes to avoid wildcard conflict)
+        Route::delete('/pt-schedule/bulk-delete', [SessionController::class, 'bulkDeletePT'])->name('pt.bulk-delete');
+        
         // PT Schedule routes
         Route::post('/pt-schedule', [SessionController::class, 'storePTSchedule'])->name('pt.store');
+        Route::post('/pt-schedule/book-next', [SessionController::class, 'bookNextSession'])->name('pt.book-next');
         Route::get('/pt-schedule/{id}', [SessionController::class, 'getPTSchedule'])->name('pt.show');
         Route::put('/pt-schedule/{id}', [SessionController::class, 'updatePTSchedule'])->name('pt.update');
         Route::delete('/pt-schedule/{id}', [SessionController::class, 'destroyPTSchedule'])->name('pt.destroy');
         Route::patch('/pt-schedule/{id}/status', [SessionController::class, 'updatePTStatus'])->name('pt.status');
-        Route::post('/pt-schedule/book-next', [SessionController::class, 'bookNextSession'])->name('pt.book-next');
+        
+        // Attendance bulk delete (must be before {id} routes to avoid wildcard conflict)
+        Route::delete('/attendance/bulk-delete', [SessionController::class, 'bulkDeleteAttendance'])->name('attendance.bulk-delete');
         
         // Attendance routes
         Route::post('/attendance', [SessionController::class, 'storeAttendance'])->name('attendance.store');
         Route::get('/attendance/{id}', [SessionController::class, 'getAttendance'])->name('attendance.show');
         Route::put('/attendance/{id}', [SessionController::class, 'updateAttendance'])->name('attendance.update');
         Route::delete('/attendance/{id}', [SessionController::class, 'destroyAttendance'])->name('attendance.destroy');
-        Route::delete('/attendance/bulk-delete', [SessionController::class, 'bulkDeleteAttendance'])->name('attendance.bulk-delete');
+
+        // Customer search (combined clients + memberships)
+        Route::get('/customers/search', [SessionController::class, 'searchCustomers'])->name('customers.search');
         
-        // PT Schedule bulk delete
-        Route::delete('/pt-schedule/bulk-delete', [SessionController::class, 'bulkDeletePT'])->name('pt.bulk-delete');
+        // Trainer search for autocomplete
+        Route::get('/trainers/search', [SessionController::class, 'searchTrainers'])->name('trainers.search');
     });
     
     //Inventory Supply Routes

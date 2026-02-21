@@ -140,7 +140,7 @@ const ClientsPage = (function() {
    * @param {boolean} confirmSimilar - Whether to confirm similar name submission
    */
   function submitClientForm(confirmSimilar = false) {
-    const submitBtn = document.querySelector('#addClientConfirmOverlay .btn-primary');
+    const submitBtn = document.querySelector('#addClientConfirmOverlay .btn-update');
     const elements = getAddModalElements();
 
     try {
@@ -542,7 +542,7 @@ const ClientsPage = (function() {
    * Open delete confirmation modal
    * @param {number} clientId - Client ID
    * @param {string} clientName - Client name
-   * @param {string} planType - Plan type
+   * @param {string} planType - Subscription type
    * @param {string} status - Current status
    */
   function openDeleteClientModal(clientId, clientName, planType, status) {
@@ -567,7 +567,7 @@ const ClientsPage = (function() {
     const deleteForm = document.getElementById('deleteClientForm');
     const submitBtn = event.target;
     
-    FormUtils.setButtonLoading(submitBtn, true, 'Deleting...');
+    FormUtils.setButtonLoading(submitBtn, 'Deleting...');
     
     // Submit form
     fetch(deleteForm.action, {
@@ -601,7 +601,7 @@ const ClientsPage = (function() {
       }
     })
     .catch(error => {
-      FormUtils.setButtonLoading(submitBtn, false);
+      FormUtils.resetButton(submitBtn);
       ToastUtils.showError('Failed to delete client: ' + error.message, 'Error');
     });
   }
@@ -811,6 +811,28 @@ const ClientsPage = (function() {
         }
       });
     }
+
+    // Reset modals on close — clear forms, validation, and confirm overlays
+    $('.modal').on('hidden.bs.modal', function() {
+      const $modal = $(this);
+      // Reset all forms inside the modal
+      $modal.find('form').each(function() { this.reset(); });
+      // Remove validation states
+      $modal.find('.is-invalid').removeClass('is-invalid');
+      $modal.find('.invalid-feedback').remove();
+      // Hide any confirm overlays
+      $modal.find('[id$="ConfirmOverlay"], [id$="confirmOverlay"]').hide();
+      // Re-enable any disabled submit buttons and restore original text
+      $modal.find('button[type="submit"], .btn-primary, .btn-update, .btn-delete').each(function() {
+        this.disabled = false;
+        if (this.dataset.originalText) {
+          this.innerHTML = this.dataset.originalText;
+        }
+      });
+      // Reset avatar previews
+      $modal.find('.avatar-preview').attr('src', '').hide();
+      $modal.find('.avatar-input-container').show();
+    });
 
   }
 

@@ -90,12 +90,13 @@
   color: rgba(255, 255, 255, 0.6);
   font-weight: 600;
   text-transform: uppercase;
-  font-size: 0.8125rem;
+  font-size: 1rem;
   letter-spacing: 0.5px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 20px 16px;
   white-space: nowrap;
   vertical-align: middle;
+  text-align: left;
 }
 
 .table tbody tr {
@@ -111,8 +112,9 @@
   padding: 20px 16px;
   vertical-align: middle;
   color: #ffffff;
-  font-size: 1rem;
+  font-size: 1.125rem;
   border: none;
+  text-align: left;
 }
 
 .table-responsive {
@@ -192,6 +194,16 @@
   color: rgba(255, 255, 255, 0.4);
 }
 
+/* Large centered avatar for View/Edit modal */
+.avatar-preview-lg {
+  width: 100px;
+  height: 100px;
+}
+
+.avatar-preview-lg i {
+  font-size: 42px;
+}
+
 /* Status Badges */
 .badge {
   font-size: 1rem;
@@ -235,6 +247,11 @@
   color: #F44336;
 }
 
+.badge-in-progress {
+  background: rgba(23, 162, 184, 0.2);
+  color: #17a2b8;
+}
+
 /* Search Container */
 .search-container {
   position: relative;
@@ -257,19 +274,17 @@
 
 /* Filter Button */
 .filter-button {
-  background-color: #282A36;
+  background-color: #191C24;
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #ffffff;
   border-radius: 4px;
-  padding: 0.625rem 1rem;
-  font-size: 1rem;
-  min-height: 48px;
 }
 
 .filter-button:hover {
-  background-color: #191C24;
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  background: linear-gradient(135deg, #FFA726, #FFB84D);
+  border-color: #FFA726;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(255, 167, 38, 0.3);
 }
 
 .filter-button i {
@@ -286,7 +301,80 @@
   margin: 0;
 }
 
-/* Modals - handled by core.css */
+/* ============================================
+   Modal Styles
+   ============================================ */
+.modal-content {
+  background: #191C24;
+  border: none;
+}
+
+.modal-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-title {
+  font-size: 1.5rem !important;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.modal-body {
+  padding: 2rem !important;
+}
+
+.modal-body .form-group {
+  margin-bottom: 1.5rem !important;
+}
+
+.modal-body label {
+  color: #ffffff;
+  font-size: 1.125rem !important;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.modal-body .form-control {
+  font-size: 1.125rem !important;
+  padding: 0.875rem 1.25rem;
+  min-height: 52px;
+}
+
+.modal-footer {
+  padding: 1.25rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-footer .btn {
+  font-size: 1.125rem !important;
+  padding: 0.875rem 2rem;
+  min-width: 130px;
+}
+
+/* Custom Modal Buttons */
+.btn-update {
+  background-color: #FFA500;
+  border: none;
+  color: white;
+}
+
+.btn-update:hover {
+  background-color: #ff8c00;
+  color: white;
+}
+
+.btn-cancel {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
 
 /* Form Controls and Buttons are handled by core.css */
 
@@ -555,7 +643,7 @@ body.modal-open {
    Select2 Dark Theme Customization
    ============================================ */
 .select2-container--default .select2-selection--single {
-  background-color: #2A2E39 !important;
+  background-color: #2c2e3e !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-radius: 4px !important;
   height: 52px !important;
@@ -570,7 +658,7 @@ body.modal-open {
 }
 
 .select2-container--default .select2-selection--single .select2-selection__placeholder {
-  color: rgba(255, 255, 255, 0.5) !important;
+  color: #6c7293 !important;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__arrow {
@@ -583,7 +671,7 @@ body.modal-open {
 }
 
 .select2-dropdown {
-  background-color: #2A2E39 !important;
+  background-color: #2c2e3e !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-radius: 4px !important;
 }
@@ -597,28 +685,28 @@ body.modal-open {
 }
 
 .select2-container--default .select2-search--dropdown .select2-search__field::placeholder {
-  color: rgba(255, 255, 255, 0.5) !important;
+  color: #6c7293 !important;
 }
 
 .select2-container--default .select2-results__option {
-  background-color: #2A2E39 !important;
+  background-color: #2c2e3e !important;
   color: rgba(255, 255, 255, 0.9) !important;
   padding: 10px 12px !important;
   font-size: 1rem !important;
 }
 
 .select2-container--default .select2-results__option--highlighted[aria-selected] {
-  background-color: #F9A826 !important;
-  color: #191C24 !important;
+  background-color: #007bff !important;
+  color: #ffffff !important;
 }
 
 .select2-container--default .select2-results__option[aria-selected=true] {
-  background-color: rgba(249, 168, 38, 0.2) !important;
-  color: #F9A826 !important;
+  background-color: rgba(0, 123, 255, 0.2) !important;
+  color: #007bff !important;
 }
 
 .select2-container--default.select2-container--focus .select2-selection--single {
-  border-color: #F9A826 !important;
+  border-color: #007bff !important;
 }
 
 .select2-container--default .select2-selection--single:focus {
@@ -666,4 +754,12 @@ body.modal-open {
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* Disabled dropdown items */
+.dropdown-item.disabled {
+  color: #6c757d !important;
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  pointer-events: none;
 }

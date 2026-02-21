@@ -50,12 +50,12 @@
                     </div>
                   </div>
                   
-                  <!-- Plan Type Filter -->
+                  <!-- Subscription Type Filter -->
                   <div class="filter-section">
                     <div class="filter-section-header" onclick="MembershipsPage.toggleFilterSection(this, event)">
                       <div class="filter-section-title">
                         <i class="mdi mdi-card-account-details-outline"></i>
-                        <span>Plan Type</span>
+                        <span>Subscription Type</span>
                       </div>
                       <i class="mdi mdi-chevron-down filter-chevron"></i>
                     </div>
@@ -123,7 +123,7 @@
                 </th>
                 <th>Id#</th>
                 <th>Name</th>
-                <th>Plan Type</th>
+                <th>Subscription Type</th>
                 <th>Start Date</th>
                 <th>Due Date</th>
                 <th>Status</th>
@@ -184,7 +184,7 @@
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">
                       <button type="button" class="dropdown-item" data-toggle="modal" data-target="#viewModal{{ $membership->id }}">
-                        <i class="mdi mdi-eye mr-2"></i> View Details
+                        <i class="mdi mdi-pencil"></i> Edit Details
                       </button>
                       <button type="button" class="dropdown-item text-success" 
                         onclick="openRenewModal({{ $membership->id }}, '{{ $membership->name }}', '{{ $membership->gymPlan->plan_name ?? $membership->plan_type }}', '{{ $membership->plan_type }}', {{ $membership->gymPlan->duration_days ?? 30 }}, '{{ $membership->start_date->format('Y-m-d') }}', '{{ $membership->due_date->format('Y-m-d') }}')">

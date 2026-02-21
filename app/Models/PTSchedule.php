@@ -11,6 +11,12 @@ class PTSchedule extends Model
 
     protected $fillable = [
         'client_id',
+        'membership_id',
+        'customer_source',
+        'customer_name',
+        'customer_age',
+        'customer_sex',
+        'customer_contact',
         'trainer_name',
         'scheduled_date',
         'scheduled_time',
@@ -33,6 +39,14 @@ class PTSchedule extends Model
     }
 
     /**
+     * Get the membership that owns the PT schedule.
+     */
+    public function membership()
+    {
+        return $this->belongsTo(Membership::class);
+    }
+
+    /**
      * Scope for today's sessions
      */
     public function scopeToday($query)
@@ -50,6 +64,14 @@ class PTSchedule extends Model
     }
 
     /**
+     * Scope for in-progress sessions
+     */
+    public function scopeInProgress($query)
+    {
+        return $query->where('status', 'in_progress');
+    }
+
+    /**
      * Scope for cancelled sessions
      */
     public function scopeCancelled($query)
@@ -63,6 +85,50 @@ class PTSchedule extends Model
     public function scopeDone($query)
     {
         return $query->where('status', 'done');
+    }
+
+    /**
+     * Scope for expired sessions
+     */
+    public function scopeExpired($query)
+    {
+        return $query->where('status', 'expired');
+    }
+
+    /**
+     * Auto-expire overdue PT schedules.
+     * Marks 'upcoming' schedules as 'expired' if scheduled date/time has passed
+     * and no attendance was recorded for the customer on that date.
+     */
+    public static function expireOverdueSchedules(): int
+    {
+        $now = Carbon::now();
+
+        return static::where('status', 'upcoming')
+            ->where(function ($query) use ($now) {
+                // Past dates (entire day passed)
+                $query->whereDate('scheduled_date', '<', $now->toDateString())
+                    // OR same day but time has passed
+                    ->orWhere(function ($q) use ($now) {
+                        $q->whereDate('scheduled_date', $now->toDateString())
+                          ->whereTime('scheduled_time', '<', $now->toTimeString());
+                    });
+            })
+            ->update(['status' => 'cancelled']);
+    }
+
+    /**
+     * Get the display name (client name, membership name, or walk-in customer name)
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        if ($this->customer_source === 'membership' && $this->membership) {
+            return $this->membership->name;
+        }
+        if ($this->customer_source === 'client' && $this->client) {
+            return $this->client->name;
+        }
+        return $this->customer_name ?? 'N/A';
     }
 
     /**
@@ -88,6 +154,7 @@ class PTSchedule extends Model
     {
         return match($this->status) {
             'done' => 'badge-success',
+            'in_progress' => 'badge-info',
             'upcoming' => 'badge-warning',
             'cancelled' => 'badge-danger',
             default => 'badge-secondary',

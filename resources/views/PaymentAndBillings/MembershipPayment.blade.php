@@ -227,7 +227,7 @@
             
             <input type="hidden" name="payment_type" id="paymentType" value="renewal">
 
-            <!-- Plan Type Selector -->
+            <!-- Subscription Type Selector -->
             <div class="form-section">
                 <label class="form-label">Plan Selection</label>
                 <div class="plan-type-selector">
@@ -761,7 +761,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Plan Type Selection
+  // Subscription Type Selection
   const planTypeCards = document.querySelectorAll('.plan-type-card');
   const planTypeInput = document.getElementById('planType');
   const amountInput = document.getElementById('amount');
@@ -812,7 +812,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   /**
-   * Show/hide fields that depend on the selected plan type
+   * Show/hide fields that depend on the selected subscription type
    */
   function updatePlanDependentFields() {
     const currentPlan = planTypeInput.value;

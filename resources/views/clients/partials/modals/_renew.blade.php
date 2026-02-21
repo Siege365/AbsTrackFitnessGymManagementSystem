@@ -1,5 +1,5 @@
 <!-- Renew Subscription Modal -->
-<div class="modal fade" id="renewClientModal" tabindex="-1" role="dialog" aria-labelledby="renewClientModalLabel" aria-hidden="true">
+<div class="modal fade" id="renewClientModal" tabindex="-1" role="dialog" aria-labelledby="renewClientModalLabel">
   <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
     <div class="modal-content" style="position: relative;">
       <!-- Main Form Content -->
@@ -43,7 +43,7 @@
             </div>
 
             <div class="alert alert-info" style="background-color: rgba(66, 165, 245, 0.1); border: 1px solid rgba(66, 165, 245, 0.3); color: #42A5F5;">
-              <i class="mdi mdi-information"></i> The end date will be automatically calculated based on the subscription plan type.
+              <i class="mdi mdi-information"></i> The end date will be automatically calculated based on the subscription type.
             </div>
           </form>
         </div>
