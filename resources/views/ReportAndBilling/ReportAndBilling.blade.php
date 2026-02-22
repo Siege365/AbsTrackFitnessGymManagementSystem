@@ -112,7 +112,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title mb-0">Revenue Over Time</h5>
                         <div class="dropdown">
-                            <button class="btn btn-filter dropdown-toggle" type="button" data-toggle="dropdown">
+                            <button class="btn btn-filter dropdown-toggle" type="button" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                                 <i class="mdi mdi-filter-variant"></i> Filter
                             </button>
                             <div class="dropdown-menu dropdown-menu-right filter-dropdown">
@@ -138,7 +138,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title mb-0">Top-Selling Products</h5>
                         <div class="dropdown">
-                            <button class="btn btn-filter dropdown-toggle" type="button" data-toggle="dropdown">
+                            <button class="btn btn-filter dropdown-toggle" type="button" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                                 <i class="mdi mdi-filter-variant"></i> Filter
                             </button>
                             <div class="dropdown-menu dropdown-menu-right filter-dropdown">
@@ -161,7 +161,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title mb-0">Revenue Breakdown</h5>
                         <div class="dropdown">
-                            <button class="btn btn-filter dropdown-toggle" type="button" data-toggle="dropdown">
+                            <button class="btn btn-filter dropdown-toggle" type="button" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                                 <i class="mdi mdi-filter-variant"></i> Filter
                             </button>
                             <div class="dropdown-menu dropdown-menu-right filter-dropdown">
@@ -194,7 +194,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title mb-0">Transaction History</h5>
                         <div class="dropdown">
-                            <button class="btn btn-filter dropdown-toggle" type="button" data-toggle="dropdown">
+                            <button class="btn btn-filter dropdown-toggle" type="button" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                                 <i class="mdi mdi-filter-variant"></i> Filter
                             </button>
                             <div class="dropdown-menu dropdown-menu-right filter-dropdown">
@@ -224,7 +224,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="card-title mb-0">Customer Attendance Trend</h5>
                         <div class="dropdown">
-                            <button class="btn btn-filter dropdown-toggle" type="button" data-toggle="dropdown">
+                            <button class="btn btn-filter dropdown-toggle" type="button" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                                 <i class="mdi mdi-filter-variant"></i> Filter
                             </button>
                             <div class="dropdown-menu dropdown-menu-right filter-dropdown">

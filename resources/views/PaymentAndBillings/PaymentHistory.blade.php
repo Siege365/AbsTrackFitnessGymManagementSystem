@@ -17,7 +17,7 @@
       </div>
   </div>
 
-  <div class="mb-3">
+  <!-- <div class="mb-3">
     <form action="{{ route('payments.history') }}" method="GET" class="form-inline">
       <div style="display:flex; gap:0.5rem; align-items:center;">
         <input type="text" name="search" class="form-control form-control-sm" placeholder="Search receipts, names..." value="{{ request('search') }}">
@@ -32,7 +32,7 @@
         @endif
       </div>
     </form>
-  </div>
+  </div> -->
 
   <!-- Stats Cards -->
   <div class="row">
@@ -160,13 +160,11 @@
                   <a class="dropdown-item {{ request('membership_sort') === 'oldest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_sort', 'membership_page']), ['membership_sort' => 'oldest'])) }}"> <i class="mdi mdi-sort-ascending mr-2"></i>Oldest First</a>
                   <div class="dropdown-divider"></div>
                   <h6 class="dropdown-header">Payment Type</h6>
-                  <a class="dropdown-item {{ !request('membership_type_filter') ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), [])) }}"> <i class="mdi mdi-filter-remove mr-2"></i>All Types</a>
                   <a class="dropdown-item {{ request('membership_type_filter') === 'new' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'new'])) }}"> <i class="mdi mdi-account-plus mr-2"></i>New</a>
                   <a class="dropdown-item {{ request('membership_type_filter') === 'renewal' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'renewal'])) }}"> <i class="mdi mdi-autorenew mr-2"></i>Renewal</a>
                   <a class="dropdown-item {{ request('membership_type_filter') === 'extension' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'extension'])) }}"> <i class="mdi mdi-calendar-plus mr-2"></i>Extension</a>
                   <div class="dropdown-divider"></div>
                   <h6 class="dropdown-header">Plan Type</h6>
-                  <a class="dropdown-item {{ !request('membership_plan_filter') ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), [])) }}"> <i class="mdi mdi-filter-remove mr-2"></i>All Plans</a>
                   <a class="dropdown-item {{ request('membership_plan_filter') === 'Regular' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Regular'])) }}"> <i class="mdi mdi-dumbbell mr-2"></i>Regular</a>
                   <a class="dropdown-item {{ request('membership_plan_filter') === 'Student' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Student'])) }}"> <i class="mdi mdi-school mr-2"></i>Student</a>
                   <a class="dropdown-item {{ request('membership_plan_filter') === 'GymBuddy' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'GymBuddy'])) }}"> <i class="mdi mdi-account-multiple mr-2"></i>Gym Buddy</a>
@@ -1012,7 +1010,7 @@ document.getElementById('confirmRefundBtn')?.addEventListener('click', function(
 // FIX #2: Show refund receipt in POPUP modal
 function showRefundReceipt(type, id, refundData) {
   const content = document.getElementById('refundReceiptContent');
-  content.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><p>Loading receipt...</p></div>';
+  content.innerHTML = '<div class="loading-spinner"><div class="spinner"></div>';
   
   document.getElementById('refundReceiptModal').classList.add('show');
   

@@ -167,11 +167,16 @@
 }
 
 .filter-button:hover {
-    background: #ffc107 !important;
-    border-color: #ffc107 !important;
+    background: linear-gradient(135deg, #FFA726, #FFB84D) !important;
+    border-color: linear-gradient(135deg, #FFA726, #FFB84D) !important;
     color: #000000 !important;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+}
+
+.filter-button.active {
+    background: linear-gradient(135deg, #FFA726, #FFB84D) !important;
+    border-color: #FFA726 !important;
 }
 
 /* Responsive */

@@ -377,7 +377,6 @@ class MembershipController extends Controller
                     'start_date' => 'required|date',
                     'due_date' => 'nullable|date',
                     'contact' => ['required', 'string', 'max:255', 'regex:/^[+]?[0-9()\- ]+$/'],
-                    'student_id' => 'nullable|string|max:100',
                 ]);
 
             // Server-side due_date calculation (never trust client)
@@ -428,9 +427,6 @@ class MembershipController extends Controller
 
             // Remove avatar_url from validated data as it's not in the database
             unset($validated['avatar_url']);
-
-            // Set is_student based on whether student_id is provided
-            $validated['is_student'] = !empty($validated['student_id']);
 
             $membership->update($validated);
 

@@ -109,8 +109,7 @@ body {
 
 /* Allow dropdowns to overflow table container */
 .table-responsive {
-  overflow-x: auto;
-  overflow-y: visible;
+  overflow: visible !important;
 }
 
 .table {
@@ -185,6 +184,7 @@ body {
 .table .dropdown-menu {
   z-index: 9999 !important;
   margin: 0;
+  
 }
 
 /* Filter Accordion Styles */

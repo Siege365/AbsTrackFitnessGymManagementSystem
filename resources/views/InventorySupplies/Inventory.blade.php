@@ -21,69 +21,58 @@
     </div>
 
     <div class="row">
-      <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body">
-            <div class="row">
-              <div class="col-9">
-                <div class="d-flex align-items-center align-self-start">
-                  <h3 class="mb-0">{{ $totalProducts ?? 0 }}</h3>
+        <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+          <div class="card stats-card" data-filter="all">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h2 class="mb-0">{{ $totalProducts ?? 0 }}</h2>
+                  <p class="text-muted mb-0">Total Products</p>
                 </div>
               </div>
             </div>
-            <h6 class="text-muted font-weight-normal">Total Products</h6>
           </div>
         </div>
-      </div>
-      <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body">
-            <div class="row">
-              <div class="col-9">
-                <div class="d-flex align-items-center align-self-start">
-                  <h3 class="mb-0">{{ $lowStockItems ?? 0 }}</h3>
+
+        <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+          <div class="card stats-card" data-filter="active">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h2 class="mb-0">{{ $lowStockItems ?? 0 }}</h2>
+                  <p class="text-muted mb-0">Low Stock Items</p>
                 </div>
               </div>
             </div>
-            <h6 class="text-muted font-weight-normal">Low Stock Items</h6>
           </div>
         </div>
-      </div>
-      <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body">
-            <div class="row">
-              <div class="col-9">
-                <div class="d-flex align-items-center align-self-start">
-                  <h3 class="mb-0">{{ $outOfStockItems ?? 0 }}</h3>
+
+        <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+          <div class="card stats-card" data-filter="expiring">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h2 class="mb-0">{{ $outOfStockItems ?? 0 }}</h2>
+                  <p class="text-muted mb-0">Out Of Stock Items</p>
                 </div>
               </div>
             </div>
-            <h6 class="text-muted font-weight-normal">Out Of Stock Items</h6>
           </div>
         </div>
-      </div>
-      <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body">
-            <div class="row">
-              <div class="col-9">
-                <div class="d-flex align-items-center align-self-start">
-                  <h3 class="mb-0">₱{{ number_format($stockValue ?? 0, 2) }}</h3>
-                  <p class="text-success ml-2 mb-0 font-weight-medium">+3.5%</p>
-                </div>
-              </div>
-              <div class="col-3">
-                <div class="icon icon-box-success ">
-                  <span class="mdi mdi-arrow-top-right icon-item"></span>
+
+        <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+          <div class="card stats-card" data-filter="new">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h2 class="mb-0">₱{{ number_format($stockValue ?? 0, 2) }}</h2>
+                  <p class="text-muted mb-0">Stock Value</p>
                 </div>
               </div>
             </div>
-            <h6 class="text-muted font-weight-normal">Stock Value</h6>
           </div>
         </div>
       </div>
-    </div>
     
     <div class="row">
       <div class="col-12 grid-margin">
@@ -906,6 +895,33 @@ document.addEventListener('DOMContentLoaded', function() {
             closeDeleteModal();
         }
     });
+});
+
+// Dropdown toggle
+document.querySelectorAll('[data-toggle="dropdown"]').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+      if (menu !== this.nextElementSibling) {
+        menu.classList.remove('show');
+      }
+    });
+    
+    const menu = this.nextElementSibling;
+    if (menu?.classList.contains('dropdown-menu')) {
+      menu.classList.toggle('show');
+    }
+  });
+});
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.dropdown')) {
+    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+      menu.classList.remove('show');
+    });
+  }
 });
 
 // Delete confirmation modal logic

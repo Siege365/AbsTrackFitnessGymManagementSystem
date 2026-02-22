@@ -25,7 +25,7 @@ class MemberApiController extends Controller
         $members = Membership::where('name', 'LIKE', "%{$query}%")
             ->orWhere('contact', 'LIKE', "%{$query}%")
             ->limit(10)
-            ->get(['id', 'name', 'contact', 'plan_type', 'status', 'due_date', 'avatar', 'is_student', 'student_id']);
+            ->get(['id', 'name', 'contact', 'plan_type', 'status', 'due_date', 'avatar', 'is_student']);
 
         return response()->json($members);
     }
@@ -54,7 +54,6 @@ class MemberApiController extends Controller
                     'due_date' => $member->due_date,
                     'is_active' => $member->status === 'Active' && $member->due_date && $member->due_date->isFuture(),
                     'is_student' => (bool) $member->is_student,
-                    'student_id' => $member->student_id,
                 ]
             ]);
 
