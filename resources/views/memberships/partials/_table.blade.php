@@ -179,7 +179,7 @@
                 <td>@formatContact($membership->contact)</td>
                 <td>
                   <div class="dropdown">
-                    <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
+                    <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                       <i class="mdi mdi-dots-vertical"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">

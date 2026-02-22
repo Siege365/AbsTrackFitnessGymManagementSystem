@@ -17,7 +17,6 @@ class Membership extends Model
         'due_date',
         'contact',
         'is_student',
-        'student_id',
     ];
 
     protected $casts = [

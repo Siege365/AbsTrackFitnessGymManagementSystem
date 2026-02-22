@@ -96,24 +96,14 @@ class PaymentController extends Controller
             now()->endOfWeek()
         ])->sum('total_amount');
 
-        return view('PaymentAndBillings.PaymentAndBilling', compact(
-            'inventoryItems',
-            'transactions',
-            'totalRevenueMonth',
-            'retailSalesRevenue',
-            'dailyIncome',
-            'weeklyIncome',
-            'from',
-            'to',
-            'total'
-        ));
+        // Product payment is now an @include inside MembershipPayment blade
+        return redirect()->route('membership.payment.index', ['tab' => 'product']);
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'customer_name' => 'required',
-            'transaction_type' => 'required',
             'payment_method' => 'required',
             'paid_amount' => 'required|numeric',
             'total_amount' => 'required|numeric',
@@ -133,7 +123,7 @@ class PaymentController extends Controller
             $payment = Payment::create([
                 'receipt_number' => $receipt,
                 'customer_name' => $request->customer_name,
-                'transaction_type' => $request->transaction_type,
+                'transaction_type' => $request->transaction_type ?? 'PRODUCT',
                 'payment_method' => $request->payment_method,
                 'paid_amount' => $request->paid_amount,
                 'total_amount' => $request->total_amount,

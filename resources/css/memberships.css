@@ -109,8 +109,7 @@ body {
 
 /* Allow dropdowns to overflow table container */
 .table-responsive {
-  overflow-x: auto;
-  overflow-y: visible;
+  overflow: visible !important;
 }
 
 .table {

@@ -8,7 +8,6 @@ body {
   border: none;
   margin-bottom: 2rem;
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .card-body {
@@ -247,8 +246,7 @@ input[type="checkbox"]:hover {
   background: #191C24;  /* Changed */
   border: 1px solid rgba(255, 255, 255, 0.1);  /* Changed */
   animation: fadeInDown 0.2s ease;
-  z-index: 1050;  /* High z-index so it shows above the table */
-  min-width: 200px;
+  z-index: 1050;  
   position: absolute;
 }
 
@@ -300,11 +298,11 @@ input[type="checkbox"]:hover {
 }
 
 .btn-action {
-    background: #ffffff1a;
-    border: none;
-    color: #fff;
-    padding: .5rem .75rem;
-    font-size: 1.25rem;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  padding: 0.5rem 0.75rem;
+  font-size: 1.25rem;
 }
 
 .btn-action:hover {
