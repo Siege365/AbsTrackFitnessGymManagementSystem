@@ -55,11 +55,6 @@
                     <div>
                         <h2 class="mb-0" id="kpi_customers_today">{{ $customersEnteredToday ?? 0 }}</h2>
                         <p class="text-muted mb-0">Customers Entered Today</p>
-                        @if (isset($customerPercentChange) && $customerPercentChange != 0)
-                            <small class="{{ $customerPercentChange > 0 ? 'text-success' : 'text-danger' }}" id="kpi_customer_percent">
-                                {{ $customerPercentChange > 0 ? '+' : '' }}{{ abs($customerPercentChange) }}% Since yesterday
-                            </small>
-                        @endif
                     </div>
                     <div class="stats-icon bg-success">
                         <i class="mdi mdi-account-check text-white" style="font-size: 24px;"></i>

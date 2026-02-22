@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\InventorySupplyController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MembershipPaymentController;
@@ -145,6 +146,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/members/{id}', [MemberApiController::class, 'show']);
     
     // Autocomplete API for cross-referencing
+    Route::get('/api/customers/autocomplete', [CustomerController::class, 'autocomplete'])->name('api.customers.autocomplete');
     Route::get('/api/memberships/autocomplete', [MembershipController::class, 'autocomplete'])->name('api.memberships.autocomplete');
     Route::get('/api/clients/autocomplete', [ClientController::class, 'autocomplete'])->name('api.clients.autocomplete');
     

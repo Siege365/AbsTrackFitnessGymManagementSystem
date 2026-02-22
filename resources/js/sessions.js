@@ -335,7 +335,6 @@ const SessionsPage = {
         this._attSelectedData = item;
         $('#attendance_customer_id').val(item.id);
         $('#attendance_customer_type').val(item.source);
-        $('#attendance_contact_group').hide();
       }
     });
 
@@ -348,8 +347,6 @@ const SessionsPage = {
         SessionsPage._attSelectedData = null;
         $('#attendance_customer_id').val('');
         $('#attendance_customer_type').val('walkin');
-        $('#attendance_contact_group').show();
-        $('#attendance_contact').val('');
       }
     });
 
@@ -373,8 +370,6 @@ const SessionsPage = {
       $('#attendance_customer_select').val('');
       $('#attendance_customer_id').val('');
       $('#attendance_customer_type').val('');
-      $('#attendance_contact_group').hide();
-      $('#attendance_contact').val('');
     });
   },
 
@@ -861,7 +856,6 @@ const SessionsPage = {
     if (this._attIsWalkIn) {
       // Walk-in customer
       data.customer_name = customerName.replace(' (Walk-in)', '').trim();
-      data.customer_contact = $('#attendance_contact').val() || null;
     } else if (this._attSelectedData) {
       // Existing customer
       var source = this._attSelectedData.source;
@@ -918,10 +912,117 @@ const SessionsPage = {
     });
   },
 
-  // View attendance (optional - just shows info)
+  // View attendance details
   viewAttendance: function(id) {
-    // For now, just show a message. Can be expanded later.
-    SessionsPage.showToast('info', 'Viewing attendance #' + id);
+    $.ajax({
+      url: '/sessions/attendance/' + id,
+      method: 'GET',
+      success: function(response) {
+        if (response.success) {
+          const data = response.data;
+          
+          // Populate avatar
+          const avatarContainer = $('#view_att_avatar_preview');
+          const avatar = data.active_avatar || data.membership?.avatar || data.client?.avatar;
+          if (avatar) {
+            avatarContainer.html(`<img src="/storage/${avatar}" alt="Avatar" class="avatar-preview-img">`);
+          } else {
+            const initial = data.display_name ? data.display_name.charAt(0).toUpperCase() : '?';
+            avatarContainer.html(`<div class="avatar-initial-lg">${initial}</div>`);
+          }
+          
+          // Populate basic info
+          $('#view_att_name').text(data.display_name || 'N/A');
+          const contact = data.customer_contact || data.client?.contact || data.membership?.contact;
+          $('#view_att_contact').text(contact ? `Contact: ${contact}` : '');
+          
+          // Populate check-in info
+          $('#view_att_date').text(data.date ? new Date(data.date).toLocaleDateString('en-US', {
+            year: 'numeric', month: 'long', day: 'numeric'
+          }) : 'N/A');
+          
+          $('#view_att_time_in').text(data.time_in ? new Date('1970-01-01T' + data.time_in).toLocaleTimeString('en-US', {
+            hour: 'numeric', minute: '2-digit', hour12: true
+          }) : 'N/A');
+          
+          // Subscription type badge
+          const subscriptionType = data.subscription_type || 'Walk-in';
+          const badgeClass = subscriptionType === 'Walk-in' ? 'badge-info' : 'badge-primary';
+          $('#view_att_subscription_badge').html(`<span class="badge ${badgeClass}" style="font-size: 0.85rem;">${subscriptionType}</span>`);
+          
+          // Status badge
+          const status = data.active_status;
+          if (status) {
+            const statusClass = status === 'Expired' ? 'badge-expired' :
+                                status === 'Due soon' ? 'badge-warning' : 'badge-active';
+            $('#view_att_status_badge').html(`<span class="badge ${statusClass}"><i class="mdi mdi-circle" style="font-size: 8px;"></i> ${status}</span>`);
+          } else {
+            $('#view_att_status_badge').html('<span class="text-muted">—</span>');
+          }
+          
+          // Show/hide membership section
+          if (data.membership) {
+            const m = data.membership;
+            $('#view_att_membership_plan').text(m.plan_type || 'N/A');
+            
+            const mStatus = m.status ? m.status.charAt(0).toUpperCase() + m.status.slice(1) : 'N/A';
+            const mStatusClass = m.status === 'expired' ? 'badge-expired' :
+                                 m.status === 'due_soon' ? 'badge-warning' : 'badge-active';
+            $('#view_att_membership_status').html(`<span class="badge ${mStatusClass}">${mStatus}</span>`);
+            
+            $('#view_att_membership_start').text(m.start_date ? new Date(m.start_date).toLocaleDateString('en-US', {
+              year: 'numeric', month: 'short', day: 'numeric'
+            }) : 'N/A');
+            
+            $('#view_att_membership_end').text(m.due_date ? new Date(m.due_date).toLocaleDateString('en-US', {
+              year: 'numeric', month: 'short', day: 'numeric'
+            }) : 'N/A');
+            
+            $('#view_att_membership_section').show();
+          } else {
+            $('#view_att_membership_section').hide();
+          }
+          
+          // Show/hide client section
+          if (data.client) {
+            const c = data.client;
+            $('#view_att_client_plan').text(c.plan_type || 'N/A');
+            
+            const cStatus = c.status ? c.status.charAt(0).toUpperCase() + c.status.slice(1) : 'N/A';
+            const cStatusClass = c.status === 'expired' ? 'badge-expired' :
+                                 c.status === 'due_soon' ? 'badge-warning' : 'badge-active';
+            $('#view_att_client_status').html(`<span class="badge ${cStatusClass}">${cStatus}</span>`);
+            
+            $('#view_att_client_start').text(c.start_date ? new Date(c.start_date).toLocaleDateString('en-US', {
+              year: 'numeric', month: 'short', day: 'numeric'
+            }) : 'N/A');
+            
+            $('#view_att_client_end').text(c.due_date ? new Date(c.due_date).toLocaleDateString('en-US', {
+              year: 'numeric', month: 'short', day: 'numeric'
+            }) : 'N/A');
+            
+            $('#view_att_client_section').show();
+          } else {
+            $('#view_att_client_section').hide();
+          }
+          
+          // Show walk-in notice if no subscriptions
+          if (!data.membership && !data.client) {
+            $('#view_att_walkin_notice').show();
+          } else {
+            $('#view_att_walkin_notice').hide();
+          }
+          
+          // Show modal
+          $('#viewAttendanceModal').modal('show');
+        } else {
+          SessionsPage.showToast('error', response.message || 'Failed to load attendance details');
+        }
+      },
+      error: function(xhr) {
+        SessionsPage.showToast('error', xhr.responseJSON?.message || 'Failed to load attendance details');
+      }
+    });
   },
 
   // Confirm delete PT Schedule

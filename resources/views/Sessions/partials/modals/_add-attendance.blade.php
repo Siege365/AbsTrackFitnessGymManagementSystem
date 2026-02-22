@@ -24,11 +24,6 @@
                             Type a new name for walk-in customers
                         </small>
                     </div>
-                    <div class="form-group" id="attendance_contact_group" style="display: none;">
-                        <label>Contact Number</label>
-                        <input type="text" class="form-control" id="attendance_contact"
-                            placeholder="0912-345-6789" maxlength="13" oninput="formatPhoneNumber(this)">
-                    </div>
                     <div class="form-group">
                         <label>Date</label>
                         <input type="date" name="date" id="attendance_date" class="form-control"

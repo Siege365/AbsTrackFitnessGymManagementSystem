@@ -120,8 +120,59 @@ class SessionController extends Controller
                 $ptQuery->where('status', $request->pt_status);
             }
             
-            $ptSchedules = $ptQuery->orderBy('scheduled_date', 'desc')
-                ->orderBy('scheduled_time', 'desc')
+            // Complex sorting: 
+            // 1. Today first (sorted by time earliest to last)
+            // 2. Future dates next (sorted by date asc, then time asc)
+            // 3. Past dates last (sorted by date desc, then time desc)
+            // 4. If same date and time, sort by customer name alphabetically
+            $today = $today->toDateString();
+            
+            $ptSchedules = $ptQuery
+                ->selectRaw('pt_schedules.*, 
+                    CASE 
+                        WHEN scheduled_date = ? THEN 1 
+                        WHEN scheduled_date > ? THEN 2 
+                        ELSE 3 
+                    END as date_priority', [$today, $today])
+                ->orderByRaw('date_priority ASC')
+                ->orderByRaw('
+                    CASE 
+                        WHEN date_priority = 1 THEN scheduled_time
+                        WHEN date_priority = 2 THEN NULL
+                        ELSE NULL
+                    END ASC
+                ')
+                ->orderByRaw('
+                    CASE 
+                        WHEN date_priority = 2 THEN scheduled_date
+                        ELSE NULL
+                    END ASC
+                ')
+                ->orderByRaw('
+                    CASE 
+                        WHEN date_priority = 2 THEN scheduled_time
+                        ELSE NULL
+                    END ASC
+                ')
+                ->orderByRaw('
+                    CASE 
+                        WHEN date_priority = 3 THEN scheduled_date
+                        ELSE NULL
+                    END DESC
+                ')
+                ->orderByRaw('
+                    CASE 
+                        WHEN date_priority = 3 THEN scheduled_time
+                        ELSE NULL
+                    END DESC
+                ')
+                ->orderByRaw('
+                    COALESCE(
+                        (SELECT name FROM clients WHERE clients.id = pt_schedules.client_id),
+                        (SELECT name FROM memberships WHERE memberships.id = pt_schedules.membership_id),
+                        pt_schedules.customer_name
+                    ) ASC
+                ')
                 ->paginate(10, ['*'], 'pt_page');
 
             // Get all clients for dropdowns
@@ -469,8 +520,8 @@ class SessionController extends Controller
             } elseif ($hasMembershipId) {
                 $membership = Membership::findOrFail($request->membership_id);
 
-                // Check duplicate by name + date
-                $existing = Attendance::where('customer_name', $membership->name)
+                // Check duplicate by membership_id + date
+                $existing = Attendance::where('membership_id', $membership->id)
                     ->whereDate('date', $request->date)
                     ->first();
                 if ($existing) {
@@ -480,6 +531,7 @@ class SessionController extends Controller
                     ], 422);
                 }
 
+                $data['membership_id'] = $membership->id;
                 $data['customer_name'] = $membership->name;
                 $data['customer_contact'] = $membership->contact;
 
@@ -514,7 +566,7 @@ class SessionController extends Controller
             }
 
             $attendance = Attendance::create($data);
-            $attendance->load('client');
+            $attendance->load(['client', 'membership']);
 
             // Auto-update PT schedule status to 'in_progress' if customer has session today
             $this->autoUpdatePTStatus($attendance);
@@ -687,7 +739,7 @@ class SessionController extends Controller
     public function getAttendance($id)
     {
         try {
-            $attendance = Attendance::with('client')->findOrFail($id);
+            $attendance = Attendance::with(['client', 'membership'])->findOrFail($id);
 
             return response()->json([
                 'success' => true,
@@ -772,6 +824,23 @@ class SessionController extends Controller
             // Allow empty search to return recent customers (for autocomplete on focus)
             $searchPattern = strlen($search) < 1 ? '%' : "%{$search}%";
 
+            // Search memberships (prioritize for gym check-ins)
+            $memberships = Membership::where('name', 'like', $searchPattern)
+                ->orderBy('name')
+                ->limit(10)
+                ->get()
+                ->map(fn($m) => [
+                    'id' => $m->id,
+                    'name' => $m->name,
+                    'source' => 'membership',
+                    'age' => $m->age,
+                    'sex' => $m->sex,
+                    'contact' => $m->contact,
+                    'plan_type' => $m->plan_type,
+                    'avatar' => $m->avatar,
+                    'status' => $m->status,
+                ]);
+
             // Search clients
             $clients = Client::where('name', 'like', $searchPattern)
                 ->orderBy('name')
@@ -789,25 +858,8 @@ class SessionController extends Controller
                     'status' => $c->status,
                 ]);
 
-            // Search memberships
-            $memberships = Membership::where('name', 'like', $searchPattern)
-                ->orderBy('name')
-                ->limit(10)
-                ->get()
-                ->map(fn($m) => [
-                    'id' => $m->id,
-                    'name' => $m->name,
-                    'source' => 'membership',
-                    'age' => $m->age,
-                    'sex' => $m->sex,
-                    'contact' => $m->contact,
-                    'plan_type' => $m->plan_type,
-                    'avatar' => $m->avatar,
-                    'status' => $m->status,
-                ]);
-
-            // Merge and deduplicate by name (prefer client over membership)
-            $combined = $clients->concat($memberships)
+            // Merge and deduplicate by name (prefer membership over client for gym check-ins)
+            $combined = $memberships->concat($clients)
                 ->unique('name')
                 ->sortBy('name')
                 ->values()

@@ -36,10 +36,10 @@
             </div>
             <div class="d-flex align-items-center" style="gap: 10px;">
                 <button class="btn btn-page-action" data-toggle="modal" data-target="#addPTScheduleModal">
-                    <i class="mdi mdi-calendar-plus"></i> Add PT Schedule
+                    <i class="mdi mdi-calendar-plus"></i> Book PT Schedule
                 </button>
                 <button class="btn btn-page-action" data-toggle="modal" data-target="#addAttendanceModal">
-                    <i class="mdi mdi-account-check"></i> Add Attendance
+                    <i class="mdi mdi-account-check"></i> Record Attendance
                 </button>
             </div>
         </div>
@@ -58,6 +58,8 @@
     @include('Sessions.partials.modals._book-next')
 
     @include('Sessions.partials.modals._add-attendance')
+
+    @include('Sessions.partials.modals._view-attendance')
 
     @include('Sessions.partials.modals._delete')
 

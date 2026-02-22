@@ -9,6 +9,7 @@ class Attendance extends Model
 {
     protected $fillable = [
         'client_id',
+        'membership_id',
         'customer_name',
         'customer_contact',
         'customer_type',
@@ -30,6 +31,14 @@ class Attendance extends Model
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    /**
+     * Get the membership that owns the attendance record.
+     */
+    public function membership()
+    {
+        return $this->belongsTo(Membership::class);
     }
 
     /**
@@ -94,14 +103,59 @@ class Attendance extends Model
     }
 
     /**
-     * Get the display name (client name or walk-in customer name)
+     * Get the display name (membership, client, or walk-in customer name)
      */
     public function getDisplayNameAttribute(): string
     {
+        if ($this->membership) {
+            return $this->membership->name;
+        }
         if ($this->client) {
             return $this->client->name;
         }
         return $this->customer_name ?? 'Walk-in';
+    }
+
+    /**
+     * Get the subscription type with priority: membership > client > walk-in
+     */
+    public function getSubscriptionTypeAttribute(): string
+    {
+        if ($this->membership) {
+            return $this->membership->plan_type;
+        }
+        if ($this->client) {
+            return $this->client->plan_type;
+        }
+        return 'Walk-in';
+    }
+
+    /**
+     * Get the status with priority: membership > client
+     */
+    public function getActiveStatusAttribute(): ?string
+    {
+        if ($this->membership) {
+            return $this->membership->status;
+        }
+        if ($this->client) {
+            return $this->client->status;
+        }
+        return null;
+    }
+
+    /**
+     * Get avatar with priority: membership > client
+     */
+    public function getActiveAvatarAttribute(): ?string
+    {
+        if ($this->membership && $this->membership->avatar) {
+            return $this->membership->avatar;
+        }
+        if ($this->client && $this->client->avatar) {
+            return $this->client->avatar;
+        }
+        return null;
     }
 
     /**

@@ -204,6 +204,19 @@
   font-size: 42px;
 }
 
+.avatar-initial-lg {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Status Badges */
 .badge {
   font-size: 1rem;

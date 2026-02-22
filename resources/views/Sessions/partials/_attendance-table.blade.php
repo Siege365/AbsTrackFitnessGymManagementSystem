@@ -51,11 +51,9 @@
                                 </th>
                                 <th>Name</th>
                                 <th>Subscription Type</th>
-                                <th>Customer Type</th>
                                 <th>Date</th>
                                 <th>Time In</th>
                                 <th>Status</th>
-                                <th>Contact #</th>
                                 <th style="width: 120px;">Actions</th>
                             </tr>
                         </thead>
@@ -72,8 +70,8 @@
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            @if ($attendance->client && $attendance->client->avatar)
-                                                <img src="{{ asset('storage/' . $attendance->client->avatar) }}"
+                                            @if ($attendance->active_avatar)
+                                                <img src="{{ asset('storage/' . $attendance->active_avatar) }}"
                                                     class="avatar-circle mr-2" alt="Avatar">
                                             @else
                                                 <div class="avatar-initial mr-2">
@@ -83,10 +81,13 @@
                                             <span>{{ $attendance->display_name }}</span>
                                         </div>
                                     </td>
-                                    <td>{{ $attendance->client->plan_type ?? 'N/A' }}</td>
                                     <td>
-                                        <span class="badge badge-info" style="font-size: 0.85rem;">
-                                            {{ $attendance->customer_type_display }}
+                                        @php
+                                            $subscriptionType = $attendance->subscription_type;
+                                            $badgeClass = $subscriptionType === 'Walk-in' ? 'badge-info' : 'badge-primary';
+                                        @endphp
+                                        <span class="badge {{ $badgeClass }}" style="font-size: 0.85rem;">
+                                            {{ $subscriptionType }}
                                         </span>
                                     </td>
                                     <td>{{ $attendance->date ? \Carbon\Carbon::parse($attendance->date)->format('d M Y') : 'N/A' }}
@@ -94,19 +95,22 @@
                                     <td>{{ $attendance->time_in ? \Carbon\Carbon::parse($attendance->time_in)->format('h:i A') : 'N/A' }}
                                     </td>
                                     <td>
-                                        @php
-                                            $status = $attendance->client->status ?? 'Active';
-                                            $statusClass = match ($status) {
-                                                'Expired' => 'badge-expired',
-                                                'Due soon' => 'badge-warning',
-                                                default => 'badge-active',
-                                            };
-                                        @endphp
-                                        <span class="badge {{ $statusClass }}">
-                                            <i class="mdi mdi-circle" style="font-size: 8px;"></i> {{ $status }}
-                                        </span>
+                                        @if($attendance->active_status)
+                                            @php
+                                                $status = $attendance->active_status;
+                                                $statusClass = match ($status) {
+                                                    'Expired' => 'badge-expired',
+                                                    'Due soon' => 'badge-warning',
+                                                    default => 'badge-active',
+                                                };
+                                            @endphp
+                                            <span class="badge {{ $statusClass }}">
+                                                <i class="mdi mdi-circle" style="font-size: 8px;"></i> {{ $status }}
+                                            </span>
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
                                     </td>
-                                    <td>{{ $attendance->client->contact ?? $attendance->customer_contact ?? 'N/A' }}</td>
                                     <td>
                                         <div class="dropdown">
                                             <button class="btn btn-sm btn-action" type="button"
@@ -117,7 +121,7 @@
                                             <div class="dropdown-menu dropdown-menu-right">
                                                 <a class="dropdown-item" href="javascript:void(0)"
                                                     onclick="SessionsPage.viewAttendance({{ $attendance->id }})">
-                                                    <i class="mdi mdi-eye mr-2"></i> View
+                                                    <i class="mdi mdi-eye mr-2"></i> View Details
                                                 </a>
                                                 <a class="dropdown-item text-danger" href="javascript:void(0)"
                                                     onclick="SessionsPage.confirmDeleteAttendance({{ $attendance->id }}, '{{ addslashes($attendance->display_name) }}')">
