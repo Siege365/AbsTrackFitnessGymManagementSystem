@@ -9,6 +9,10 @@ class Attendance extends Model
 {
     protected $fillable = [
         'client_id',
+        'membership_id',
+        'customer_name',
+        'customer_contact',
+        'customer_type',
         'date',
         'time_in',
         'time_out',
@@ -21,12 +25,27 @@ class Attendance extends Model
         'time_out' => 'datetime:H:i',
     ];
 
+    protected $appends = [
+        'display_name',
+        'subscription_type',
+        'active_status',
+        'active_avatar',
+    ];
+
     /**
      * Get the client that owns the attendance record.
      */
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    /**
+     * Get the membership that owns the attendance record.
+     */
+    public function membership()
+    {
+        return $this->belongsTo(Membership::class);
     }
 
     /**
@@ -87,6 +106,77 @@ class Attendance extends Model
             'due_soon' => 'Due soon',
             'expired' => 'Expired',
             default => ucfirst($this->status),
+        };
+    }
+
+    /**
+     * Get the display name (membership, client, or walk-in customer name)
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        if ($this->membership) {
+            return $this->membership->name;
+        }
+        if ($this->client) {
+            return $this->client->name;
+        }
+        return $this->customer_name ?? 'Walk-in';
+    }
+
+    /**
+     * Get the subscription type with priority: membership > client > walk-in
+     */
+    public function getSubscriptionTypeAttribute(): string
+    {
+        if ($this->membership) {
+            return $this->membership->plan_type;
+        }
+        if ($this->client) {
+            return $this->client->plan_type;
+        }
+        return 'Walk-in';
+    }
+
+    /**
+     * Get the status with priority: membership > client
+     */
+    public function getActiveStatusAttribute(): ?string
+    {
+        if ($this->membership) {
+            return $this->membership->status;
+        }
+        if ($this->client) {
+            return $this->client->status;
+        }
+        return null;
+    }
+
+    /**
+     * Get avatar with priority: membership > client
+     */
+    public function getActiveAvatarAttribute(): ?string
+    {
+        if ($this->membership && $this->membership->avatar) {
+            return $this->membership->avatar;
+        }
+        if ($this->client && $this->client->avatar) {
+            return $this->client->avatar;
+        }
+        return null;
+    }
+
+    /**
+     * Get customer type display label
+     */
+    public function getCustomerTypeDisplayAttribute(): string
+    {
+        return match($this->customer_type) {
+            'walk-in', 'session' => 'Walk-in',
+            'monthly' => 'Monthly',
+            'quarterly' => 'Quarterly',
+            'half-yearly' => 'Half-yearly',
+            'annual' => 'Annual',
+            default => ucfirst($this->customer_type ?? 'walk-in'),
         };
     }
 }

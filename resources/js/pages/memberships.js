@@ -142,7 +142,7 @@ const MembershipsPage = (function() {
    * @param {boolean} confirmSimilar - Whether to confirm similar name submission
    */
   function submitMemberForm(confirmSimilar = false) {
-    const submitBtn = document.querySelector('#addMemberConfirmOverlay .btn-primary');
+    const submitBtn = document.querySelector('#addMemberConfirmOverlay .btn-update');
     const elements = getAddModalElements();
 
     try {
@@ -335,7 +335,7 @@ const MembershipsPage = (function() {
     
     const formData = new FormData(form);
     
-    FormUtils.setButtonLoading(submitBtn, true, 'Updating...');
+    FormUtils.setButtonLoading(submitBtn, 'Updating...');
     
     fetch(actionUrl, {
       method: 'POST',
@@ -363,7 +363,7 @@ const MembershipsPage = (function() {
       setTimeout(() => location.reload(), 1000);
     })
     .catch(error => {
-      FormUtils.setButtonLoading(submitBtn, false);
+      FormUtils.resetButton(submitBtn);
       ToastUtils.showError('Failed to update member: ' + (error.message || 'Unknown error'), 'Error');
     });
   }
@@ -448,9 +448,8 @@ const MembershipsPage = (function() {
       return;
     }
     
-    // Populate confirmation overlay
-    const planSelect = document.getElementById('renewPlanType');
-    const planText = planSelect.options[planSelect.selectedIndex].text;
+    // Populate confirmation overlay (renewPlanType is a hidden input, not a select)
+    const planText = document.getElementById('renewPlanType').value;
     document.getElementById('confirmRenewNameText').textContent = memberName;
     document.getElementById('confirmRenewPlanText').textContent = planText;
     document.getElementById('confirmRenewDurationText').textContent = startDate + ' to ' + endDate;
@@ -505,7 +504,7 @@ const MembershipsPage = (function() {
    * Open delete confirmation modal
    * @param {number} membershipId - Membership ID
    * @param {string} memberName - Member name
-   * @param {string} planType - Plan type
+   * @param {string} planType - Subscription type
    * @param {string} status - Current status
    */
   function openDeleteModal(membershipId, memberName, planType, status) {
@@ -530,7 +529,7 @@ const MembershipsPage = (function() {
     const deleteForm = document.getElementById('deleteForm');
     const submitBtn = event.target;
     
-    FormUtils.setButtonLoading(submitBtn, true, 'Deleting...');
+    FormUtils.setButtonLoading(submitBtn, 'Deleting...');
     
     // Submit form
     fetch(deleteForm.action, {
@@ -567,7 +566,7 @@ const MembershipsPage = (function() {
       }
     })
     .catch(error => {
-      FormUtils.setButtonLoading(submitBtn, false);
+      FormUtils.resetButton(submitBtn);
       ToastUtils.showError('Failed to delete member: ' + error.message, 'Error');
     });
   }
@@ -775,6 +774,28 @@ const MembershipsPage = (function() {
         }
       });
     }
+
+    // Reset modals on close — clear forms, validation, and confirm overlays
+    $('.modal').on('hidden.bs.modal', function() {
+      const $modal = $(this);
+      // Reset all forms inside the modal
+      $modal.find('form').each(function() { this.reset(); });
+      // Remove validation states
+      $modal.find('.is-invalid').removeClass('is-invalid');
+      $modal.find('.invalid-feedback').remove();
+      // Hide any confirm overlays
+      $modal.find('[id$="ConfirmOverlay"], [id$="confirmOverlay"]').hide();
+      // Re-enable any disabled submit buttons and restore original text
+      $modal.find('button[type="submit"], .btn-primary, .btn-update, .btn-delete').each(function() {
+        this.disabled = false;
+        if (this.dataset.originalText) {
+          this.innerHTML = this.dataset.originalText;
+        }
+      });
+      // Reset avatar previews
+      $modal.find('.avatar-preview').attr('src', '').hide();
+      $modal.find('.avatar-input-container').show();
+    });
   }
 
   // Public API

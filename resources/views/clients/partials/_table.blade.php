@@ -50,12 +50,12 @@
                     </div>
                   </div>
                   
-                  <!-- Plan Type Filter -->
+                  <!-- Subscription Type Filter -->
                   <div class="filter-section">
                     <div class="filter-section-header" onclick="ClientsPage.toggleFilterSection(this, event)">
                       <div class="filter-section-title">
                         <i class="mdi mdi-card-account-details-outline"></i>
-                        <span>Plan Type</span>
+                        <span>Subscription Type</span>
                       </div>
                       <i class="mdi mdi-chevron-down filter-chevron"></i>
                     </div>
@@ -123,7 +123,7 @@
                 </th>
                 <th>Id#</th>
                 <th>Name</th>
-                <th>Plan Type</th>
+                <th>Subscription Type</th>
                 <th>Start Date</th>
                 <th>Due Date</th>
                 <th>Status</th>
@@ -184,7 +184,7 @@
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">
                       <button type="button" class="dropdown-item" data-toggle="modal" data-target="#viewModal{{ $client->id }}">
-                        <i class="mdi mdi-eye mr-2"></i> View
+                        <i class="mdi mdi-pencil"></i> Edit Details
                       </button>
                       <button type="button" class="dropdown-item text-success" 
                         onclick="openRenewClientModal({{ $client->id }}, '{{ $client->name }}', '{{ $client->gymPlan->plan_name ?? $client->plan_type }}', '{{ $client->plan_type }}', {{ $client->gymPlan->duration_days ?? 30 }}, '{{ $client->start_date->format('Y-m-d') }}', '{{ $client->due_date->format('Y-m-d') }}')">

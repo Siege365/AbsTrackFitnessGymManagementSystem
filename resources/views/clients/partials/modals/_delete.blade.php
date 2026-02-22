@@ -1,5 +1,5 @@
 <!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteClientConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteClientConfirmModalLabel" aria-hidden="true">
+<div class="modal fade" id="deleteClientConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteClientConfirmModalLabel">
   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -13,19 +13,21 @@
           <i class="mdi mdi-alert-circle"></i> Are you sure you want to delete this client? This action cannot be undone.
         </div>
 
-        <div class="form-group">
-          <label>Client Name</label>
-          <div class="form-control" id="deleteClientName" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
-        </div>
+        <div class="delete-details">
+          <div class="form-group">
+            <label>Client Name</label>
+            <div class="form-control" id="deleteClientName"></div>
+          </div>
 
-        <div class="form-group">
-          <label>Subscription Plan</label>
-          <div class="form-control" id="deleteClientPlan" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
-        </div>
+          <div class="form-group">
+            <label>Subscription Plan</label>
+            <div class="form-control" id="deleteClientPlan"></div>
+          </div>
 
-        <div class="form-group">
-          <label>Status</label>
-          <div class="form-control" id="deleteClientStatus" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+          <div class="form-group">
+            <label>Status</label>
+            <div class="form-control" id="deleteClientStatus"></div>
+          </div>
         </div>
 
         <form id="deleteClientForm" method="POST" style="display: none;">

@@ -11,13 +11,36 @@ const SessionsPage = {
     name: null
   },
 
+  // Track the current cancel operation
+  pendingCancel: {
+    id: null,
+    clientId: null,
+    clientName: null
+  },
+
+  // Track walk-in state for PT form
+  _ptIsWalkIn: false,
+  _ptSelectedData: null,
+  _ptAutocomplete: null,
+  _ptConfirmSubmitted: false,
+  _ptShowingConfirmation: false,
+
+  // Track walk-in state for Attendance form
+  _attIsWalkIn: false,
+  _attSelectedData: null,
+
+  // Track bulk delete operation
+  _bulkDeleteType: null,
+  _bulkDeleteIds: [],
+
   // Initialize the page
   init: function() {
     this.bindEvents();
-    this.setupClientDropdown();
+    this.setupPTCustomerSearch();
     this.setupSearchForms();
     this.setupCheckboxes();
     this.initializeAttendanceModal();
+    this.setupPTModal();
   },
 
   // Refresh KPI cards with latest data
@@ -73,7 +96,9 @@ const SessionsPage = {
     // Add PT Schedule form submission
     $('#addPTScheduleForm').on('submit', function(e) {
       e.preventDefault();
-      SessionsPage.submitPTSchedule();
+      if (SessionsPage.validatePTScheduleDateTime()) {
+        SessionsPage.submitPTSchedule();
+      }
     });
 
     // Edit PT Schedule form submission
@@ -85,7 +110,9 @@ const SessionsPage = {
     // Book Next Session form submission
     $('#bookNextForm').on('submit', function(e) {
       e.preventDefault();
-      SessionsPage.submitBookNext();
+      if (SessionsPage.validateBookNextDateTime()) {
+        SessionsPage.submitBookNext();
+      }
     });
 
     // Add Attendance form submission
@@ -104,8 +131,8 @@ const SessionsPage = {
       $('#confirmError').toggleClass('d-none', isMatch || input === '');
     });
 
-    // Reset modals on close
-    $('.modal').on('hidden.bs.modal', function() {
+    // Reset modals on close (excluding confirm/bulk-delete modals which have custom handlers)
+    $('.modal').not('#confirmPTModal, #bulkDeleteConfirmModal, #addPTScheduleModal, #addAttendanceModal').on('hidden.bs.modal', function() {
       $(this).find('form')[0]?.reset();
       $(this).find('.edit-field').prop('disabled', true);
       $(this).find('.is-invalid').removeClass('is-invalid');
@@ -117,30 +144,166 @@ const SessionsPage = {
       $('#confirmError').addClass('d-none');
       $('#finalDeleteBtn').prop('disabled', true);
     });
+
+    // Reload page when reschedule offer modal is dismissed (cancel already executed)
+    $('#rescheduleOfferModal').on('hidden.bs.modal', function() {
+      // If the user chose "Yes, Reschedule", the openRescheduleBooking flag is set
+      if (SessionsPage._openingReschedule) {
+        SessionsPage._openingReschedule = false;
+        return; // don't reload — book next modal will open
+      }
+      // User chose "No, Thanks" — reload to reflect the cancellation
+      setTimeout(() => location.reload(), 300);
+    });
+
+    // When confirm PT modal is dismissed (Go Back), re-open the Add PT form
+    $('#confirmPTModal').on('hidden.bs.modal', function() {
+      if (SessionsPage._ptConfirmSubmitted) {
+        SessionsPage._ptConfirmSubmitted = false;
+        return; // submission happened, don't re-open
+      }
+      // Re-open Add PT modal so user can edit
+      $('#addPTScheduleModal').modal('show');
+    });
+
+    // Reset bulk delete confirm button on close
+    $('#bulkDeleteConfirmModal').on('hidden.bs.modal', function() {
+      $('#bulkDeleteConfirmBtn').prop('disabled', false).html('<i class="mdi mdi-delete"></i> Delete');
+    });
+
+    // Reset confirm PT button on close
+    $('#confirmPTModal').on('hidden.bs.modal', function() {
+      $('#confirmPTSubmitBtn').prop('disabled', false).html('<i class="mdi mdi-check"></i> Confirm');
+    });
   },
 
-  // Setup client dropdown to auto-fill fields
-  setupClientDropdown: function() {
-    $('#pt_client_id').on('change', function() {
-      const selected = $(this).find(':selected');
-      if (selected.val()) {
-        $('#pt_age').val(selected.data('age') || '');
-        $('#pt_contact').val(selected.data('contact') || '');
-        $('#pt_plan').val(selected.data('plan') || '');
-        $('#pt_start_date').val(selected.data('start') || '');
-        $('#pt_end_date').val(selected.data('end') || '');
-        
-        // Avatar preview
-        const avatar = selected.data('avatar');
-        if (avatar) {
-          $('#pt_avatar_preview').html('<img src="/storage/' + avatar + '" alt="Avatar">');
+  // Setup Select2 AJAX search for PT customer name (supports walk-in)
+  setupPTCustomerSearch: function() {
+    if (!window.AutocompleteUtils) return;
+
+    const inputElement = document.getElementById('pt_customer_select');
+    if (!inputElement) return;
+
+    // Initialize autocomplete with walk-in support
+    this._ptAutocomplete = AutocompleteUtils.init({
+      inputElement: inputElement,
+      apiUrl: '/sessions/customers/search',
+      minChars: 1,
+      debounceMs: 300,
+      onSelect: (item) => {
+        // Existing customer selected from dropdown
+        this._ptIsWalkIn = false;
+        this._ptSelectedData = item;
+
+        $('#pt_customer_id').val(item.id);
+        $('#pt_customer_type').val(item.source);
+        $('#pt_age').val(item.age || '').prop('readonly', true);
+        $('#pt_sex').val(item.sex || '').prop('disabled', true);
+        $('#pt_contact').val(item.contact || '').prop('readonly', true);
+        $('#pt_plan').val(item.plan_type || 'N/A');
+
+        // Update avatar
+        if (item.avatar) {
+          $('#pt_avatar_preview').html('<img src="/storage/' + item.avatar + '" alt="Avatar">');
         } else {
-          $('#pt_avatar_preview').html('<i class="mdi mdi-account"></i>');
+          var initial = (item.name || '?').charAt(0).toUpperCase();
+          $('#pt_avatar_preview').html('<div class="avatar-initial" style="width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;">' + initial + '</div>');
         }
-      } else {
-        $('#pt_age, #pt_contact, #pt_plan, #pt_start_date, #pt_end_date').val('');
-        $('#pt_avatar_preview').html('<i class="mdi mdi-account"></i>');
+        $('#pt_avatar_label').text(item.name).removeClass('text-muted').addClass('text-white');
       }
+    });
+
+    // Handle walk-in when user types a name not in the list
+    $('#pt_customer_select').on('blur', function() {
+      var enteredText = $(this).val().trim();
+      if (enteredText && !SessionsPage._ptSelectedData) {
+        // User typed a name but didn't select from dropdown - treat as walk-in
+        SessionsPage._ptIsWalkIn = true;
+        SessionsPage._ptSelectedData = null;
+
+        $('#pt_customer_id').val('');
+        $('#pt_customer_type').val('walkin');
+        $('#pt_age').val('').prop('readonly', false);
+        $('#pt_sex').val('').prop('disabled', false);
+        $('#pt_contact').val('').prop('readonly', false);
+        $('#pt_plan').val('Walk-in');
+
+        var initial = (enteredText || '?').charAt(0).toUpperCase();
+        $('#pt_avatar_preview').html('<div class="avatar-initial" style="width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;">' + initial + '</div>');
+        $('#pt_avatar_label').text(enteredText + ' (Walk-in)').removeClass('text-muted').addClass('text-white');
+      }
+    });
+
+    // Reset on modal close
+    $('#addPTScheduleModal').on('hidden.bs.modal', function() {
+      // Don't reset if we're showing the confirmation modal
+      if (!SessionsPage._ptShowingConfirmation) {
+        SessionsPage._resetPTFields();
+        $('#pt_customer_select').val('');
+        $('#pt_customer_id').val('');
+        $('#pt_customer_type').val('');
+        
+        // Destroy Select2 instance on modal close
+        if ($('#pt_trainer').hasClass('select2-hidden-accessible')) {
+          $('#pt_trainer').select2('destroy');
+        }
+      }
+    });
+
+    // Reset when confirmation modal is closed
+    $('#confirmPTModal').on('hidden.bs.modal', function() {
+      SessionsPage._ptShowingConfirmation = false;
+      // Only reset if not already submitted successfully
+      if (!SessionsPage._ptConfirmSubmitted) {
+        SessionsPage._resetPTFields();
+        $('#pt_customer_select').val('');
+        $('#pt_customer_id').val('');
+        $('#pt_customer_type').val('');
+        
+        // Destroy Select2 instance
+        if ($('#pt_trainer').hasClass('select2-hidden-accessible')) {
+          $('#pt_trainer').select2('destroy');
+        }
+      }
+      SessionsPage._ptConfirmSubmitted = false;
+    });
+  },
+
+  // Handle PT customer selection (existing or walk-in)
+  // Reset PT form fields
+  _resetPTFields: function() {
+    this._ptIsWalkIn = false;
+    this._ptSelectedData = null;
+    $('#pt_age').val('').prop('readonly', true);
+    $('#pt_sex').val('').prop('disabled', true);
+    $('#pt_contact').val('').prop('readonly', true);
+    $('#pt_plan').val('');
+    $('#pt_avatar_preview').html('<i class="mdi mdi-account"></i>');
+    $('#pt_avatar_label').text('No customer selected').removeClass('text-white').addClass('text-muted');
+  },
+
+  // Setup PT Modal - Initialize Select2 when modal is shown
+  setupPTModal: function() {
+    $('#addPTScheduleModal').on('shown.bs.modal', function() {
+      if (typeof $.fn.select2 !== 'function') return;
+
+      // Small delay to ensure modal is fully rendered
+      setTimeout(function() {
+        const $trainer = $('#pt_trainer');
+        
+        // Destroy existing Select2 if any
+        if ($trainer.hasClass('select2-hidden-accessible')) {
+          $trainer.select2('destroy');
+        }
+
+        // Initialize Select2 on trainer dropdown (custom dark theme via CSS)
+        $trainer.select2({
+          width: '100%',
+          minimumResultsForSearch: Infinity, // Disable search box
+          placeholder: 'Select Trainer',
+          dropdownParent: $('#addPTScheduleModal')
+        });
+      }, 100);
     });
   },
 
@@ -153,38 +316,60 @@ const SessionsPage = {
     });
   },
 
-  // Initialize attendance modal with Select2 and auto-date/time
+  // Initialize attendance modal with Select2 AJAX search + walk-in support
   initializeAttendanceModal: function() {
-    // Initialize Select2 for client search
-    if ($.fn.select2) {
-      $('#attendance_client_id').select2({
-        placeholder: 'Search and select client...',
-        allowClear: true,
-        dropdownParent: $('#addAttendanceModal'),
-        width: '100%'
-      });
-    }
+    if (!window.AutocompleteUtils) return;
+
+    const inputElement = document.getElementById('attendance_customer_select');
+    if (!inputElement) return;
+
+    // Initialize autocomplete with walk-in support
+    this._attAutocomplete = AutocompleteUtils.init({
+      inputElement: inputElement,
+      apiUrl: '/sessions/customers/search',
+      minChars: 1,
+      debounceMs: 300,
+      onSelect: (item) => {
+        // Existing customer selected from dropdown
+        this._attIsWalkIn = false;
+        this._attSelectedData = item;
+        $('#attendance_customer_id').val(item.id);
+        $('#attendance_customer_type').val(item.source);
+      }
+    });
+
+    // Handle walk-in when user types a name not in the list
+    $('#attendance_customer_select').on('blur', function() {
+      var enteredText = $(this).val().trim();
+      if (enteredText && !SessionsPage._attSelectedData) {
+        // User typed a name but didn't select from dropdown - treat as walk-in
+        SessionsPage._attIsWalkIn = true;
+        SessionsPage._attSelectedData = null;
+        $('#attendance_customer_id').val('');
+        $('#attendance_customer_type').val('walkin');
+      }
+    });
 
     // Update date and time when modal opens
     $('#addAttendanceModal').on('show.bs.modal', function() {
-      // Set current date
-      const today = new Date();
-      const dateStr = today.getFullYear() + '-' + 
-                      String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-                      String(today.getDate()).padStart(2, '0');
+      var today = new Date();
+      var dateStr = today.getFullYear() + '-' +
+                    String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(today.getDate()).padStart(2, '0');
       $('#attendance_date').val(dateStr);
 
-      // Set current time
-      const timeStr = String(today.getHours()).padStart(2, '0') + ':' + 
-                      String(today.getMinutes()).padStart(2, '0');
+      var timeStr = String(today.getHours()).padStart(2, '0') + ':' +
+                    String(today.getMinutes()).padStart(2, '0');
       $('#attendance_time').val(timeStr);
+    });
 
-      // Clear client selection
-      if ($.fn.select2) {
-        $('#attendance_client_id').val(null).trigger('change');
-      } else {
-        $('#attendance_client_id').val('');
-      }
+    // Reset on modal close
+    $('#addAttendanceModal').on('hidden.bs.modal', function() {
+      SessionsPage._attIsWalkIn = false;
+      SessionsPage._attSelectedData = null;
+      $('#attendance_customer_select').val('');
+      $('#attendance_customer_id').val('');
+      $('#attendance_customer_type').val('');
     });
   },
 
@@ -222,29 +407,188 @@ const SessionsPage = {
     $('#selectedPTCount').text(count);
   },
 
-  // Submit new PT Schedule
+  // Validate PT Schedule Date and Time
+  validatePTScheduleDateTime: function() {
+    const dateInput = $('input[name="scheduled_date"]', '#addPTScheduleForm').val();
+    const timeInput = $('select[name="scheduled_time"]', '#addPTScheduleForm').val();
+
+    if (!dateInput || !timeInput) {
+      this.showToast('error', 'Please select both date and time');
+      return false;
+    }
+
+    // Parse the selected date and time
+    const selectedDateTime = new Date(dateInput + 'T' + timeInput);
+    const now = new Date();
+
+    // Check if date/time is in the past
+    if (selectedDateTime < now) {
+      this.showToast('error', 'Cannot schedule a session in the past. Please select a future date and time.');
+      return false;
+    }
+
+    // Extract hour from time (format: "HH:MM")
+    const hour = parseInt(timeInput.split(':')[0]);
+
+    // Check operating hours (6 AM to 9 PM)
+    if (hour < 6 || hour >= 21) {
+      this.showToast('error', 'Gym operating hours are 6:00 AM to 9:00 PM. Please select a time within operating hours.');
+      return false;
+    }
+
+    return true;
+  },
+
+  // Validate Book Next Session Date and Time
+  validateBookNextDateTime: function() {
+    const dateInput = $('input[name="scheduled_date"]', '#bookNextForm').val();
+    const timeInput = $('select[name="scheduled_time"]', '#bookNextForm').val();
+
+    if (!dateInput || !timeInput) {
+      this.showToast('error', 'Please select both date and time');
+      return false;
+    }
+
+    // Parse the selected date and time
+    const selectedDateTime = new Date(dateInput + 'T' + timeInput);
+    const now = new Date();
+
+    // Check if date/time is in the past
+    if (selectedDateTime < now) {
+      this.showToast('error', 'Cannot book a session in the past. Please select a future date and time.');
+      return false;
+    }
+
+    // Extract hour from time (format: "HH:MM")
+    const hour = parseInt(timeInput.split(':')[0]);
+
+    // Check operating hours (6 AM to 9 PM)
+    if (hour < 6 || hour >= 21) {
+      this.showToast('error', 'Gym operating hours are 6:00 AM to 9:00 PM. Please select a time within operating hours.');
+      return false;
+    }
+
+    return true;
+  },
+
+  // Submit new PT Schedule — show confirmation modal first
   submitPTSchedule: function() {
-    const form = $('#addPTScheduleForm');
-    const formData = new FormData(form[0]);
-    
+    // Validate required fields
+    var customerName = $('#pt_customer_select').val();
+    var trainerVal = $('#pt_trainer').val();
+    var dateVal = $('[name="scheduled_date"]', '#addPTScheduleForm').val();
+    var timeVal = $('[name="scheduled_time"]', '#addPTScheduleForm').val();
+    var paymentVal = $('[name="payment_type"]', '#addPTScheduleForm').val();
+
+    if (!customerName || !customerName.trim()) {
+      SessionsPage.showToast('error', 'Please search and select a customer or type a walk-in name.');
+      return;
+    }
+    if (!trainerVal) {
+      SessionsPage.showToast('error', 'Please select a trainer.');
+      return;
+    }
+    if (!dateVal) {
+      SessionsPage.showToast('error', 'Please select a date.');
+      return;
+    }
+    if (!timeVal) {
+      SessionsPage.showToast('error', 'Please select a time.');
+      return;
+    }
+
+    // Determine customer name for display
+    var displayName = this._ptIsWalkIn
+      ? customerName.replace(' (Walk-in)', '').trim()
+      : (this._ptSelectedData?.name || customerName);
+
+    // Format time for display
+    var timeText = $('[name="scheduled_time"] option:selected', '#addPTScheduleForm').text();
+
+    // Populate confirmation modal
+    $('#confirmPT_name').text(displayName + (this._ptIsWalkIn ? ' (Walk-in)' : ''));
+    $('#confirmPT_trainer').text(trainerVal);
+    $('#confirmPT_date').text(dateVal);
+    $('#confirmPT_time').text(timeText || timeVal);
+    $('#confirmPT_payment').text(paymentVal);
+
+    if (this._ptIsWalkIn) {
+      $('#confirmPT_type_row').show();
+      $('#confirmPT_type').text('Walk-in Customer');
+    } else {
+      var source = this._ptSelectedData?.source === 'membership' ? 'Membership' : 'Client';
+      $('#confirmPT_type_row').show();
+      $('#confirmPT_type').text(source);
+    }
+
+    // Hide Add PT modal and show confirmation
+    this._ptShowingConfirmation = true;
+    $('#addPTScheduleModal').modal('hide');
+    $('#addPTScheduleModal').one('hidden.bs.modal', function() {
+      $('#confirmPTModal').modal('show');
+    });
+  },
+
+  // Go back from confirmation to PT form modal
+  goBackToPTForm: function() {
+    // Keep the data intact by maintaining the flag
+    this._ptShowingConfirmation = true;
+    $('#confirmPTModal').modal('hide');
+    $('#confirmPTModal').one('hidden.bs.modal', function() {
+      $('#addPTScheduleModal').modal('show');
+      // Reset the flag after showing the form again
+      SessionsPage._ptShowingConfirmation = false;
+    });
+  },
+
+  // Execute PT schedule submission after confirmation
+  executeSubmitPT: function() {
+    this._ptConfirmSubmitted = true;
+    var $btn = $('#confirmPTSubmitBtn');
+    $btn.prop('disabled', true).html('<i class="mdi mdi-loading mdi-spin"></i> Submitting...');
+
+    var data = {
+      _token: $('meta[name="csrf-token"]').attr('content'),
+      trainer_name: $('#pt_trainer').val(),
+      scheduled_date: $('[name="scheduled_date"]', '#addPTScheduleForm').val(),
+      scheduled_time: $('[name="scheduled_time"]', '#addPTScheduleForm').val(),
+      payment_type: $('[name="payment_type"]', '#addPTScheduleForm').val()
+    };
+
+    if (this._ptIsWalkIn) {
+      var customerName = $('#pt_customer_select').val();
+      data.customer_name = customerName.replace(' (Walk-in)', '').trim();
+      data.customer_age = $('#pt_age').val() || null;
+      data.customer_sex = $('#pt_sex').val() || null;
+      data.customer_contact = $('#pt_contact').val() || null;
+      data.customer_source = 'walkin';
+    } else if (this._ptSelectedData) {
+      // Send the appropriate ID based on customer source
+      if (this._ptSelectedData.source === 'membership') {
+        data.membership_id = this._ptSelectedData.id;
+        data.customer_source = 'membership';
+      } else {
+        data.client_id = this._ptSelectedData.id;
+        data.customer_source = 'client';
+      }
+    }
+
     $.ajax({
       url: '/sessions/pt-schedule',
       method: 'POST',
-      data: formData,
-      processData: false,
-      contentType: false,
-      headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-      },
+      data: data,
       success: function(response) {
-        $('#addPTScheduleModal').modal('hide');
+        $('#confirmPTModal').modal('hide');
         SessionsPage.showToast('success', 'PT Schedule added successfully!');
         SessionsPage.refreshKPIs();
         setTimeout(() => location.reload(), 1000);
       },
       error: function(xhr) {
+        // Re-enable button
+        $btn.prop('disabled', false).html('<i class="mdi mdi-check"></i> Confirm');
+
         const errors = xhr.responseJSON?.errors || {};
-        const message = Object.values(errors)[0]?.[0] || 'Failed to add PT Schedule';
+        const message = Object.values(errors)[0]?.[0] || xhr.responseJSON?.message || 'Failed to add PT Schedule';
         SessionsPage.showToast('error', message);
       }
     });
@@ -267,24 +611,48 @@ const SessionsPage = {
       method: 'GET',
       success: function(response) {
         const data = response.data;
+        const isWalkIn = data.customer_source === 'walkin';
+        const isMembership = data.customer_source === 'membership';
+        
+        // Get display name based on source
+        let displayName = 'N/A';
+        if (isMembership && data.membership) {
+          displayName = data.membership.name;
+        } else if (data.client) {
+          displayName = data.client.name;
+        } else if (data.customer_name) {
+          displayName = data.customer_name;
+        }
+        
+        // Get customer details
+        let customerData = null;
+        if (isMembership && data.membership) {
+          customerData = data.membership;
+        } else if (data.client) {
+          customerData = data.client;
+        }
+
         $('#edit_pt_id').val(data.id);
-        $('#edit_pt_name').val(data.client?.name || '');
-        $('#edit_pt_age').val(data.client?.age || '');
-        $('#edit_pt_contact').val(data.client?.contact || '');
-        $('#edit_pt_plan').val(data.client?.plan_type || '');
-        $('#edit_pt_start').val(data.client?.start_date || '');
-        $('#edit_pt_end').val(data.client?.due_date || '');
+        $('#edit_pt_name').val(displayName);
+        $('#edit_pt_age').val(isWalkIn ? (data.customer_age || '') : (customerData?.age || ''));
+        $('#edit_pt_sex').val(isWalkIn ? (data.customer_sex || '') : (customerData?.sex || ''));
+        $('#edit_pt_contact').val(isWalkIn ? (data.customer_contact || '') : (customerData?.contact || ''));
+        $('#edit_pt_plan').val(isWalkIn ? 'Walk-in' : (customerData?.plan_type || ''));
         $('#edit_trainer').val(data.trainer_name);
         $('#edit_date').val(data.scheduled_date);
         $('#edit_time').val(data.scheduled_time?.substring(0, 5));
         $('#edit_payment').val(data.payment_type);
-        $('#edit_pt_status').val(data.status?.charAt(0).toUpperCase() + data.status?.slice(1));
+        $('#edit_pt_status').val(data.status?.charAt(0).toUpperCase() + data.status?.slice(1).replace('_', ' '));
 
-        // Avatar
-        if (data.client?.avatar) {
-          $('#edit_pt_avatar_preview').html('<img src="/storage/' + data.client.avatar + '" alt="Avatar">');
+        // Display name under avatar
+        $('#edit_pt_display_name').text(displayName + (isWalkIn ? ' (Walk-in)' : ''));
+
+        // Avatar (centered)
+        if (customerData?.avatar) {
+          $('#edit_pt_avatar_preview').html('<img src="/storage/' + customerData.avatar + '" alt="Avatar">');
         } else {
-          $('#edit_pt_avatar_preview').html('<i class="mdi mdi-account"></i>');
+          var initial = (displayName || '?').charAt(0).toUpperCase();
+          $('#edit_pt_avatar_preview').html('<div class="avatar-initial" style="width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;">' + initial + '</div>');
         }
 
         if (enableEdit) {
@@ -378,6 +746,61 @@ const SessionsPage = {
     $('#bookNextModal').modal('show');
   },
 
+  // Confirm cancel PT session — show first confirmation modal
+  confirmCancelPT: function(id, clientId, clientName) {
+    this.pendingCancel = { id: id, clientId: clientId, clientName: clientName };
+    $('#cancelPTClientName').text(clientName);
+    $('#cancelPTId').val(id);
+    $('#cancelPTClientId').val(clientId);
+    $('#cancelPTClientNameHidden').val(clientName);
+    $('#cancelPTConfirmModal').modal('show');
+  },
+
+  // Execute the cancellation via AJAX, then offer reschedule
+  executeCancelPT: function() {
+    const id = this.pendingCancel.id;
+    const clientName = this.pendingCancel.clientName;
+
+    $('#cancelPTConfirmModal').modal('hide');
+
+    $.ajax({
+      url: '/sessions/pt-schedule/' + id + '/status',
+      method: 'PATCH',
+      data: { status: 'cancelled' },
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      },
+      success: function() {
+        SessionsPage.showToast('success', 'Session cancelled for ' + clientName);
+        SessionsPage.refreshKPIs();
+
+        // After a short delay, show the reschedule offer modal
+        setTimeout(function() {
+          $('#rescheduleClientName').text(clientName);
+          $('#rescheduleOfferModal').modal('show');
+        }, 500);
+      },
+      error: function(xhr) {
+        const message = xhr.responseJSON?.message || 'Failed to cancel session';
+        SessionsPage.showToast('error', message);
+      }
+    });
+  },
+
+  // Handle "Yes, Reschedule" — close offer modal then open Book Next modal
+  openRescheduleBooking: function() {
+    const clientId = this.pendingCancel.clientId;
+    const clientName = this.pendingCancel.clientName;
+
+    this._openingReschedule = true;
+    $('#rescheduleOfferModal').modal('hide');
+
+    // Wait for modal to close before opening the next one
+    $('#rescheduleOfferModal').one('hidden.bs.modal', function() {
+      SessionsPage.openBookNextModal(clientId, clientName);
+    });
+  },
+
   // Submit Book Next Session
   submitBookNext: function() {
     const form = $('#bookNextForm');
@@ -406,20 +829,16 @@ const SessionsPage = {
     });
   },
 
-  // Submit new Attendance
+  // Submit new Attendance (supports clients, memberships, walk-ins)
   submitAttendance: function() {
     // Clear previous error states
-    $('#attendance_client_id').removeClass('is-invalid');
     $('.invalid-feedback').remove();
+    $('.is-invalid').removeClass('is-invalid');
 
-    // Validate client selection
-    const clientId = $('#attendance_client_id').val();
-    if (!clientId) {
-      $('#attendance_client_id').addClass('is-invalid');
-      $('#attendance_client_id').parent().append(
-        '<div class="invalid-feedback d-block">Please select a client before submitting.</div>'
-      );
-      SessionsPage.showToast('error', 'Please select a client');
+    // Validate customer selection
+    var customerName = $('#attendance_customer_select').val();
+    if (!customerName || !customerName.trim()) {
+      SessionsPage.showToast('error', 'Please search and select a customer or type a walk-in name.');
       return;
     }
 
@@ -428,18 +847,29 @@ const SessionsPage = {
     const originalText = $submitBtn.html();
     $submitBtn.prop('disabled', true).html('<i class="mdi mdi-loading mdi-spin"></i> Recording...');
 
-    const form = $('#addAttendanceForm');
-    const formData = new FormData(form[0]);
+    var data = {
+      _token: $('meta[name="csrf-token"]').attr('content'),
+      date: $('#attendance_date').val(),
+      time_in: $('#attendance_time').val()
+    };
+
+    if (this._attIsWalkIn) {
+      // Walk-in customer
+      data.customer_name = customerName.replace(' (Walk-in)', '').trim();
+    } else if (this._attSelectedData) {
+      // Existing customer
+      var source = this._attSelectedData.source;
+      if (source === 'client') {
+        data.client_id = this._attSelectedData.id;
+      } else if (source === 'membership') {
+        data.membership_id = this._attSelectedData.id;
+      }
+    }
 
     $.ajax({
       url: '/sessions/attendance',
       method: 'POST',
-      data: formData,
-      processData: false,
-      contentType: false,
-      headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-      },
+      data: data,
       success: function(response) {
         $('#addAttendanceModal').modal('hide');
         SessionsPage.showToast('success', 'Attendance recorded successfully!');
@@ -457,32 +887,16 @@ const SessionsPage = {
 
           // Display validation errors
           if (message) {
-            // Check for specific error messages
             if (message.includes('already checked in')) {
               SessionsPage.showToast('error', message);
-              $('#attendance_client_id').addClass('is-invalid');
-              $('#attendance_client_id').parent().append(
-                '<div class="invalid-feedback d-block">' + message + '</div>'
-              );
             } else if (message.includes('does not exist')) {
-              SessionsPage.showToast('error', 'Selected client is invalid. Please refresh and try again.');
-              $('#attendance_client_id').addClass('is-invalid');
+              SessionsPage.showToast('error', 'Selected customer is invalid. Please refresh and try again.');
             } else {
               SessionsPage.showToast('error', message);
             }
           } else if (Object.keys(errors).length > 0) {
-            // Show first error
             const firstError = Object.values(errors)[0]?.[0];
             SessionsPage.showToast('error', firstError || 'Validation failed');
-            
-            // Highlight fields with errors
-            Object.keys(errors).forEach(function(field) {
-              const $field = $('[name="' + field + '"]');
-              $field.addClass('is-invalid');
-              $field.parent().append(
-                '<div class="invalid-feedback d-block">' + errors[field][0] + '</div>'
-              );
-            });
           } else {
             SessionsPage.showToast('error', 'Please check your input and try again.');
           }
@@ -498,10 +912,119 @@ const SessionsPage = {
     });
   },
 
-  // View attendance (optional - just shows info)
+  // View attendance details
   viewAttendance: function(id) {
-    // For now, just show a message. Can be expanded later.
-    SessionsPage.showToast('info', 'Viewing attendance #' + id);
+    $.ajax({
+      url: '/sessions/attendance/' + id,
+      method: 'GET',
+      success: function(response) {
+        if (response.success) {
+          const data = response.data;
+          
+          // Populate avatar
+          const avatarContainer = $('#view_att_avatar_preview');
+          const avatar = data.active_avatar || data.membership?.avatar || data.client?.avatar;
+          if (avatar) {
+            avatarContainer.html(`<img src="/storage/${avatar}" alt="Avatar">`);
+          } else {
+            const initial = data.display_name ? data.display_name.charAt(0).toUpperCase() : '?';
+            avatarContainer.html(`<div class="avatar-initial-lg">${initial}</div>`);
+          }
+          
+          // Populate basic info
+          $('#view_att_name').text(data.display_name || 'N/A');
+          const contact = data.customer_contact || data.client?.contact || data.membership?.contact;
+          $('#view_att_contact').text(contact ? `Contact: ${contact}` : '');
+          
+          // Populate check-in info
+          $('#view_att_date').text(data.date ? new Date(data.date).toLocaleDateString('en-US', {
+            year: 'numeric', month: 'long', day: 'numeric'
+          }) : 'N/A');
+          
+          $('#view_att_time_in').text(data.time_in ? new Date('1970-01-01T' + data.time_in).toLocaleTimeString('en-US', {
+            hour: 'numeric', minute: '2-digit', hour12: true
+          }) : 'N/A');
+          
+          // Subscription type badge
+          const subscriptionType = data.subscription_type || 'Walk-in';
+          const badgeClass = subscriptionType === 'Walk-in' ? 'badge-info' : 'badge-primary';
+          $('#view_att_subscription_badge').html(`<span class="badge ${badgeClass}" style="font-size: 0.85rem;">${subscriptionType}</span>`);
+          
+          // Status badge
+          const status = data.active_status;
+          if (status) {
+            const statusClass = status === 'Expired' ? 'badge-expired' :
+                                status === 'Due soon' ? 'badge-warning' : 'badge-active';
+            $('#view_att_status_badge').html(`<span class="badge ${statusClass}"><i class="mdi mdi-circle" style="font-size: 8px;"></i> ${status}</span>`);
+          } else {
+            $('#view_att_status_badge').html('<span class="text-muted">—</span>');
+          }
+          
+          // Show/hide membership section
+          if (data.membership) {
+            const m = data.membership;
+            $('#view_att_membership_plan').text(m.plan_type || 'N/A');
+            
+            const mStatus = m.status ? m.status.charAt(0).toUpperCase() + m.status.slice(1) : 'N/A';
+            const mStatusClass = m.status === 'expired' ? 'badge-expired' :
+                                 m.status === 'due_soon' ? 'badge-warning' : 'badge-active';
+            $('#view_att_membership_status').html(`<span class="badge ${mStatusClass}">${mStatus}</span>`);
+            
+            $('#view_att_membership_start').text(m.start_date ? new Date(m.start_date).toLocaleDateString('en-US', {
+              year: 'numeric', month: 'short', day: 'numeric'
+            }) : 'N/A');
+            
+            $('#view_att_membership_end').text(m.due_date ? new Date(m.due_date).toLocaleDateString('en-US', {
+              year: 'numeric', month: 'short', day: 'numeric'
+            }) : 'N/A');
+            
+            $('#view_att_membership_section').show();
+          } else {
+            $('#view_att_membership_section').hide();
+          }
+          
+          // Show/hide client section
+          if (data.client) {
+            const c = data.client;
+            $('#view_att_client_plan').text(c.plan_type || 'N/A');
+            
+            const cStatus = c.status ? c.status.charAt(0).toUpperCase() + c.status.slice(1) : 'N/A';
+            const cStatusClass = c.status === 'expired' ? 'badge-expired' :
+                                 c.status === 'due_soon' ? 'badge-warning' : 'badge-active';
+            $('#view_att_client_status').html(`<span class="badge ${cStatusClass}">${cStatus}</span>`);
+            
+            $('#view_att_client_start').text(c.start_date ? new Date(c.start_date).toLocaleDateString('en-US', {
+              year: 'numeric', month: 'short', day: 'numeric'
+            }) : 'N/A');
+            
+            $('#view_att_client_end').text(c.due_date ? new Date(c.due_date).toLocaleDateString('en-US', {
+              year: 'numeric', month: 'short', day: 'numeric'
+            }) : 'N/A');
+            
+            $('#view_att_client_section').show();
+          } else {
+            $('#view_att_client_section').hide();
+          }
+          
+          // Show walk-in notice if no subscriptions
+          if (!data.membership && !data.client) {
+            $('#view_att_walkin_notice').show();
+          } else {
+            $('#view_att_walkin_notice').hide();
+          }
+          
+          // Show modal
+          $('#viewAttendanceModal').modal('show');
+        } else {
+          SessionsPage.showToast('error', response.message || 'Failed to load attendance details');
+        }
+      },
+      error: function(xhr) {
+        console.error('Attendance fetch error:', xhr);
+        const errorMsg = xhr.responseJSON?.message || 'Failed to load attendance details';
+        SessionsPage.showToast('error', errorMsg);
+      }
+    });
   },
 
   // Confirm delete PT Schedule
@@ -611,7 +1134,7 @@ const SessionsPage = {
     });
   },
 
-  // Bulk delete attendance records
+  // Bulk delete attendance records — show confirmation modal
   bulkDeleteAttendance: function() {
     const checkedIds = $('.attendance-checkbox:checked').map(function() {
       return $(this).val();
@@ -622,32 +1145,13 @@ const SessionsPage = {
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete ${checkedIds.length} attendance record(s)?`)) {
-      return;
-    }
-
-    $.ajax({
-      url: $('#bulkDeleteAttendanceForm').attr('action'),
-      type: 'DELETE',
-      data: {
-        _token: $('meta[name="csrf-token"]').attr('content'),
-        ids: checkedIds
-      },
-      success: function(response) {
-        SessionsPage.showToast('success', response.message || 'Attendance records deleted successfully.');
-        SessionsPage.refreshKPIs();
-        setTimeout(() => {
-          location.reload();
-        }, 1000);
-      },
-      error: function(xhr) {
-        const message = xhr.responseJSON?.message || 'An error occurred while deleting attendance records.';
-        SessionsPage.showToast('error', message);
-      }
-    });
+    this._bulkDeleteType = 'attendance';
+    this._bulkDeleteIds = checkedIds;
+    $('#bulkDeleteText').html('Are you sure you want to delete <strong>' + checkedIds.length + '</strong> attendance record(s)? This action cannot be undone.');
+    $('#bulkDeleteConfirmModal').modal('show');
   },
 
-  // Bulk delete PT schedules
+  // Bulk delete PT schedules — show confirmation modal
   bulkDeletePT: function() {
     const checkedIds = $('.pt-checkbox:checked').map(function() {
       return $(this).val();
@@ -658,26 +1162,40 @@ const SessionsPage = {
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete ${checkedIds.length} PT schedule(s)?`)) {
-      return;
-    }
+    this._bulkDeleteType = 'pt';
+    this._bulkDeleteIds = checkedIds;
+    $('#bulkDeleteText').html('Are you sure you want to delete <strong>' + checkedIds.length + '</strong> PT schedule(s)? This action cannot be undone.');
+    $('#bulkDeleteConfirmModal').modal('show');
+  },
+
+  // Execute bulk delete after modal confirmation
+  executeBulkDelete: function() {
+    var type = this._bulkDeleteType;
+    var ids = this._bulkDeleteIds;
+    var $btn = $('#bulkDeleteConfirmBtn');
+    $btn.prop('disabled', true).html('<i class="mdi mdi-loading mdi-spin"></i> Deleting...');
+
+    var url = type === 'attendance'
+      ? $('#bulkDeleteAttendanceForm').attr('action')
+      : $('#bulkDeletePTForm').attr('action');
 
     $.ajax({
-      url: $('#bulkDeletePTForm').attr('action'),
+      url: url,
       type: 'DELETE',
       data: {
         _token: $('meta[name="csrf-token"]').attr('content'),
-        ids: checkedIds
+        ids: ids
       },
       success: function(response) {
-        SessionsPage.showToast('success', response.message || 'PT schedules deleted successfully.');
+        $('#bulkDeleteConfirmModal').modal('hide');
+        var label = type === 'attendance' ? 'Attendance records' : 'PT schedules';
+        SessionsPage.showToast('success', response.message || label + ' deleted successfully.');
         SessionsPage.refreshKPIs();
-        setTimeout(() => {
-          location.reload();
-        }, 1000);
+        setTimeout(() => location.reload(), 1000);
       },
       error: function(xhr) {
-        const message = xhr.responseJSON?.message || 'An error occurred while deleting PT schedules.';
+        $btn.prop('disabled', false).html('<i class="mdi mdi-delete"></i> Delete');
+        var message = xhr.responseJSON?.message || 'An error occurred while deleting records.';
         SessionsPage.showToast('error', message);
       }
     });

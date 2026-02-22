@@ -1,5 +1,5 @@
 <!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalLabel">
   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -13,19 +13,21 @@
           <i class="mdi mdi-alert-circle"></i> Are you sure you want to delete this member? This action cannot be undone.
         </div>
 
-        <div class="form-group">
-          <label>Member Name</label>
-          <div class="form-control" id="deleteMemberName" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
-        </div>
+        <div class="delete-details">
+          <div class="form-group">
+            <label>Member Name</label>
+            <div class="form-control" id="deleteMemberName"></div>
+          </div>
 
-        <div class="form-group">
-          <label>Membership Plan</label>
-          <div class="form-control" id="deleteMemberPlan" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
-        </div>
+          <div class="form-group">
+            <label>Membership Plan</label>
+            <div class="form-control" id="deleteMemberPlan"></div>
+          </div>
 
-        <div class="form-group">
-          <label>Status</label>
-          <div class="form-control" id="deleteMemberStatus" style="background-color: #282A36; border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;"></div>
+          <div class="form-group">
+            <label>Status</label>
+            <div class="form-control" id="deleteMemberStatus"></div>
+          </div>
         </div>
 
         <form id="deleteForm" method="POST" style="display: none;">

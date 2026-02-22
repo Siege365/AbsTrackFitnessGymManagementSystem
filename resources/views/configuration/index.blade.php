@@ -275,7 +275,7 @@
   <!-- ========================================== -->
   <!-- ADD / EDIT PLAN MODAL                      -->
   <!-- ========================================== -->
-  <div class="modal fade" id="planModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal fade" id="planModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -386,7 +386,7 @@
   <!-- ========================================== -->
   <!-- CONFIRM SAVE MODAL (Step 1)                -->
   <!-- ========================================== -->
-  <div class="modal fade" id="confirmSaveModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal fade" id="confirmSaveModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -413,7 +413,7 @@
   <!-- ========================================== -->
   <!-- FINAL SAVE CONFIRM MODAL (Step 2)          -->
   <!-- ========================================== -->
-  <div class="modal fade" id="finalSaveModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal fade" id="finalSaveModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -441,7 +441,7 @@
   <!-- ========================================== -->
   <!-- DELETE CONFIRM MODAL (Step 1)              -->
   <!-- ========================================== -->
-  <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -468,7 +468,7 @@
   <!-- ========================================== -->
   <!-- FINAL DELETE CONFIRM MODAL (Step 2)        -->
   <!-- ========================================== -->
-  <div class="modal fade" id="finalDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal fade" id="finalDeleteModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
       <div class="modal-content">
         <div class="modal-header">

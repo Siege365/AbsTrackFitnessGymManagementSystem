@@ -8,6 +8,7 @@ use Carbon\Carbon;
 class Membership extends Model
 {
     protected $fillable = [
+        'customer_id',
         'name',
         'age',
         'sex',
@@ -29,6 +30,14 @@ class Membership extends Model
      * Always append the status accessor to array/JSON output
      */
     protected $appends = ['status'];
+
+    /**
+     * Get the customer this membership belongs to
+     */
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
 
     /**
      * Get the gym plan associated with this membership

@@ -204,7 +204,7 @@
 
             <input type="hidden" name="payment_type" id="paymentType" value="renewal">
 
-            <!-- Plan Type Selector -->
+            <!-- Subscription Type Selector -->
             <div class="form-section">
                 <label class="form-label">Plan Selection</label>
                 <div class="plan-type-selector">
@@ -488,8 +488,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('buddyStudentLabel').textContent = this.checked ? 'Yes' : 'No';
   });
 
-  // Plan Type Selection
-  const planTypeCards = document.querySelectorAll('#membershipPage .plan-type-card');
+  // Subscription Type Selection
+  const planTypeCards = document.querySelectorAll('.plan-type-card');
   const planTypeInput = document.getElementById('planType');
   const amountInput = document.getElementById('amount');
   const additionalDaysInput = document.getElementById('additionalDays');
@@ -521,6 +521,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  /**
+   * Show/hide fields that depend on the selected subscription type
+   */
   function updatePlanDependentFields() {
     const currentPlan = planTypeInput.value;
     const currentPaymentType = paymentTypeInput.value;

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Customer;
 use App\Models\GymPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -157,6 +158,19 @@ class ClientController extends Controller
             // Remove confirm_similar from validated data
             unset($validated['confirm_similar']);
 
+            // Find or create customer record
+            $customer = Customer::firstOrCreate(
+                ['contact' => $validated['contact']],
+                [
+                    'name' => $validated['name'],
+                    'age' => $validated['age'] ?? null,
+                    'sex' => $validated['sex'] ?? null,
+                ]
+            );
+            
+            // Set customer_id
+            $validated['customer_id'] = $customer->id;
+
             // Calculate status automatically based on dates
             $validated['status'] = $this->calculateStatus($validated['start_date'], $validated['due_date']);
 
@@ -306,6 +320,29 @@ class ClientController extends Controller
             $validated['due_date'] = Carbon::parse($validated['start_date'])
                 ->addDays($plan->duration_days)
                 ->format('Y-m-d');
+
+            // Update or create customer record
+            if ($client->customer_id) {
+                // Update existing customer
+                $customer = $client->customer;
+                $customer->update([
+                    'name' => $validated['name'],
+                    'contact' => $validated['contact'],
+                    'age' => $validated['age'] ?? $customer->age,
+                    'sex' => $validated['sex'] ?? $customer->sex,
+                ]);
+            } else {
+                // Create new customer if not linked
+                $customer = Customer::firstOrCreate(
+                    ['contact' => $validated['contact']],
+                    [
+                        'name' => $validated['name'],
+                        'age' => $validated['age'] ?? null,
+                        'sex' => $validated['sex'] ?? null,
+                    ]
+                );
+                $validated['customer_id'] = $customer->id;
+            }
 
             // Recalculate status automatically based on updated dates
             $validated['status'] = $this->calculateStatus($validated['start_date'], $validated['due_date']);
@@ -700,8 +737,8 @@ class ClientController extends Controller
     }
 
     /**
-     * Autocomplete API for name suggestions from Membership table
-     * Used in client add modal to pre-fill data from existing memberships
+     * Autocomplete API for customer suggestions
+     * Used in client add modal to pre-fill data from existing customers
      */
     public function autocomplete(Request $request)
     {
@@ -711,7 +748,11 @@ class ClientController extends Controller
             return response()->json([]);
         }
 
-        $memberships = \App\Models\Membership::where('name', 'LIKE', "%{$query}%")
+        $customers = Customer::where(function($q) use ($query) {
+                $q->where('name', 'LIKE', "%{$query}%")
+                  ->orWhere('contact', 'LIKE', "%{$query}%");
+            })
+            ->with(['activeClient', 'activeMembership'])
             ->limit(10)
             ->get([
                 'id',
@@ -719,12 +760,21 @@ class ClientController extends Controller
                 'age',
                 'sex',
                 'contact',
-                'plan_type',
-                'start_date',
-                'due_date',
                 'avatar'
-            ]);
+            ])
+            ->map(function($customer) {
+                return [
+                    'id' => $customer->id,
+                    'name' => $customer->name,
+                    'age' => $customer->age,
+                    'sex' => $customer->sex,
+                    'contact' => $customer->contact,
+                    'avatar' => $customer->avatar,
+                    'has_active_client' => $customer->hasActiveClient(),
+                    'has_active_membership' => $customer->hasActiveMembership(),
+                ];
+            });
 
-        return response()->json($memberships);
+        return response()->json($customers);
     }
 }

@@ -1475,7 +1475,10 @@ select.form-control {
 
 .filter-button:hover,
 .btn-filter:hover {
-  background: #3a3f4b;
+  background: linear-gradient(135deg, #FFA726, #FFB84D);
+  border-color: #FFA726;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(255, 167, 38, 0.3);
 }
 
 /* =====================================================
