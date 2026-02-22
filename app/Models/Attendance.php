@@ -25,6 +25,13 @@ class Attendance extends Model
         'time_out' => 'datetime:H:i',
     ];
 
+    protected $appends = [
+        'display_name',
+        'subscription_type',
+        'active_status',
+        'active_avatar',
+    ];
+
     /**
      * Get the client that owns the attendance record.
      */

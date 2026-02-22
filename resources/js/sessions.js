@@ -925,7 +925,7 @@ const SessionsPage = {
           const avatarContainer = $('#view_att_avatar_preview');
           const avatar = data.active_avatar || data.membership?.avatar || data.client?.avatar;
           if (avatar) {
-            avatarContainer.html(`<img src="/storage/${avatar}" alt="Avatar" class="avatar-preview-img">`);
+            avatarContainer.html(`<img src="/storage/${avatar}" alt="Avatar">`);
           } else {
             const initial = data.display_name ? data.display_name.charAt(0).toUpperCase() : '?';
             avatarContainer.html(`<div class="avatar-initial-lg">${initial}</div>`);
@@ -1020,7 +1020,9 @@ const SessionsPage = {
         }
       },
       error: function(xhr) {
-        SessionsPage.showToast('error', xhr.responseJSON?.message || 'Failed to load attendance details');
+        console.error('Attendance fetch error:', xhr);
+        const errorMsg = xhr.responseJSON?.message || 'Failed to load attendance details';
+        SessionsPage.showToast('error', errorMsg);
       }
     });
   },
