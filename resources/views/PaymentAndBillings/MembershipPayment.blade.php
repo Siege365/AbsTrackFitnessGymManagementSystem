@@ -358,7 +358,7 @@
         <button class="modal-close" onclick="closeModal()">&times;</button>
       </div>
       <div class="modal-body" id="receiptBody">
-        <div class="loading-spinner"><div class="spinner">
+        <div class="loading-spinner"><div class="spinner"></div></div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
