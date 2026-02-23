@@ -63,7 +63,7 @@
             </div>
             <div class="form-group col-md-6">
               <label>Start Date <span class="text-danger">*</span></label>
-              <input type="date" name="start_date" id="newMemberStartDate" class="form-control" required onchange="calculateEndDate()">
+              <input type="date" name="start_date" id="newMemberStartDate" class="form-control" required min="{{ date('Y-m-d') }}" onchange="calculateEndDate()">
             </div>
           </div>
 

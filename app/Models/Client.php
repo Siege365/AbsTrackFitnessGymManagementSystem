@@ -27,7 +27,7 @@ class Client extends Model
     /**
      * Always append the status accessor to array/JSON output
      */
-    protected $appends = ['status'];
+    protected $appends = ['status', 'formatted_plan_type'];
 
     /**
      * Get the customer this client belongs to
@@ -76,5 +76,56 @@ class Client extends Model
         
         // Otherwise, it's active
         return 'Active';
+    }
+
+    /**
+     * Get formatted plan type for display
+     * 
+     * @return string
+     */
+    public function getFormattedPlanTypeAttribute()
+    {
+        return $this->formatPlanType($this->plan_type);
+    }
+
+    /**
+     * Format plan type key into user-friendly name
+     * Handles both snake_case and camelCase/PascalCase formats
+     * 
+     * @param string|null $planType
+     * @return string
+     */
+    protected function formatPlanType($planType)
+    {
+        if (!$planType) {
+            return 'N/A';
+        }
+
+        return match($planType) {
+            'PTSession' => 'PT Session',
+            'PTMonthly' => 'PT Monthly',
+            'Regular' => 'Monthly',
+            'Student' => 'Student',
+            'GymBuddy' => 'Gym Buddy',
+            'ThreeMonths' => 'Quarterly',
+            'HalfYearly' => 'Half Yearly',
+            'Annual' => 'Annual',
+            default => $this->formatCamelOrSnakeCase($planType)
+        };
+    }
+
+    /**
+     * Convert camelCase/PascalCase or snake_case to readable format
+     * Examples: "PremiumPlus" -> "Premium Plus", "premium_plus" -> "Premium Plus"
+     * 
+     * @param string $text
+     * @return string
+     */
+    protected function formatCamelOrSnakeCase($text)
+    {
+        // Convert camelCase/PascalCase to snake_case
+        $snakeCase = preg_replace('/(?<!^)[A-Z]/', '_$0', $text);
+        // Replace underscores with spaces and capitalize words
+        return ucwords(strtolower(str_replace('_', ' ', $snakeCase)));
     }
 }

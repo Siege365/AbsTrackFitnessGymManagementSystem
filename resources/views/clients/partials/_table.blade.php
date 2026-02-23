@@ -38,14 +38,14 @@
                       <i class="mdi mdi-chevron-down filter-chevron"></i>
                     </div>
                     <div class="filter-section-content">
-                      <a class="filter-option" href="javascript:void(0)" onclick="ClientsPage.applyFilter('status', 'active')">
-                        <i class="mdi mdi-check-circle text-success"></i> Active
+                      <a class="filter-option filter-option-active" href="javascript:void(0)" onclick="ClientsPage.applyFilter('status', 'active')">
+                        <i class="mdi mdi-check-circle"></i> Active
                       </a>
-                      <a class="filter-option" href="javascript:void(0)" onclick="ClientsPage.applyFilter('status', 'expired')">
-                        <i class="mdi mdi-close-circle text-danger"></i> Expired
+                      <a class="filter-option filter-option-expired" href="javascript:void(0)" onclick="ClientsPage.applyFilter('status', 'expired')">
+                        <i class="mdi mdi-close-circle"></i> Expired
                       </a>
-                      <a class="filter-option" href="javascript:void(0)" onclick="ClientsPage.applyFilter('status', 'due_soon')">
-                        <i class="mdi mdi-clock-alert text-warning"></i> Due Soon
+                      <a class="filter-option filter-option-due-soon" href="javascript:void(0)" onclick="ClientsPage.applyFilter('status', 'due_soon')">
+                        <i class="mdi mdi-clock-alert"></i> Due Soon
                       </a>
                     </div>
                   </div>
@@ -54,7 +54,7 @@
                   <div class="filter-section">
                     <div class="filter-section-header" onclick="ClientsPage.toggleFilterSection(this, event)">
                       <div class="filter-section-title">
-                        <i class="mdi mdi-card-account-details-outline"></i>
+                        <i class="mdi mdi-label-outline"></i>
                         <span>Subscription Type</span>
                       </div>
                       <i class="mdi mdi-chevron-down filter-chevron"></i>
@@ -78,11 +78,11 @@
                       <i class="mdi mdi-chevron-down filter-chevron"></i>
                     </div>
                     <div class="filter-section-content">
-                      <a class="filter-option" href="javascript:void(0)" onclick="ClientsPage.applyFilter('gender', 'Male')">
-                        <i class="mdi mdi-human-male text-info"></i> Male
+                      <a class="filter-option filter-option-male" href="javascript:void(0)" onclick="ClientsPage.applyFilter('gender', 'Male')">
+                        <i class="mdi mdi-human-male"></i> Male
                       </a>
-                      <a class="filter-option" href="javascript:void(0)" onclick="ClientsPage.applyFilter('gender', 'Female')">
-                        <i class="mdi mdi-human-female text-info"></i> Female
+                      <a class="filter-option filter-option-female" href="javascript:void(0)" onclick="ClientsPage.applyFilter('gender', 'Female')">
+                        <i class="mdi mdi-human-female"></i> Female
                       </a>
                     </div>
                   </div>
