@@ -13,28 +13,90 @@
                                 style="width: 450px;">
                             <div class="dropdown d-inline-block mr-2">
                                 <button type="button" class="btn btn-sm filter-button dropdown-toggle"
-                                    data-toggle="dropdown" data-offset="0,2" data-flip="false"
-                                    data-display="static">
+                                    id="filterDropdownPT" data-toggle="dropdown" data-offset="0,2" data-flip="false"
+                                    data-display="static" aria-haspopup="true" aria-expanded="false">
                                     <i class="mdi mdi-filter-variant"></i> Filter
                                 </button>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <h6 class="dropdown-header">Filter by Status</h6>
-                                    <a class="dropdown-item" href="{{ route('Session') }}">All</a>
-                                    <a class="dropdown-item" href="{{ route('Session', ['pt_status' => 'done']) }}">
-                                        <i class="mdi mdi-check-circle mr-2 text-success"></i> Done
-                                    </a>
-                                    <a class="dropdown-item"
-                                        href="{{ route('Session', ['pt_status' => 'in_progress']) }}">
-                                        <i class="mdi mdi-progress-clock mr-2 text-info"></i> In Progress
-                                    </a>
-                                    <a class="dropdown-item"
-                                        href="{{ route('Session', ['pt_status' => 'upcoming']) }}">
-                                        <i class="mdi mdi-clock mr-2 text-warning"></i> Upcoming
-                                    </a>
-                                    <a class="dropdown-item"
-                                        href="{{ route('Session', ['pt_status' => 'cancelled']) }}">
-                                        <i class="mdi mdi-close-circle mr-2 text-danger"></i> Cancelled
-                                    </a>
+                                <div class="dropdown-menu dropdown-menu-right filter-accordion" aria-labelledby="filterDropdownPT">
+                                    <div class="filter-header">
+                                        <span class="filter-title">Filter By</span>
+                                        <a href="javascript:void(0)" class="filter-clear-all" onclick="SessionsPage.clearAllFilters()">
+                                            Clear All
+                                        </a>
+                                    </div>
+                                    
+                                    <!-- Status Filter -->
+                                    <div class="filter-section">
+                                        <div class="filter-section-header" onclick="SessionsPage.toggleFilterSection(this, event)">
+                                            <div class="filter-section-title">
+                                                <i class="mdi mdi-circle-outline"></i>
+                                                <span>Status</span>
+                                            </div>
+                                            <i class="mdi mdi-chevron-down filter-chevron"></i>
+                                        </div>
+                                        <div class="filter-section-content">
+                                            <a class="filter-option" href="javascript:void(0)" onclick="SessionsPage.applyFilter('pt_status', 'all')">
+                                                <i class="mdi mdi-check-all"></i> All
+                                            </a>
+                                            <a class="filter-option filter-option-done" href="javascript:void(0)" onclick="SessionsPage.applyFilter('pt_status', 'done')">
+                                                <i class="mdi mdi-check-circle"></i> Done
+                                            </a>
+                                            <a class="filter-option filter-option-in-progress" href="javascript:void(0)" onclick="SessionsPage.applyFilter('pt_status', 'in_progress')">
+                                                <i class="mdi mdi-progress-clock"></i> In Progress
+                                            </a>
+                                            <a class="filter-option filter-option-upcoming" href="javascript:void(0)" onclick="SessionsPage.applyFilter('pt_status', 'upcoming')">
+                                                <i class="mdi mdi-clock"></i> Upcoming
+                                            </a>
+                                            <a class="filter-option filter-option-cancelled" href="javascript:void(0)" onclick="SessionsPage.applyFilter('pt_status', 'cancelled')">
+                                                <i class="mdi mdi-close-circle"></i> Cancelled
+                                            </a>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Sort Order Filter -->
+                                    <div class="filter-section">
+                                        <div class="filter-section-header" onclick="SessionsPage.toggleFilterSection(this, event)">
+                                            <div class="filter-section-title">
+                                                <i class="mdi mdi-sort"></i>
+                                                <span>Sort Order</span>
+                                            </div>
+                                            <i class="mdi mdi-chevron-down filter-chevron"></i>
+                                        </div>
+                                        <div class="filter-section-content">
+                                            <a class="filter-option" href="javascript:void(0)" onclick="SessionsPage.applyFilter('pt_sort', 'default')">
+                                                <i class="mdi mdi-sort-variant"></i> Default
+                                            </a>
+                                            <a class="filter-option" href="javascript:void(0)" onclick="SessionsPage.applyFilter('pt_sort', 'recent')">
+                                                <i class="mdi mdi-sort-descending"></i> Recent First
+                                            </a>
+                                            <a class="filter-option" href="javascript:void(0)" onclick="SessionsPage.applyFilter('pt_sort', 'oldest')">
+                                                <i class="mdi mdi-sort-ascending"></i> Oldest First
+                                            </a>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Date Filter -->
+                                    <div class="filter-section">
+                                        <div class="filter-section-header" onclick="SessionsPage.toggleFilterSection(this, event)">
+                                            <div class="filter-section-title">
+                                                <i class="mdi mdi-calendar"></i>
+                                                <span>Date</span>
+                                            </div>
+                                            <i class="mdi mdi-chevron-down filter-chevron"></i>
+                                        </div>
+                                        <div class="filter-section-content">
+                                            <div class="filter-date-picker">
+                                                <input type="date" id="pt_date_filter" class="filter-date-input" 
+                                                    value="{{ request('pt_date') }}" 
+                                                    onchange="SessionsPage.applyDateFilter('pt_date', this.value)">
+                                                @if(request('pt_date'))
+                                                <button type="button" class="btn-clear-date" onclick="SessionsPage.clearDateFilter('pt_date')">
+                                                    <i class="mdi mdi-close"></i>
+                                                </button>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </form>

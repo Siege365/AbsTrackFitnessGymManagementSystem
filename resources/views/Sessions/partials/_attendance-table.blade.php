@@ -13,25 +13,86 @@
                                 style="width: 450px;">
                             <div class="dropdown d-inline-block mr-2">
                                 <button type="button" class="btn btn-sm filter-button dropdown-toggle"
-                                    id="filterDropdown" data-toggle="dropdown" data-offset="0,2" data-flip="false"
-                                    data-display="static">
+                                    id="filterDropdownAttendance" data-toggle="dropdown" data-offset="0,2" data-flip="false"
+                                    data-display="static" aria-haspopup="true" aria-expanded="false">
                                     <i class="mdi mdi-filter-variant"></i> Filter
                                 </button>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <h6 class="dropdown-header">Filter by Status</h6>
-                                    <a class="dropdown-item" href="{{ route('Session') }}">All</a>
-                                    <a class="dropdown-item"
-                                        href="{{ route('Session', ['attendance_status' => 'active']) }}">
-                                        <i class="mdi mdi-check-circle mr-2 text-success"></i> Active
-                                    </a>
-                                    <a class="dropdown-item"
-                                        href="{{ route('Session', ['attendance_status' => 'expired']) }}">
-                                        <i class="mdi mdi-close-circle mr-2 text-danger"></i> Expired
-                                    </a>
-                                    <a class="dropdown-item"
-                                        href="{{ route('Session', ['attendance_status' => 'due_soon']) }}">
-                                        <i class="mdi mdi-clock-alert mr-2 text-warning"></i> Due Soon
-                                    </a>
+                                <div class="dropdown-menu dropdown-menu-right filter-accordion" aria-labelledby="filterDropdownAttendance">
+                                    <div class="filter-header">
+                                        <span class="filter-title">Filter By</span>
+                                        <a href="javascript:void(0)" class="filter-clear-all" onclick="SessionsPage.clearAllFilters()">
+                                            Clear All
+                                        </a>
+                                    </div>
+                                    
+                                    <!-- Status Filter -->
+                                    <div class="filter-section">
+                                        <div class="filter-section-header" onclick="SessionsPage.toggleFilterSection(this, event)">
+                                            <div class="filter-section-title">
+                                                <i class="mdi mdi-circle-outline"></i>
+                                                <span>Status</span>
+                                            </div>
+                                            <i class="mdi mdi-chevron-down filter-chevron"></i>
+                                        </div>
+                                        <div class="filter-section-content">
+                                            <a class="filter-option" href="javascript:void(0)" onclick="SessionsPage.applyFilter('attendance_status', 'all')">
+                                                <i class="mdi mdi-check-all"></i> All
+                                            </a>
+                                            <a class="filter-option filter-option-active" href="javascript:void(0)" onclick="SessionsPage.applyFilter('attendance_status', 'active')">
+                                                <i class="mdi mdi-check-circle"></i> Active
+                                            </a>
+                                            <a class="filter-option filter-option-expired" href="javascript:void(0)" onclick="SessionsPage.applyFilter('attendance_status', 'expired')">
+                                                <i class="mdi mdi-close-circle"></i> Expired
+                                            </a>
+                                            <a class="filter-option filter-option-due-soon" href="javascript:void(0)" onclick="SessionsPage.applyFilter('attendance_status', 'due_soon')">
+                                                <i class="mdi mdi-clock-alert"></i> Due Soon
+                                            </a>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Sort Order Filter -->
+                                    <div class="filter-section">
+                                        <div class="filter-section-header" onclick="SessionsPage.toggleFilterSection(this, event)">
+                                            <div class="filter-section-title">
+                                                <i class="mdi mdi-sort"></i>
+                                                <span>Sort Order</span>
+                                            </div>
+                                            <i class="mdi mdi-chevron-down filter-chevron"></i>
+                                        </div>
+                                        <div class="filter-section-content">
+                                            <a class="filter-option" href="javascript:void(0)" onclick="SessionsPage.applyFilter('attendance_sort', 'recent')">
+                                                <i class="mdi mdi-sort-descending"></i> Recent First
+                                            </a>
+                                            <a class="filter-option" href="javascript:void(0)" onclick="SessionsPage.applyFilter('attendance_sort', 'oldest')">
+                                                <i class="mdi mdi-sort-ascending"></i> Oldest First
+                                            </a>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Customer Type Filter -->
+                                    <div class="filter-section">
+                                        <div class="filter-section-header" onclick="SessionsPage.toggleFilterSection(this, event)">
+                                            <div class="filter-section-title">
+                                                <i class="mdi mdi-account-group"></i>
+                                                <span>Customer Type</span>
+                                            </div>
+                                            <i class="mdi mdi-chevron-down filter-chevron"></i>
+                                        </div>
+                                        <div class="filter-section-content">
+                                            <a class="filter-option" href="javascript:void(0)" onclick="SessionsPage.applyFilter('customer_type', 'all')">
+                                                <i class="mdi mdi-check-all"></i> All
+                                            </a>
+                                            <a class="filter-option filter-option-member" href="javascript:void(0)" onclick="SessionsPage.applyFilter('customer_type', 'member')">
+                                                <i class="mdi mdi-account-badge"></i> Member
+                                            </a>
+                                            <a class="filter-option filter-option-client" href="javascript:void(0)" onclick="SessionsPage.applyFilter('customer_type', 'client')">
+                                                <i class="mdi mdi-account-tie"></i> Client
+                                            </a>
+                                            <a class="filter-option filter-option-walkin" href="javascript:void(0)" onclick="SessionsPage.applyFilter('customer_type', 'walkin')">
+                                                <i class="mdi mdi-walk"></i> Walk-in
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -49,8 +110,8 @@
                                         </label>
                                     </div>
                                 </th>
-                                <th>Name</th>
-                                <th>Subscription Type</th>
+                                <th style="width: 340px;">Customer Name</th>
+                                <th>Customer Type</th>
                                 <th>Date</th>
                                 <th>Time In</th>
                                 <th>Status</th>
@@ -83,11 +144,22 @@
                                     </td>
                                     <td>
                                         @php
-                                            $subscriptionType = $attendance->subscription_type;
-                                            $badgeClass = $subscriptionType === 'Walk-in' ? 'badge-info' : 'badge-primary';
+                                            $customerType = $attendance->customer_type;
+                                            $badgeClass = match($customerType) {
+                                                'Member' => 'badge-member',
+                                                'Client' => 'badge-client',
+                                                'Walk-in' => 'badge-walkin',
+                                                default => 'badge-info'
+                                            };
+                                            $iconClass = match($customerType) {
+                                                'Member' => 'mdi-account-badge',
+                                                'Client' => 'mdi-account-tie',
+                                                'Walk-in' => 'mdi-walk',
+                                                default => 'mdi-account'
+                                            };
                                         @endphp
-                                        <span class="badge {{ $badgeClass }}" style="font-size: 0.85rem;">
-                                            {{ $subscriptionType }}
+                                        <span class="badge {{ $badgeClass }}">
+                                            <i class="mdi {{ $iconClass }}"></i> {{ $customerType }}
                                         </span>
                                     </td>
                                     <td>{{ $attendance->date ? \Carbon\Carbon::parse($attendance->date)->format('d M Y') : 'N/A' }}

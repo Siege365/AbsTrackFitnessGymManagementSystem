@@ -304,6 +304,58 @@ body {
   flex-shrink: 0;
 }
 
+/* Status Filter Options */
+.filter-option-active {
+  color: #4CAF50 !important;
+}
+
+.filter-option-active:hover {
+  color: #4CAF50 !important;
+  background: rgba(76, 175, 80, 0.1);
+  border-left-color: #4CAF50;
+}
+
+.filter-option-expired {
+  color: #F44336 !important;
+}
+
+.filter-option-expired:hover {
+  color: #F44336 !important;
+  background: rgba(244, 67, 54, 0.1);
+  border-left-color: #F44336;
+}
+
+.filter-option-due-soon {
+  color: #FFC107 !important;
+}
+
+.filter-option-due-soon:hover {
+  color: #FFC107 !important;
+  background: rgba(255, 193, 7, 0.1);
+  border-left-color: #FFC107;
+}
+
+/* Gender Filter Options */
+.filter-option-male {
+  color: #2196F3 !important;
+}
+
+.filter-option-male:hover {
+  color: #2196F3 !important;
+  background: rgba(33, 150, 243, 0.1);
+  border-left-color: #2196F3;
+}
+
+.filter-option-female {
+  color: #E91E63 !important;
+}
+
+.filter-option-female:hover {
+  color: #E91E63 !important;
+  background: rgba(233, 30, 99, 0.1);
+  border-left-color: #E91E63;
+}
+
 @keyframes fadeInDown {
   from {
     opacity: 0;

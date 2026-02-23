@@ -119,10 +119,12 @@ class ClientController extends Controller
                 'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
                 'avatar_url' => 'nullable|url',
                 'plan_type' => 'required|exists:gym_plans,plan_key',
-                'start_date' => 'required|date',
+                'start_date' => 'required|date|after_or_equal:today',
                 'due_date' => 'nullable|date',
                 'contact' => ['required', 'string', 'max:255', 'regex:/^[+]?[0-9()\- ]+$/'],
                 'confirm_similar' => 'nullable|boolean',
+            ], [
+                'start_date.after_or_equal' => 'Start date cannot be in the past. Please select today or a future date.',
             ]);
 
             // Server-side due_date calculation (never trust client)
