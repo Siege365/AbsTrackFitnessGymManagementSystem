@@ -47,11 +47,11 @@
             <table class="product-items-table" id="productItemsTable">
               <thead>
                 <tr>
-                  <th style="width: 40%;">Product</th>
-                  <th style="width: 12%; text-align: center;">Qty</th>
+                  <th style="width: 28%; text-align: center;">Product</th>
+                  <th style="width: 18%; text-align: center;">Quantity</th>
                   <th style="width: 18%; text-align: right;">Unit Price</th>
                   <th style="width: 18%; text-align: right;">Subtotal</th>
-                  <th style="width: 12%; text-align: center;">Remove</th>
+                  <th style="width: 18%; text-align: center;">Remove</th>
                 </tr>
               </thead>
               <tbody id="productItemsTableBody">
@@ -120,23 +120,21 @@
 
 <!-- Product Payment Confirmation Modal -->
 <div id="productConfirmationModal" class="modal-overlay">
-  <div class="modal-content small">
-    <div class="modal-header">
-      <h3 class="modal-title">Confirm Payment</h3>
-      <button class="modal-close" onclick="closeProductConfirmation()">&times;</button>
-    </div>
-    <div class="modal-body" style="font-size: 1.125rem;">
-      <div class="confirmation-icon warning">
-        <i class="mdi mdi-alert-circle-outline"></i>
-      </div>
-      <p class="confirmation-message">Please review the payment details before proceeding.</p>
-      <div class="confirmation-details" id="productConfirmationDetails"></div>
-    </div>
-    <div class="modal-footer" style="font-size: 1.125rem;">
-      <button type="button" class="btn btn-secondary" onclick="closeProductConfirmation()">
-        <i class="mdi mdi-close"></i> Cancel
+  <div class="confirm-overlay-content">
+    <div class="confirm-overlay-header">
+      <i class="mdi mdi-check-circle-outline"></i>
+      <h5>Confirm Payment</h5>
+      <button type="button" class="close" onclick="closeProductConfirmation()">
+        <span aria-hidden="true">&times;</span>
       </button>
-      <button type="button" class="btn btn-primary" id="confirmProductPaymentBtn">
+    </div>
+    <div class="confirm-overlay-body">
+      <p class="mb-3">Please review the payment details before proceeding.</p>
+      <div class="confirm-details" id="productConfirmationDetails"></div>
+    </div>
+    <div class="confirm-overlay-footer">
+      <button type="button" class="btn btn-cancel" onclick="closeProductConfirmation()">Cancel</button>
+      <button type="button" class="btn btn-update" id="confirmProductPaymentBtn">
         <i class="mdi mdi-check"></i> Confirm & Process
       </button>
     </div>
@@ -316,7 +314,7 @@
     }
     tbody.innerHTML = cartItems.map((item, index) =>
       '<tr class="product-cart-row">' +
-        '<td><div class="product-item-name">' + item.name + '</div><div class="product-item-stock">Available: ' + item.stock + '</div></td>' +
+        '<td style="text-align: center;"><div class="product-item-name">' + item.name + '</div><div class="product-item-stock">Available: ' + item.stock + '</div></td>' +
         '<td style="text-align: center;"><input type="number" class="form-control form-control-sm product-qty-input" value="' + item.qty + '" min="1" max="' + item.stock + '" onchange="window._productUpdateQty(' + index + ', this.value)"></td>' +
         '<td style="text-align: right;">' + String.fromCharCode(8369) + item.price.toFixed(2) + '</td>' +
         '<td style="text-align: right; font-weight: 600;">' + String.fromCharCode(8369) + (item.price * item.qty).toFixed(2) + '</td>' +
@@ -408,23 +406,21 @@
     document.getElementById('productItemsData').value = JSON.stringify(cartItems);
 
     const itemsHtml = cartItems.map(i =>
-      '<div class="confirmation-detail-row"><span class="confirmation-detail-label">' + i.name + ' \u00D7 ' + i.qty + '</span><span class="confirmation-detail-value">' + String.fromCharCode(8369) + (i.price * i.qty).toFixed(2) + '</span></div>'
+      '<div class="confirm-row"><span class="confirm-label">' + i.name + ' \u00D7 ' + i.qty + '</span><span class="confirm-value">' + String.fromCharCode(8369) + (i.price * i.qty).toFixed(2) + '</span></div>'
     ).join('');
 
     const customerName = document.getElementById('productCustomerName')?.value || 'Walk-in Customer';
     const paymentMethod = document.getElementById('productPaymentMethod')?.value || 'Cash';
 
     document.getElementById('productConfirmationDetails').innerHTML =
-      '<div class="confirmation-detail-row"><span class="confirmation-detail-label">Customer:</span><span class="confirmation-detail-value">' + customerName + '</span></div>' +
-      '<div class="confirmation-detail-row"><span class="confirmation-detail-label">Payment Type:</span><span class="confirmation-detail-value">PRODUCT</span></div>' +
-      '<hr style="border-color: #444; margin: 0.5rem 0;">' +
-      '<div class="confirmation-detail-row"><span class="confirmation-detail-label" style="font-weight:600;">Items (' + cartItems.length + '):</span><span></span></div>' +
+      '<div class="confirm-row"><span class="confirm-label">Customer:</span><span class="confirm-value">' + customerName + '</span></div>' +
+      '<div class="confirm-row"><span class="confirm-label">Payment Type:</span><span class="confirm-value">PRODUCT</span></div>' +
+      '<div class="confirm-row"><span class="confirm-label" style="font-weight:600;">Items (' + cartItems.length + '):</span><span></span></div>' +
       itemsHtml +
-      '<hr style="border-color: #444; margin: 0.5rem 0;">' +
-      '<div class="confirmation-detail-row"><span class="confirmation-detail-label">Payment Method:</span><span class="confirmation-detail-value">' + paymentMethod + '</span></div>' +
-      '<div class="confirmation-detail-row"><span class="confirmation-detail-label">Total Amount:</span><span class="confirmation-detail-value" style="font-weight:700;">' + String.fromCharCode(8369) + total.toFixed(2) + '</span></div>' +
-      '<div class="confirmation-detail-row"><span class="confirmation-detail-label">Paid Amount:</span><span class="confirmation-detail-value">' + String.fromCharCode(8369) + paid.toFixed(2) + '</span></div>' +
-      '<div class="confirmation-detail-row"><span class="confirmation-detail-label">Change:</span><span class="confirmation-detail-value" style="color: #28a745;">' + String.fromCharCode(8369) + (paid - total).toFixed(2) + '</span></div>';
+      '<div class="confirm-row"><span class="confirm-label">Payment Method:</span><span class="confirm-value">' + paymentMethod + '</span></div>' +
+      '<div class="confirm-row"><span class="confirm-label">Total Amount:</span><span class="confirm-value" style="font-weight:700;">' + String.fromCharCode(8369) + total.toFixed(2) + '</span></div>' +
+      '<div class="confirm-row"><span class="confirm-label">Paid Amount:</span><span class="confirm-value">' + String.fromCharCode(8369) + paid.toFixed(2) + '</span></div>' +
+      '<div class="confirm-row"><span class="confirm-label">Change:</span><span class="confirm-value" style="color: #28a745;">' + String.fromCharCode(8369) + (paid - total).toFixed(2) + '</span></div>';
     document.getElementById('productConfirmationModal').classList.add('show');
   });
 

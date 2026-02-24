@@ -228,9 +228,6 @@
                             ₱{{ number_format($plan->price, 2) }}
                         @endif
                     </div>
-                    @if($plan->badge_text)
-                        <div class="plan-badge {{ $plan->requires_buddy ? 'buddy' : ($plan->badge_color === 'success' ? 'promo' : '') }}">{{ $plan->badge_text }}</div>
-                    @endif
                 </div>
                 @endforeach
                 </div>
@@ -333,19 +330,23 @@
 
   <!-- Membership Confirmation Modal -->
   <div id="confirmationModal" class="modal-overlay">
-    <div class="modal-content small">
-      <div class="modal-header">
-        <h3 class="modal-title">Confirm Payment</h3>
-        <button class="modal-close" onclick="closeConfirmationModal()">&times;</button>
+    <div class="confirm-overlay-content">
+      <div class="confirm-overlay-header">
+        <i class="mdi mdi-check-circle-outline"></i>
+        <h5>Confirm Payment</h5>
+        <button type="button" class="close" onclick="closeConfirmationModal()">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
-      <div class="modal-body" style="font-size: 1.125rem;">
-        <div class="confirmation-icon warning"><i class="mdi mdi-alert-circle-outline"></i></div>
-        <p class="confirmation-message">Please review the payment details before proceeding.</p>
-        <div class="confirmation-details" id="confirmationDetails"></div>
+      <div class="confirm-overlay-body">
+        <p class="mb-3">Please review the payment details before proceeding.</p>
+        <div class="confirm-details" id="confirmationDetails"></div>
       </div>
-      <div class="modal-footer" style="font-size: 1.125rem;">
-        <button type="button" class="btn btn-secondary" onclick="closeConfirmationModal()"><i class="mdi mdi-close"></i> Cancel</button>
-        <button type="button" class="btn btn-primary" onclick="confirmPayment()"><i class="mdi mdi-check"></i> Confirm & Process</button>
+      <div class="confirm-overlay-footer">
+        <button type="button" class="btn btn-cancel" onclick="closeConfirmationModal()">Cancel</button>
+        <button type="button" class="btn btn-update" onclick="confirmPayment()">
+          <i class="mdi mdi-check"></i> Confirm & Process
+        </button>
       </div>
     </div>
   </div>
@@ -751,19 +752,19 @@ document.addEventListener('DOMContentLoaded', function() {
     if (pl === 'GymBuddy') {
       const bn = pt === 'new' ? document.getElementById('buddyName').value : document.getElementById('buddyMemberSearch').value;
       const bcd = document.getElementById('buddyCurrentDueDate').value, bnd = document.getElementById('buddyNewDueDate').value;
-      buddyInfo = `<div class="confirmation-detail-row"><span class="confirmation-detail-label">Gym Buddy:</span><span class="confirmation-detail-value">${bn}</span></div>
-        ${pt !== 'new' && bcd ? `<div class="confirmation-detail-row"><span class="confirmation-detail-label">Buddy Current Due:</span><span class="confirmation-detail-value">${bcd}</span></div>
-        <div class="confirmation-detail-row"><span class="confirmation-detail-label">Buddy New Due:</span><span class="confirmation-detail-value" style="color: #28a745;">${bnd}</span></div>` : ''}`;
+      buddyInfo = `<div class="confirm-row"><span class="confirm-label">Gym Buddy:</span><span class="confirm-value">${bn}</span></div>
+        ${pt !== 'new' && bcd ? `<div class="confirm-row"><span class="confirm-label">Buddy Current Due:</span><span class="confirm-value">${bcd}</span></div>
+        <div class="confirm-row"><span class="confirm-label">Buddy New Due:</span><span class="confirm-value" style="color: #28a745;">${bnd}</span></div>` : ''}`;
     }
     const planLabels = { 'Regular': 'Regular Gym Rate', 'Student': 'Student Rate', 'GymBuddy': 'Gym Buddy Rate (2 persons)', 'ThreeMonths': '3 Months Membership', 'Session': 'Session Pass' };
     document.getElementById('confirmationDetails').innerHTML = `
-      <div class="confirmation-detail-row"><span class="confirmation-detail-label">Member:</span><span class="confirmation-detail-value">${mn}</span></div>
+      <div class="confirm-row"><span class="confirm-label">Member:</span><span class="confirm-value">${mn}</span></div>
       ${buddyInfo}
-      <div class="confirmation-detail-row"><span class="confirmation-detail-label">Payment Type:</span><span class="confirmation-detail-value">${pt.toUpperCase()}</span></div>
-      <div class="confirmation-detail-row"><span class="confirmation-detail-label">Plan:</span><span class="confirmation-detail-value">${planLabels[pl] || pl}</span></div>
-      <div class="confirmation-detail-row"><span class="confirmation-detail-label">Amount:</span><span class="confirmation-detail-value">₱${parseFloat(amt).toFixed(2)}</span></div>
-      <div class="confirmation-detail-row"><span class="confirmation-detail-label">Payment Method:</span><span class="confirmation-detail-value">${pm}</span></div>
-      <div class="confirmation-detail-row"><span class="confirmation-detail-label">New Due Date:</span><span class="confirmation-detail-value" style="color: #28a745;">${nd}</span></div>`;
+      <div class="confirm-row"><span class="confirm-label">Payment Type:</span><span class="confirm-value">${pt.toUpperCase()}</span></div>
+      <div class="confirm-row"><span class="confirm-label">Plan:</span><span class="confirm-value">${planLabels[pl] || pl}</span></div>
+      <div class="confirm-row"><span class="confirm-label">Amount:</span><span class="confirm-value">₱${parseFloat(amt).toFixed(2)}</span></div>
+      <div class="confirm-row"><span class="confirm-label">Payment Method:</span><span class="confirm-value">${pm}</span></div>
+      <div class="confirm-row"><span class="confirm-label">New Due Date:</span><span class="confirm-value" style="color: #28a745;">${nd}</span></div>`;
     document.getElementById('confirmationModal').classList.add('show');
   }
 

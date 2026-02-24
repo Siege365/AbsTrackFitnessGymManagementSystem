@@ -792,3 +792,167 @@ input[type="checkbox"]:hover {
     padding: 0.75rem 1rem;
   }
 }
+
+/* ===================================
+   Confirm Overlay Styles
+   =================================== */
+.confirm-overlay-content {
+  background: #191C24;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  animation: confirmSlideIn 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes confirmSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.confirm-overlay-header {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.confirm-overlay-header i {
+  font-size: 1.5rem;
+  color: #FFA726;
+  margin-right: 0.75rem;
+}
+
+.confirm-overlay-header h5 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.confirm-overlay-header .close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+}
+
+.confirm-overlay-header .close:hover {
+  color: #ffffff;
+}
+
+.confirm-overlay-body {
+  padding: 1.25rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.confirm-overlay-body p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+}
+
+.confirm-details {
+  background: #282A36;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.confirm-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.confirm-row:last-child {
+  border-bottom: none;
+}
+
+.confirm-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+}
+
+.confirm-value {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 0.9rem;
+}
+
+.confirm-overlay-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.confirm-overlay-footer .btn-cancel {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.confirm-overlay-footer .btn-cancel:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.confirm-overlay-footer .btn-update {
+  background: linear-gradient(135deg, #FFA726, #FFB84D);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(255, 167, 38, 0.3);
+  cursor: pointer;
+}
+
+.confirm-overlay-footer .btn-update:hover {
+  background: linear-gradient(135deg, #FF9800, #FFA726);
+  box-shadow: 0 4px 12px rgba(255, 167, 38, 0.4);
+}
+
+.confirm-overlay-footer .btn-delete {
+  background: linear-gradient(135deg, #dc3545, #e25563);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+  cursor: pointer;
+}
+
+.confirm-overlay-footer .btn-delete:hover {
+  background: linear-gradient(135deg, #c82333, #dc3545);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.confirm-overlay-footer .btn-refund {
+  background: linear-gradient(135deg, #FFC107, #FFD54F);
+  color: #212529;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+  cursor: pointer;
+}
+
+.confirm-overlay-footer .btn-refund:hover {
+  background: linear-gradient(135deg, #e0a800, #FFC107);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}

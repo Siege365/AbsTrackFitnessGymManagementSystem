@@ -517,21 +517,21 @@
 
 <!-- Refund Confirmation Modal -->
 <div id="refundModal" class="modal-overlay">
-  <div class="modal-content small">
-    <div class="modal-header bg-warning">
-      <h3 class="modal-title">Process Refund</h3>
-      <button class="modal-close" onclick="closeRefundModal()">&times;</button>
+  <div class="confirm-overlay-content">
+    <div class="confirm-overlay-header">
+      <i class="mdi mdi-alert-circle-outline" style="color: #FFC107;"></i>
+      <h5>Process Refund</h5>
+      <button type="button" class="close" onclick="closeRefundModal()">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </div>
-    <div class="modal-body" style="font-size: 1.125rem;">
-      <div class="refund-warning" style="color: #000;">
-        <i class="mdi mdi-alert"></i>
-        <strong>Warning:</strong> This action will mark this transaction as refunded and restore inventory (for products).
-      </div>
-      <div class="confirmation-details" id="refundDetails"></div>
+    <div class="confirm-overlay-body">
+      <p class="mb-3" style="color: #FFC107;"><strong>Warning:</strong> This action will mark this transaction as refunded and restore inventory (for products).</p>
+      <div class="confirm-details" id="refundDetails"></div>
     </div>
-    <div class="modal-footer" style="font-size: 1.125rem;">
-      <button type="button" class="btn btn-secondary" onclick="closeRefundModal()">Cancel</button>
-      <button type="button" class="btn btn-warning" id="confirmRefundBtn">
+    <div class="confirm-overlay-footer">
+      <button type="button" class="btn btn-cancel" onclick="closeRefundModal()">Cancel</button>
+      <button type="button" class="btn btn-refund" id="confirmRefundBtn">
         <i class="mdi mdi-cash-refund"></i> Process Refund
       </button>
     </div>
@@ -589,28 +589,26 @@
 
 <!-- Delete Confirmation Modal -->
 <div id="deleteConfirmModal" class="modal-overlay">
-  <div class="modal-content small">
-    <div class="modal-header" style="background-color: #dc3545; color: #fff;">
-      <h3 class="modal-title">Confirm Delete</h3>
-      <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+  <div class="confirm-overlay-content">
+    <div class="confirm-overlay-header">
+      <i class="mdi mdi-alert-circle-outline" style="color: #dc3545;"></i>
+      <h5>Confirm Delete</h5>
+      <button type="button" class="close" onclick="closeDeleteModal()">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </div>
-    <div class="modal-body" style="font-size: 1.125rem;">
-      <div class="refund-warning" style="background: #f8d7da; border-color: #dc3545;">
-        <i class="mdi mdi-alert" style="color: #dc3545;"></i>
-        <div style="color: #000;">
-          <strong>Warning:</strong> This action cannot be undone. The selected record(s) will be permanently deleted.
-        </div>
-      </div>
-      <div class="confirmation-details" id="deleteDetails">
-        <div class="confirmation-detail-row">
-          <span class="confirmation-detail-label">Items to delete:</span>
-          <span class="confirmation-detail-value" id="deleteItemCount">1</span>
+    <div class="confirm-overlay-body">
+      <p class="mb-3" style="color: #dc3545;"><strong>Warning:</strong> This action cannot be undone. The selected record(s) will be permanently deleted.</p>
+      <div class="confirm-details">
+        <div class="confirm-row">
+          <span class="confirm-label">Items to delete:</span>
+          <span class="confirm-value" id="deleteItemCount">1</span>
         </div>
       </div>
     </div>
-    <div class="modal-footer" style="font-size: 1.125rem;">
-      <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
-      <button type="button" class="btn btn-danger" id="confirmDeleteBtn" onclick="executeDelete()">
+    <div class="confirm-overlay-footer">
+      <button type="button" class="btn btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+      <button type="button" class="btn btn-delete" id="confirmDeleteBtn" onclick="executeDelete()">
         <i class="mdi mdi-delete"></i> Delete
       </button>
     </div>
@@ -928,21 +926,21 @@ function openRefundModal(type, id, receipt, amount, name) {
   
   const details = document.getElementById('refundDetails');
   details.innerHTML = `
-    <div class="confirmation-detail-row">
-      <span class="confirmation-detail-label">Receipt:</span>
-      <span class="confirmation-detail-value">#${receipt}</span>
+    <div class="confirm-row">
+      <span class="confirm-label">Receipt:</span>
+      <span class="confirm-value">#${receipt}</span>
     </div>
-    <div class="confirmation-detail-row">
-      <span class="confirmation-detail-label">Name:</span>
-      <span class="confirmation-detail-value">${name}</span>
+    <div class="confirm-row">
+      <span class="confirm-label">Name:</span>
+      <span class="confirm-value">${name}</span>
     </div>
-    <div class="confirmation-detail-row">
-      <span class="confirmation-detail-label">Amount:</span>
-      <span class="confirmation-detail-value" style="color:#dc3545;">₱${parseFloat(amount).toFixed(2)}</span>
+    <div class="confirm-row">
+      <span class="confirm-label">Amount:</span>
+      <span class="confirm-value" style="color:#dc3545;">₱${parseFloat(amount).toFixed(2)}</span>
     </div>
-    <div class="confirmation-detail-row">
-      <span class="confirmation-detail-label">Type:</span>
-      <span class="confirmation-detail-value">${type === 'product' ? 'Product Payment' : 'Membership Payment'}</span>
+    <div class="confirm-row">
+      <span class="confirm-label">Type:</span>
+      <span class="confirm-value">${type === 'product' ? 'Product Payment' : 'Membership Payment'}</span>
     </div>`;
   
   document.getElementById('refundModal').classList.add('show');

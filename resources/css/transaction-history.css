@@ -7,10 +7,15 @@
     position: relative;
     padding-left: 30px;
 }
-.timeline::before {
+
+.timeline-inner {
+    position: relative;
+}
+
+.timeline-inner::before {
     content: '';
     position: absolute;
-    left: 8px;
+    left: -22px;
     top: 0;
     bottom: 0;
     width: 2px;

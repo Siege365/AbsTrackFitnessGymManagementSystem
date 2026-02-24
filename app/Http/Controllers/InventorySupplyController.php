@@ -134,7 +134,7 @@ class InventorySupplyController extends Controller
                 $activityQuery->orderBy('created_at', 'desc');
         }
         
-        $recentActivity = $activityQuery->limit(50)->get();
+        $recentActivity = $activityQuery->paginate(5, ['*'], 'activity_page')->withQueryString();
         
         return view('inventorySupplies.inventory', compact(
             'inventoryItems',

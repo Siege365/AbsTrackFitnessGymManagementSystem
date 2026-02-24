@@ -295,7 +295,7 @@
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">
                             <i class="mdi mdi-close"></i> Cancel
                         </button>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" id="editProductSubmitBtn">
                             <i class="mdi mdi-check"></i> Save Changes
                         </button>
                     </div>
@@ -312,6 +312,20 @@ document.addEventListener('DOMContentLoaded', function() {
     @if($errors->any())
         $('#editProductModal').modal('show');
     @endif
+});
+
+// Edit Product form submit - loading spinner to prevent duplicates
+document.querySelector('#editProductModal form').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('editProductSubmitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Saving...';
+});
+
+// Reset button state when modal is closed
+$('#editProductModal').on('hidden.bs.modal', function () {
+    const submitBtn = document.getElementById('editProductSubmitBtn');
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="mdi mdi-check"></i> Save Changes';
 });
 </script>
 @endpush

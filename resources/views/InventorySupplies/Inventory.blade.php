@@ -189,8 +189,11 @@
                         @endif
                     </td>
                     <td>
-                        <a href="{{ route('inventory.transaction-history', $item->id) }}" class="btn btn-outline-info">
-                            <i class="mdi mdi-history" ></i> View
+                        <a href="{{ route('inventory.transaction-history', $item->id) }}" 
+                           class="btn btn-sm btn-gradient-info text-white"
+                           style="border-radius: 20px; display: inline-flex; align-items: center; gap: 0.375rem;">
+                            <i class="mdi mdi-eye"></i>
+                            <span>View</span>
                         </a>
                     </td>
                     <td>
@@ -289,9 +292,9 @@
                 </div>
               </div>
             </div>
-            <div class="table-responsive activity-table-container" style="max-height: 480px;">
+            <div class="table-responsive">
               <table class="table table-hover">
-                <thead style="position: sticky; top: 0; background: #191C24; z-index: 1;">
+                <thead>
                   <tr>
                     <th>Date & Time</th>
                     <th>Product#</th>
@@ -333,6 +336,9 @@
                 </tbody>
               </table>
             </div>
+            <div class="table-footer" style="justify-content: flex-end;">
+              {{ $recentActivity->links('vendor.pagination.custom') }}
+            </div>
           </div>
         </div>
       </div>
@@ -341,7 +347,7 @@
     <!-- Add Product Modal -->
     <div class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel">
       <div class="modal-dialog modal-dialog-centered modal-md" role="document">
-        <div class="modal-content">
+        <div class="modal-content" style="position: relative;">
           <div class="modal-header bg-primary text-white">
             <h5 class="modal-title" id="addProductModalLabel">
               <i class="mdi mdi-plus-box"></i> Add New Product
@@ -465,11 +471,55 @@
               <button type="button" class="btn btn-secondary" data-dismiss="modal">
                 <i class="mdi mdi-close"></i> Cancel
               </button>
-              <button type="submit" class="btn btn-primary" id="addProductSubmitBtn">
+              <button type="button" class="btn btn-primary" id="addProductSubmitBtn" onclick="showAddProductConfirm()">
                 <i class="mdi mdi-check"></i> Add Product
               </button>
             </div>
           </form>
+
+          <!-- Add Product Confirmation Overlay -->
+          <div id="addProductConfirmOverlay" class="confirm-overlay" style="display: none;">
+            <div class="confirm-overlay-content">
+              <div class="confirm-overlay-header">
+                <i class="mdi mdi-check-circle-outline"></i>
+                <h5>Confirm Product</h5>
+                <button type="button" class="close" onclick="backToAddProductForm()">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="confirm-overlay-body">
+                <p class="mb-3">Are you sure you want to add this product?</p>
+                <div class="confirm-details">
+                  <div class="confirm-row">
+                    <span class="confirm-label">Product Number:</span>
+                    <span class="confirm-value" id="confirmProductNumberText"></span>
+                  </div>
+                  <div class="confirm-row">
+                    <span class="confirm-label">Product Name:</span>
+                    <span class="confirm-value" id="confirmProductNameText"></span>
+                  </div>
+                  <div class="confirm-row">
+                    <span class="confirm-label">Category:</span>
+                    <span class="confirm-value" id="confirmCategoryText"></span>
+                  </div>
+                  <div class="confirm-row">
+                    <span class="confirm-label">Unit Price:</span>
+                    <span class="confirm-value" id="confirmPriceText"></span>
+                  </div>
+                  <div class="confirm-row">
+                    <span class="confirm-label">Initial Stock:</span>
+                    <span class="confirm-value" id="confirmStockText"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="confirm-overlay-footer">
+                <button type="button" class="btn btn-cancel" onclick="backToAddProductForm()">Cancel</button>
+                <button type="button" class="btn btn-update" onclick="submitAddProductForm()">
+                  <i class="mdi mdi-check"></i> Confirm
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -486,7 +536,7 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <form id="stockInForm" method="POST">
+          <form id="stockInForm" method="POST" novalidate>
             @csrf
             <input type="hidden" name="transaction_type" value="stock_in">
             <div class="modal-body">
@@ -522,7 +572,6 @@
                       name="quantity" 
                       id="stockInQuantity"
                       placeholder="0" 
-                      min="1"
                       required>
               </div>
 
@@ -574,7 +623,7 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <form id="stockOutForm" method="POST">
+          <form id="stockOutForm" method="POST" novalidate>
             @csrf
             <input type="hidden" name="transaction_type" value="stock_out">
             <div class="modal-body">
@@ -610,7 +659,6 @@
                       name="quantity" 
                       id="stockOutQuantity"
                       placeholder="0" 
-                      min="1"
                       required>
                 <small class="text-muted">Available: <span id="availableStock"></span></small>
               </div>
@@ -640,10 +688,7 @@
                 </div>
               </div>
 
-              <!-- Warning -->
-              <div class="alert alert-danger" id="insufficientStockWarning" style="display: none;">
-                <i class="mdi mdi-alert"></i> Insufficient stock! Please enter a valid quantity.
-              </div>
+
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -664,41 +709,39 @@
 
     <!-- Delete Confirmation Modal -->
     <div id="deleteConfirmModal" class="modal-overlay">
-      <div class="modal-content small">
-        <div class="modal-header" style="background-color: #dc3545; color: #fff;">
-          <h5 class="modal-title"><i class="mdi mdi-alert-circle-outline"></i> Confirm Delete</h5>
-          <button type="button" class="modal-close" onclick="closeDeleteModal()">&times;</button>
+      <div class="confirm-overlay-content">
+        <div class="confirm-overlay-header">
+          <i class="mdi mdi-alert-circle-outline" style="color: #dc3545;"></i>
+          <h5>Confirm Delete</h5>
+          <button type="button" class="close" onclick="closeDeleteModal()">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
-        <div class="modal-body" style="font-size: 1.125rem;">
-          <div class="refund-warning" style="background: #f8d7da; border-color: #dc3545;">
-            <i class="mdi mdi-alert" style="color: #dc3545;"></i>
-            <div style="color: #000;">
-              <strong>Warning:</strong> This action cannot be undone. You are about to delete <strong id="deleteItemCount">0</strong>.
+        <div class="confirm-overlay-body">
+          <p class="mb-3" style="color: #dc3545;"><strong>Warning:</strong> This action cannot be undone. You are about to delete <strong id="deleteItemCount">0</strong>.</p>
+          <div class="confirm-details">
+            <div class="confirm-row" style="border-bottom: none;">
+              <span class="confirm-label">Are you sure to delete selected product?</span>
             </div>
           </div>
-          <div class="confirmation-details" id="deleteDetails">
-            <div class="confirmation-detail-row" style="border-bottom: none;">
-              <span class="confirmation-detail-label" style="color: #000; font-size: 1.125rem;">Are you sure to delete selected product?</span>
-            </div>
-          </div>
-          <div id="selectedProductsList" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 4px; max-height: 200px; overflow-y: auto; font-size: 1.125rem;">
+          <div id="selectedProductsList" style="margin-top: 15px; padding: 10px; background: #282A36; border-radius: 8px; max-height: 200px; overflow-y: auto; border: 1px solid rgba(255, 255, 255, 0.1);">
             <!-- Selected products will be listed here -->
           </div>
         </div>
-        <div class="modal-footer" style="font-size: 1.125rem;">
-          <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
-            <i class="mdi mdi-close"></i> Cancel
-          </button>
-          <button type="button" class="btn btn-danger" onclick="executeDelete()">
+        <div class="confirm-overlay-footer">
+          <button type="button" class="btn btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+          <button type="button" class="btn btn-delete" onclick="executeDelete()">
             <i class="mdi mdi-delete"></i> Delete
           </button>
         </div>
       </div>
     </div>
+
+
 @endsection
 
 @push('scripts')
-@vite(['resources/js/common/form-utils.js'])
+@vite(['resources/js/common/form-utils.js', 'resources/js/common/toast-utils.js'])
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const checkAll = document.getElementById('checkAll');
@@ -777,25 +820,55 @@ document.addEventListener('DOMContentLoaded', function() {
         const quantity = parseInt(this.value) || 0;
         const currentStock = parseInt(document.getElementById('stockInCurrentStock').textContent);
         const newStock = currentStock + quantity;
+        const submitBtn = document.querySelector('#stockInForm button[type="submit"]');
         
-        if (quantity > 0) {
+        if (this.value !== '' && quantity <= 0) {
+            document.getElementById('stockInPreview').style.display = 'none';
+        } else if (quantity > 0) {
+            submitBtn.disabled = false;
             document.getElementById('previewCurrentIn').textContent = currentStock;
             document.getElementById('previewAddQuantity').textContent = '+' + quantity;
             document.getElementById('previewNewIn').textContent = newStock;
             document.getElementById('stockInPreview').style.display = 'block';
         } else {
+            submitBtn.disabled = false;
             document.getElementById('stockInPreview').style.display = 'none';
         }
     });
 
+    // Stock In Form submit validation
+    document.getElementById('stockInForm').addEventListener('submit', function(e) {
+        const quantity = parseInt(document.getElementById('stockInQuantity').value) || 0;
+        const submitBtn = this.querySelector('button[type="submit"]');
+        
+        if (quantity <= 0) {
+            e.preventDefault();
+            ToastUtils.showWarning('Please enter a valid quantity greater than 0.', 'Invalid Quantity');
+            document.getElementById('stockInQuantity').focus();
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Processing...';
+    });
+
     // Stock Out Modal
     document.querySelectorAll('.stock-out-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function(e) {
+            const stockQty = parseInt(this.dataset.stockQty);
+
+            if (stockQty === 0) {
+                e.preventDefault();
+                e.stopPropagation();
+                ToastUtils.showError('This product is out of stock. Stock out is not allowed.', 'Out of Stock');
+                return;
+            }
+
             const itemId = this.dataset.id;
             const productNumber = this.dataset.productNumber;
             const productName = this.dataset.productName;
             const category = this.dataset.category;
-            const stockQty = parseInt(this.dataset.stockQty);
             const status = this.dataset.status;
             const statusClass = this.dataset.statusClass;
             
@@ -821,13 +894,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentStock = parseInt(document.getElementById('stockOutCurrentStock').textContent);
         const newStock = currentStock - quantity;
         
-        if (quantity > 0) {
+        if (this.value !== '' && quantity <= 0) {
+            document.getElementById('stockOutPreview').style.display = 'none';
+        } else if (quantity > 0) {
             if (quantity > currentStock) {
-                document.getElementById('insufficientStockWarning').style.display = 'block';
                 document.getElementById('stockOutPreview').style.display = 'none';
                 document.getElementById('confirmStockOut').disabled = true;
             } else {
-                document.getElementById('insufficientStockWarning').style.display = 'none';
                 document.getElementById('previewCurrentOut').textContent = currentStock;
                 document.getElementById('previewRemoveQuantity').textContent = '-' + quantity;
                 document.getElementById('previewNewOut').textContent = newStock;
@@ -836,15 +909,44 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } else {
             document.getElementById('stockOutPreview').style.display = 'none';
-            document.getElementById('insufficientStockWarning').style.display = 'none';
             document.getElementById('confirmStockOut').disabled = false;
         }
+    });
+
+    // Stock Out Form submit validation
+    document.getElementById('stockOutForm').addEventListener('submit', function(e) {
+        const quantity = parseInt(document.getElementById('stockOutQuantity').value) || 0;
+        const currentStock = parseInt(document.getElementById('stockOutCurrentStock').textContent);
+        const submitBtn = document.getElementById('confirmStockOut');
+        
+        if (quantity <= 0) {
+            e.preventDefault();
+            ToastUtils.showWarning('Please enter a valid quantity greater than 0.', 'Invalid Quantity');
+            document.getElementById('stockOutQuantity').focus();
+            return;
+        } else if (quantity > currentStock) {
+            e.preventDefault();
+            ToastUtils.showError('Insufficient stock! Cannot remove more than available quantity.', 'Insufficient Stock');
+            document.getElementById('stockOutQuantity').focus();
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Processing...';
     });
 
     // Reset modals on close
     $('#addProductModal').on('hidden.bs.modal', function () {
         document.getElementById('addProductForm').reset();
         document.getElementById('autoProductNumber').value = '';
+        document.getElementById('addProductConfirmOverlay').style.display = 'none';
+        // Reset confirm button state
+        const confirmBtn = document.querySelector('#addProductConfirmOverlay .btn-update');
+        if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = '<i class="mdi mdi-check"></i> Confirm';
+        }
         $('.is-invalid').removeClass('is-invalid');
         $('.invalid-feedback').remove();
         $('.alert').remove();
@@ -864,15 +966,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     $('#stockInModal').on('hidden.bs.modal', function () {
+        const submitBtn = this.querySelector('#stockInForm button[type="submit"]');
         document.getElementById('stockInForm').reset();
         document.getElementById('stockInPreview').style.display = 'none';
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="mdi mdi-check"></i> Confirm Stock In';
     });
 
     $('#stockOutModal').on('hidden.bs.modal', function () {
         document.getElementById('stockOutForm').reset();
         document.getElementById('stockOutPreview').style.display = 'none';
-        document.getElementById('insufficientStockWarning').style.display = 'none';
         document.getElementById('confirmStockOut').disabled = false;
+        document.getElementById('confirmStockOut').innerHTML = '<i class="mdi mdi-check"></i> Confirm Stock Out';
     });
 
     // Show add product modal if there are validation errors
@@ -924,6 +1029,61 @@ document.addEventListener('click', function(e) {
   }
 });
 
+// ============================================
+// Add Product Confirmation Overlay Logic
+// ============================================
+function showAddProductConfirm() {
+    const form = document.getElementById('addProductForm');
+    const productNumber = document.getElementById('autoProductNumber').value;
+    const productName = form.querySelector('[name="product_name"]').value.trim();
+    const category = form.querySelector('[name="category"]').value;
+    const unitPrice = form.querySelector('[name="unit_price"]').value;
+    const stockQty = form.querySelector('[name="stock_qty"]').value;
+
+    // Validate required fields
+    if (!productName) {
+        ToastUtils.showError('Please enter a product name.', 'Validation Error');
+        form.querySelector('[name="product_name"]').focus();
+        return;
+    }
+    if (!category) {
+        ToastUtils.showError('Please select a category.', 'Validation Error');
+        form.querySelector('[name="category"]').focus();
+        return;
+    }
+    if (!unitPrice || parseFloat(unitPrice) < 0) {
+        ToastUtils.showError('Please enter a valid unit price.', 'Validation Error');
+        form.querySelector('[name="unit_price"]').focus();
+        return;
+    }
+    if (stockQty === '' || parseInt(stockQty) < 0) {
+        ToastUtils.showError('Please enter a valid stock quantity.', 'Validation Error');
+        form.querySelector('[name="stock_qty"]').focus();
+        return;
+    }
+
+    // Populate confirmation overlay
+    document.getElementById('confirmProductNumberText').textContent = productNumber;
+    document.getElementById('confirmProductNameText').textContent = productName;
+    document.getElementById('confirmCategoryText').textContent = category;
+    document.getElementById('confirmPriceText').textContent = '₱' + parseFloat(unitPrice).toFixed(2);
+    document.getElementById('confirmStockText').textContent = stockQty;
+
+    // Show confirmation overlay
+    document.getElementById('addProductConfirmOverlay').style.display = 'flex';
+}
+
+function backToAddProductForm() {
+    document.getElementById('addProductConfirmOverlay').style.display = 'none';
+}
+
+function submitAddProductForm() {
+    const confirmBtn = document.querySelector('#addProductConfirmOverlay .btn-update');
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Processing...';
+    document.getElementById('addProductForm').submit();
+}
+
 // Delete confirmation modal logic
 let pendingDeleteAction = null;
 
@@ -964,9 +1124,9 @@ function confirmDeleteSingle(itemId) {
         const productName = checkbox.dataset.productName;
         const category = checkbox.dataset.category;
         productInfo = `
-            <div style="padding: 8px; border-left: 3px solid #dc3545; margin-bottom: 8px; background: white;">
-                <div style="color: #000; font-weight: 500;">${productName}</div>
-                <div style="color: #666; font-size: 0.875rem;">Product #: ${productNumber} | Category: ${category}</div>
+            <div style="padding: 8px; border-left: 3px solid #dc3545; margin-bottom: 8px; background: #282A36; border-radius: 4px;">
+                <div style="color: #fff; font-weight: 500;">${productName}</div>
+                <div style="color: rgba(255,255,255,0.6); font-size: 0.875rem;">Product #: ${productNumber} | Category: ${category}</div>
             </div>
         `;
     }
@@ -996,9 +1156,9 @@ function bulkDeleteInventory() {
         const productName = cb.dataset.productName;
         const category = cb.dataset.category;
         productsList += `
-            <div style="padding: 8px; border-left: 3px solid #dc3545; margin-bottom: 8px; background: white;">
-                <div style="color: #000; font-weight: 500;">${productName}</div>
-                <div style="color: #666; font-size: 0.875rem;">Product #: ${productNumber} | Category: ${category}</div>
+            <div style="padding: 8px; border-left: 3px solid #dc3545; margin-bottom: 8px; background: #282A36; border-radius: 4px;">
+                <div style="color: #fff; font-weight: 500;">${productName}</div>
+                <div style="color: rgba(255,255,255,0.6); font-size: 0.875rem;">Product #: ${productNumber} | Category: ${category}</div>
             </div>
         `;
     });
