@@ -28,6 +28,7 @@ class Attendance extends Model
     protected $appends = [
         'display_name',
         'subscription_type',
+        'customer_type',
         'active_status',
         'active_avatar',
     ];
@@ -133,6 +134,20 @@ class Attendance extends Model
         }
         if ($this->client) {
             return $this->client->plan_type;
+        }
+        return 'Walk-in';
+    }
+
+    /**
+     * Get the customer type: Member (has membership) > Client (has client) > Walk-in
+     */
+    public function getCustomerTypeAttribute(): string
+    {
+        if ($this->membership) {
+            return 'Member';
+        }
+        if ($this->client) {
+            return 'Client';
         }
         return 'Walk-in';
     }

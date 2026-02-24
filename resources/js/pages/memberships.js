@@ -146,6 +146,16 @@ const MembershipsPage = (function() {
     const elements = getAddModalElements();
 
     try {
+      // Validate start date is not in the past
+      const startDate = new Date(elements.startDateInput.value);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (startDate < today) {
+        ToastUtils.showError('Start date cannot be in the past. Please select today or a future date.', 'Invalid Date');
+        return;
+      }
+
       // Create FormData
       const formData = new FormData();
       formData.append('name', elements.nameInput.value.trim());

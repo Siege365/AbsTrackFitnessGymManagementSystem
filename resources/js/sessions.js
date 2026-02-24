@@ -200,7 +200,17 @@ const SessionsPage = {
         $('#pt_age').val(item.age || '').prop('readonly', true);
         $('#pt_sex').val(item.sex || '').prop('disabled', true);
         $('#pt_contact').val(item.contact || '').prop('readonly', true);
-        $('#pt_plan').val(item.plan_type || 'N/A');
+        
+        // For PT modal: Show ONLY client (PT) subscription, not membership
+        let ptPlan = 'Session'; // Default if no client subscription
+        if (item.source === 'client') {
+          // Selected from client records directly
+          ptPlan = item.formatted_plan_type || item.plan_type || 'Session';
+        } else if (item.source === 'membership' && item.client_formatted_plan_type) {
+          // Selected from membership but has client subscription
+          ptPlan = item.client_formatted_plan_type;
+        }
+        $('#pt_plan').val(ptPlan);
 
         // Update avatar
         if (item.avatar) {
@@ -226,7 +236,7 @@ const SessionsPage = {
         $('#pt_age').val('').prop('readonly', false);
         $('#pt_sex').val('').prop('disabled', false);
         $('#pt_contact').val('').prop('readonly', false);
-        $('#pt_plan').val('Walk-in');
+        $('#pt_plan').val('Session'); // PT Session for walk-in customers
 
         var initial = (enteredText || '?').charAt(0).toUpperCase();
         $('#pt_avatar_preview').html('<div class="avatar-initial" style="width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;">' + initial + '</div>');
@@ -936,7 +946,7 @@ const SessionsPage = {
           const contact = data.customer_contact || data.client?.contact || data.membership?.contact;
           $('#view_att_contact').text(contact ? `Contact: ${contact}` : '');
           
-          // Populate check-in info
+          // Populate check-in info (date and time only)
           $('#view_att_date').text(data.date ? new Date(data.date).toLocaleDateString('en-US', {
             year: 'numeric', month: 'long', day: 'numeric'
           }) : 'N/A');
@@ -945,29 +955,18 @@ const SessionsPage = {
             hour: 'numeric', minute: '2-digit', hour12: true
           }) : 'N/A');
           
-          // Subscription type badge
-          const subscriptionType = data.subscription_type || 'Walk-in';
-          const badgeClass = subscriptionType === 'Walk-in' ? 'badge-info' : 'badge-primary';
-          $('#view_att_subscription_badge').html(`<span class="badge ${badgeClass}" style="font-size: 0.85rem;">${subscriptionType}</span>`);
-          
-          // Status badge
-          const status = data.active_status;
-          if (status) {
-            const statusClass = status === 'Expired' ? 'badge-expired' :
-                                status === 'Due soon' ? 'badge-warning' : 'badge-active';
-            $('#view_att_status_badge').html(`<span class="badge ${statusClass}"><i class="mdi mdi-circle" style="font-size: 8px;"></i> ${status}</span>`);
-          } else {
-            $('#view_att_status_badge').html('<span class="text-muted">—</span>');
-          }
+          // Conditionally show sections based on customer type
+          const customerType = data.customer_type;
           
           // Show/hide membership section
-          if (data.membership) {
+          if (data.membership && (customerType === 'Member')) {
             const m = data.membership;
-            $('#view_att_membership_plan').text(m.plan_type || 'N/A');
+            $('#view_att_membership_plan').text(m.formatted_plan_type || 'N/A');
             
-            const mStatus = m.status ? m.status.charAt(0).toUpperCase() + m.status.slice(1) : 'N/A';
-            const mStatusClass = m.status === 'expired' ? 'badge-expired' :
-                                 m.status === 'due_soon' ? 'badge-warning' : 'badge-active';
+            // Format status - match exact values from model: 'Active', 'Due soon', 'Expired'
+            const mStatus = m.status || 'N/A';
+            const mStatusClass = mStatus === 'Expired' ? 'badge-expired' :
+                                 mStatus === 'Due soon' ? 'badge-warning' : 'badge-active';
             $('#view_att_membership_status').html(`<span class="badge ${mStatusClass}">${mStatus}</span>`);
             
             $('#view_att_membership_start').text(m.start_date ? new Date(m.start_date).toLocaleDateString('en-US', {
@@ -983,14 +982,15 @@ const SessionsPage = {
             $('#view_att_membership_section').hide();
           }
           
-          // Show/hide client section
-          if (data.client) {
+          // Show/hide client section  
+          if (data.client && (customerType === 'Client' || customerType === 'Member')) {
             const c = data.client;
-            $('#view_att_client_plan').text(c.plan_type || 'N/A');
+            $('#view_att_client_plan').text(c.formatted_plan_type || 'N/A');
             
-            const cStatus = c.status ? c.status.charAt(0).toUpperCase() + c.status.slice(1) : 'N/A';
-            const cStatusClass = c.status === 'expired' ? 'badge-expired' :
-                                 c.status === 'due_soon' ? 'badge-warning' : 'badge-active';
+            // Format status - match exact values from model: 'Active', 'Due soon', 'Expired'
+            const cStatus = c.status || 'N/A';
+            const cStatusClass = cStatus === 'Expired' ? 'badge-expired' :
+                                 cStatus === 'Due soon' ? 'badge-warning' : 'badge-active';
             $('#view_att_client_status').html(`<span class="badge ${cStatusClass}">${cStatus}</span>`);
             
             $('#view_att_client_start').text(c.start_date ? new Date(c.start_date).toLocaleDateString('en-US', {
@@ -1006,11 +1006,36 @@ const SessionsPage = {
             $('#view_att_client_section').hide();
           }
           
-          // Show walk-in notice if no subscriptions
-          if (!data.membership && !data.client) {
+          // Show walk-in notice only if customer type is Walk-in
+          if (customerType === 'Walk-in') {
             $('#view_att_walkin_notice').show();
           } else {
             $('#view_att_walkin_notice').hide();
+          }
+          
+          // Determine layout from DATA, not DOM visibility (modal is still hidden at this point)
+          const showMembership = !!(data.membership && customerType === 'Member');
+          const showClient = !!(data.client && (customerType === 'Client' || customerType === 'Member'));
+          const hasBoth = showMembership && showClient;
+          
+          const $mSection = $('#view_att_membership_section');
+          const $cSection = $('#view_att_client_section');
+          const $row = $mSection.parent('.row');
+          
+          if (hasBoth) {
+            // DUAL: Two cards side-by-side, fields stacked vertically inside each
+            $mSection.removeClass('col-md-8 col-md-12').addClass('col-md-6');
+            $cSection.removeClass('col-md-8 col-md-12').addClass('col-md-6');
+            $mSection.find('.form-group').removeClass('col-md-6').addClass('col-12');
+            $cSection.find('.form-group').removeClass('col-md-6').addClass('col-12');
+            $row.addClass('justify-content-center');
+          } else {
+            // SINGLE: Full-width card (not centered), 2-column grid inside
+            $mSection.removeClass('col-md-6 col-md-8').addClass('col-md-12');
+            $cSection.removeClass('col-md-6 col-md-8').addClass('col-md-12');
+            $mSection.find('.form-group').removeClass('col-12').addClass('col-md-6');
+            $cSection.find('.form-group').removeClass('col-12').addClass('col-md-6');
+            $row.removeClass('justify-content-center');
           }
           
           // Show modal
@@ -1199,6 +1224,96 @@ const SessionsPage = {
         SessionsPage.showToast('error', message);
       }
     });
+  },
+
+  /**
+   * Apply filter
+   * @param {string} filterType - Type of filter: 'attendance_status' or 'pt_status'
+   * @param {string} value - Filter value
+   */
+  applyFilter: function(filterType, value) {
+    // Build URL with filter
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    
+    // Update or remove filter parameter
+    if (value !== 'all') {
+      params.set(filterType, value);
+    } else {
+      params.delete(filterType);
+    }
+    
+    // Navigate to filtered URL
+    window.location.href = `${url.pathname}?${params.toString()}`;
+  },
+
+  /**
+   * Clear all filters
+   */
+  clearAllFilters: function() {
+    // Build URL without filter parameters
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    
+    // Remove all filter parameters
+    params.delete('attendance_status');
+    params.delete('attendance_sort');
+    params.delete('customer_type');
+    params.delete('pt_status');
+    params.delete('pt_sort');
+    params.delete('pt_date');
+    
+    // Navigate to URL without filters
+    window.location.href = `${url.pathname}?${params.toString()}`;
+  },
+
+  /**
+   * Apply date filter
+   * @param {string} filterType - Type of filter: 'pt_date'
+   * @param {string} value - Date value (YYYY-MM-DD)
+   */
+  applyDateFilter: function(filterType, value) {
+    if (!value) return;
+    
+    // Build URL with filter
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    
+    // Set date parameter
+    params.set(filterType, value);
+    
+    // Navigate to filtered URL
+    window.location.href = `${url.pathname}?${params.toString()}`;
+  },
+
+  /**
+   * Clear date filter
+   * @param {string} filterType - Type of filter: 'pt_date'
+   */
+  clearDateFilter: function(filterType) {
+    // Build URL without date parameter
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    
+    // Remove date parameter
+    params.delete(filterType);
+    
+    // Navigate to filtered URL
+    window.location.href = `${url.pathname}?${params.toString()}`;
+  },
+
+  /**
+   * Toggle filter section accordion
+   * @param {HTMLElement} headerElement - The clicked filter section header
+   * @param {Event} event - The click event
+   */
+  toggleFilterSection: function(headerElement, event) {
+    // Prevent the dropdown from closing
+    if (event) {
+      event.stopPropagation();
+    }
+    const section = headerElement.closest('.filter-section');
+    section.classList.toggle('active');
   }
 };
 

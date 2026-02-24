@@ -97,7 +97,31 @@ class SessionController extends Controller
                 $attendanceQuery->where('status', $request->attendance_status);
             }
             
-            $attendances = $attendanceQuery->orderBy('time_in', 'desc')->paginate(10, ['*'], 'attendance_page');
+            // Customer type filter
+            if ($request->filled('customer_type') && $request->customer_type !== 'all') {
+                $type = $request->customer_type;
+                
+                if ($type === 'member') {
+                    // Has membership only or both
+                    $attendanceQuery->whereNotNull('membership_id');
+                } elseif ($type === 'client') {
+                    // Has client only (no membership)
+                    $attendanceQuery->whereNotNull('client_id')
+                                   ->whereNull('membership_id');
+                } elseif ($type === 'walkin') {
+                    // Walk-in (no client, no membership)
+                    $attendanceQuery->whereNull('client_id')
+                                   ->whereNull('membership_id');
+                }
+            }
+            
+            // Sort order
+            $attendanceSort = $request->get('attendance_sort', 'recent');
+            if ($attendanceSort === 'oldest') {
+                $attendances = $attendanceQuery->orderBy('time_in', 'asc')->paginate(10, ['*'], 'attendance_page');
+            } else {
+                $attendances = $attendanceQuery->orderBy('time_in', 'desc')->paginate(10, ['*'], 'attendance_page');
+            }
 
             // PT Schedules with search and filter
             $ptQuery = PTSchedule::with(['client', 'membership']);
@@ -120,60 +144,96 @@ class SessionController extends Controller
                 $ptQuery->where('status', $request->pt_status);
             }
             
-            // Complex sorting: 
-            // 1. Today first (sorted by time earliest to last)
-            // 2. Future dates next (sorted by date asc, then time asc)
-            // 3. Past dates last (sorted by date desc, then time desc)
-            // 4. If same date and time, sort by customer name alphabetically
-            $today = $today->toDateString();
+            // Date filter - filter by specific date
+            if ($request->filled('pt_date')) {
+                $ptQuery->whereDate('scheduled_date', $request->pt_date);
+            }
             
-            $ptSchedules = $ptQuery
-                ->selectRaw('pt_schedules.*, 
-                    CASE 
-                        WHEN scheduled_date = ? THEN 1 
-                        WHEN scheduled_date > ? THEN 2 
-                        ELSE 3 
-                    END as date_priority', [$today, $today])
-                ->orderByRaw('date_priority ASC')
-                ->orderByRaw('
-                    CASE 
-                        WHEN date_priority = 1 THEN scheduled_time
-                        WHEN date_priority = 2 THEN NULL
-                        ELSE NULL
-                    END ASC
-                ')
-                ->orderByRaw('
-                    CASE 
-                        WHEN date_priority = 2 THEN scheduled_date
-                        ELSE NULL
-                    END ASC
-                ')
-                ->orderByRaw('
-                    CASE 
-                        WHEN date_priority = 2 THEN scheduled_time
-                        ELSE NULL
-                    END ASC
-                ')
-                ->orderByRaw('
-                    CASE 
-                        WHEN date_priority = 3 THEN scheduled_date
-                        ELSE NULL
-                    END DESC
-                ')
-                ->orderByRaw('
-                    CASE 
-                        WHEN date_priority = 3 THEN scheduled_time
-                        ELSE NULL
-                    END DESC
-                ')
-                ->orderByRaw('
-                    COALESCE(
-                        (SELECT name FROM clients WHERE clients.id = pt_schedules.client_id),
-                        (SELECT name FROM memberships WHERE memberships.id = pt_schedules.membership_id),
-                        pt_schedules.customer_name
-                    ) ASC
-                ')
-                ->paginate(10, ['*'], 'pt_page');
+            // Sort order handling
+            $ptSort = $request->get('pt_sort', 'default');
+            
+            if ($ptSort === 'recent') {
+                // Recent first: newest dates first, then newest times
+                $ptSchedules = $ptQuery
+                    ->orderBy('scheduled_date', 'desc')
+                    ->orderBy('scheduled_time', 'desc')
+                    ->orderByRaw('
+                        COALESCE(
+                            (SELECT name FROM clients WHERE clients.id = pt_schedules.client_id),
+                            (SELECT name FROM memberships WHERE memberships.id = pt_schedules.membership_id),
+                            pt_schedules.customer_name
+                        ) ASC
+                    ')
+                    ->paginate(10, ['*'], 'pt_page');
+            } elseif ($ptSort === 'oldest') {
+                // Oldest first: oldest dates first, then earliest times
+                $ptSchedules = $ptQuery
+                    ->orderBy('scheduled_date', 'asc')
+                    ->orderBy('scheduled_time', 'asc')
+                    ->orderByRaw('
+                        COALESCE(
+                            (SELECT name FROM clients WHERE clients.id = pt_schedules.client_id),
+                            (SELECT name FROM memberships WHERE memberships.id = pt_schedules.membership_id),
+                            pt_schedules.customer_name
+                        ) ASC
+                    ')
+                    ->paginate(10, ['*'], 'pt_page');
+            } else {
+                // Default complex sorting: 
+                // 1. Today first (sorted by time earliest to last)
+                // 2. Future dates next (sorted by date asc, then time asc)
+                // 3. Past dates last (sorted by date desc, then time desc)
+                // 4. If same date and time, sort by customer name alphabetically
+                $todayString = $today->toDateString();
+                
+                $ptSchedules = $ptQuery
+                    ->selectRaw('pt_schedules.*, 
+                        CASE 
+                            WHEN scheduled_date = ? THEN 1 
+                            WHEN scheduled_date > ? THEN 2 
+                            ELSE 3 
+                        END as date_priority', [$todayString, $todayString])
+                    ->orderByRaw('date_priority ASC')
+                    ->orderByRaw('
+                        CASE 
+                            WHEN date_priority = 1 THEN scheduled_time
+                            WHEN date_priority = 2 THEN NULL
+                            ELSE NULL
+                        END ASC
+                    ')
+                    ->orderByRaw('
+                        CASE 
+                            WHEN date_priority = 2 THEN scheduled_date
+                            ELSE NULL
+                        END ASC
+                    ')
+                    ->orderByRaw('
+                        CASE 
+                            WHEN date_priority = 2 THEN scheduled_time
+                            ELSE NULL
+                        END ASC
+                    ')
+                    ->orderByRaw('
+                        CASE 
+                            WHEN date_priority = 3 THEN scheduled_date
+                            ELSE NULL
+                        END DESC
+                    ')
+                    ->orderByRaw('
+                        CASE 
+                            WHEN date_priority = 3 THEN scheduled_time
+                            ELSE NULL
+                        END DESC
+                    ')
+                    ->orderByRaw('
+                        COALESCE(
+                            (SELECT name FROM clients WHERE clients.id = pt_schedules.client_id),
+                            (SELECT name FROM memberships WHERE memberships.id = pt_schedules.membership_id),
+                            pt_schedules.customer_name
+                        ) ASC
+                    ')
+                    ->paginate(10, ['*'], 'pt_page');
+            }
 
             // Get all clients for dropdowns
             $clients = Client::orderBy('name')->get();
@@ -514,6 +574,14 @@ class SessionController extends Controller
                 $status = strtolower($client->status ?? 'active');
                 $data['status'] = $status === 'due soon' ? 'due_soon' : $status;
 
+                // AUTO-DETECT: If customer also has membership, include both IDs
+                if ($client->customer_id) {
+                    $membership = Membership::where('customer_id', $client->customer_id)->first();
+                    if ($membership) {
+                        $data['membership_id'] = $membership->id;
+                    }
+                }
+
                 // Detect customer type from membership record
                 $data['customer_type'] = $this->detectCustomerType($client->name, $client->contact);
 
@@ -538,6 +606,14 @@ class SessionController extends Controller
                 // Status from membership
                 $status = strtolower($membership->status ?? 'active');
                 $data['status'] = $status === 'due soon' ? 'due_soon' : $status;
+
+                // AUTO-DETECT: If customer also has client record, include both IDs
+                if ($membership->customer_id) {
+                    $client = Client::where('customer_id', $membership->customer_id)->first();
+                    if ($client) {
+                        $data['client_id'] = $client->id;
+                    }
+                }
 
                 // Detect customer type from plan_type
                 $data['customer_type'] = $this->mapPlanToCustomerType($membership->plan_type);
@@ -829,17 +905,29 @@ class SessionController extends Controller
                 ->orderBy('name')
                 ->limit(10)
                 ->get()
-                ->map(fn($m) => [
-                    'id' => $m->id,
-                    'name' => $m->name,
-                    'source' => 'membership',
-                    'age' => $m->age,
-                    'sex' => $m->sex,
-                    'contact' => $m->contact,
-                    'plan_type' => $m->plan_type,
-                    'avatar' => $m->avatar,
-                    'status' => $m->status,
-                ]);
+                ->map(function($m) {
+                    // Check if this customer also has a client (PT) subscription
+                    $client = null;
+                    if ($m->customer_id) {
+                        $client = Client::where('customer_id', $m->customer_id)->first();
+                    }
+                    
+                    return [
+                        'id' => $m->id,
+                        'name' => $m->name,
+                        'source' => 'membership',
+                        'age' => $m->age,
+                        'sex' => $m->sex,
+                        'contact' => $m->contact,
+                        'plan_type' => $m->plan_type,
+                        'formatted_plan_type' => $m->formatted_plan_type,
+                        'avatar' => $m->avatar,
+                        'status' => $m->status,
+                        // Include client subscription info for PT modal
+                        'client_plan_type' => $client?->plan_type,
+                        'client_formatted_plan_type' => $client?->formatted_plan_type,
+                    ];
+                });
 
             // Search clients
             $clients = Client::where('name', 'like', $searchPattern)
@@ -854,6 +942,7 @@ class SessionController extends Controller
                     'sex' => $c->sex,
                     'contact' => $c->contact,
                     'plan_type' => $c->plan_type,
+                    'formatted_plan_type' => $c->formatted_plan_type,
                     'avatar' => $c->avatar,
                     'status' => $c->status,
                 ]);
