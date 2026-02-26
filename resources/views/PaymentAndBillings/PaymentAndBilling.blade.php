@@ -78,6 +78,7 @@
               <div class="product-form-col product-form-col-3">
                 <label for="productPaymentMethod" class="form-label">Payment Method</label>
                 <select class="form-select" id="productPaymentMethod" name="payment_method" required>
+                  <option value="" disabled selected>Select Payment Method</option>
                   <option value="Cash">Cash</option>
                   <option value="Credit Card">Credit Card</option>
                   <option value="Debit Card">Debit Card</option>
@@ -177,7 +178,6 @@
         cartItems: cartItems,
         customer_name: document.getElementById('productCustomerName')?.value || '',
         customer_id: document.getElementById('productCustomerId')?.value || '',
-        payment_method: document.getElementById('productPaymentMethod')?.value || '',
         paid_amount: document.getElementById('productPaidAmount')?.value || '',
         total_amount: document.getElementById('productTotalAmount')?.value || ''
       };
@@ -193,6 +193,12 @@
       if (!raw) return;
       const state = JSON.parse(raw);
       if (state) {
+        // Clean up old payment_method if it exists
+        if (state.payment_method) {
+          delete state.payment_method;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+        
         cartItems = Array.isArray(state.cartItems) ? state.cartItems : [];
         if (document.getElementById('productCustomerName')) document.getElementById('productCustomerName').value = state.customer_name || '';
         if (document.getElementById('productCustomerId')) document.getElementById('productCustomerId').value = state.customer_id || '';
@@ -212,7 +218,7 @@
             })
             .catch(() => {});
         }
-        if (document.getElementById('productPaymentMethod')) document.getElementById('productPaymentMethod').value = state.payment_method || '';
+        // Don't restore payment_method - force user to select it each time
         if (document.getElementById('productPaidAmount')) document.getElementById('productPaidAmount').value = state.paid_amount || '';
         if (document.getElementById('productTotalAmount')) document.getElementById('productTotalAmount').value = state.total_amount || '';
         renderCart();
@@ -393,7 +399,23 @@
   document.getElementById('productProcessPaymentBtn').addEventListener('click', function(e) {
     e.preventDefault();
     if (isProductSubmitting) return;
+    
+    // Check customer name first
+    const customerNameEl = document.getElementById('productCustomerName');
+    if (!customerNameEl.value || !customerNameEl.value.trim()) {
+      ToastUtils.showError('Please enter customer name.');
+      customerNameEl.focus();
+      return;
+    }
+    
     if (cartItems.length === 0) { ToastUtils.showWarning('Please add at least one item to the cart!'); return; }
+
+    const paymentMethodEl = document.getElementById('productPaymentMethod');
+    if (!paymentMethodEl.value) {
+      ToastUtils.showError('Please select a payment method.');
+      paymentMethodEl.focus();
+      return;
+    }
 
     const total = parseFloat(document.getElementById('productTotalAmount').value) || 0;
     const paid = parseFloat(document.getElementById('productPaidAmount').value) || 0;

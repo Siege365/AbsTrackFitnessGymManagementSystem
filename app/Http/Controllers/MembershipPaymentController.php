@@ -139,8 +139,12 @@ class MembershipPaymentController extends Controller
             // Validate student plan for renewals/extensions
             if ($planType === 'Student' && $request->payment_type !== 'new') {
                 $existingMember = Membership::findOrFail($request->member_id);
-                if (!$existingMember->is_student) {
+                if (!$existingMember->is_student && $existingMember->plan_type !== 'Student') {
                     throw new \Exception('Student rate is only available for members registered as students.');
+                }
+                // Ensure is_student flag is synced if member was on Student plan
+                if (!$existingMember->is_student && $existingMember->plan_type === 'Student') {
+                    $existingMember->update(['is_student' => true]);
                 }
             }
 
@@ -217,20 +221,13 @@ class MembershipPaymentController extends Controller
                         throw new \Exception('Member is active. Please use Extension instead of Renewal.');
                     }
 
-                    $planChanged = $previousPlanType !== $planType;
-                    
-                    if ($member->due_date && Carbon::parse($member->due_date)->isFuture() && !$planChanged) {
-                        $newDueDate = Carbon::parse($member->due_date)->addDays($duration);
-                    } else {
-                        $newDueDate = now()->addDays($duration);
-                    }
+                    // Renewal always starts from today
+                    $newDueDate = now()->addDays($duration);
 
                     $member->update([
                         'status' => 'Active',
                         'plan_type' => $planType,
-                        'start_date' => ($member->due_date && Carbon::parse($member->due_date)->isFuture() && !$planChanged)
-                            ? $member->start_date 
-                            : now(),
+                        'start_date' => now(),
                         'due_date' => $newDueDate,
                     ]);
 

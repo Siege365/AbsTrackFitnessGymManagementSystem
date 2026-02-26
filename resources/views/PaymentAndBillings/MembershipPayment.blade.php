@@ -49,7 +49,7 @@
                 <h2 class="card-title">Process Membership Payment</h2>
             </div>
 
-            <form id="membershipPaymentForm" action="{{ route('membership.payment.store') }}" method="POST" enctype="multipart/form-data">
+            <form id="membershipPaymentForm" action="{{ route('membership.payment.store') }}" method="POST" enctype="multipart/form-data" novalidate>
             @csrf
 
             <!-- Member Selection -->
@@ -290,6 +290,7 @@
                             <div class="payment-details-col payment-details-col-2">
                                 <label class="form-label">Payment Method</label>
                                 <select class="form-select" name="payment_method" id="paymentMethod" required>
+                                    <option value="" disabled selected>Select Payment Method</option>
                                     <option value="Cash">Cash</option>
                                     <option value="Credit Card">Credit Card</option>
                                     <option value="Debit Card">Debit Card</option>
@@ -499,9 +500,17 @@ document.addEventListener('DOMContentLoaded', function() {
     card.addEventListener('click', function() {
       const planType = this.dataset.plan;
       const requiresStudent = this.dataset.requiresStudent === 'true';
+      const isNewPayment = paymentTypeInput.value === 'new';
+      const hasMemberSelected = !!memberId.value;
       if (requiresStudent) {
-        const isStudent = paymentTypeInput.value === 'new' ? document.getElementById('member1IsStudent').checked : selectedMemberIsStudent;
-        if (!isStudent) {
+        if (isNewPayment) {
+          if (!document.getElementById('member1IsStudent').checked) {
+            document.getElementById('studentWarning').style.display = 'block';
+            setTimeout(() => { document.getElementById('studentWarning').style.display = 'none'; }, 4000);
+            ToastUtils.showWarning('Student rate is only available for student members.');
+            return;
+          }
+        } else if (hasMemberSelected && !selectedMemberIsStudent) {
           document.getElementById('studentWarning').style.display = 'block';
           setTimeout(() => { document.getElementById('studentWarning').style.display = 'none'; }, 4000);
           ToastUtils.showWarning('Student rate is only available for student members.');
@@ -509,8 +518,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
       if (planType === 'Regular') {
-        const isStudent = paymentTypeInput.value === 'new' ? document.getElementById('member1IsStudent').checked : selectedMemberIsStudent;
-        if (isStudent) { ToastUtils.showWarning('Regular rate is not available for student members.'); return; }
+        if (isNewPayment) {
+          if (document.getElementById('member1IsStudent').checked) { ToastUtils.showWarning('Regular rate is not available for student members.'); return; }
+        } else if (hasMemberSelected && selectedMemberIsStudent) {
+          ToastUtils.showWarning('Regular rate is not available for student members.'); return;
+        }
       }
       planTypeCards.forEach(c => c.classList.remove('active'));
       this.classList.add('active');
@@ -557,26 +569,43 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function enforcePlanRestrictions() {
-    const isStudent = paymentTypeInput.value === 'new' ? document.getElementById('member1IsStudent').checked : selectedMemberIsStudent;
+    const isNewPayment = paymentTypeInput.value === 'new';
     const regularCard = document.querySelector('#membershipPage [data-plan="Regular"]');
     const studentCard = document.querySelector('#membershipPage [data-plan="Student"]');
+    if (!regularCard || !studentCard) return; // Guard against missing plans
+
+    // For renewal/extension without a member selected, enable all plan cards
+    if (!isNewPayment && !memberId.value) {
+      regularCard.style.opacity = '1'; regularCard.style.pointerEvents = 'auto';
+      studentCard.style.opacity = '1'; studentCard.style.pointerEvents = 'auto';
+      document.getElementById('studentWarning').style.display = 'none';
+      return;
+    }
+
+    const isStudent = isNewPayment ? document.getElementById('member1IsStudent').checked : selectedMemberIsStudent;
     if (isStudent) {
       regularCard.style.opacity = '0.4'; regularCard.style.pointerEvents = 'none';
       studentCard.style.opacity = '1'; studentCard.style.pointerEvents = 'auto';
+      // Auto-switch to Student plan if currently on Regular (not eligible for students)
       if (planTypeInput.value === 'Regular') {
         planTypeCards.forEach(c => c.classList.remove('active'));
         studentCard.classList.add('active');
-        planTypeInput.value = 'Student'; amountInput.value = '500.00'; additionalDaysInput.value = '30';
+        planTypeInput.value = 'Student';
+        amountInput.value = parseFloat(studentCard.dataset.price).toFixed(2);
+        additionalDaysInput.value = studentCard.dataset.duration;
         calculateNewDueDate();
         ToastUtils.showInfo('Switched to Student Rate for student member.');
       }
     } else {
       studentCard.style.opacity = '0.4'; studentCard.style.pointerEvents = 'none';
       regularCard.style.opacity = '1'; regularCard.style.pointerEvents = 'auto';
+      // Auto-switch to Regular plan if currently on Student (not eligible for non-students)
       if (planTypeInput.value === 'Student') {
         planTypeCards.forEach(c => c.classList.remove('active'));
         regularCard.classList.add('active');
-        planTypeInput.value = 'Regular'; amountInput.value = '600.00'; additionalDaysInput.value = '30';
+        planTypeInput.value = 'Regular';
+        amountInput.value = parseFloat(regularCard.dataset.price).toFixed(2);
+        additionalDaysInput.value = regularCard.dataset.duration;
         calculateNewDueDate();
         ToastUtils.showInfo('Switched to Regular Rate.');
       }
@@ -619,7 +648,7 @@ document.addEventListener('DOMContentLoaded', function() {
             memberId.value = this.dataset.id;
             selectedMemberStatus = this.dataset.status;
             selectedMemberDueDate = this.dataset.dueDate;
-            selectedMemberIsStudent = this.dataset.isStudent === '1';
+            selectedMemberIsStudent = this.dataset.isStudent === '1' || this.dataset.plan === 'Student';
             document.getElementById('memberIsStudent').value = selectedMemberIsStudent ? '1' : '0';
             const dueDate = this.dataset.dueDate;
             document.getElementById('currentDueDate').value = dueDate ? new Date(dueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'No due date';
@@ -630,9 +659,9 @@ document.addEventListener('DOMContentLoaded', function() {
               paymentTypePills.forEach(p => p.classList.remove('active'));
               extensionPill.classList.add('active'); paymentTypeInput.value = 'extension';
             } else { renewalPill.style.opacity = '1'; renewalPill.style.pointerEvents = 'auto'; }
-            enforcePlanRestrictions();
             resultsContainer.style.display = 'none';
             updatePlanDependentFields();
+            enforcePlanRestrictions();
             calculateNewDueDate();
           });
         });
@@ -702,7 +731,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let startDate; const today = new Date();
     if (paymentType === 'new') { startDate = today; }
     else if (paymentType === 'renewal') {
-      if (currentDueDateText && currentDueDateText !== 'No due date') { const cd = new Date(currentDueDateText); startDate = cd > today ? cd : today; } else { startDate = today; }
+      startDate = today;
     } else if (paymentType === 'extension') {
       if (currentDueDateText && currentDueDateText !== 'No due date') { startDate = new Date(currentDueDateText); } else { return; }
     }
@@ -713,7 +742,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const bcdText = document.getElementById('buddyCurrentDueDate').value;
       let buddyStart;
       if (paymentType === 'renewal') {
-        if (bcdText && bcdText !== 'No due date' && bcdText !== 'N/A') { const bc = new Date(bcdText); buddyStart = bc > today ? bc : today; } else { buddyStart = today; }
+        buddyStart = today;
       } else if (paymentType === 'extension') {
         if (bcdText && bcdText !== 'No due date' && bcdText !== 'N/A') { buddyStart = new Date(bcdText); } else { document.getElementById('buddyNewDueDate').value = ''; return; }
       }
@@ -722,24 +751,160 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Form Submission
+  // Helper: show all collected errors
+  function showValidationErrors(errors) {
+    const errorList = errors.map(e => '• ' + e).join('\n');
+    ToastUtils.showError('Please fix the following:\n' + errorList);
+  }
+
+  // Helper: check duplicate member name via API
+  async function checkDuplicateName(name) {
+    try {
+      const resp = await fetch('{{ url("/api/members/check-duplicate") }}?name=' + encodeURIComponent(name), {
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+      });
+      const data = await resp.json();
+      return data.exists;
+    } catch (err) {
+      console.error('Duplicate check failed:', err);
+      return false;
+    }
+  }
+
   const paymentForm = document.getElementById('membershipPaymentForm');
-  paymentForm.addEventListener('submit', function(e) {
+  paymentForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     if (isMembershipSubmitting) return;
-    if (paymentTypeInput.value === 'new') {
-      if (!document.getElementById('newMemberName').value.trim()) { ToastUtils.showError("Please enter the member's name."); return; }
-      const contact = document.getElementById('newMemberContact').value;
-      if (contact && !contact.match(/^(09\d{9}|\+639\d{9})$/)) { ToastUtils.showError('Invalid contact number.'); return; }
-      if (planTypeInput.value === 'GymBuddy') {
-        if (!document.getElementById('buddyName').value.trim()) { ToastUtils.showError("Please enter the buddy's name."); return; }
-        const bc = document.getElementById('buddyContact').value;
-        if (!bc || !bc.match(/^(09\d{9}|\+639\d{9})$/)) { ToastUtils.showError('Invalid buddy contact number.'); return; }
+
+    const errors = [];
+    const paymentType = paymentTypeInput.value;
+    const planType = planTypeInput.value;
+
+    // -- Validate based on payment type --
+    if (paymentType === 'new') {
+      // New member fields
+      const nameEl = document.getElementById('newMemberName');
+      if (!nameEl.value.trim()) {
+        errors.push('Member Full Name is required.');
+      }
+
+      const contactEl = document.getElementById('newMemberContact');
+      if (!contactEl.value.trim()) {
+        errors.push('Member Contact Number is required.');
+      } else if (!contactEl.value.match(/^(09\d{9}|\+639\d{9})$/)) {
+        errors.push('Member Contact Number is invalid (use 09XXXXXXXXX or +639XXXXXXXXX).');
+      }
+
+      // Age validation
+      const ageEl = document.getElementById('newMemberAge');
+      if (!ageEl.value || parseInt(ageEl.value) <= 0) {
+        errors.push('Member Age is required.');
+      }
+
+      // Sex validation
+      const sexEl = document.getElementById('newMemberSex');
+      if (!sexEl.value) {
+        errors.push('Member Sex is required.');
+      }
+
+      // GymBuddy new member fields
+      if (planType === 'GymBuddy') {
+        const buddyNameEl = document.getElementById('buddyName');
+        if (!buddyNameEl.value.trim()) {
+          errors.push("Buddy's Full Name is required.");
+        }
+
+        const buddyContactEl = document.getElementById('buddyContact');
+        if (!buddyContactEl.value.trim()) {
+          errors.push("Buddy's Contact Number is required.");
+        } else if (!buddyContactEl.value.match(/^(09\d{9}|\+639\d{9})$/)) {
+          errors.push("Buddy's Contact Number is invalid (use 09XXXXXXXXX or +639XXXXXXXXX).");
+        }
+
+        // Buddy Age validation
+        const buddyAgeEl = document.getElementById('buddyAge');
+        if (!buddyAgeEl.value || parseInt(buddyAgeEl.value) <= 0) {
+          errors.push("Buddy's Age is required.");
+        }
+
+        // Buddy Sex validation
+        const buddySexEl = document.getElementById('buddySex');
+        if (!buddySexEl.value) {
+          errors.push("Buddy's Sex is required.");
+        }
+      }
+    } else {
+      // Renewal / Extension – existing member selection
+      const memberSearchEl = document.getElementById('memberSearch');
+      if (!memberId.value) {
+        errors.push('Please select a member.');
+      }
+
+      if (planType === 'GymBuddy') {
+        const buddySearchEl = document.getElementById('buddyMemberSearch');
+        if (!document.getElementById('buddyMemberId').value) {
+          errors.push('Please select a gym buddy member.');
+        }
       }
     }
-    if (paymentTypeInput.value !== 'new') {
-      if (!memberId.value) { ToastUtils.showError('Please select a member.'); return; }
-      if (planTypeInput.value === 'GymBuddy' && !document.getElementById('buddyMemberId').value) { ToastUtils.showError('Please select a gym buddy member.'); return; }
+
+    // -- Plan selection --
+    if (!planType) {
+      errors.push('Please select a subscription plan.');
     }
+
+    // -- Payment Method --
+    const paymentMethodEl = document.getElementById('paymentMethod');
+    if (!paymentMethodEl.value) {
+      errors.push('Please select a payment method.');
+    }
+
+    // -- Amount --
+    const amountVal = parseFloat(amountInput.value);
+    if (!amountVal || amountVal <= 0) {
+      errors.push('Payment amount is missing or invalid.');
+    }
+
+    // -- New Due Date (should be auto-calculated, but guard against edge cases) --
+    const newDueDateEl = document.getElementById('newDueDate');
+    if (!newDueDateEl.value || newDueDateEl.value.trim() === '') {
+      errors.push('New Due Date could not be calculated. Please select a plan.');
+    }
+
+    // -- If field-level errors exist, show them all and stop --
+    if (errors.length > 0) {
+      showValidationErrors(errors);
+      return;
+    }
+
+    // -- Duplicate member name check (only for new memberships) --
+    if (paymentType === 'new') {
+      const submitBtn = paymentForm.querySelector('button[type="submit"]');
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Checking...'; }
+
+      const memberName = document.getElementById('newMemberName').value.trim();
+      const memberDuplicate = await checkDuplicateName(memberName);
+      if (memberDuplicate) {
+        errors.push('A member named "' + memberName + '" already exists. Please use a different name or select the existing member via Renewal/Extension.');
+      }
+
+      // Also check buddy name if GymBuddy
+      if (planType === 'GymBuddy') {
+        const buddyName = document.getElementById('buddyName').value.trim();
+        const buddyDuplicate = await checkDuplicateName(buddyName);
+        if (buddyDuplicate) {
+          errors.push('A member named "' + buddyName + '" already exists as a buddy. Please use a different name or select the existing member.');
+        }
+      }
+
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="mdi mdi-check"></i> Process Payment'; }
+
+      if (errors.length > 0) {
+        showValidationErrors(errors);
+        return;
+      }
+    }
+
     showConfirmationModal();
   });
 
@@ -813,8 +978,11 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('member1IsStudent').checked = false; document.getElementById('member1StudentLabel').textContent = 'No';
     document.getElementById('buddyIsStudent').checked = false; document.getElementById('buddyStudentLabel').textContent = 'No';
     planTypeCards.forEach(c => c.classList.remove('active'));
-    document.querySelector('#membershipPage [data-plan="Regular"]').classList.add('active');
-    planTypeInput.value = 'Regular'; amountInput.value = '600.00'; additionalDaysInput.value = '30';
+    const defaultPlanCard = document.querySelector('#membershipPage [data-plan="Regular"]');
+    defaultPlanCard.classList.add('active');
+    planTypeInput.value = 'Regular';
+    amountInput.value = parseFloat(defaultPlanCard.dataset.price).toFixed(2);
+    additionalDaysInput.value = defaultPlanCard.dataset.duration;
     extensionPill.style.opacity = '0.5'; extensionPill.style.pointerEvents = 'none';
     document.querySelector('[data-type="renewal"]').style.opacity = '1'; document.querySelector('[data-type="renewal"]').style.pointerEvents = 'auto';
     isMembershipSubmitting = false;

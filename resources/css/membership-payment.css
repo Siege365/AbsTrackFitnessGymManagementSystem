@@ -1625,3 +1625,21 @@
   background: linear-gradient(135deg, #e0a800, #FFC107);
   box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
 }
+
+/* ============================
+   Field Validation Error State
+   ============================ */
+.field-error {
+  border: 2px solid #dc3545 !important;
+  background-color: #fff5f5 !important;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15) !important;
+  animation: field-error-shake 0.4s ease;
+}
+
+@keyframes field-error-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}

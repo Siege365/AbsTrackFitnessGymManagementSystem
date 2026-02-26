@@ -143,6 +143,7 @@ Route::middleware(['auth'])->group(function () {
     
     // Member search API
     Route::get('/api/members/search', [MemberApiController::class, 'search']);
+    Route::get('/api/members/check-duplicate', [MemberApiController::class, 'checkDuplicate']);
     Route::get('/api/members/{id}', [MemberApiController::class, 'show']);
     
     // Autocomplete API for cross-referencing

@@ -31,6 +31,25 @@ class MemberApiController extends Controller
     }
 
     /**
+     * Check if a member with the given name already exists
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkDuplicate(Request $request)
+    {
+        $name = trim($request->input('name', ''));
+
+        if (empty($name)) {
+            return response()->json(['exists' => false]);
+        }
+
+        $exists = Membership::whereRaw('LOWER(name) = ?', [strtolower($name)])->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
+
+    /**
      * Get member details by ID
      *
      * @param int $id
