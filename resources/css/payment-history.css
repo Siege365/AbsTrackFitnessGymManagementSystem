@@ -57,21 +57,36 @@ body {
   background-color: #fff3cd !important;
 }
 
-/* Fixed Table Heights: fits 6 rows, overflow visible so dropdowns are not clipped */
+/* Table scroll container */
 .table-responsive {
-  min-height: 420px;
+  min-height: 200px;
   max-height: none;
-  overflow: visible !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Dropdown positioning for proper display */
+.table .dropdown { 
+  position: relative;
+}
+
+.table .dropdown-menu { 
+  position: absolute; 
+  z-index: 1050;
+  margin-top: 0.125rem;
 }
 
 /* Search input wrapper with clear button */
 .search-wrapper {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  width: 450px;
+  max-width: 100%;
 }
 
 .search-wrapper .form-control {
   padding-right: 35px;
+  width: 100%;
 }
 
 .search-clear-btn {
@@ -510,7 +525,7 @@ input[type="checkbox"]:hover {
     border: none;
     margin-bottom: 15px !important;
     border-radius: 8px !important;
-    overflow: visible !important;
+    overflow: hidden;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 167, 38, 0.08);
 }
 
@@ -638,11 +653,12 @@ input[type="checkbox"]:hover {
   border: none;
   border-radius: 10px;
   transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
 }
 
 .stats-card:hover {
-  transform: none;
-  box-shadow: none;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .stats-card.active {
@@ -955,4 +971,67 @@ input[type="checkbox"]:hover {
 .confirm-overlay-footer .btn-refund:hover {
   background: linear-gradient(135deg, #e0a800, #FFC107);
   box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* Mobile landscape (≤768px) */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 16px 14px !important;
+  }
+
+  .table thead th {
+    font-size: 0.8125rem;
+    padding: 12px 10px;
+    white-space: nowrap;
+  }
+
+  .table tbody td {
+    font-size: 0.875rem;
+    padding: 12px 10px;
+  }
+
+  .badge {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+  }
+
+  .search-wrapper {
+    width: 100%;
+    display: block;
+  }
+
+  .search-wrapper .form-control {
+    width: 100%;
+  }
+
+  .table-responsive {
+    min-height: auto;
+  }
+
+  /* Receipt adjustments */
+  .receipt-container {
+    padding: 20px;
+  }
+}
+
+/* Mobile portrait (≤576px) */
+@media (max-width: 576px) {
+  .table thead th,
+  .table tbody td {
+    padding: 10px 8px;
+    font-size: 0.8125rem;
+  }
+
+  .table thead th {
+    font-size: 0.75rem;
+  }
+
+  .receipt-container {
+    padding: 15px;
+    max-width: 100%;
+  }
 }

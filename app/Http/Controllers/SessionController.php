@@ -15,27 +15,45 @@ class SessionController extends Controller
     /**
      * Get KPI data for real-time updates
      */
-    public function getKPIs()
+    public function getKPIs(Request $request)
     {
         try {
-            // Auto-expire overdue PT schedules
-            PTSchedule::expireOverdueSchedules();
-
             $today = Carbon::today();
+            $type = $request->get('type', 'pt');
+
+            if ($type === 'attendance') {
+                $customersEnteredToday = Attendance::whereDate('date', $today)->count();
+                $membersToday = Attendance::whereDate('date', $today)->whereNotNull('membership_id')->count();
+                $walkInsToday = Attendance::whereDate('date', $today)->whereNull('client_id')->whereNull('membership_id')->count();
+                $totalThisMonth = Attendance::whereYear('date', $today->year)->whereMonth('date', $today->month)->count();
+
+                $yesterday = Carbon::yesterday();
+                $customersYesterday = Attendance::whereDate('date', $yesterday)->count();
+                $customerPercentChange = $customersYesterday > 0 
+                    ? round((($customersEnteredToday - $customersYesterday) / $customersYesterday) * 100, 1)
+                    : 0;
+
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'customersEnteredToday' => $customersEnteredToday,
+                        'membersToday' => $membersToday,
+                        'walkInsToday' => $walkInsToday,
+                        'totalThisMonth' => $totalThisMonth,
+                        'customerPercentChange' => $customerPercentChange
+                    ]
+                ]);
+            }
+
+            // PT type (default)
+            PTSchedule::expireOverdueSchedules();
             
             $ptSessionsToday = PTSchedule::whereDate('scheduled_date', $today)->count();
             $upcomingPTSessions = PTSchedule::where('status', 'upcoming')
                 ->whereDate('scheduled_date', '>=', $today)
                 ->count();
             $ptCancellations = PTSchedule::where('status', 'cancelled')->count();
-            $customersEnteredToday = Attendance::whereDate('date', $today)->count();
-            
-            // Calculate percentage change for customers entered (compared to yesterday)
-            $yesterday = Carbon::yesterday();
-            $customersYesterday = Attendance::whereDate('date', $yesterday)->count();
-            $customerPercentChange = $customersYesterday > 0 
-                ? round((($customersEnteredToday - $customersYesterday) / $customersYesterday) * 100, 1)
-                : 0;
+            $completedSessions = PTSchedule::where('status', 'done')->count();
 
             return response()->json([
                 'success' => true,
@@ -43,8 +61,7 @@ class SessionController extends Controller
                     'ptSessionsToday' => $ptSessionsToday,
                     'upcomingPTSessions' => $upcomingPTSessions,
                     'ptCancellations' => $ptCancellations,
-                    'customersEnteredToday' => $customersEnteredToday,
-                    'customerPercentChange' => $customerPercentChange
+                    'completedSessions' => $completedSessions
                 ]
             ]);
         } catch (\Exception $e) {
@@ -56,72 +73,23 @@ class SessionController extends Controller
     }
 
     /**
-     * Display the sessions page with KPIs and tables
+     * Display the PT Sessions page
      */
-    public function index(Request $request)
+    public function ptIndex(Request $request)
     {
         try {
             // Auto-expire overdue PT schedules
             PTSchedule::expireOverdueSchedules();
 
-            // KPI Data
             $today = Carbon::today();
-            
+
+            // PT-specific KPIs
             $ptSessionsToday = PTSchedule::whereDate('scheduled_date', $today)->count();
             $upcomingPTSessions = PTSchedule::where('status', 'upcoming')
                 ->whereDate('scheduled_date', '>=', $today)
                 ->count();
             $ptCancellations = PTSchedule::where('status', 'cancelled')->count();
-            $customersEnteredToday = Attendance::whereDate('date', $today)->count();
-            
-            // Calculate percentage change for customers entered (compared to yesterday)
-            $yesterday = Carbon::yesterday();
-            $customersYesterday = Attendance::whereDate('date', $yesterday)->count();
-            $customerPercentChange = $customersYesterday > 0 
-                ? round((($customersEnteredToday - $customersYesterday) / $customersYesterday) * 100, 1)
-                : 0;
-
-            // Today's Customers (Attendance) with search and filter
-            $attendanceQuery = Attendance::with('client')
-                ->whereDate('date', $today);
-            
-            if ($request->filled('attendance_search')) {
-                $search = $request->attendance_search;
-                $attendanceQuery->whereHas('client', function($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('contact', 'like', "%{$search}%");
-                });
-            }
-            
-            if ($request->filled('attendance_status')) {
-                $attendanceQuery->where('status', $request->attendance_status);
-            }
-            
-            // Customer type filter
-            if ($request->filled('customer_type') && $request->customer_type !== 'all') {
-                $type = $request->customer_type;
-                
-                if ($type === 'member') {
-                    // Has membership only or both
-                    $attendanceQuery->whereNotNull('membership_id');
-                } elseif ($type === 'client') {
-                    // Has client only (no membership)
-                    $attendanceQuery->whereNotNull('client_id')
-                                   ->whereNull('membership_id');
-                } elseif ($type === 'walkin') {
-                    // Walk-in (no client, no membership)
-                    $attendanceQuery->whereNull('client_id')
-                                   ->whereNull('membership_id');
-                }
-            }
-            
-            // Sort order
-            $attendanceSort = $request->get('attendance_sort', 'recent');
-            if ($attendanceSort === 'oldest') {
-                $attendances = $attendanceQuery->orderBy('time_in', 'asc')->paginate(10, ['*'], 'attendance_page');
-            } else {
-                $attendances = $attendanceQuery->orderBy('time_in', 'desc')->paginate(10, ['*'], 'attendance_page');
-            }
+            $completedSessions = PTSchedule::where('status', 'done')->count();
 
             // PT Schedules with search and filter
             $ptQuery = PTSchedule::with(['client', 'membership']);
@@ -153,7 +121,6 @@ class SessionController extends Controller
             $ptSort = $request->get('pt_sort', 'default');
             
             if ($ptSort === 'recent') {
-                // Recent first: newest dates first, then newest times
                 $ptSchedules = $ptQuery
                     ->orderBy('scheduled_date', 'desc')
                     ->orderBy('scheduled_time', 'desc')
@@ -166,7 +133,6 @@ class SessionController extends Controller
                     ')
                     ->paginate(10, ['*'], 'pt_page');
             } elseif ($ptSort === 'oldest') {
-                // Oldest first: oldest dates first, then earliest times
                 $ptSchedules = $ptQuery
                     ->orderBy('scheduled_date', 'asc')
                     ->orderBy('scheduled_time', 'asc')
@@ -179,11 +145,6 @@ class SessionController extends Controller
                     ')
                     ->paginate(10, ['*'], 'pt_page');
             } else {
-                // Default complex sorting: 
-                // 1. Today first (sorted by time earliest to last)
-                // 2. Future dates next (sorted by date asc, then time asc)
-                // 3. Past dates last (sorted by date desc, then time desc)
-                // 4. If same date and time, sort by customer name alphabetically
                 $todayString = $today->toDateString();
                 
                 $ptSchedules = $ptQuery
@@ -237,11 +198,8 @@ class SessionController extends Controller
 
             // Get all clients for dropdowns
             $clients = Client::orderBy('name')->get();
-
-            // Get all memberships for attendance search
-            $memberships = Membership::orderBy('name')->get();
             
-            // Trainers list (could be from a trainers table in the future)
+            // Trainers list
             $trainers = [
                 'David Laid',
                 'Eulo Icon Sexcion',
@@ -250,20 +208,106 @@ class SessionController extends Controller
                 'Ronnie Coleman',
             ];
 
-            return view('Sessions.index', compact(
+            return view('Sessions.pt-sessions', compact(
                 'ptSessionsToday',
                 'upcomingPTSessions',
                 'ptCancellations',
-                'customersEnteredToday',
-                'customerPercentChange',
-                'attendances',
+                'completedSessions',
                 'ptSchedules',
                 'clients',
-                'memberships',
                 'trainers'
             ));
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to load sessions: ' . $e->getMessage());
+            return back()->with('error', 'Failed to load training sessions: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Display the Customer Attendance page
+     */
+    public function attendanceIndex(Request $request)
+    {
+        try {
+            $today = Carbon::today();
+
+            // Attendance-specific KPIs
+            $customersEnteredToday = Attendance::whereDate('date', $today)->count();
+            
+            $membersToday = Attendance::whereDate('date', $today)
+                ->whereNotNull('membership_id')
+                ->count();
+            
+            $walkInsToday = Attendance::whereDate('date', $today)
+                ->whereNull('client_id')
+                ->whereNull('membership_id')
+                ->count();
+
+            $totalThisMonth = Attendance::whereYear('date', $today->year)
+                ->whereMonth('date', $today->month)
+                ->count();
+
+            // Calculate percentage change for customers entered (compared to yesterday)
+            $yesterday = Carbon::yesterday();
+            $customersYesterday = Attendance::whereDate('date', $yesterday)->count();
+            $customerPercentChange = $customersYesterday > 0 
+                ? round((($customersEnteredToday - $customersYesterday) / $customersYesterday) * 100, 1)
+                : 0;
+
+            // Today's Customers (Attendance) with search and filter
+            $attendanceQuery = Attendance::with('client')
+                ->whereDate('date', $today);
+            
+            if ($request->filled('attendance_search')) {
+                $search = $request->attendance_search;
+                $attendanceQuery->whereHas('client', function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('contact', 'like', "%{$search}%");
+                });
+            }
+            
+            if ($request->filled('attendance_status')) {
+                $attendanceQuery->where('status', $request->attendance_status);
+            }
+            
+            // Customer type filter
+            if ($request->filled('customer_type') && $request->customer_type !== 'all') {
+                $type = $request->customer_type;
+                
+                if ($type === 'member') {
+                    $attendanceQuery->whereNotNull('membership_id');
+                } elseif ($type === 'client') {
+                    $attendanceQuery->whereNotNull('client_id')
+                                   ->whereNull('membership_id');
+                } elseif ($type === 'walkin') {
+                    $attendanceQuery->whereNull('client_id')
+                                   ->whereNull('membership_id');
+                }
+            }
+            
+            // Sort order
+            $attendanceSort = $request->get('attendance_sort', 'recent');
+            if ($attendanceSort === 'oldest') {
+                $attendances = $attendanceQuery->orderBy('time_in', 'asc')->paginate(10, ['*'], 'attendance_page');
+            } else {
+                $attendances = $attendanceQuery->orderBy('time_in', 'desc')->paginate(10, ['*'], 'attendance_page');
+            }
+
+            // Get all clients and memberships for search
+            $clients = Client::orderBy('name')->get();
+            $memberships = Membership::orderBy('name')->get();
+
+            return view('Sessions.attendance', compact(
+                'customersEnteredToday',
+                'membersToday',
+                'walkInsToday',
+                'totalThisMonth',
+                'customerPercentChange',
+                'attendances',
+                'clients',
+                'memberships'
+            ));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to load customer attendance: ' . $e->getMessage());
         }
     }
 

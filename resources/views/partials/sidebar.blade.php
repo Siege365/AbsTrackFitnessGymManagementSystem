@@ -27,21 +27,32 @@
       <div class="collapse" id="customers-menu">
         <ul class="nav flex-column sub-menu">
           <li class="nav-item">
-            <a class="nav-link" href="{{ route('memberships.index') }}">Membership</a>
+            <a class="nav-link" href="{{ route('memberships.index') }}">Memberships</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ route('clients.index') }}">Clients</a>
+            <a class="nav-link" href="{{ route('clients.index') }}">PT Clients</a>
           </li>
         </ul>
       </div>
     </li>
     <li class="nav-item menu-items">
-      <a class="nav-link" href="{{ route('Session') }}">
+      <a class="nav-link" data-toggle="collapse" href="#sessions-menu" aria-expanded="false" aria-controls="sessions-menu">
         <span class="menu-icon">
           <i class="mdi mdi-calendar-clock"></i>
         </span>
         <span class="menu-title">Sessions</span>
+        <i class="menu-arrow mdi mdi-chevron-down"></i>
       </a>
+      <div class="collapse" id="sessions-menu">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('sessions.pt.index') }}">Training Sessions</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('sessions.attendance.index') }}">Customer Attendance</a>
+          </li>
+        </ul>
+      </div>
     </li>
     <li class="nav-item menu-items">
       <a class="nav-link" data-toggle="collapse" href="#payments-menu" aria-expanded="false" aria-controls="payments-menu">
@@ -63,12 +74,23 @@
       </div>
     </li>
     <li class="nav-item menu-items">
-      <a class="nav-link" href="{{ route('inventory.index') }}">
+      <a class="nav-link" data-toggle="collapse" href="#inventory-menu" aria-expanded="false" aria-controls="inventory-menu">
         <span class="menu-icon">
           <i class="mdi mdi-package-variant-closed"></i>
         </span>
         <span class="menu-title">Inventory Supplies</span>
+        <i class="menu-arrow mdi mdi-chevron-down"></i>
       </a>
+      <div class="collapse" id="inventory-menu">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('inventory.index') }}">Products</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('inventory.logs') }}">Inventory Logs</a>
+          </li>
+        </ul>
+      </div>
     </li>
     <li class="nav-item menu-items">
       <a class="nav-link" href="{{ route('ReportAndBilling') }}">
@@ -83,14 +105,14 @@
         <span class="menu-icon">
           <i class="mdi mdi-account-key"></i>
         </span>
-        <span class="menu-title">Users/Admin</span>
+        <span class="menu-title">Staff Management</span>
         <i class="menu-arrow mdi mdi-chevron-down"></i>
       </a>
       <div class="collapse" id="auth">
         <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.UserManagement') }}"> User Management </a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.TrainerManagement') }}"> Trainer Management </a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.CashierActivity') }}"> Cashier Activity </a></li>
+          <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.UserManagement') }}"> Staff Accounts </a></li>
+          <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.TrainerManagement') }}"> Trainers </a></li>
+          <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.CashierActivity') }}"> Activity Logs </a></li>
         </ul>
       </div>
     </li>

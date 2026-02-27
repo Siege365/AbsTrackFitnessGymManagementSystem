@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Cashier Activity')
+@section('title', 'Activity Logs')
 
 @section('content')
 
@@ -8,8 +8,8 @@
 <div class="card page-header-card">
     <div class="card-body">
         <div>
-            <h2 class="page-header-title">Cashier Activity</h2>
-            <p class="page-header-subtitle">Track and review cashier activity logs and transactions.</p>
+            <h2 class="page-header-title">Activity Logs</h2>
+            <p class="page-header-subtitle">Track and review staff activity logs and transactions.</p>
         </div>
     </div>
 </div>
@@ -19,7 +19,7 @@
                 <div class="card">
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                      <h4 class="card-title mb-0">Cashiers Activity</h4>
+                      <h4 class="card-title mb-0">Activity Logs</h4>
                       <div class="d-flex">
                         <button class="btn btn-sm btn-outline-secondary mr-2">
                           <i class="mdi mdi-filter-variant"></i> Filter

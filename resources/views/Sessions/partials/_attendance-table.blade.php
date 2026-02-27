@@ -6,11 +6,11 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="card-title mb-0">Today's Customers</h4>
                     <div class="d-flex align-items-center">
-                        <form action="{{ route('Session') }}" method="GET" class="d-flex align-items-center"
+                        <form action="{{ route('sessions.attendance.index') }}" method="GET" class="d-flex align-items-center"
                             id="attendanceSearchForm">
                             <input type="text" name="attendance_search" class="form-control form-control-sm mr-2"
                                 placeholder="Search by name or contact..." value="{{ request('attendance_search') }}"
-                                style="width: 450px;">
+                                style="width: 100%; max-width: 450px;">
                             <div class="dropdown d-inline-block mr-2">
                                 <button type="button" class="btn btn-sm filter-button dropdown-toggle"
                                     id="filterDropdownAttendance" data-toggle="dropdown" data-offset="0,2" data-flip="false"
@@ -187,7 +187,7 @@
                                         <div class="dropdown">
                                             <button class="btn btn-sm btn-action" type="button"
                                                 data-toggle="dropdown" data-offset="-100,2" data-flip="false"
-                                                data-display="static">
+                                                data-boundary="viewport">
                                                 <i class="mdi mdi-dots-vertical"></i>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-right">

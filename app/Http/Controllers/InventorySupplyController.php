@@ -89,6 +89,17 @@ class InventorySupplyController extends Controller
                     $query->where('stock_qty', 0)
                           ->orderBy('created_at', 'desc');
                     break;
+                case 'Supplement':
+                case 'Equipment':
+                case 'Apparel':
+                case 'Beverages':
+                case 'Snacks':
+                case 'Accessories':
+                case 'Food':
+                case 'Drink':
+                    $query->where('category', $request->filter)
+                          ->orderBy('created_at', 'desc');
+                    break;
                 default:
                     $query->orderBy('created_at', 'desc');
             }
@@ -107,9 +118,33 @@ class InventorySupplyController extends Controller
         $outOfStockItems = InventorySupply::where('stock_qty', 0)->count();
         $stockValue = InventorySupply::sum(DB::raw('unit_price * stock_qty'));
         
-        // Get recent activity with filtering
+        return view('inventorySupplies.inventory', compact(
+            'inventoryItems',
+            'totalProducts',
+            'lowStockItems',
+            'outOfStockItems',
+            'stockValue'
+        ));
+    }
+
+    /**
+     * Display the inventory logs (stock transactions) page.
+     */
+    public function logsIndex(Request $request)
+    {
+        // Build activity query
         $activityQuery = InventoryTransaction::with('inventorySupply')
             ->whereHas('inventorySupply');
+
+        // Apply search filter
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $activityQuery->whereHas('inventorySupply', function($q) use ($search) {
+                $q->where('product_number', 'LIKE', "%{$search}%")
+                  ->orWhere('product_name', 'LIKE', "%{$search}%")
+                  ->orWhere('category', 'LIKE', "%{$search}%");
+            });
+        }
         
         // Apply activity filter
         $activityFilter = $request->get('activity_filter', 'newest');
@@ -123,9 +158,14 @@ class InventorySupplyController extends Controller
             case 'stock_out':
                 $activityQuery->where('transaction_type', 'stock_out')->orderBy('created_at', 'desc');
                 break;
+            case 'Supplement':
+            case 'Equipment':
+            case 'Apparel':
+            case 'Beverages':
+            case 'Snacks':
+            case 'Accessories':
             case 'Food':
             case 'Drink':
-            case 'Supplement':
                 $activityQuery->whereHas('inventorySupply', function($q) use ($activityFilter) {
                     $q->where('category', $activityFilter);
                 })->orderBy('created_at', 'desc');
@@ -134,16 +174,32 @@ class InventorySupplyController extends Controller
                 $activityQuery->orderBy('created_at', 'desc');
         }
         
-        $recentActivity = $activityQuery->paginate(5, ['*'], 'activity_page')->withQueryString();
+        $recentActivity = $activityQuery->paginate(10)->withQueryString();
+
+        // Calculate KPI stats for logs
+        $today = Carbon::now('Asia/Manila')->startOfDay();
+        $monthStart = Carbon::now('Asia/Manila')->startOfMonth();
+
+        $totalTransactions = InventoryTransaction::whereHas('inventorySupply')->count();
+        $totalStockIn = InventoryTransaction::whereHas('inventorySupply')
+            ->where('transaction_type', 'stock_in')
+            ->where('created_at', '>=', $today)
+            ->count();
+        $totalStockOut = InventoryTransaction::whereHas('inventorySupply')
+            ->where('transaction_type', 'stock_out')
+            ->where('created_at', '>=', $today)
+            ->count();
+        $transactionsThisMonth = InventoryTransaction::whereHas('inventorySupply')
+            ->where('created_at', '>=', $monthStart)
+            ->count();
         
-        return view('inventorySupplies.inventory', compact(
-            'inventoryItems',
-            'totalProducts',
-            'lowStockItems',
-            'outOfStockItems',
-            'stockValue',
+        return view('inventorySupplies.inventory-logs', compact(
             'recentActivity',
-            'activityFilter'
+            'activityFilter',
+            'totalTransactions',
+            'totalStockIn',
+            'totalStockOut',
+            'transactionsThisMonth'
         ));
     }
 
@@ -210,12 +266,12 @@ class InventorySupplyController extends Controller
             
             $validated = $request->validate([
                 'product_name' => 'required|string|max:255',
-                'category' => 'required|string|in:Food,Drink,Supplement',
+                'category' => 'required|string|in:Supplement,Equipment,Apparel,Beverages,Snacks,Accessories,Food,Drink',
                 'unit_price' => 'required|numeric|min:0',
             ], [
                 'product_name.required' => 'Product name is required.',
                 'category.required' => 'Category is required.',
-                'category.in' => 'Category must be Food, Drink, or Supplement.',
+                'category.in' => 'Please select a valid category.',
                 'unit_price.required' => 'Unit price is required.',
                 'unit_price.numeric' => 'Unit price must be a number.',
                 'unit_price.min' => 'Unit price must be at least 0.',
@@ -327,5 +383,36 @@ class InventorySupplyController extends Controller
         }])->findOrFail($id);
 
         return view('inventorySupplies.transaction-history', compact('item'));
+    }
+
+    /**
+     * Return stock history as JSON for the modal AJAX request.
+     */
+    public function stockHistoryJson($id)
+    {
+        $item = InventorySupply::with(['transactions' => function($query) {
+            $query->orderBy('created_at', 'desc')->limit(20);
+        }])->findOrFail($id);
+
+        $totalIn = $item->transactions->where('transaction_type', 'stock_in')->sum('quantity');
+        $totalOut = $item->transactions->where('transaction_type', 'stock_out')->sum('quantity');
+
+        $transactions = $item->transactions->map(function ($t) {
+            return [
+                'transaction_type' => $t->transaction_type,
+                'quantity' => $t->quantity,
+                'previous_stock' => $t->previous_stock,
+                'new_stock' => $t->new_stock,
+                'notes' => $t->notes,
+                'performed_by' => $t->performed_by,
+                'date' => $t->created_at->timezone('Asia/Manila')->format('M d, Y h:i A'),
+            ];
+        });
+
+        return response()->json([
+            'totalIn' => $totalIn,
+            'totalOut' => $totalOut,
+            'transactions' => $transactions,
+        ]);
     }
 }

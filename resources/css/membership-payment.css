@@ -3,8 +3,21 @@
     border: none;
     margin-bottom: 15px !important;
     border-radius: 8px !important;
-    overflow: visible !important;
+    overflow: hidden;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 167, 38, 0.08);
+}
+
+.stats-card {
+    background: #191C24 !important;
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .stats-card h2 {
@@ -1626,20 +1639,31 @@
   box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
 }
 
-/* ============================
-   Field Validation Error State
-   ============================ */
-.field-error {
-  border: 2px solid #dc3545 !important;
-  background-color: #fff5f5 !important;
-  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15) !important;
-  animation: field-error-shake 0.4s ease;
+/* ============================================
+   ADDITIONAL RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+@media (max-width: 991px) {
+  .table thead th,
+  .table tbody td {
+    padding: 14px 12px;
+    font-size: 0.9rem;
+  }
 }
 
-@keyframes field-error-shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-4px); }
-  40% { transform: translateX(4px); }
-  60% { transform: translateX(-3px); }
-  80% { transform: translateX(3px); }
+@media (max-width: 576px) {
+  .card-body {
+    padding: 14px 12px !important;
+  }
+
+  .table thead th,
+  .table tbody td {
+    padding: 10px 8px;
+    font-size: 0.8125rem;
+  }
+
+  .table thead th {
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
 }

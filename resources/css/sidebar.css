@@ -388,9 +388,9 @@
 body.sidebar-icon-only .sidebar,
 body.sidebar-icon-only #sidebar,
 body.sidebar-icon-only nav.sidebar {
-  width: 60px !important;
-  min-width: 60px !important;
-  max-width: 60px !important;
+  width: 60px;
+  min-width: 60px;
+  max-width: 60px;
 }
 
 body.sidebar-icon-only .page-body-wrapper {
@@ -447,9 +447,9 @@ body.sidebar-icon-only .menu-items.active > .nav-link::before {
 body.sidebar-icon-only .sidebar:hover,
 body.sidebar-icon-only #sidebar:hover,
 body.sidebar-icon-only nav.sidebar:hover {
-  width: 260px !important;
-  min-width: 260px !important;
-  max-width: 260px !important;
+  width: 260px;
+  min-width: 260px;
+  max-width: 260px;
   box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
   z-index: 998;
 }
@@ -652,4 +652,88 @@ body.sidebar-icon-only .sidebar:hover .menu-items.active > .nav-link::before {
 /* When modal is open, drop navbar below modal z-index so backdrop covers it */
 body.modal-open .navbar {
   z-index: 1040;
+}
+
+/* =====================================================
+   RESPONSIVE BREAKPOINTS
+   ===================================================== */
+
+/* Tablet landscape (≤1199px) - reduce content padding */
+@media (max-width: 1199px) {
+  .content-wrapper {
+    padding: 2rem 1.5rem !important;
+  }
+}
+
+/* Tablet portrait / Mobile (≤991px) - sidebar hidden, full-width layout */
+@media (max-width: 991px) {
+  .navbar {
+    left: 0 !important;
+    padding: 0 1rem;
+  }
+
+  .page-body-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .content-wrapper {
+    padding: 1.5rem 1rem !important;
+  }
+
+  body.sidebar-icon-only .navbar {
+    left: 0 !important;
+  }
+
+  body.sidebar-icon-only .page-body-wrapper {
+    width: 100% !important;
+  }
+}
+
+/* Mobile landscape (≤768px) */
+@media (max-width: 768px) {
+  .navbar {
+    height: 60px;
+    padding: 0 0.75rem;
+  }
+
+  .main-panel {
+    padding-top: 60px !important;
+  }
+
+  .content-wrapper {
+    padding: 1rem 0.75rem !important;
+  }
+
+  .navbar-profile-name {
+    display: none;
+  }
+
+  .navbar-profile img {
+    width: 36px;
+    height: 36px;
+    margin-right: 0;
+  }
+
+  .navbar-toggler {
+    margin-right: 0.5rem;
+    font-size: 1.5rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/* Mobile portrait (≤576px) */
+@media (max-width: 576px) {
+  .content-wrapper {
+    padding: 0.75rem 0.5rem !important;
+  }
+
+  .navbar {
+    height: 56px;
+    padding: 0 0.5rem;
+  }
+
+  .main-panel {
+    padding-top: 56px !important;
+  }
 }

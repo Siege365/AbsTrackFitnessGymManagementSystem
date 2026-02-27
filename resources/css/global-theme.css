@@ -99,6 +99,14 @@ body {
 
 .stats-card {
     background: #191C24 !important;
+    border-radius: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .modal-content {
@@ -113,4 +121,171 @@ body {
 /* Sidebar */
 .sidebar {
     background: #191C24 !important;
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS - Global
+   ============================================ */
+
+/* Tablet landscape (≤1199px) - Stats cards go 2×2, reduce padding */
+@media (max-width: 1199px) {
+    .stats-card .card-body {
+        padding: 22px 20px;
+    }
+
+    .stats-card h2 {
+        font-size: 2rem !important;
+    }
+
+    .stats-icon {
+        width: 52px;
+        height: 52px;
+    }
+
+    .stats-icon i {
+        font-size: 26px !important;
+    }
+}
+
+/* Tablet portrait (≤991px) - Stack page header */
+@media (max-width: 991px) {
+    .page-header-card .card-body {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .page-header-card .card-body > .d-flex {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .page-header-card .btn-page-action {
+        flex: 1;
+        min-width: 0;
+        justify-content: center;
+        padding: 0.75rem 1rem;
+        font-size: 0.9375rem;
+    }
+
+    .page-header-title {
+        font-size: 1.625rem;
+    }
+
+    .page-header-subtitle {
+        font-size: 0.9375rem;
+    }
+}
+
+/* Mobile landscape (≤768px) */
+@media (max-width: 768px) {
+    .page-header-card {
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+
+    .page-header-card .card-body {
+        padding: 1.25rem;
+    }
+
+    .page-header-title {
+        font-size: 1.375rem;
+    }
+
+    .page-header-subtitle {
+        font-size: 0.875rem;
+    }
+
+    .page-header-card .btn-page-action {
+        padding: 0.625rem 0.875rem;
+        font-size: 0.875rem;
+        border-radius: 8px;
+    }
+
+    .page-header-card .btn-page-action i {
+        font-size: 1.1rem;
+    }
+
+    .stats-card .card-body {
+        padding: 18px 16px;
+    }
+
+    .stats-card h2 {
+        font-size: 1.75rem !important;
+    }
+
+    .stats-card p.text-muted {
+        font-size: 0.875rem !important;
+    }
+
+    .stats-icon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .stats-icon i {
+        font-size: 24px !important;
+    }
+
+    .modal-content {
+        margin: 0.5rem;
+    }
+
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+
+    .modal-dialog.modal-lg {
+        max-width: calc(100% - 1rem);
+    }
+
+    .modal-dialog.modal-md {
+        max-width: calc(100% - 1rem);
+    }
+}
+
+/* Mobile portrait (≤576px) */
+@media (max-width: 576px) {
+    .page-header-card .card-body {
+        padding: 1rem;
+    }
+
+    .page-header-title {
+        font-size: 1.25rem;
+    }
+
+    .page-header-subtitle {
+        font-size: 0.8125rem;
+    }
+
+    .page-header-card .btn-page-action {
+        width: 100%;
+        padding: 0.625rem;
+        font-size: 0.8125rem;
+    }
+
+    .stats-card .card-body {
+        padding: 14px 12px;
+    }
+
+    .stats-card h2 {
+        font-size: 1.5rem !important;
+    }
+
+    .stats-card p.text-muted {
+        font-size: 0.8125rem !important;
+    }
+
+    .stats-icon {
+        width: 42px;
+        height: 42px;
+    }
+
+    .stats-icon i {
+        font-size: 22px !important;
+    }
+
+    .modal-dialog.modal-sm {
+        max-width: calc(100% - 1rem);
+    }
 }

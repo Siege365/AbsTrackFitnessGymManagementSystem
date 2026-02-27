@@ -8,11 +8,12 @@
   border: none;
   border-radius: 10px;
   transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
 }
 
 .stats-card:hover {
-  transform: none;
-  box-shadow: none;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .stats-card .card-body {
@@ -65,11 +66,11 @@
 
 /* Card and Table Container - scoped to avoid overriding navbar/global */
 .content-wrapper .card {
-  overflow: visible !important;
+  overflow: hidden;
 }
 
 .content-wrapper .card-body {
-  overflow: visible !important;
+  overflow: visible;
 }
 
 /* Table Styling */
@@ -873,6 +874,26 @@ body.modal-open {
 }
 
 /* Responsive Adjustments */
+
+/* Tablet landscape (≤1199px) - 2×2 stats grid */
+@media (max-width: 1199px) {
+  .table thead th,
+  .table tbody td {
+    padding: 16px 14px;
+    font-size: 0.9375rem;
+  }
+}
+
+/* Tablet portrait (≤991px) */
+@media (max-width: 991px) {
+  .table thead th,
+  .table tbody td {
+    padding: 14px 12px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile landscape (≤768px) */
 @media (max-width: 768px) {
   .stats-card .card-body {
     padding: 20px 24px;
@@ -887,10 +908,15 @@ body.modal-open {
     height: 56px;
   }
 
-  .table thead th,
+  .table thead th {
+    font-size: 0.8125rem;
+    padding: 12px 10px;
+    white-space: nowrap;
+  }
+
   .table tbody td {
-    padding: 16px 12px;
-    font-size: 0.95rem;
+    padding: 12px 10px;
+    font-size: 0.875rem;
   }
 
   .modal-dialog.modal-lg {
@@ -899,6 +925,24 @@ body.modal-open {
 
   .form-control-sm {
     min-height: 44px;
+  }
+
+  .badge {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+  }
+}
+
+/* Mobile portrait (≤576px) */
+@media (max-width: 576px) {
+  .table thead th,
+  .table tbody td {
+    padding: 10px 8px;
+    font-size: 0.8125rem;
+  }
+
+  .table thead th {
+    font-size: 0.75rem;
   }
 }
 

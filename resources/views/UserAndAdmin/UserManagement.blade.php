@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'User Management')
+@section('title', 'Staff Accounts')
 
 @section('content')
 
@@ -8,7 +8,7 @@
 <div class="card page-header-card">
     <div class="card-body">
         <div>
-            <h2 class="page-header-title">User Management</h2>
+            <h2 class="page-header-title">Staff Accounts</h2>
             <p class="page-header-subtitle">View, add, and manage system users and admin accounts.</p>
         </div>
     </div>
@@ -19,7 +19,7 @@
                 <div class="card">
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                      <h4 class="card-title mb-0">List of Users</h4>
+                      <h4 class="card-title mb-0">List of Staff</h4>
                       <div class="d-flex">
                         <button class="btn btn-sm btn-outline-secondary mr-2">
                           <i class="mdi mdi-filter-variant"></i> Filter
