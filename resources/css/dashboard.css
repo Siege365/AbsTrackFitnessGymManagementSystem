@@ -48,11 +48,13 @@ body {
   background: #191C24 !important;
   border: none;
   border-radius: 8px;
-  transition: transform 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
 }
 
 .stats-card:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 /* Card Title */
@@ -208,4 +210,75 @@ canvas {
 
 :not(.sidebar)::-webkit-scrollbar-thumb:hover {
   background-color: #555;
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* Tablet landscape (≤1199px) */
+@media (max-width: 1199px) {
+  .card-body {
+    padding: 18px !important;
+  }
+
+  .table thead th,
+  .table tbody td {
+    padding: 16px 14px;
+    font-size: 1rem;
+  }
+}
+
+/* Mobile landscape (≤768px) */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 14px !important;
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+  }
+
+  .table thead th {
+    font-size: 0.875rem;
+    padding: 12px 10px;
+  }
+
+  .table tbody td {
+    font-size: 0.9375rem;
+    padding: 12px 10px;
+  }
+
+  .icon-box-success,
+  .icon-box-danger {
+    width: 40px;
+    height: 40px;
+  }
+
+  .icon-item {
+    font-size: 20px;
+  }
+}
+
+/* Mobile portrait (≤576px) */
+@media (max-width: 576px) {
+  .card-body {
+    padding: 12px !important;
+  }
+
+  .card-title {
+    font-size: 1.125rem;
+  }
+
+  .table thead th,
+  .table tbody td {
+    padding: 10px 8px;
+    font-size: 0.875rem;
+  }
+
+  .form-control {
+    font-size: 1rem;
+    padding: 0.625rem 1rem;
+    min-height: 42px;
+  }
 }

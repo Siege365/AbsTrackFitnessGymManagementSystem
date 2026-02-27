@@ -302,6 +302,14 @@ body.sidebar-icon-only .page-body-wrapper {
 .stats-card {
   background: #191C24;
   min-height: 120px;
+  border-radius: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .stats-card .card-body {

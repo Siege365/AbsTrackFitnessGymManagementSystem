@@ -14,7 +14,7 @@
                 class="form-control form-control-sm mr-2" 
                 placeholder="Search by name, contact, plan, or status..." 
                 value="{{ request('search') }}" 
-                style="width: 450px;"
+                style="width: 100%; max-width: 450px;"
                 id="searchInput">
               <div class="dropdown d-inline-block mr-2">
                 <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="filterDropdown" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
@@ -179,7 +179,7 @@
                 <td>@formatContact($membership->contact)</td>
                 <td>
                   <div class="dropdown">
-                    <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+                    <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-flip="false" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
                       <i class="mdi mdi-dots-vertical"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">

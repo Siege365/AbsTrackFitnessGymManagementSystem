@@ -1,56 +1,17 @@
-/* Inventory Page Specific Styles */
+/* =====================================================
+   Inventory Page Specific Styles
+   Consistent with AbsTrack Design System
+   ===================================================== */
 
-/* Figma Design System Colors - HIGH PRIORITY */
+/* Page background override */
 body {
   background: #282A36 !important;
 }
 
-.btn-action {
-    background: transparent;
-    border: none;
-    color: #ffffff;
-    padding: 0.5rem 0.75rem;
-    font-size: 1.25rem;
-}
-
-.stats-card {
-    background: #191C24 !important;
-    border: none;
-    border-radius: 10px;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
+/* Layout spacing */
 .container-fluid.page-body-wrapper {
   padding-left: 0 !important;
   padding-right: 0 !important;
-}
-
-.page-header-card {
-    background: #191C24 !important;
-    border: none;
-    margin-bottom: 15px !important;
-    border-radius: 8px !important;
-    overflow: visible !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 167, 38, 0.08);
-}
-
-.dropdown-menu {
-    background: #191C24;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    animation: fadeInDown 0.2s ease;
-    z-index: 1050;
-    position: absolute;
-}
-
-.dropdown-menu.show {
-  display: block;
-}
-
-.dropdown-item {
-    color: #ffffff;
-    font-size: 1rem;
-    padding: 0.625rem 1.25rem;
-    white-space: nowrap;
 }
 
 .page-body-wrapper {
@@ -59,7 +20,6 @@ body {
   padding-right: 0 !important;
 }
 
-/* Row and column spacing */
 .row {
   margin-left: -15px !important;
   margin-right: -15px !important;
@@ -70,17 +30,380 @@ body {
   padding-right: 15px !important;
 }
 
-/* KPI Cards - Full width distribution */
-.stats-row {
+/* =====================================================
+   PAGE HEADER
+   ===================================================== */
+.page-header-card {
+  background: #191C24 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   margin-bottom: 15px !important;
+  border-radius: 14px !important;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
 }
 
-/* Table card - scoped to content-wrapper */
+.page-header-card .d-flex.gap-2 {
+  gap: 0.5rem;
+}
+
+.btn-page-action-secondary {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  padding: 0.625rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.btn-page-action-secondary:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.3);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.btn-page-action-secondary i {
+  margin-right: 0.375rem;
+}
+
+/* =====================================================
+   KPI STATS CARDS
+   ===================================================== */
+.stats-card {
+  background: #191C24 !important;
+  border: none;
+  border-radius: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.stats-card .card-body {
+  padding: 28px 32px !important;
+}
+
+.stats-card h2 {
+  font-size: 2.5rem !important;
+  font-weight: 600;
+  color: #fff;
+}
+
+.stats-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stats-icon i {
+  font-size: 32px !important;
+  color: #fff !important;
+}
+
+/* =====================================================
+   KEBAB / ACTION BUTTON
+   ===================================================== */
+.btn-action {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  padding: 0.5rem 0.75rem;
+  font-size: 1.25rem;
+}
+
+/* =====================================================
+   DROPDOWN MENU (base)
+   ===================================================== */
+.dropdown-menu {
+  background: #191C24;
+  border: 1px solid rgba(255,255,255,0.1);
+  animation: fadeInDown 0.2s ease;
+  z-index: 1050;
+  position: absolute;
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+
+.dropdown-item {
+  color: #ffffff;
+  font-size: 1rem;
+  padding: 0.625rem 1.25rem;
+  white-space: nowrap;
+}
+
+.dropdown-item:hover {
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+}
+
+/* Kebab menu stock action hover colors */
+.dropdown-item.text-success:hover {
+  background: rgba(76,175,80,0.15);
+  color: #4CAF50 !important;
+}
+
+.dropdown-item.text-warning:hover {
+  background: rgba(255,167,38,0.15);
+  color: #FFA726 !important;
+}
+
+.dropdown-item.text-danger:hover {
+  background: rgba(244,67,54,0.15);
+  color: #F44336 !important;
+}
+
+.dropdown-divider {
+  border-top-color: rgba(255,255,255,0.1);
+}
+
+/* =====================================================
+   ACCORDION FILTER DROPDOWN
+   ===================================================== */
+.filter-accordion {
+  min-width: 240px;
+  max-width: 260px;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.filter-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.95);
+}
+
+.filter-clear-all {
+  font-size: 0.8rem;
+  color: rgba(255,107,107,0.9);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.filter-clear-all:hover {
+  color: #FF6B6B;
+}
+
+.filter-section {
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.filter-section:last-child {
+  border-bottom: none;
+}
+
+.filter-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 1.25rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.filter-section-header:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+.filter-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: rgba(255,255,255,0.85);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.filter-section-title i {
+  font-size: 1.1rem;
+  opacity: 0.7;
+}
+
+.filter-chevron {
+  color: rgba(255,255,255,0.4);
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.filter-section.active .filter-chevron {
+  transform: rotate(180deg);
+}
+
+.filter-section-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.filter-section.active .filter-section-content {
+  max-height: 500px;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 1.25rem 0.625rem 2.5rem;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+}
+
+.filter-option:hover {
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  border-left-color: rgba(255,255,255,0.3);
+  text-decoration: none;
+}
+
+.filter-option.active {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  font-weight: 500;
+}
+
+/* Color-coded filter options */
+.filter-option-in-stock {
+  color: rgba(76,175,80,0.7);
+}
+.filter-option-in-stock:hover,
+.filter-option-in-stock.active {
+  border-left-color: #4CAF50;
+  color: #4CAF50;
+}
+
+.filter-option-low-stock {
+  color: rgba(255,193,7,0.7);
+}
+.filter-option-low-stock:hover,
+.filter-option-low-stock.active {
+  border-left-color: #FFC107;
+  color: #FFC107;
+}
+
+.filter-option-out-of-stock {
+  color: rgba(244,67,54,0.7);
+}
+.filter-option-out-of-stock:hover,
+.filter-option-out-of-stock.active {
+  border-left-color: #F44336;
+  color: #F44336;
+}
+
+.filter-option-stock-in:hover,
+.filter-option-stock-in.active {
+  border-left-color: #4CAF50;
+  color: #4CAF50;
+}
+
+.filter-option-stock-out:hover,
+.filter-option-stock-out.active {
+  border-left-color: #FFC107;
+  color: #FFC107;
+}
+
+/* Category filter options with colors */
+.filter-option-category-supplement {
+  color: rgba(66,165,245,0.7);
+}
+.filter-option-category-supplement:hover,
+.filter-option-category-supplement.active {
+  border-left-color: #42A5F5;
+  color: #42A5F5;
+}
+
+.filter-option-category-equipment {
+  color: rgba(76,175,80,0.7);
+}
+.filter-option-category-equipment:hover,
+.filter-option-category-equipment.active {
+  border-left-color: #4CAF50;
+  color: #4CAF50;
+}
+
+.filter-option-category-apparel {
+  color: rgba(171,71,188,0.7);
+}
+.filter-option-category-apparel:hover,
+.filter-option-category-apparel.active {
+  border-left-color: #AB47BC;
+  color: #AB47BC;
+}
+
+.filter-option-category-beverages {
+  color: rgba(255,167,38,0.7);
+}
+.filter-option-category-beverages:hover,
+.filter-option-category-beverages.active {
+  border-left-color: #FFA726;
+  color: #FFA726;
+}
+
+.filter-option-category-snacks {
+  color: rgba(236,64,122,0.7);
+}
+.filter-option-category-snacks:hover,
+.filter-option-category-snacks.active {
+  border-left-color: #EC407A;
+  color: #EC407A;
+}
+
+.filter-option-category-accessories {
+  color: rgba(38,198,218,0.7);
+}
+.filter-option-category-accessories:hover,
+.filter-option-category-accessories.active {
+  border-left-color: #26C6DA;
+  color: #26C6DA;
+}
+
+/* =====================================================
+   TABLE STYLES
+   ===================================================== */
 .content-wrapper .card-body {
   padding: 24px 28px !important;
 }
 
-/* Table Scrollbar */
+/* Table horizontal scroll on small screens */
+.table-responsive {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Remove static positioning to allow proper dropdown positioning */
+.table .dropdown { 
+  position: relative;
+}
+
+.table .dropdown-menu { 
+  position: absolute;
+  z-index: 1050;
+  margin-top: 0.125rem;
+}
+
 .table-responsive::-webkit-scrollbar {
   height: 8px;
 }
@@ -94,20 +417,15 @@ body {
   border-radius: 4px;
 }
 
-/* Table Styles */
-.table-responsive {
-    overflow: visible !important;
-}
-
 .table {
   color: #ffffff;
   background: transparent;
 }
 
 .table thead th {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255,255,255,0.6);
   font-weight: 700;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
   font-size: 1rem;
   padding: 20px 18px;
   text-align: left;
@@ -115,8 +433,8 @@ body {
 }
 
 .table tbody td {
-  color: rgba(255, 255, 255, 0.9);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: rgba(255,255,255,0.9);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
   padding: 20px 18px;
   font-size: 1.125rem;
   text-align: left;
@@ -124,51 +442,20 @@ body {
 }
 
 .table-hover tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: rgba(255,255,255,0.03);
 }
 
-/* Pagination */
-.pagination-wrapper {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);  /* Changed */
-  padding-top: 1.5rem;
-}
-
-.pagination .page-item.active .page-link {
-  background-color: #ffffff;
-  border-color: #ffffff;
-  color: #000000;
-}
-
-.pagination .page-link {
-  color: #ffffff;  /* Changed */
-  background-color: #282A36;  /* Changed */
-  border-color: #555;
-  padding: 8px 12px;
-  margin: 0 2px;
-  border-radius: 4px;
-}
-
-.pagination .page-link:hover {
-  background-color: #ffffff;
-  border-color: #000000;
-  color: #000000;
-}
-
-.pagination .page-item.disabled .page-link {
-  background-color: #1a1d24;  /* Changed */
-  border-color: #333;
-  color: #666;
-}
-
-/* Form Controls and Buttons - handled by core.css */
-
-/* Badges */
+/* =====================================================
+   STATUS BADGES (translucent pill style)
+   ===================================================== */
 .badge {
-  width: 9rem;
+  width: auto;
+  min-width: 7rem;
+  text-align: center;
 }
 
 .badge-success {
-  background: rgba(76, 175, 80, 0.2);
+  background: rgba(76,175,80,0.2);
   color: #4CAF50;
   padding: 8px 14px;
   border-radius: 20px;
@@ -177,7 +464,7 @@ body {
 }
 
 .badge-danger {
-  background: rgba(244, 67, 54, 0.2);
+  background: rgba(244,67,54,0.2);
   color: #F44336;
   padding: 8px 14px;
   border-radius: 20px;
@@ -186,7 +473,7 @@ body {
 }
 
 .badge-warning {
-  background: rgba(255, 193, 7, 0.2);
+  background: rgba(255,193,7,0.2);
   color: #FFC107;
   padding: 8px 14px;
   border-radius: 20px;
@@ -194,98 +481,97 @@ body {
   font-size: 1rem;
 }
 
-/* Stock Modal Styles (extracted from Inventory.blade.php) */
-.stock-modal .info-card {
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-}
-.stock-modal .info-row {
-    margin-bottom: 0.5rem;
-}
-.stock-modal .info-label {
-    color: #6c757d;
-    font-size: 0.875rem;
-}
-.stock-modal .info-value {
-    font-weight: 500;
-    color: #000000;
-}
-.stock-modal .quantity-input {
-    font-size: 1.25rem;
-    height: 50px;
-    text-align: center;
-}
-.stock-modal .preview-box {
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-top: 1rem;
-}
-.stock-modal .preview-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-}
-.stock-modal .preview-row:not(:last-child) {
-    border-bottom: 1px solid #dee2e6;
-}
-.stock-modal .preview-label {
-    color: #6c757d;
-}
-.stock-modal .preview-value {
-    font-weight: 500;
-    font-size: 1.125rem;
-    color: #000000;
+.badge-info {
+  background: rgba(66,165,245,0.2);
+  color: #42A5F5;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 1rem;
 }
 
-/* Recent Activity Table */
-.activity-table-container {
-    scrollbar-width: thin;
-    scrollbar-color: #3a3f4b #191C24;
+/* Status dot inside badge */
+.badge .status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
 }
 
-.activity-table-container::-webkit-scrollbar {
-    width: 8px;
+.badge-success .status-dot { background: #4CAF50; }
+.badge-danger .status-dot  { background: #F44336; }
+.badge-warning .status-dot { background: #FFC107; }
+
+/* =====================================================
+   CATEGORY COLOR BADGES
+   ===================================================== */
+.badge-category {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.activity-table-container::-webkit-scrollbar-track {
-    background: #191C24;
+.badge-category i {
+  font-size: 14px;
 }
 
-.activity-table-container::-webkit-scrollbar-thumb {
-    background-color: #3a3f4b;
-    border-radius: 4px;
+.badge-category-supplement,
+.badge-category-supplements {
+  background: rgba(66,165,245,0.15);
+  color: #42A5F5;
 }
 
-.activity-table-container::-webkit-scrollbar-thumb:hover {
-    background-color: #4a4f5b;
+.badge-category-equipment {
+  background: rgba(76,175,80,0.15);
+  color: #4CAF50;
 }
 
-.activity-table-container .table thead th {
-    font-size: 0.9rem;
-    padding: 14px 12px;
+.badge-category-apparel {
+  background: rgba(171,71,188,0.15);
+  color: #AB47BC;
 }
 
-.activity-table-container .table tbody td {
-    font-size: 0.95rem;
-    padding: 12px;
+.badge-category-beverages,
+.badge-category-drink {
+  background: rgba(255,167,38,0.15);
+  color: #FFA726;
 }
 
-/* ===================================================
-   Styles copied from payment-history.css for inventory
-   =================================================== */
+.badge-category-snacks,
+.badge-category-food {
+  background: rgba(236,64,122,0.15);
+  color: #EC407A;
+}
 
-/* Search input wrapper with clear button */
+.badge-category-accessories {
+  background: rgba(38,198,218,0.15);
+  color: #26C6DA;
+}
+
+.badge-category-other {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7);
+}
+
+/* =====================================================
+   SEARCH & FILTER BAR
+   ===================================================== */
 .search-wrapper {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  width: 450px;
+  max-width: 100%;
 }
 
 .search-wrapper .form-control {
   padding-right: 35px;
+  width: 100%;
 }
 
 .search-clear-btn {
@@ -295,7 +581,7 @@ body {
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255,255,255,0.5);
   font-size: 1.25rem;
   cursor: pointer;
   padding: 0 5px;
@@ -307,34 +593,11 @@ body {
   color: #ffffff;
 }
 
-/* Delete Selected Button */
-.btn-delete-selected {
-  background: rgba(244, 67, 54, 0.2);
-  border: none;
-  color: #F44336;
-  font-size: 1rem;
-  padding: 0.625rem 1.25rem;
-  font-weight: 500;
-}
-
-.btn-delete-selected i {
-  font-size: 1.125rem;
-  margin-right: 0.5rem;
-}
-
-.btn-delete-selected:hover {
-  background: rgba(244, 67, 54, 0.3);
-  color: #F44336;
-}
-
-.btn-delete-selected:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Pagination Wrapper */
+/* =====================================================
+   PAGINATION
+   ===================================================== */
 .pagination-wrapper {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255,255,255,0.1);
   padding-top: 1.5rem;
 }
 
@@ -365,131 +628,242 @@ body {
   color: #666;
 }
 
-/* Delete Confirmation Modal */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(5px);
-  z-index: 100000 !important;
-  align-items: center;
-  justify-content: center;
-  overflow-y: auto;
-  padding: 20px;
+/* =====================================================
+   DELETE SELECTED BUTTON
+   ===================================================== */
+.btn-delete-selected {
+  background: rgba(244,67,54,0.2);
+  border: none;
+  color: #F44336;
+  font-size: 1.125rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
 }
 
-.modal-overlay.show {
-  display: flex !important;
+.btn-delete-selected i {
+  font-size: 1.125rem;
+  margin-right: 0.5rem;
 }
 
+.btn-delete-selected:hover {
+  background: rgba(244,67,54,0.3);
+  color: #F44336;
+}
+
+.btn-delete-selected:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   MODAL LAYOUT & SIZING (Consistent with other pages)
+   ===================================================== */
 .modal-content {
-  background: white;
-  border-radius: 8px;
-  width: 100%;
-  max-width: 800px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  position: relative;
-  margin: auto;
-}
-
-.modal-content.small {
-  max-width: 500px;
+  background: #191C24;
+  border: none;
 }
 
 .modal-header {
-  padding: 20px;
-  border-bottom: 1px solid #e0e0e0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #191C24;
-  color: white;
-  border-radius: 8px 8px 0 0;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-title {
-  margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.5rem !important;
   font-weight: 600;
-  color: white;
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: white;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-
-.modal-close:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #dc3545;
+  color: #ffffff;
 }
 
 .modal-body {
-  padding: 20px;
+  padding: 2rem !important;
+}
+
+.modal-body .form-group {
+  margin-bottom: 1.5rem !important;
+}
+
+.modal-body label {
+  color: #ffffff;
+  font-size: 1.125rem !important;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.modal-body .form-control {
+  font-size: 1.125rem !important;
+  padding: 0.875rem 1.25rem;
+  min-height: 52px;
 }
 
 .modal-footer {
-  padding: 20px;
-  border-top: 1px solid #e0e0e0;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  background: #f8f9fa;
-  border-radius: 0 0 8px 8px;
+  padding: 1.25rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Modal Warning Box */
-.refund-warning {
-  background: #fff3cd;
-  border: 1px solid #ffc107;
-  border-radius: 4px;
-  padding: 12px;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  color: #856404;
+.modal-footer .btn {
+  font-size: 1.125rem !important;
+  padding: 0.875rem 2rem;
+  min-width: 130px;
 }
 
-.refund-warning i {
-  color: #ffc107;
-  font-size: 1.25rem;
+/* =====================================================
+   MODAL BUTTON STYLES (Consistent with other pages)
+   ===================================================== */
+.modal-footer .btn-cancel {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+}
+
+.modal-footer .btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.modal-footer .btn-update {
+  background-color: #FFA500;
+  border: none;
+  color: white;
+}
+
+.modal-footer .btn-update:hover {
+  background-color: #ff8c00;
+  color: white;
+}
+
+/* =====================================================
+   NEW CATEGORY COLOR PICKER
+   ===================================================== */
+.category-color-picker {
+  width: 36px;
+  height: 36px;
+  padding: 2px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
   flex-shrink: 0;
 }
-.confirmation-details {
-    background: #f8f9fa;
-    border-radius: 4px;
-    padding: 15px;
-    margin-bottom: 20px;
+
+.category-color-picker::-webkit-color-swatch-wrapper {
+  padding: 2px;
 }
 
-/* ===================================
-   Confirm Overlay Styles
-   =================================== */
+.category-color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+
+.category-color-picker::-moz-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+
+/* =====================================================
+   STOCK MODAL STYLES (Dark Theme)
+   ===================================================== */
+.stock-modal .info-card {
+  background: #282A36;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.stock-modal .info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.stock-modal .info-row:last-child {
+  margin-bottom: 0;
+}
+
+.stock-modal .info-label {
+  color: rgba(255,255,255,0.6);
+  font-size: 0.875rem;
+}
+
+.stock-modal .info-value {
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.stock-modal .quantity-input {
+  font-size: 1.25rem;
+  height: 50px;
+  text-align: center;
+  background: #2c2e3e;
+  border: 1px solid #3a3f4b;
+  color: #fff;
+}
+
+.stock-modal .quantity-input:focus {
+  border-color: #007bff;
+  background: #2c2e3e;
+}
+
+.stock-modal .preview-box {
+  background: #282A36;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.stock-modal .preview-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.stock-modal .preview-row:not(:last-child) {
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.stock-modal .preview-label {
+  color: rgba(255,255,255,0.6);
+}
+
+.stock-modal .preview-value {
+  font-weight: 500;
+  font-size: 1.125rem;
+  color: #ffffff;
+}
+
+/* Insufficient stock warning - dark theme */
+.insufficient-stock-warning {
+  background: rgba(244,67,54,0.15);
+  border: 1px solid rgba(244,67,54,0.3);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-top: 0.75rem;
+  color: #F44336;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.insufficient-stock-warning i {
+  font-size: 1.1rem;
+}
+
+/* =====================================================
+   CONFIRM OVERLAY (inside modals)
+   ===================================================== */
 .confirm-overlay {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0,0,0,0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -503,27 +877,21 @@ body {
   border-radius: 12px;
   width: 90%;
   max-width: 400px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
   animation: confirmSlideIn 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 @keyframes confirmSlideIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
+  from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .confirm-overlay-header {
   display: flex;
   align-items: center;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
   color: #ffffff;
 }
 
@@ -545,7 +913,7 @@ body {
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255,255,255,0.6);
   cursor: pointer;
 }
 
@@ -555,11 +923,11 @@ body {
 
 .confirm-overlay-body {
   padding: 1.25rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255,255,255,0.8);
 }
 
 .confirm-overlay-body p {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255,255,255,0.7);
   font-size: 0.95rem;
 }
 
@@ -567,14 +935,14 @@ body {
   background: #282A36;
   border-radius: 8px;
   padding: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .confirm-row {
   display: flex;
   justify-content: space-between;
   padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
 .confirm-row:last-child {
@@ -582,7 +950,7 @@ body {
 }
 
 .confirm-label {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255,255,255,0.6);
   font-size: 0.9rem;
 }
 
@@ -597,13 +965,13 @@ body {
   justify-content: flex-end;
   gap: 0.75rem;
   padding: 1rem 1.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255,255,255,0.1);
 }
 
 .confirm-overlay-footer .btn-cancel {
   background: transparent;
-  color: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.2);
   padding: 0.5rem 1rem;
   border-radius: 8px;
   cursor: pointer;
@@ -611,7 +979,7 @@ body {
 
 .confirm-overlay-footer .btn-cancel:hover {
   color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255,255,255,0.4);
 }
 
 .confirm-overlay-footer .btn-update {
@@ -620,13 +988,13 @@ body {
   border: none;
   padding: 0.5rem 1.5rem;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(255, 167, 38, 0.3);
+  box-shadow: 0 2px 8px rgba(255,167,38,0.3);
   cursor: pointer;
 }
 
 .confirm-overlay-footer .btn-update:hover {
   background: linear-gradient(135deg, #FF9800, #FFA726);
-  box-shadow: 0 4px 12px rgba(255, 167, 38, 0.4);
+  box-shadow: 0 4px 12px rgba(255,167,38,0.4);
 }
 
 .confirm-overlay-footer .btn-delete {
@@ -635,49 +1003,481 @@ body {
   border: none;
   padding: 0.5rem 1.5rem;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+  box-shadow: 0 2px 8px rgba(220,53,69,0.3);
   cursor: pointer;
 }
 
 .confirm-overlay-footer .btn-delete:hover {
   background: linear-gradient(135deg, #c82333, #dc3545);
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+  box-shadow: 0 4px 12px rgba(220,53,69,0.4);
 }
 
-.confirm-overlay-footer .btn-refund {
-  background: linear-gradient(135deg, #FFC107, #FFD54F);
-  color: #212529;
-  border: none;
-  padding: 0.5rem 1.5rem;
+/* =====================================================
+   DELETE CONFIRMATION MODAL (Bootstrap .modal .fade)
+   ===================================================== */
+#deleteConfirmModal .modal-content {
+  max-width: 500px;
+  margin: auto;
+}
+
+#deleteConfirmModal .delete-warning {
+  background: rgba(244,67,54,0.1);
+  border: 1px solid rgba(244,67,54,0.25);
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
-  cursor: pointer;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  color: #F44336;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.9rem;
 }
 
-.confirm-overlay-footer .btn-refund:hover {
-  background: linear-gradient(135deg, #e0a800, #FFC107);
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+#deleteConfirmModal .delete-warning i {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
-/* Professional Transaction History Button */
-.btn-gradient-info {
-  background: linear-gradient(135deg, #17a2b8, #20c9e0);
-  color: #fff !important;
-  transition: all 0.2s ease;
-  padding: 8px 14px;
-  border-radius: 20px;
+#deleteConfirmModal .selected-products-list {
+  max-height: 200px;
+  overflow-y: auto;
+  background: #282A36;
+  border-radius: 8px;
+  padding: 0.625rem;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+#deleteConfirmModal .product-delete-item {
+  padding: 8px 10px;
+  border-left: 3px solid #dc3545;
+  margin-bottom: 8px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 0 4px 4px 0;
+}
+
+#deleteConfirmModal .product-delete-item:last-child {
+  margin-bottom: 0;
+}
+
+#deleteConfirmModal .product-delete-item .product-name {
+  color: #fff;
   font-weight: 500;
+  font-size: 0.9rem;
+}
+
+#deleteConfirmModal .product-delete-item .product-meta {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+/* =====================================================
+   VIEW STOCK HISTORY MODAL
+   ===================================================== */
+.stock-history-timeline {
+  position: relative;
+  padding-left: 0;
+}
+
+.stock-history-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.875rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.stock-history-item:last-child {
+  border-bottom: none;
+}
+
+.stock-history-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stock-history-icon.stock-in {
+  background: rgba(76,175,80,0.2);
+  color: #4CAF50;
+}
+
+.stock-history-icon.stock-out {
+  background: rgba(255,193,7,0.2);
+  color: #FFC107;
+}
+
+.stock-history-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.stock-history-type {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.stock-history-meta {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.5);
+  margin-top: 2px;
+}
+
+.stock-history-qty {
+  font-weight: 600;
   font-size: 1rem;
-  max-height: 30px;
+  white-space: nowrap;
 }
 
-.btn-gradient-info:hover {
-  background: linear-gradient(135deg, #138496, #17a2b8);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
+.stock-history-qty.positive { color: #4CAF50; }
+.stock-history-qty.negative { color: #FFC107; }
+
+.stock-history-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: rgba(255,255,255,0.4);
 }
 
-.btn-gradient-info:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(23, 162, 184, 0.2);
+.stock-history-empty i {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 0.75rem;
+  opacity: 0.5;
+}
+
+/* Summary stats in stock history modal */
+.stock-summary-card {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.stock-summary-item {
+  flex: 1;
+  background: #282A36;
+  border-radius: 8px;
+  padding: 0.75rem;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.stock-summary-item .summary-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.stock-summary-item .summary-label {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.5);
+  margin-top: 2px;
+}
+
+/* =====================================================
+   VIEW PRODUCT MODAL
+   ===================================================== */
+.product-detail-card {
+  background: #282A36;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.product-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.product-detail-row:last-child {
+  border-bottom: none;
+}
+
+.product-detail-label {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.9rem;
+}
+
+.product-detail-value {
+  color: #fff;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* =====================================================
+   RECENT ACTIVITY TABLE
+   ===================================================== */
+.activity-table-container {
+  scrollbar-width: thin;
+  scrollbar-color: #3a3f4b #191C24;
+}
+
+.activity-table-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.activity-table-container::-webkit-scrollbar-track {
+  background: #191C24;
+}
+
+.activity-table-container::-webkit-scrollbar-thumb {
+  background-color: #3a3f4b;
+  border-radius: 4px;
+}
+
+/* =====================================================
+   MODAL OVERRIDES (remove colored headers)
+   ===================================================== */
+.modal .modal-header.bg-primary,
+.modal .modal-header.bg-success,
+.modal .modal-header.bg-warning,
+.modal .modal-header.bg-info {
+  background: #191C24 !important;
+  border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+.modal .modal-footer {
+  background: transparent !important;
+  border-top: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 0 0 8px 8px;
+}
+
+.modal .modal-header .close {
+  color: rgba(255,255,255,0.6) !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+}
+
+.modal .modal-header .close:hover {
+  color: #fff !important;
+}
+
+/* Modal form controls - ensure dark theme */
+.modal .form-control {
+  color: #fff;
+  background-color: #2c2e3e;
+  border: 1px solid #3a3f4b;
+}
+
+.modal .form-control:focus {
+  border-color: #007bff;
+  background-color: #2c2e3e;
+  color: #fff;
+}
+
+.modal .form-control::placeholder {
+  color: #6c7293;
+}
+
+.modal .form-control[readonly] {
+  background-color: #1a1d24;
+  border-color: #2c2e3e;
+  color: rgba(255,255,255,0.5);
+  cursor: not-allowed;
+}
+
+.modal select.form-control {
+  color: #fff;
+  background-color: #2c2e3e;
+  border: 1px solid #3a3f4b;
+}
+
+.modal .input-group-text {
+  background-color: #2c2e3e;
+  border: 1px solid #3a3f4b;
+  color: rgba(255,255,255,0.6);
+}
+
+.modal .form-label,
+.modal label {
+  color: #fff;
+  font-weight: 500;
+}
+
+.modal .text-muted {
+  color: rgba(255,255,255,0.4) !important;
+}
+
+/* Modal action buttons */
+.modal .btn-secondary {
+  background: transparent;
+  color: rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+}
+
+.modal .btn-secondary:hover {
+  color: #ffffff;
+  border-color: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.05);
+}
+
+.modal .btn-primary {
+  background: linear-gradient(135deg, #FFA726, #FFB84D);
+  border: none;
+  color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(255,167,38,0.3);
+}
+
+.modal .btn-primary:hover {
+  background: linear-gradient(135deg, #FF9800, #FFA726);
+  box-shadow: 0 4px 12px rgba(255,167,38,0.4);
+}
+
+/* Stock In confirm button - green gradient */
+#stockInModal .btn-success {
+  background: linear-gradient(135deg, #43A047, #66BB6A) !important;
+  border: none !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(76,175,80,0.3) !important;
+}
+#stockInModal .btn-success:hover {
+  background: linear-gradient(135deg, #388E3C, #43A047) !important;
+  box-shadow: 0 4px 12px rgba(76,175,80,0.4) !important;
+}
+
+/* Stock Out confirm button - amber gradient */
+#stockOutModal .btn-warning {
+  background: linear-gradient(135deg, #FFA726, #FFB84D) !important;
+  border: none !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(255,167,38,0.3) !important;
+}
+#stockOutModal .btn-warning:hover {
+  background: linear-gradient(135deg, #FF9800, #FFA726) !important;
+  box-shadow: 0 4px 12px rgba(255,167,38,0.4) !important;
+}
+
+/* Edit Product save button - blue gradient */
+#editProductModal .btn-primary {
+  background: linear-gradient(135deg, #42A5F5, #64B5F6) !important;
+  box-shadow: 0 2px 8px rgba(66,165,245,0.3) !important;
+}
+#editProductModal .btn-primary:hover {
+  background: linear-gradient(135deg, #1E88E5, #42A5F5) !important;
+  box-shadow: 0 4px 12px rgba(66,165,245,0.4) !important;
+}
+
+/* Loading/processing states */
+.modal .btn:disabled {
+  opacity: 0.7;
+}
+
+/* =====================================================
+   SPINNER / LOADING
+   ===================================================== */
+.stock-history-loading {
+  text-align: center;
+  padding: 2rem;
+  color: rgba(255,255,255,0.5);
+}
+
+.stock-history-loading .spinner-border {
+  width: 2rem;
+  height: 2rem;
+  border-color: rgba(255,255,255,0.2);
+  border-right-color: #FFA726;
+}
+
+/* =====================================================
+   RESPONSIVE BREAKPOINTS
+   ===================================================== */
+
+/* Tablet landscape (≤1199px) - 2×2 stats grid */
+@media (max-width: 1199px) {
+  .col-xl-3.col-sm-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+
+  .content-wrapper .card-body {
+    padding: 20px 20px !important;
+  }
+
+  .table thead th,
+  .table tbody td {
+    padding: 16px 14px;
+    font-size: 0.9375rem;
+  }
+}
+
+/* Tablet portrait (≤991px) */
+@media (max-width: 991px) {
+  .page-header-card .d-flex.gap-2 {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .table thead th,
+  .table tbody td {
+    padding: 14px 12px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile landscape (≤768px) */
+@media (max-width: 768px) {
+  .col-xl-3.col-sm-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+
+  .content-wrapper .card-body {
+    padding: 16px 14px !important;
+  }
+
+  .table thead th {
+    font-size: 0.8125rem;
+    padding: 12px 10px;
+    white-space: nowrap;
+  }
+
+  .table tbody td {
+    font-size: 0.875rem;
+    padding: 12px 10px;
+  }
+
+  .badge {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+    min-width: auto;
+  }
+
+  /* Stock modal adjustments */
+  .stock-modal .modal-body {
+    padding: 1.25rem;
+  }
+}
+
+/* Mobile portrait (≤576px) - single column stats */
+@media (max-width: 576px) {
+  .col-xl-3.col-sm-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .content-wrapper .card-body {
+    padding: 12px 10px !important;
+  }
+
+  .table thead th,
+  .table tbody td {
+    padding: 10px 8px;
+    font-size: 0.8125rem;
+  }
+
+  .table thead th {
+    font-size: 0.75rem;
+  }
 }

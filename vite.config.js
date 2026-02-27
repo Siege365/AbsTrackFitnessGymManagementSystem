@@ -46,6 +46,10 @@ export default defineConfig({
                 'resources/js/pages/memberships.js',
                 'resources/js/pages/payments.js',
                 'resources/js/pages/reports.js',
+                'resources/js/pages/pt-sessions.js',
+                'resources/js/pages/customer-attendance.js',
+                'resources/js/pages/inventory.js',
+                'resources/js/pages/inventory-logs.js',
                 'resources/js/sessions.js',
                 'resources/js/pages/configuration.js',
 

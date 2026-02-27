@@ -67,9 +67,10 @@ Route::middleware(['auth'])->group(function () {
         return view('pages.icons.mdi');
     })->name('icons.mdi');
 
-    Route::get('/Session', [SessionController::class, 'index'])->name('Session');
+    Route::get('/training-sessions', [SessionController::class, 'ptIndex'])->name('sessions.pt.index');
+    Route::get('/customer-attendance', [SessionController::class, 'attendanceIndex'])->name('sessions.attendance.index');
     
-    // Session Routes - PT Schedules
+    // Session Routes - PT Schedules & Attendance
     Route::prefix('sessions')->name('sessions.')->group(function () {
 
         // KPI refresh route
@@ -104,6 +105,7 @@ Route::middleware(['auth'])->group(function () {
     
     //Inventory Supply Routes
     Route::get('/inventory', [InventorySupplyController::class, 'index'])->name('inventory.index');
+    Route::get('/inventory-logs', [InventorySupplyController::class, 'logsIndex'])->name('inventory.logs');
     Route::post('/inventory', [InventorySupplyController::class, 'store'])->name('inventory.store');
     Route::put('/inventory/{id}', [InventorySupplyController::class, 'update'])->name('inventory.update');
     Route::delete('/inventory/bulk-delete', [InventorySupplyController::class, 'bulkDelete'])->name('inventory.bulk-delete');
@@ -119,6 +121,7 @@ Route::middleware(['auth'])->group(function () {
         // Stock transaction routes
         Route::post('/{id}/stock-transaction', [InventorySupplyController::class, 'stockTransaction'])->name('stock-transaction');
         Route::get('/{id}/transaction-history', [InventorySupplyController::class, 'transactionHistory'])->name('transaction-history');
+        Route::get('/{id}/stock-history-json', [InventorySupplyController::class, 'stockHistoryJson'])->name('stock-history-json');
     });
         // Payment Routes (consolidated)
     // Product Payment Routes

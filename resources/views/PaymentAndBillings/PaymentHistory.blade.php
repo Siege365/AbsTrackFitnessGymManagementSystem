@@ -143,7 +143,7 @@
                     class="form-control form-control-sm" 
                     placeholder="Search..." 
                     value="{{ request('membership_search') }}"
-                    style="width: 450px;"
+                    style="width: 100%; max-width: 450px;"
                     id="membershipSearchInput">
                   @if(request('membership_search'))
                   <button type="button" class="search-clear-btn" onclick="clearSearch('membershipSearchInput', 'membershipSearchForm')">&times;</button>
@@ -306,7 +306,7 @@
                     class="form-control form-control-sm" 
                     placeholder="Search..." 
                     value="{{ request('product_search') }}" 
-                    style="width: 450px;"
+                    style="width: 100%; max-width: 450px;"
                     id="productSearchInput">
                   @if(request('product_search'))
                   <button type="button" class="search-clear-btn" onclick="clearSearch('productSearchInput', 'productSearchForm')">&times;</button>
@@ -418,7 +418,7 @@
                 class="form-control form-control-sm" 
                 placeholder="Search..." 
                 value="{{ request('refund_search') }}" 
-                style="width: 450px;"
+                style="width: 100%; max-width: 450px;"
                 id="refundSearchInput">
               @if(request('refund_search'))
               <button type="button" class="search-clear-btn" onclick="clearSearch('refundSearchInput', 'refundSearchForm')">&times;</button>
