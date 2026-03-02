@@ -26,6 +26,7 @@ export default defineConfig({
                 'resources/css/membership-payment.css',
                 'resources/css/reports.css',
                 'resources/css/payment-history.css',
+                'resources/css/activity-logs.css',
                 'resources/css/configuration.css',
 
                 // Auth CSS

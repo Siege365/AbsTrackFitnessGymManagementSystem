@@ -6,6 +6,7 @@ use App\Models\Membership;
 use App\Models\MembershipPayment;
 use App\Models\InventorySupply;
 use App\Models\GymPlan;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -339,6 +340,8 @@ class MembershipPaymentController extends Controller
             }
 
             DB::commit();
+
+            ActivityLog::log('created', 'membership_payment', "Processed membership payment #{$payment->receipt_number} for {$payment->member_name} ({$request->payment_type}) — ₱" . number_format($payment->amount, 2), $payment->receipt_number, $payment->member_name, $payment, ['plan_type' => $payment->plan_type, 'payment_type' => $request->payment_type, 'amount' => $payment->amount, 'payment_method' => $request->payment_method]);
 
             $message = 'Payment processed successfully! ';
             if ($request->payment_type === 'new') {

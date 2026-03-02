@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Customer;
 use App\Models\GymPlan;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -206,7 +207,9 @@ class ClientController extends Controller
             // Remove avatar_url from validated data
             unset($validated['avatar_url']);
 
-            Client::create($validated);
+            $client = Client::create($validated);
+
+            ActivityLog::log('created', 'client', "Added new PT client: {$validated['name']}", null, $validated['name'], $client, ['plan_type' => $validated['plan_type'], 'start_date' => $validated['start_date'], 'due_date' => $validated['due_date']]);
 
             // Return JSON response for AJAX requests
             if ($request->wantsJson() || $request->ajax()) {
@@ -391,6 +394,8 @@ class ClientController extends Controller
 
             $client->update($validated);
 
+            ActivityLog::log('updated', 'client', "Updated PT client: {$client->name}", null, $client->name, $client, ['plan_type' => $validated['plan_type']]);
+
             return redirect()->route('clients.index')
                 ->with('success', 'Client updated successfully!');
                 
@@ -417,6 +422,7 @@ class ClientController extends Controller
         try {
             return DB::transaction(function () use ($request, $id) {
                 $client = Client::lockForUpdate()->findOrFail($id);
+                $clientName = $client->name;
             
             // Delete avatar if exists
             if ($client->avatar) {
@@ -431,6 +437,8 @@ class ClientController extends Controller
             }
             
             $client->delete();
+
+            ActivityLog::log('deleted', 'client', "Deleted PT client: {$clientName}", null, $clientName);
 
             // Return JSON response for AJAX
             if ($request->expectsJson() || $request->ajax()) {
@@ -501,6 +509,8 @@ class ClientController extends Controller
 
             // Prepare response message
             if ($deletedCount > 0) {
+                ActivityLog::log('bulk_deleted', 'client', "Bulk deleted {$deletedCount} PT client(s)", null, null, null, ['count' => $deletedCount]);
+
                 $message = "Successfully deleted {$deletedCount} client" . ($deletedCount > 1 ? 's' : '') . ".";
                 
                 if (count($errors) > 0) {
@@ -559,6 +569,8 @@ class ClientController extends Controller
                     'start_date' => $newStartDate,
                     'due_date' => $newDueDate
                 ]);
+
+                ActivityLog::log('renewed', 'client', "Renewed PT client subscription for {$client->name} — new due date: " . $newDueDate->format('M d, Y'), null, $client->name, $client, ['new_due_date' => $newDueDate->toDateString()]);
                 
                 // Return JSON response for AJAX
                 if ($request->expectsJson() || $request->ajax()) {

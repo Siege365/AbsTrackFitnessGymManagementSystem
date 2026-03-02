@@ -63,6 +63,7 @@ body {
   max-height: none;
   overflow-x: auto !important;
   -webkit-overflow-scrolling: touch;
+  overflow-y: visible !important;
 }
 
 /* Dropdown positioning for proper display */

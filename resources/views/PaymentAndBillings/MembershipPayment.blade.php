@@ -66,6 +66,48 @@
                 </div>
             </div>
 
+            <!-- Selected Member Info Card (shown after selecting a member for Renewal / Extension) -->
+            <div class="form-section" id="memberInfoSection" style="display: none;">
+                <div class="member-card">
+                    <div class="member-card-header">
+                        <div class="member-card-icon"><i class="mdi mdi-account"></i></div>
+                        <h4 class="member-card-title">Selected Member</h4>
+                        <span id="memberBadge" class="badge badge-success" style="margin-left: auto; font-size: 0.8rem;">Active</span>
+                    </div>
+                    <div class="member-card-body">
+                        <div class="member-form-row" style="gap: 1rem;">
+                            <div class="member-form-col member-form-col-3">
+                                <label class="form-label" style="opacity: 0.7;">Name</label>
+                                <p id="memberSelectedName" style="margin: 0; font-weight: 600; color: #fff;">—</p>
+                            </div>
+                            <div class="member-form-col member-form-col-3">
+                                <label class="form-label" style="opacity: 0.7;">Contact</label>
+                                <p id="memberSelectedContact" style="margin: 0; font-weight: 600; color: #fff;">—</p>
+                            </div>
+                            <div class="member-form-col member-form-col-3">
+                                <label class="form-label" style="opacity: 0.7;">Membership Status</label>
+                                <p id="memberSelectedStatus" style="margin: 0; font-weight: 600; color: #fff;">—</p>
+                            </div>
+                        </div>
+                        <div class="member-form-row" style="gap: 1rem; margin-top: 0.75rem;">
+                            <div class="member-form-col member-form-col-3">
+                                <label class="form-label" style="opacity: 0.7;">Current Plan</label>
+                                <p id="memberSelectedPlan" style="margin: 0; font-weight: 600; color: #fff;">—</p>
+                            </div>
+                            <div class="member-form-col member-form-col-3">
+                                <label class="form-label" style="opacity: 0.7;">Due Date</label>
+                                <p id="memberSelectedDueDate" style="margin: 0; font-weight: 600; color: #fff;">—</p>
+                            </div>
+                            <div class="member-form-col member-form-col-3">
+                                <button type="button" class="btn btn-sm btn-secondary" id="clearMemberBtn" style="margin-top: 0.5rem;">
+                                    <i class="mdi mdi-close"></i> Change Member
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- New Member Details -->
             <div class="form-section" id="newMemberSection" style="display: none;">
                 <div class="member-card">
@@ -459,15 +501,24 @@ document.addEventListener('DOMContentLoaded', function() {
       paymentTypePills.forEach(p => p.classList.remove('active'));
       this.classList.add('active');
       paymentTypeInput.value = type;
+      const memberInfoSection = document.getElementById('memberInfoSection');
       if (type === 'new') {
         memberSelectionSection.style.display = 'none';
+        memberInfoSection.style.display = 'none';
         newMemberSection.style.display = 'block';
         memberSearch.removeAttribute('required');
         memberId.removeAttribute('required');
         document.getElementById('newMemberName').setAttribute('required', 'required');
         document.getElementById('newMemberContact').setAttribute('required', 'required');
       } else {
-        memberSelectionSection.style.display = 'block';
+        // Show info card if a member is already selected; otherwise show the search box
+        if (memberId.value) {
+          memberSelectionSection.style.display = 'none';
+          memberInfoSection.style.display = 'block';
+        } else {
+          memberSelectionSection.style.display = 'block';
+          memberInfoSection.style.display = 'none';
+        }
         newMemberSection.style.display = 'none';
         memberSearch.setAttribute('required', 'required');
         document.getElementById('newMemberName').removeAttribute('required');
@@ -632,11 +683,12 @@ document.addEventListener('DOMContentLoaded', function() {
           return;
         }
         resultsContainer.innerHTML = data.map(member => `
-          <div class="autocomplete-item" data-id="${member.id}" data-name="${member.name}" data-due-date="${member.due_date || ''}" data-plan="${member.plan_type}" data-status="${member.status}" data-is-student="${member.is_student ? '1' : '0'}">
+          <div class="autocomplete-item" data-id="${member.id}" data-name="${member.name}" data-contact="${member.contact || ''}" data-due-date="${member.due_date || ''}" data-plan="${member.plan_type}" data-status="${member.status}" data-is-student="${member.is_student ? '1' : '0'}">
             <strong>${member.name}</strong>
             ${member.is_student ? '<span class="badge badge-info" style="margin-left: 0.5rem; font-size: 0.7rem;">STUDENT</span>' : ''}
+            <span class="badge ${member.status === 'Active' ? 'badge-success' : 'badge-danger'}" style="margin-left: 0.5rem; font-size: 0.7rem;">${member.status.toUpperCase()}</span>
             <div style="font-size: 0.875rem; color: #999;">
-              Contact: ${member.contact || 'N/A'} | Plan: ${member.plan_type} | Status: ${member.status}
+              Contact: ${member.contact || 'N/A'} | Plan: ${member.plan_type}
               ${member.due_date ? '| Due: ' + new Date(member.due_date).toLocaleDateString() : '| No due date'}
             </div>
           </div>
@@ -659,6 +711,24 @@ document.addEventListener('DOMContentLoaded', function() {
               paymentTypePills.forEach(p => p.classList.remove('active'));
               extensionPill.classList.add('active'); paymentTypeInput.value = 'extension';
             } else { renewalPill.style.opacity = '1'; renewalPill.style.pointerEvents = 'auto'; }
+
+            // Show member info card (same as PT Payment behaviour)
+            const memberInfoSection = document.getElementById('memberInfoSection');
+            const isActive = selectedMemberStatus === 'Active';
+            const badge = document.getElementById('memberBadge');
+            badge.textContent = selectedMemberStatus;
+            badge.className = 'badge ' + (isActive ? 'badge-success' : 'badge-danger');
+            badge.style.marginLeft = 'auto'; badge.style.fontSize = '0.8rem';
+            document.getElementById('memberSelectedName').textContent = this.dataset.name || '—';
+            document.getElementById('memberSelectedContact').textContent = this.dataset.contact || 'N/A';
+            document.getElementById('memberSelectedStatus').textContent = selectedMemberStatus || '—';
+            document.getElementById('memberSelectedPlan').textContent = this.dataset.plan || '—';
+            document.getElementById('memberSelectedDueDate').textContent = dueDate
+              ? new Date(dueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+              : 'No due date';
+            memberSelectionSection.style.display = 'none';
+            memberInfoSection.style.display = 'block';
+
             resultsContainer.style.display = 'none';
             updatePlanDependentFields();
             enforcePlanRestrictions();
@@ -965,6 +1035,23 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   };
 
+  // Change Member button — same pattern as PT Payment's ptClearMemberBtn
+  document.getElementById('clearMemberBtn').addEventListener('click', function() {
+    document.getElementById('memberInfoSection').style.display = 'none';
+    memberSelectionSection.style.display = 'block';
+    memberSearch.value = '';
+    memberId.value = '';
+    selectedMemberStatus = '';
+    selectedMemberDueDate = '';
+    selectedMemberIsStudent = false;
+    document.getElementById('memberIsStudent').value = '0';
+    document.getElementById('currentDueDate').value = '';
+    document.getElementById('newDueDate').value = '';
+    extensionPill.style.opacity = '0.5'; extensionPill.style.pointerEvents = 'none';
+    document.querySelector('[data-type="renewal"]').style.opacity = '1'; document.querySelector('[data-type="renewal"]').style.pointerEvents = 'auto';
+    updatePlanDependentFields(); enforcePlanRestrictions(); calculateNewDueDate();
+  });
+
   // Clear Form
   document.getElementById('clearFormBtn').addEventListener('click', function() {
     paymentForm.reset(); memberId.value = '';
@@ -974,6 +1061,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('buddyMemberId').value = ''; document.getElementById('buddyMemberSearch').value = '';
     document.getElementById('buddyCurrentDueDate').value = ''; document.getElementById('buddyNewDueDate').value = '';
     selectedBuddyDueDate = '';
+    // Reset member info card
+    document.getElementById('memberInfoSection').style.display = 'none';
+    memberSelectionSection.style.display = 'block';
     document.getElementById('buddyDueDateSection').style.display = 'none';
     document.getElementById('member1IsStudent').checked = false; document.getElementById('member1StudentLabel').textContent = 'No';
     document.getElementById('buddyIsStudent').checked = false; document.getElementById('buddyStudentLabel').textContent = 'No';

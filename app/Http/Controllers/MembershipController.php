@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Membership;
 use App\Models\Customer;
 use App\Models\GymPlan;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -283,7 +284,9 @@ class MembershipController extends Controller
             // Remove avatar_url from validated data as it's not in the database
             unset($validated['avatar_url']);
 
-            Membership::create($validated);
+            $membership = Membership::create($validated);
+
+            ActivityLog::log('created', 'membership', "Added new member: {$validated['name']}", null, $validated['name'], $membership, ['plan_type' => $validated['plan_type'], 'start_date' => $validated['start_date'], 'due_date' => $validated['due_date']]);
 
             // Return JSON response for AJAX requests
             if ($request->wantsJson() || $request->ajax()) {
@@ -469,6 +472,8 @@ class MembershipController extends Controller
 
             $membership->update($validated);
 
+            ActivityLog::log('updated', 'membership', "Updated member: {$membership->name}", null, $membership->name, $membership, ['plan_type' => $validated['plan_type']]);
+
             return redirect()->route('memberships.index')
                 ->with('success', 'Membership updated successfully!');
             });
@@ -496,6 +501,7 @@ class MembershipController extends Controller
         try {
             return DB::transaction(function () use ($request, $id) {
                 $membership = Membership::lockForUpdate()->findOrFail($id);
+                $memberName = $membership->name;
                 
                 // Delete avatar if exists
                 if ($membership->avatar) {
@@ -510,6 +516,8 @@ class MembershipController extends Controller
                 }
                 
                 $membership->delete();
+
+                ActivityLog::log('deleted', 'membership', "Deleted member: {$memberName}", null, $memberName);
 
                 // Return JSON response for AJAX
                 if ($request->expectsJson() || $request->ajax()) {
@@ -577,6 +585,8 @@ class MembershipController extends Controller
             }
 
             if ($deletedCount > 0) {
+                ActivityLog::log('bulk_deleted', 'membership', "Bulk deleted {$deletedCount} membership(s)", null, null, null, ['count' => $deletedCount]);
+
                 $message = "Successfully deleted {$deletedCount} membership(s).";
                 if (!empty($errors)) {
                     $message .= " However, " . count($errors) . " deletion(s) failed.";
@@ -629,6 +639,8 @@ class MembershipController extends Controller
                     'start_date' => $newStartDate,
                     'due_date' => $newDueDate
                 ]);
+
+                ActivityLog::log('renewed', 'membership', "Renewed membership for {$membership->name} — new due date: " . $newDueDate->format('M d, Y'), null, $membership->name, $membership, ['new_due_date' => $newDueDate->toDateString()]);
                 
                 // Return JSON response for AJAX
                 if ($request->expectsJson() || $request->ajax()) {

@@ -6,6 +6,7 @@ use App\Models\PTSchedule;
 use App\Models\Attendance;
 use App\Models\Client;
 use App\Models\Membership;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -386,6 +387,8 @@ class SessionController extends Controller
             $ptSchedule = PTSchedule::create($data);
             $ptSchedule->load(['client', 'membership']);
 
+            ActivityLog::log('created', 'pt_session', "Created PT session for {$ptSchedule->customer_name} on {$ptSchedule->scheduled_date}", null, $ptSchedule->customer_name, $ptSchedule, ['trainer' => $ptSchedule->trainer_name, 'date' => $ptSchedule->scheduled_date, 'time' => $ptSchedule->scheduled_time]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'PT Schedule created successfully!',
@@ -435,6 +438,8 @@ class SessionController extends Controller
 
             $ptSchedule->load('client');
 
+            ActivityLog::log('updated', 'pt_session', "Updated PT session for {$ptSchedule->customer_name}", null, $ptSchedule->customer_name, $ptSchedule, ['trainer' => $ptSchedule->trainer_name, 'date' => $ptSchedule->scheduled_date]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'PT Schedule updated successfully!',
@@ -456,6 +461,8 @@ class SessionController extends Controller
         try {
             $ptSchedule = PTSchedule::findOrFail($id);
             $ptSchedule->delete();
+
+            ActivityLog::log('deleted', 'pt_session', "Deleted PT session for {$ptSchedule->customer_name}", null, $ptSchedule->customer_name);
 
             return response()->json([
                 'success' => true,
@@ -490,6 +497,8 @@ class SessionController extends Controller
             }
 
             $ptSchedule->update(['status' => $request->status]);
+
+            ActivityLog::log('updated', 'pt_session', "Updated PT session status to '{$request->status}' for {$ptSchedule->customer_name}", null, $ptSchedule->customer_name, $ptSchedule, ['status' => $request->status]);
 
             return response()->json([
                 'success' => true,
@@ -541,6 +550,8 @@ class SessionController extends Controller
             ]);
 
             $ptSchedule->load('client');
+
+            ActivityLog::log('created', 'pt_session', "Booked next PT session for {$ptSchedule->customer_name} on {$ptSchedule->scheduled_date}", null, $ptSchedule->customer_name, $ptSchedule, ['date' => $ptSchedule->scheduled_date, 'time' => $ptSchedule->scheduled_time]);
 
             return response()->json([
                 'success' => true,
@@ -691,6 +702,8 @@ class SessionController extends Controller
             // Auto-update PT schedule status to 'in_progress' if customer has session today
             $this->autoUpdatePTStatus($attendance);
 
+            ActivityLog::log('created', 'attendance', "Recorded attendance for {$attendance->customer_name}", null, $attendance->customer_name, $attendance, ['date' => $attendance->date, 'time_in' => $attendance->time_in]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Attendance recorded successfully!',
@@ -799,6 +812,8 @@ class SessionController extends Controller
 
             $attendance->update($request->only(['time_out']));
 
+            ActivityLog::log('updated', 'attendance', "Updated attendance (check-out) for {$attendance->customer_name}", null, $attendance->customer_name, $attendance);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Attendance updated successfully!',
@@ -819,7 +834,10 @@ class SessionController extends Controller
     {
         try {
             $attendance = Attendance::findOrFail($id);
+            $customerName = $attendance->customer_name;
             $attendance->delete();
+
+            ActivityLog::log('deleted', 'attendance', "Deleted attendance record for {$customerName}", null, $customerName);
 
             return response()->json([
                 'success' => true,
@@ -890,6 +908,8 @@ class SessionController extends Controller
 
             $count = Attendance::whereIn('id', $ids)->delete();
 
+            ActivityLog::log('bulk_deleted', 'attendance', "Bulk deleted {$count} attendance record(s)", null, null, null, ['count' => $count]);
+
             return response()->json([
                 'success' => true,
                 'message' => "{$count} attendance record(s) deleted successfully"
@@ -918,6 +938,8 @@ class SessionController extends Controller
             }
 
             $count = PTSchedule::whereIn('id', $ids)->delete();
+
+            ActivityLog::log('bulk_deleted', 'pt_session', "Bulk deleted {$count} PT schedule(s)", null, null, null, ['count' => $count]);
 
             return response()->json([
                 'success' => true,

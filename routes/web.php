@@ -15,6 +15,8 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PaymentHistoryController;
 use App\Http\Controllers\RefundController;
+use App\Http\Controllers\PTpaymentController;
+use App\Http\Controllers\ActivityLogController;
 
 
 
@@ -135,15 +137,30 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/payments/{payment}/receipt-data', [PaymentController::class, 'receiptData'])->name('payments.receiptData');
     Route::delete('/payments/{payment}', [PaymentHistoryController::class, 'destroy'])->name('payments.destroy');
     Route::get('/payments/membership', [PaymentController::class, 'membership'])->name('payments.membership');
-    // ==========================================
+    
     // MEMBERSHIP PAYMENT ROUTES (UPDATED)
-    // ==========================================
     Route::prefix('membership-payment')->name('membership.payment.')->group(function () {
         Route::get('/', [MembershipPaymentController::class, 'index'])->name('index');
         Route::post('/', [MembershipPaymentController::class, 'store'])->name('store');
         Route::get('/{id}/receipt', [MembershipPaymentController::class, 'receiptData'])->name('receipt');
     });
     
+    // PT PAYMENT ROUTES
+    Route::prefix('pt-payment')->name('pt.payment.')->group(function () {
+        Route::post('/', [PTpaymentController::class, 'store'])->name('store');
+        Route::get('/{id}/receipt', [PTpaymentController::class, 'receiptData'])->name('receipt');
+    });
+
+    // PT search APIs
+    Route::get('/api/pt/search-members', [PTpaymentController::class, 'searchActiveMembers']);
+    Route::get('/api/pt/search-clients', [PTpaymentController::class, 'searchClients']);
+
+    // PT Payment History Routes
+    Route::delete('/pt-payment/bulk-delete', [PaymentHistoryController::class, 'bulkDeletePT'])->name('pt.payment.bulkDelete');
+    Route::post('/pt-payment/{id}/refund', [PaymentHistoryController::class, 'refundPT'])->name('pt.payment.refund');
+    Route::delete('/pt-payment/{id}', [PaymentHistoryController::class, 'destroyPT'])->name('pt.payment.destroy');
+    Route::get('/pt-payment/{id}/history-receipt', [PaymentHistoryController::class, 'getPTReceipt'])->name('pt.payment.history.receipt');
+
     // Member search API
     Route::get('/api/members/search', [MemberApiController::class, 'search']);
     Route::get('/api/members/check-duplicate', [MemberApiController::class, 'checkDuplicate']);
@@ -201,9 +218,9 @@ Route::middleware(['auth'])->group(function () {
         return view('UserAndAdmin.TrainerManagement');
     })->name('UserAndAdmin.TrainerManagement');
     
-    Route::get('/UserAndAdmin/CashierActivity', function () {
-        return view('UserAndAdmin.CashierActivity');
-    })->name('UserAndAdmin.CashierActivity');
+    Route::get('/UserAndAdmin/CashierActivity', [ActivityLogController::class, 'index'])->name('UserAndAdmin.CashierActivity');
+    Route::delete('/activity-logs/bulk-delete', [ActivityLogController::class, 'bulkDelete'])->name('activity-logs.bulk-delete');
+    Route::delete('/activity-logs/clear-all', [ActivityLogController::class, 'clearAll'])->name('activity-logs.clear-all');
 
     // ==========================================
     // GYM CONFIGURATION ROUTES

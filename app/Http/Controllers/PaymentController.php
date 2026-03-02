@@ -6,6 +6,7 @@ use App\Models\Payment;
 use App\Models\PaymentItem;
 use App\Models\InventorySupply;
 use App\Models\MembershipPayment;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -118,7 +119,8 @@ class PaymentController extends Controller
 
         $payment = DB::transaction(function () use ($request, $items) {
             $last = Payment::latest()->first();
-            $receipt = $last ? str_pad($last->id + 1, 4, '0', STR_PAD_LEFT) : '0001';
+            $nextId = $last ? $last->id + 1 : 1;
+            $receipt = 'PROD-' . date('Ymd') . '-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
             $payment = Payment::create([
                 'receipt_number' => $receipt,
@@ -153,6 +155,8 @@ class PaymentController extends Controller
 
             return $payment;
         });
+
+        ActivityLog::log('created', 'product_payment', "Processed product payment #{$payment->receipt_number} for {$payment->customer_name} — ₱" . number_format($payment->total_amount, 2), $payment->receipt_number, $payment->customer_name, $payment, ['amount' => $payment->total_amount, 'payment_method' => $payment->payment_method, 'items_count' => $payment->total_quantity]);
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json(['success' => true, 'message' => 'Payment completed successfully.', 'payment' => $payment]);
@@ -306,6 +310,11 @@ class PaymentController extends Controller
                 'reason' => $validated['reason'] ?? null,
             ]);
 
+            if ($result['success']) {
+                $p = $result['payment'];
+                ActivityLog::log('refunded', 'product_payment', "Refunded product payment #{$p->receipt_number} for {$p->customer_name} — ₱" . number_format($p->refunded_amount, 2), $p->receipt_number, $p->customer_name, $p, ['amount' => $p->refunded_amount, 'reason' => $validated['reason'] ?? null]);
+            }
+
             if ($request->expectsJson()) {
                 return response()->json($result);
             }
@@ -327,8 +336,12 @@ class PaymentController extends Controller
     public function destroy($payment)
     {
         try {
-            DB::transaction(function () use ($payment) {
+            $deletedReceipt = null;
+            $deletedCustomer = null;
+            DB::transaction(function () use ($payment, &$deletedReceipt, &$deletedCustomer) {
                 $paymentRecord = Payment::findOrFail($payment);
+                $deletedReceipt = $paymentRecord->receipt_number;
+                $deletedCustomer = $paymentRecord->customer_name;
                 $paymentItems = PaymentItem::where('payment_id', $paymentRecord->id)->get();
                 
                 foreach ($paymentItems as $item) {
@@ -341,6 +354,8 @@ class PaymentController extends Controller
                 PaymentItem::where('payment_id', $paymentRecord->id)->delete();
                 $paymentRecord->delete();
             });
+
+            ActivityLog::log('deleted', 'product_payment', "Deleted product payment #{$deletedReceipt} ({$deletedCustomer})", $deletedReceipt, $deletedCustomer);
 
             return back()->with('success', 'Transaction deleted successfully.');
         } catch (\Exception $e) {
@@ -370,6 +385,8 @@ class PaymentController extends Controller
                 PaymentItem::whereIn('payment_id', $ids)->delete();
                 Payment::whereIn('id', $ids)->delete();
             });
+
+            ActivityLog::log('bulk_deleted', 'product_payment', 'Bulk deleted ' . count($ids) . ' product payment(s)', null, null, null, ['count' => count($ids)]);
 
             return back()->with('success', count($ids) . ' transaction(s) deleted successfully.');
         } catch (\Exception $e) {

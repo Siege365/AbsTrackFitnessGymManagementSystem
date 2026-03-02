@@ -276,12 +276,129 @@
     <!-- ====== PERSONAL TRAINING PAGE ====== -->
     <div class="page-panel" id="ptPage">
       <div class="card">
-        <div class="card-body" style="text-align: center; padding: 4rem 2rem;">
-          <i class="mdi mdi-dumbbell" style="font-size: 5rem; color: #555; margin-bottom: 1rem; display: block;"></i>
-          <h2 style="color: #fff; margin-bottom: 0.5rem;">Personal Training Payment History</h2>
-          <p style="color: #999; font-size: 1.125rem;">This section is coming soon. Personal training payment history will be available in a future update.</p>
-          <div style="margin-top: 2rem; padding: 1.5rem; background: #191C24; border-radius: 8px; display: inline-block;">
-            <p style="color: #ffc107; margin: 0;"><i class="mdi mdi-information"></i> You can manage PT schedules in the <strong>Sessions</strong> module.</p>
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Personal Training Payments</h4>
+            <div class="d-flex align-items-center">
+              <form action="{{ route('payments.history') }}" method="GET" class="d-flex align-items-center" id="ptSearchForm">
+                @foreach(request()->except(['pt_search', 'pt_page']) as $key => $value)
+                  @if(!is_array($value))
+                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                  @endif
+                @endforeach
+                <input type="hidden" name="tab" value="pt">
+                <div class="search-wrapper mr-2">
+                  <input type="text"
+                    name="pt_search"
+                    class="form-control form-control-sm"
+                    placeholder="Search..."
+                    value="{{ request('pt_search') }}"
+                    style="width: 100%; max-width: 450px;"
+                    id="ptSearchInput">
+                  @if(request('pt_search'))
+                  <button type="button" class="search-clear-btn" onclick="clearSearch('ptSearchInput', 'ptSearchForm')">&times;</button>
+                  @endif
+                </div>
+              </form>
+              <div class="dropdown d-inline-block mr-2">
+                <button type="button" class="btn btn-sm filter-button dropdown-toggle" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+                  <i class="mdi mdi-sort-variant"></i> Filter
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                  <h6 class="dropdown-header">Payment Type</h6>
+                  <a class="dropdown-item {{ request('pt_type_filter') === 'new' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['pt_type_filter', 'pt_page']), ['pt_type_filter' => 'new', 'tab' => 'pt'])) }}"> <i class="mdi mdi-account-plus mr-2"></i>New</a>
+                  <a class="dropdown-item {{ request('pt_type_filter') === 'renewal' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['pt_type_filter', 'pt_page']), ['pt_type_filter' => 'renewal', 'tab' => 'pt'])) }}"> <i class="mdi mdi-autorenew mr-2"></i>Renewal</a>
+                  <a class="dropdown-item {{ request('pt_type_filter') === 'extension' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['pt_type_filter', 'pt_page']), ['pt_type_filter' => 'extension', 'tab' => 'pt'])) }}"> <i class="mdi mdi-calendar-plus mr-2"></i>Extension</a>
+                  <div class="dropdown-divider"></div>
+                  <h6 class="dropdown-header">Sort</h6>
+                  <a class="dropdown-item {{ request('pt_sort', 'newest') === 'newest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['pt_sort', 'pt_page']), ['pt_sort' => 'newest', 'tab' => 'pt'])) }}"> <i class="mdi mdi-sort-descending mr-2"></i>Newest First</a>
+                  <a class="dropdown-item {{ request('pt_sort') === 'oldest' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['pt_sort', 'pt_page']), ['pt_sort' => 'oldest', 'tab' => 'pt'])) }}"> <i class="mdi mdi-sort-ascending mr-2"></i>Oldest First</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="{{ route('payments.history', ['tab' => 'pt']) }}"> <i class="mdi mdi-filter-remove mr-2"></i>Clear Filters</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <form id="bulkDeletePTForm" action="{{ route('pt.payment.bulkDelete') }}" method="POST" style="display:none;">@csrf @method('DELETE')</form>
+
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="checkbox" class="form-check-input" id="selectAllPT">
+                      </label>
+                    </div>
+                  </th>
+                  <th class="text-left">Receipt #</th>
+                  <th class="text-left">Member</th>
+                  <th class="text-left">PT Plan</th>
+                  <th class="text-left">Payment Type</th>
+                  <th class="text-left">Date</th>
+                  <th class="text-left">Amount</th>
+                  <th class="text-left">Cashier</th>
+                  <th class="text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @forelse($ptPayments ?? [] as $pt)
+                <tr>
+                  <td>
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="checkbox" class="form-check-input pt-checkbox" value="{{ $pt->id }}">
+                      </label>
+                    </div>
+                  </td>
+                  <td>{{ $pt->receipt_number }}</td>
+                  <td>{{ $pt->member_name }}</td>
+                  <td>
+                    <span class="badge badge-info">{{ $pt->plan_type }}</span>
+                  </td>
+                  <td>
+                    <span class="badge badge-{{ $pt->payment_type === 'new' ? 'success' : ($pt->payment_type === 'renewal' ? 'primary' : 'info') }}">
+                      {{ ucfirst($pt->payment_type) }}
+                    </span>
+                  </td>
+                  <td>{{ $pt->created_at->format('M d, Y - h:i A') }}</td>
+                  <td>₱{{ number_format($pt->amount, 2) }}</td>
+                  <td>{{ $pt->processed_by }}</td>
+                  <td>
+                    <div class="dropdown">
+                      <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+                        <i class="mdi mdi-dots-vertical"></i>
+                      </button>
+                      <div class="dropdown-menu dropdown-menu-right">
+                        <button type="button" class="dropdown-item" onclick="viewHistoryReceipt('pt', {{ $pt->id }})">
+                          <i class="mdi mdi-eye mr-2"></i> View Receipt
+                        </button>
+                        <button type="button" class="dropdown-item text-warning" onclick="openRefundModal('pt', {{ $pt->id }}, '{{ $pt->receipt_number }}', {{ $pt->amount }}, '{{ addslashes($pt->member_name) }}')">
+                          <i class="mdi mdi-cash-refund mr-2"></i> Refund
+                        </button>
+                        <button type="button" class="dropdown-item text-danger" onclick="confirmDeleteSingle('pt', {{ $pt->id }})">
+                          <i class="mdi mdi-delete mr-2"></i> Delete
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                @empty
+                <tr>
+                  <td colspan="9" class="text-center">No PT payments found</td>
+                </tr>
+                @endforelse
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-footer">
+            <button type="button" onclick="bulkDeletePT()" class="btn btn-sm btn-delete-selected" id="deletePTBtn" disabled>
+              <i class="mdi mdi-delete"></i> Delete Selected (<span id="ptCount">0</span>)
+            </button>
+            {{ $ptPayments->links('vendor.pagination.custom') }}
           </div>
         </div>
       </div>
@@ -434,6 +551,7 @@
               <a class="dropdown-item {{ request('refund_filter', 'all') === 'all' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'all'])) }}"> <i class="mdi mdi-account-multiple mr-2"></i>All</a>
               <a class="dropdown-item {{ request('refund_filter') === 'product' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'product'])) }}"> <i class="mdi mdi-basket mr-2"></i>Products Only</a>
               <a class="dropdown-item {{ request('refund_filter') === 'membership' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'membership'])) }}"> <i class="mdi mdi-account mr-2"></i>Memberships Only</a>
+              <a class="dropdown-item {{ request('refund_filter') === 'pt' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'pt'])) }}"> <i class="mdi mdi-dumbbell mr-2"></i>PT Only</a>
             </div>
           </div>
         </div>
@@ -473,7 +591,15 @@
               <td>{{ $cr->receipt_number }}</td>
               <td>{{ $cr->name }}</td>
               <td>
-                <span class="badge badge-{{ $cr->type == 'Product' ? 'primary' : 'info' }}">
+                @php
+                  $typeBadge = match($cr->type) {
+                    'Product' => 'primary',
+                    'Membership' => 'info',
+                    'PT' => 'warning',
+                    default => 'secondary',
+                  };
+                @endphp
+                <span class="badge badge-{{ $typeBadge }}">
                   {{ $cr->type }}
                 </span>
               </td>
@@ -483,7 +609,7 @@
               <td>{{ $cr->refunded_by }}</td>
               <td>
                 <div class="dropdown">
-                  <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
+                  <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                     <i class="mdi mdi-dots-vertical"></i>
                   </button>
                   <div class="dropdown-menu dropdown-menu-right">
@@ -748,6 +874,19 @@ function initializeCheckboxes() {
     cb.addEventListener('change', () => updateDeleteButton('membership'));
   });
 
+  // PT checkboxes
+  const selectAllPT = document.getElementById('selectAllPT');
+  const ptCheckboxes = document.querySelectorAll('.pt-checkbox');
+  
+  selectAllPT?.addEventListener('change', function() {
+    ptCheckboxes.forEach(cb => cb.checked = this.checked);
+    updateDeleteButton('pt');
+  });
+
+  ptCheckboxes.forEach(cb => {
+    cb.addEventListener('change', () => updateDeleteButton('pt'));
+  });
+
   // Refund checkboxes
   const selectAllRefund = document.getElementById('selectAllRefund');
   const refundCheckboxes = document.querySelectorAll('.refund-checkbox');
@@ -766,7 +905,10 @@ function updateDeleteButton(type) {
   const checkboxes = document.querySelectorAll(`.${type}-checkbox:checked`);
   const count = checkboxes.length;
   const countSpan = document.getElementById(`${type}Count`);
-  const deleteBtn = document.getElementById(`delete${type.charAt(0).toUpperCase() + type.slice(1)}Btn`);
+  
+  // Handle ID casing: 'pt' -> 'PT', others -> capitalize first letter
+  const idSuffix = type === 'pt' ? 'PT' : type.charAt(0).toUpperCase() + type.slice(1);
+  const deleteBtn = document.getElementById(`delete${idSuffix}Btn`);
   
   if (countSpan) countSpan.textContent = count;
   if (deleteBtn) deleteBtn.disabled = count === 0;
@@ -822,6 +964,31 @@ function bulkDeleteMemberships() {
   showDeleteModal(checked.length + ' membership payment(s)');
 }
 
+function bulkDeletePT() {
+  const checked = document.querySelectorAll('.pt-checkbox:checked');
+  if (checked.length === 0) {
+    ToastUtils.showWarning('Please select at least one PT payment to delete');
+    return;
+  }
+  
+  pendingDeleteAction = function() {
+    const form = document.getElementById('bulkDeletePTForm');
+    form.innerHTML = '@csrf @method("DELETE")';
+    
+    checked.forEach(cb => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'ids[]';
+      input.value = cb.value;
+      form.appendChild(input);
+    });
+    
+    form.submit();
+  };
+  
+  showDeleteModal(checked.length + ' PT payment(s)');
+}
+
 function bulkDeleteRefunds() {
   const checked = document.querySelectorAll('.refund-checkbox:checked');
   if (checked.length === 0) {
@@ -832,11 +999,13 @@ function bulkDeleteRefunds() {
   pendingDeleteAction = function() {
     const products = [];
     const memberships = [];
+    const pts = [];
     
     checked.forEach(cb => {
       const type = cb.dataset.type;
       const id = cb.value;
       if (type === 'product') products.push(id);
+      else if (type === 'pt') pts.push(id);
       else memberships.push(id);
     });
     
@@ -871,6 +1040,22 @@ function bulkDeleteRefunds() {
       document.body.appendChild(form);
       form.submit();
     }
+    
+    if (pts.length > 0) {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '{{ route("pt.payment.bulkDelete") }}';
+      form.innerHTML = '@csrf @method("DELETE")';
+      pts.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'ids[]';
+        input.value = id;
+        form.appendChild(input);
+      });
+      document.body.appendChild(form);
+      form.submit();
+    }
   };
   
   showDeleteModal(checked.length + ' refunded payment(s)');
@@ -883,7 +1068,13 @@ function confirmDeleteSingle(type, id) {
   pendingDeleteAction = function() {
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = type === 'product' ? `/payments/${id}` : `/membership-payment/${id}`;
+    if (type === 'product') {
+      form.action = `/payments/${id}`;
+    } else if (type === 'membership') {
+      form.action = `/membership-payment/${id}`;
+    } else if (type === 'pt') {
+      form.action = `/pt-payment/${id}`;
+    }
     form.innerHTML = `<input type="hidden" name="_token" value="${CSRF_TOKEN}"><input type="hidden" name="_method" value="DELETE">`;
     document.body.appendChild(form);
     form.submit();
@@ -940,7 +1131,7 @@ function openRefundModal(type, id, receipt, amount, name) {
     </div>
     <div class="confirm-row">
       <span class="confirm-label">Type:</span>
-      <span class="confirm-value">${type === 'product' ? 'Product Payment' : 'Membership Payment'}</span>
+      <span class="confirm-value">${type === 'product' ? 'Product Payment' : (type === 'pt' ? 'PT Payment' : 'Membership Payment')}</span>
     </div>`;
   
   document.getElementById('refundModal').classList.add('show');
@@ -960,9 +1151,14 @@ document.getElementById('confirmRefundBtn')?.addEventListener('click', function(
   }
   
   const reason = document.getElementById('refundReason')?.value || '';
-  const url = currentRefundType === 'product' 
-    ? `/payments/${currentRefundId}/refund` 
-    : `/membership-payment/${currentRefundId}/refund`;
+  let url;
+  if (currentRefundType === 'product') {
+    url = `/payments/${currentRefundId}/refund`;
+  } else if (currentRefundType === 'pt') {
+    url = `/pt-payment/${currentRefundId}/refund`;
+  } else {
+    url = `/membership-payment/${currentRefundId}/refund`;
+  }
   
   this.disabled = true;
   this.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Processing...';
@@ -1020,7 +1216,7 @@ function showRefundReceipt(type, id, refundData) {
     console.error('Error generating receipt from refundData:', e);
   }
 
-  const url = type === 'product' ? `/payments/${id}/receipt-data` : `/membership-payment/${id}/receipt`;
+  const url = type === 'product' ? `/payments/${id}/receipt-data` : (type === 'pt' ? `/pt-payment/${id}/history-receipt` : `/membership-payment/${id}/receipt`);
 
   // Try fetching the receipt, retrying a few times in case the server needs a moment to finalize
   const attemptFetch = (attempt = 1) => {
@@ -1074,7 +1270,7 @@ function generateRefundReceipt(type, paymentData, refundData) {
         </div>
         <div class="receipt-row">
           <span>Refund Type:</span>
-          <span>${type === 'product' ? 'Product Payment' : 'Membership Payment'}</span>
+          <span>${type === 'product' ? 'Product Payment' : type === 'membership' ? 'Membership Payment' : 'Personal Training Payment'}</span>
         </div>
       </div>`;
   
@@ -1122,11 +1318,9 @@ function generateRefundReceipt(type, paymentData, refundData) {
           <span>Processed By:</span>
           <span>${payment.refunded_by || 'Admin'}</span>
         </div>
-      </div>
-      
       <div class="receipt-footer">
-        <p>This is a computer-generated refund receipt.</p>
         <p>Thank you!</p>
+      </div>
       </div>
     </div>`;
   
@@ -1173,7 +1367,7 @@ function viewRefundReceipt(type, id) {
   
   document.getElementById('refundReceiptModal').classList.add('show');
   
-  const url = type === 'product' ? `/payments/${id}/receipt-data` : `/membership-payment/${id}/receipt`;
+  const url = type === 'product' ? `/payments/${id}/receipt-data` : (type === 'pt' ? `/pt-payment/${id}/history-receipt` : `/membership-payment/${id}/receipt`);
   
   fetch(url)
     .then(r => r.json())
@@ -1194,7 +1388,14 @@ function viewHistoryReceipt(type, id) {
   
   document.getElementById('viewReceiptModal').classList.add('show');
   
-  const url = type === 'product' ? `/payments/${id}/receipt-data` : `/membership-payment/${id}/receipt`;
+  let url;
+  if (type === 'product') {
+    url = `/payments/${id}/receipt-data`;
+  } else if (type === 'pt') {
+    url = `/pt-payment/${id}/history-receipt`;
+  } else {
+    url = `/membership-payment/${id}/receipt`;
+  }
   
   fetch(url)
     .then(r => r.json())
@@ -1286,6 +1487,95 @@ function generateOriginalReceipt(type, data) {
 
         <div class="receipt-footer">
           <p><strong>Thank you for your purchase!</strong></p>
+        </div>
+      </div>
+    `;
+  }
+
+  if (type === 'pt') {
+    return `
+      <div class="receipt-container">
+        <div class="receipt-header">
+          <h2>PERSONAL TRAINING PAYMENT RECEIPT</h2>
+          <p><strong>Abstrack Fitness Gym</strong></p>
+          <p>Toril, Davao Del Sur</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Receipt Number</strong>
+            <span style="display: block; font-weight: 600;">#${data.receipt_number}</span>
+          </div>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Date & Time</strong>
+            <span style="display: block; font-weight: 600;">${data.formatted_date || new Date(data.created_at).toLocaleString()}</span>
+          </div>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Member Name</strong>
+            <span style="display: block; font-weight: 600;">${data.member_name || 'N/A'}</span>
+          </div>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Contact</strong>
+            <span style="display: block; font-weight: 600;">${data.member_contact || ''}</span>
+          </div>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Payment Type</strong>
+            <span style="display: block; font-weight: 600;">${(data.payment_type || '').toUpperCase()}</span>
+          </div>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Payment Method</strong>
+            <span style="display: block; font-weight: 600;">${data.payment_method || 'N/A'}</span>
+          </div>
+        </div>
+
+        <table class="receipt-table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th style="text-align: right;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <strong>${data.plan_type || 'PT'} Plan</strong><br>
+                <small style="color: #666;">Duration: ${data.duration || 'N/A'} days</small>
+              </td>
+              <td style="text-align: right;">₱${parseFloat(data.amount || 0).toFixed(2)}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="receipt-total">
+          <div class="receipt-row" style="font-size: 1.3rem;">
+            <span><strong>Total Paid:</strong></span>
+            <span><strong>₱${parseFloat(data.amount || 0).toFixed(2)}</strong></span>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed #ccc;">
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Previous Due Date</strong>
+              <span style="display: block; font-weight: 600;">${data.previous_due_date || 'N/A'}</span>
+            </div>
+            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">New Due Date</strong>
+              <span style="display: block; font-weight: 600; color: #28a745;">${data.new_due_date || 'N/A'}</span>
+            </div>
+          </div>
+        </div>
+
+        ${data.notes ? `
+          <div style="margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 4px;">
+            <strong style="display: block; margin-bottom: 8px; color: #666;">Notes:</strong>
+            <p style="margin: 0; color: #333;">${data.notes}</p>
+          </div>
+        ` : ''}
+
+        <div class="receipt-footer">
+          <p><strong>Thank you for choosing our Personal Training service!</strong></p>
+          <p style="font-size: 0.875rem;">Please keep this receipt for your records.</p>
         </div>
       </div>
     `;
