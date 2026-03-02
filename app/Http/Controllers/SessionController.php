@@ -390,7 +390,8 @@ class SessionController extends Controller
             $ptSchedule = PTSchedule::create($data);
             $ptSchedule->load(['client', 'membership']);
 
-            ActivityLog::log('created', 'pt_session', "Created PT session for {$ptSchedule->customer_name} on {$ptSchedule->scheduled_date}", null, $ptSchedule->customer_name, $ptSchedule, ['trainer' => $ptSchedule->trainer_name, 'date' => $ptSchedule->scheduled_date, 'time' => $ptSchedule->scheduled_time]);
+            $displayName = $ptSchedule->display_name;
+            ActivityLog::log('created', 'pt_session', "Created PT session for {$displayName} on {$ptSchedule->scheduled_date}", 'PT-' . $ptSchedule->id, $displayName, $ptSchedule, ['trainer' => $ptSchedule->trainer_name, 'date' => $ptSchedule->scheduled_date, 'time' => $ptSchedule->scheduled_time]);
 
             return response()->json([
                 'success' => true,
@@ -439,9 +440,10 @@ class SessionController extends Controller
                 'notes'
             ]));
 
-            $ptSchedule->load('client');
+            $ptSchedule->load(['client', 'membership']);
 
-            ActivityLog::log('updated', 'pt_session', "Updated PT session for {$ptSchedule->customer_name}", null, $ptSchedule->customer_name, $ptSchedule, ['trainer' => $ptSchedule->trainer_name, 'date' => $ptSchedule->scheduled_date]);
+            $displayName = $ptSchedule->display_name;
+            ActivityLog::log('updated', 'pt_session', "Updated PT session for {$displayName}", 'PT-' . $ptSchedule->id, $displayName, $ptSchedule, ['trainer' => $ptSchedule->trainer_name, 'date' => $ptSchedule->scheduled_date]);
 
             return response()->json([
                 'success' => true,
@@ -462,10 +464,12 @@ class SessionController extends Controller
     public function destroyPTSchedule($id)
     {
         try {
-            $ptSchedule = PTSchedule::findOrFail($id);
+            $ptSchedule = PTSchedule::with(['client', 'membership'])->findOrFail($id);
+            $displayName = $ptSchedule->display_name;
+            $ptId = $ptSchedule->id;
             $ptSchedule->delete();
 
-            ActivityLog::log('deleted', 'pt_session', "Deleted PT session for {$ptSchedule->customer_name}", null, $ptSchedule->customer_name);
+            ActivityLog::log('deleted', 'pt_session', "Deleted PT session for {$displayName}", 'PT-' . $ptId, $displayName);
 
             return response()->json([
                 'success' => true,
@@ -500,8 +504,10 @@ class SessionController extends Controller
             }
 
             $ptSchedule->update(['status' => $request->status]);
+            $ptSchedule->load(['client', 'membership']);
 
-            ActivityLog::log('updated', 'pt_session', "Updated PT session status to '{$request->status}' for {$ptSchedule->customer_name}", null, $ptSchedule->customer_name, $ptSchedule, ['status' => $request->status]);
+            $displayName = $ptSchedule->display_name;
+            ActivityLog::log('updated', 'pt_session', "Updated PT session status to '{$request->status}' for {$displayName}", 'PT-' . $ptSchedule->id, $displayName, $ptSchedule, ['status' => $request->status]);
 
             return response()->json([
                 'success' => true,
@@ -523,9 +529,10 @@ class SessionController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'client_id' => 'required|exists:clients,id',
-                'scheduled_date' => 'required|date|after_or_equal:today',
-                'scheduled_time' => 'required',
+                'source_session_id' => 'required|exists:pt_schedules,id',
+                'trainer_name'      => 'required|string|max:255',
+                'scheduled_date'    => 'required|date|after_or_equal:today',
+                'scheduled_time'    => 'required',
             ], [
                 'scheduled_date.after_or_equal' => 'Date cannot be in the past.',
             ]);
@@ -538,23 +545,28 @@ class SessionController extends Controller
                 ], 422);
             }
 
-            // Get the last session to copy trainer and payment info
-            $lastSession = PTSchedule::where('client_id', $request->client_id)
-                ->orderBy('scheduled_date', 'desc')
-                ->first();
+            // Copy all customer info from the source session
+            $sourceSession = PTSchedule::findOrFail($request->source_session_id);
 
             $ptSchedule = PTSchedule::create([
-                'client_id' => $request->client_id,
-                'trainer_name' => $lastSession ? $lastSession->trainer_name : 'TBA',
-                'scheduled_date' => $request->scheduled_date,
-                'scheduled_time' => $request->scheduled_time,
-                'payment_type' => $lastSession ? $lastSession->payment_type : 'Cash',
-                'status' => 'upcoming',
+                'client_id'       => $sourceSession->client_id,
+                'membership_id'   => $sourceSession->membership_id,
+                'customer_name'   => $sourceSession->customer_name,
+                'customer_age'    => $sourceSession->customer_age,
+                'customer_sex'    => $sourceSession->customer_sex,
+                'customer_contact'=> $sourceSession->customer_contact,
+                'customer_source' => $sourceSession->customer_source,
+                'trainer_name'    => $request->trainer_name,
+                'scheduled_date'  => $request->scheduled_date,
+                'scheduled_time'  => $request->scheduled_time,
+                'payment_type'    => $sourceSession->payment_type ?? 'Cash',
+                'status'          => 'upcoming',
             ]);
 
-            $ptSchedule->load('client');
+            $ptSchedule->load(['client', 'membership']);
 
-            ActivityLog::log('created', 'pt_session', "Booked next PT session for {$ptSchedule->customer_name} on {$ptSchedule->scheduled_date}", null, $ptSchedule->customer_name, $ptSchedule, ['date' => $ptSchedule->scheduled_date, 'time' => $ptSchedule->scheduled_time]);
+            $displayName = $ptSchedule->display_name;
+            ActivityLog::log('created', 'pt_session', "Booked next PT session for {$displayName} on {$ptSchedule->scheduled_date}", 'PT-' . $ptSchedule->id, $displayName, $ptSchedule, ['date' => $ptSchedule->scheduled_date, 'time' => $ptSchedule->scheduled_time]);
 
             return response()->json([
                 'success' => true,
@@ -705,7 +717,9 @@ class SessionController extends Controller
             // Auto-update PT schedule status to 'in_progress' if customer has session today
             $this->autoUpdatePTStatus($attendance);
 
-            ActivityLog::log('created', 'attendance', "Recorded attendance for {$attendance->customer_name}", null, $attendance->customer_name, $attendance, ['date' => $attendance->date, 'time_in' => $attendance->time_in]);
+            $displayName = $attendance->display_name;
+            $referenceId = $attendance->membership_id ? 'MEM-' . $attendance->membership_id : ($attendance->client_id ? 'PT-' . $attendance->client_id : null);
+            ActivityLog::log('created', 'attendance', "Recorded attendance for {$displayName}", $referenceId, $displayName, $attendance, ['date' => $attendance->date, 'time_in' => $attendance->time_in]);
 
             return response()->json([
                 'success' => true,
@@ -815,7 +829,9 @@ class SessionController extends Controller
 
             $attendance->update($request->only(['time_out']));
 
-            ActivityLog::log('updated', 'attendance', "Updated attendance (check-out) for {$attendance->customer_name}", null, $attendance->customer_name, $attendance);
+            $displayName = $attendance->display_name;
+            $referenceId = $attendance->membership_id ? 'MEM-' . $attendance->membership_id : ($attendance->client_id ? 'PT-' . $attendance->client_id : null);
+            ActivityLog::log('updated', 'attendance', "Updated attendance (check-out) for {$displayName}", $referenceId, $displayName, $attendance);
 
             return response()->json([
                 'success' => true,
@@ -836,11 +852,12 @@ class SessionController extends Controller
     public function destroyAttendance($id)
     {
         try {
-            $attendance = Attendance::findOrFail($id);
-            $customerName = $attendance->customer_name;
+            $attendance = Attendance::with(['client', 'membership'])->findOrFail($id);
+            $customerName = $attendance->display_name;
+            $referenceId = $attendance->membership_id ? 'MEM-' . $attendance->membership_id : ($attendance->client_id ? 'PT-' . $attendance->client_id : null);
             $attendance->delete();
 
-            ActivityLog::log('deleted', 'attendance', "Deleted attendance record for {$customerName}", null, $customerName);
+            ActivityLog::log('deleted', 'attendance', "Deleted attendance record for {$customerName}", $referenceId, $customerName);
 
             return response()->json([
                 'success' => true,

@@ -266,10 +266,6 @@
                                 <input type="radio" name="export_format" value="csv">
                                 <span class="format-label">CSV</span>
                             </label>
-                            <label class="format-option">
-                                <input type="radio" name="export_format" value="png">
-                                <span class="format-label">PNG</span>
-                            </label>
                         </div>
                     </div>
                     <div class="form-group">

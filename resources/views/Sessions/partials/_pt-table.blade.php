@@ -193,7 +193,7 @@
                                                     <i class="mdi mdi-eye mr-2"></i> View
                                                 </a>
                                                 <a class="dropdown-item text-info" href="javascript:void(0)"
-                                                    onclick="SessionsPage.openBookNextModal({{ $schedule->client_id ?? 'null' }}, '{{ addslashes($schedule->display_name) }}')">
+                                                    onclick="SessionsPage.openBookNextModal({{ $schedule->id }}, '{{ addslashes($schedule->display_name) }}', '{{ addslashes($schedule->trainer_name) }}')">
                                                     <i class="mdi mdi-calendar-plus mr-2"></i> Book Next Session
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -212,7 +212,7 @@
                                                 </a>
                                                 <a class="dropdown-item text-warning {{ $isFinalized ? 'disabled' : '' }}" 
                                                     href="javascript:void(0)"
-                                                    onclick="{{ $isFinalized ? 'return false;' : 'SessionsPage.confirmCancelPT(' . $schedule->id . ', ' . ($schedule->client_id ?? 'null') . ', \'' . addslashes($schedule->display_name) . '\')' }}">
+                                                    onclick="{{ $isFinalized ? 'return false;' : 'SessionsPage.confirmCancelPT(' . $schedule->id . ', ' . ($schedule->client_id ?? 'null') . ', \'' . addslashes($schedule->display_name) . '\', \'' . addslashes($schedule->trainer_name) . '\')' }}">
                                                     <i class="mdi mdi-close mr-2"></i> Mark as Cancelled
                                                 </a>
                                                 <div class="dropdown-divider"></div>

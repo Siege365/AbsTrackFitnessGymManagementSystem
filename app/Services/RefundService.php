@@ -296,13 +296,19 @@ class RefundService
             $refundType = $isFullRefund ? 'full' : 'partial';
 
             // Reverse client changes
+            $clientDeleted = false;
             if ($isFullRefund) {
-                // Full refund - reverse the entire PT extension
+                // Full refund - reverse the entire PT extension (may delete client)
                 $this->reversePTExtension($client, $payment);
+                // Check if client was deleted during reversal
+                $clientDeleted = !Client::find($client->id);
             } else {
                 // Partial refund - proportional adjustment
                 $this->adjustPTPartial($client, $payment, $refundAmount);
             }
+
+            // Get the new due date safely (client may have been deleted)
+            $newDueDate = $clientDeleted ? null : $client->fresh()?->due_date?->toDateString();
 
             // Update payment record
             $payment->update([
@@ -337,7 +343,8 @@ class RefundService
                     'duration' => $payment->duration_days,
                     'payment_type' => $payment->payment_type,
                     'previous_due_date' => $previousDueDate?->toDateString(),
-                    'new_due_date' => $client->fresh()->due_date?->toDateString(),
+                    'new_due_date' => $newDueDate,
+                    'client_deleted' => $clientDeleted,
                 ],
                 'ip_address' => request()->ip(),
             ]);
@@ -347,7 +354,7 @@ class RefundService
                 'message' => 'PT payment refunded successfully',
                 'refund_log' => $refundLog,
                 'payment' => $payment->fresh(),
-                'client' => $client->fresh(),
+                'client' => $clientDeleted ? null : $client->fresh(),
             ];
         });
     }

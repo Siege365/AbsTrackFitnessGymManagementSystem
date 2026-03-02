@@ -54,7 +54,7 @@ class ActivityLogController extends Controller
             $query->whereDate('created_at', '<=', $dateTo);
         }
 
-        $logs = $query->paginate(20)->appends($request->query());
+        $logs = $query->paginate(10)->appends($request->query());
 
         // Stats
         $totalLogs = ActivityLog::count();

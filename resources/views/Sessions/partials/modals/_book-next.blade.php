@@ -10,11 +10,20 @@
             </div>
             <form id="bookNextForm">
                 @csrf
-                <input type="hidden" name="client_id" id="book_client_id">
+                <input type="hidden" name="source_session_id" id="book_source_session_id">
                 <div class="modal-body">
                     <div class="form-group">
                         <label>Client Name</label>
                         <input type="text" class="form-control" id="book_client_name" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Trainer</label>
+                        <select name="trainer_name" id="book_trainer_name" class="form-control" required>
+                            <option value="">Select Trainer</option>
+                            @foreach ($trainers ?? [] as $trainer)
+                                <option value="{{ $trainer }}">{{ $trainer }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Date</label>

@@ -28,6 +28,7 @@ export default defineConfig({
                 'resources/css/payment-history.css',
                 'resources/css/activity-logs.css',
                 'resources/css/configuration.css',
+                'resources/css/staff.css',
 
                 // Auth CSS
                 'resources/css/auth-login.css',
@@ -53,6 +54,7 @@ export default defineConfig({
                 'resources/js/pages/inventory-logs.js',
                 'resources/js/sessions.js',
                 'resources/js/pages/configuration.js',
+                'resources/js/pages/staff.js',
 
                 // Auth JS
                 'resources/js/auth-login.js',

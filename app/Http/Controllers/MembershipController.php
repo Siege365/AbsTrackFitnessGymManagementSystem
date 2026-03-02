@@ -286,7 +286,7 @@ class MembershipController extends Controller
 
             $membership = Membership::create($validated);
 
-            ActivityLog::log('created', 'membership', "Added new member: {$validated['name']}", null, $validated['name'], $membership, ['plan_type' => $validated['plan_type'], 'start_date' => $validated['start_date'], 'due_date' => $validated['due_date']]);
+            ActivityLog::log('created', 'membership', "Added new member: {$validated['name']}", 'MEM-' . $membership->id, $validated['name'], $membership, ['plan_type' => $validated['plan_type'], 'start_date' => $validated['start_date'], 'due_date' => $validated['due_date']]);
 
             // Return JSON response for AJAX requests
             if ($request->wantsJson() || $request->ajax()) {
@@ -472,7 +472,7 @@ class MembershipController extends Controller
 
             $membership->update($validated);
 
-            ActivityLog::log('updated', 'membership', "Updated member: {$membership->name}", null, $membership->name, $membership, ['plan_type' => $validated['plan_type']]);
+            ActivityLog::log('updated', 'membership', "Updated member: {$membership->name}", 'MEM-' . $membership->id, $membership->name, $membership, ['plan_type' => $validated['plan_type']]);
 
             return redirect()->route('memberships.index')
                 ->with('success', 'Membership updated successfully!');
@@ -502,6 +502,7 @@ class MembershipController extends Controller
             return DB::transaction(function () use ($request, $id) {
                 $membership = Membership::lockForUpdate()->findOrFail($id);
                 $memberName = $membership->name;
+                $memberId = $membership->id;
                 
                 // Delete avatar if exists
                 if ($membership->avatar) {
@@ -517,7 +518,7 @@ class MembershipController extends Controller
                 
                 $membership->delete();
 
-                ActivityLog::log('deleted', 'membership', "Deleted member: {$memberName}", null, $memberName);
+                ActivityLog::log('deleted', 'membership', "Deleted member: {$memberName}", 'MEM-' . $memberId, $memberName);
 
                 // Return JSON response for AJAX
                 if ($request->expectsJson() || $request->ajax()) {

@@ -21,6 +21,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'contact_number',
+        'emergency_contact',
+        'address',
     ];
 
     /**
@@ -32,6 +36,22 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    /**
+     * Check if user is an admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is a staff member.
+     */
+    public function isStaff(): bool
+    {
+        return $this->role === 'staff';
+    }
 
     /**
      * Get the attributes that should be cast.

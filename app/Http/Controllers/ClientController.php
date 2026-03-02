@@ -209,7 +209,7 @@ class ClientController extends Controller
 
             $client = Client::create($validated);
 
-            ActivityLog::log('created', 'client', "Added new PT client: {$validated['name']}", null, $validated['name'], $client, ['plan_type' => $validated['plan_type'], 'start_date' => $validated['start_date'], 'due_date' => $validated['due_date']]);
+            ActivityLog::log('created', 'client', "Added new PT client: {$validated['name']}", 'PT-' . $client->id, $validated['name'], $client, ['plan_type' => $validated['plan_type'], 'start_date' => $validated['start_date'], 'due_date' => $validated['due_date']]);
 
             // Return JSON response for AJAX requests
             if ($request->wantsJson() || $request->ajax()) {
@@ -394,7 +394,7 @@ class ClientController extends Controller
 
             $client->update($validated);
 
-            ActivityLog::log('updated', 'client', "Updated PT client: {$client->name}", null, $client->name, $client, ['plan_type' => $validated['plan_type']]);
+            ActivityLog::log('updated', 'client', "Updated PT client: {$client->name}", 'PT-' . $client->id, $client->name, $client, ['plan_type' => $validated['plan_type']]);
 
             return redirect()->route('clients.index')
                 ->with('success', 'Client updated successfully!');
@@ -423,6 +423,7 @@ class ClientController extends Controller
             return DB::transaction(function () use ($request, $id) {
                 $client = Client::lockForUpdate()->findOrFail($id);
                 $clientName = $client->name;
+                $clientId = $client->id;
             
             // Delete avatar if exists
             if ($client->avatar) {
@@ -438,7 +439,7 @@ class ClientController extends Controller
             
             $client->delete();
 
-            ActivityLog::log('deleted', 'client', "Deleted PT client: {$clientName}", null, $clientName);
+            ActivityLog::log('deleted', 'client', "Deleted PT client: {$clientName}", 'PT-' . $clientId, $clientName);
 
             // Return JSON response for AJAX
             if ($request->expectsJson() || $request->ajax()) {

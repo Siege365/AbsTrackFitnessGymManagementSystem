@@ -17,6 +17,7 @@ use App\Http\Controllers\PaymentHistoryController;
 use App\Http\Controllers\RefundController;
 use App\Http\Controllers\PTpaymentController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\StaffController;
 
 
 
@@ -135,7 +136,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/payments/history', [PaymentHistoryController::class, 'index'])->name('payments.history');
     Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt'])->name('payments.receipt');
     Route::get('/payments/{payment}/receipt-data', [PaymentController::class, 'receiptData'])->name('payments.receiptData');
-    Route::delete('/payments/{payment}', [PaymentHistoryController::class, 'destroy'])->name('payments.destroy');
     Route::get('/payments/membership', [PaymentController::class, 'membership'])->name('payments.membership');
     
     // MEMBERSHIP PAYMENT ROUTES (UPDATED)
@@ -170,9 +170,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/customers/autocomplete', [CustomerController::class, 'autocomplete'])->name('api.customers.autocomplete');
     Route::get('/api/memberships/autocomplete', [MembershipController::class, 'autocomplete'])->name('api.memberships.autocomplete');
     Route::get('/api/clients/autocomplete', [ClientController::class, 'autocomplete'])->name('api.clients.autocomplete');
-    
-    // Payment History Routes
-    Route::get('/payments/history', [PaymentHistoryController::class, 'index'])->name('payments.history');
 
     // Product Payment Routes (managed from Payment History page)
     Route::get('/payments/{id}/receipt-data', [PaymentHistoryController::class, 'getReceiptData'])->name('payments.receipt-data');
@@ -209,10 +206,14 @@ Route::middleware(['auth'])->group(function () {
     // Legacy route (redirect to new reports route)
     Route::get('/ReportAndBilling', [ReportController::class, 'index'])->name('ReportAndBilling');
 
-    // User and Admin
-    Route::get('/UserAndAdmin/UserManagement', function () {
-        return view('UserAndAdmin.UserManagement');
-    })->name('UserAndAdmin.UserManagement');
+    // User and Admin — Staff Account Management (Admin Only)
+    Route::middleware(['admin'])->group(function () {
+        Route::get('/UserAndAdmin/UserManagement', [StaffController::class, 'index'])->name('UserAndAdmin.UserManagement');
+        Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
+        Route::put('/staff/{id}', [StaffController::class, 'update'])->name('staff.update');
+        Route::delete('/staff/bulk-delete', [StaffController::class, 'bulkDelete'])->name('staff.bulk-delete');
+        Route::delete('/staff/{id}', [StaffController::class, 'destroy'])->name('staff.destroy');
+    });
 
     Route::get('/UserAndAdmin/TrainerManagement', function () {
         return view('UserAndAdmin.TrainerManagement');

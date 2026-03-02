@@ -336,8 +336,14 @@ const PTSessionsPage = {
 
   // Validate Book Next Session Date and Time
   validateBookNextDateTime: function() {
+    const trainerInput = $('#book_trainer_name').val();
     const dateInput = $('input[name="scheduled_date"]', '#bookNextForm').val();
     const timeInput = $('select[name="scheduled_time"]', '#bookNextForm').val();
+
+    if (!trainerInput) {
+      this.showToast('error', 'Please select a trainer.');
+      return false;
+    }
 
     if (!dateInput || !timeInput) {
       this.showToast('error', 'Please select both date and time');
@@ -610,10 +616,17 @@ const PTSessionsPage = {
   },
 
   // Open Book Next Session modal
-  openBookNextModal: function(clientId, clientName) {
-    $('#book_client_id').val(clientId);
+  openBookNextModal: function(sessionId, clientName, trainerName) {
+    $('#book_source_session_id').val(sessionId);
     $('#book_client_name').val(clientName);
-    
+
+    // Pre-select the default trainer, allow user to override
+    if (trainerName) {
+      $('#book_trainer_name').val(trainerName);
+    } else {
+      $('#book_trainer_name').val('');
+    }
+
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const dateStr = tomorrow.toISOString().split('T')[0];
@@ -623,8 +636,8 @@ const PTSessionsPage = {
   },
 
   // Confirm cancel PT session
-  confirmCancelPT: function(id, clientId, clientName) {
-    this.pendingCancel = { id: id, clientId: clientId, clientName: clientName };
+  confirmCancelPT: function(id, clientId, clientName, trainerName) {
+    this.pendingCancel = { id: id, clientId: clientId, clientName: clientName, trainerName: trainerName || '' };
     $('#cancelPTClientName').text(clientName);
     $('#cancelPTId').val(id);
     $('#cancelPTClientId').val(clientId);
@@ -671,7 +684,7 @@ const PTSessionsPage = {
     $('#rescheduleOfferModal').modal('hide');
 
     $('#rescheduleOfferModal').one('hidden.bs.modal', function() {
-      PTSessionsPage.openBookNextModal(clientId, clientName);
+      PTSessionsPage.openBookNextModal(PTSessionsPage.pendingCancel.id, clientName, PTSessionsPage.pendingCancel.trainerName);
     });
   },
 

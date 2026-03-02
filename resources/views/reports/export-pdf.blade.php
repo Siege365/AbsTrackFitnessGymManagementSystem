@@ -307,19 +307,41 @@
             <thead>
                 <tr>
                     <th>Payment Method</th>
-                    <th class="text-center">Number of Transactions</th>
+                    <th class="text-right">Total Amount</th>
                     <th class="text-right">Percentage</th>
                 </tr>
             </thead>
             <tbody>
                 @php
-                    $totalCount = array_sum(array_column($data['transactions'], 'count'));
+                    $totalAmount = array_sum(array_column($data['transactions'], 'amount'));
                 @endphp
                 @foreach($data['transactions'] as $transaction)
                 <tr>
                     <td>{{ $transaction['method'] }}</td>
-                    <td class="text-center">{{ $transaction['count'] }}</td>
-                    <td class="text-right">{{ $totalCount > 0 ? number_format(($transaction['count'] / $totalCount) * 100, 1) : 0 }}%</td>
+                    <td class="text-right">₱{{ number_format($transaction['amount'], 2) }}</td>
+                    <td class="text-right">{{ $totalAmount > 0 ? number_format(($transaction['amount'] / $totalAmount) * 100, 1) : 0 }}%</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    @endif
+
+    @if(isset($data['attendance']) && isset($data['attendance']['labels']) && count($data['attendance']['labels']) > 0)
+    <div class="section">
+        <div class="section-title">Customer Attendance</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Time / Day</th>
+                    <th class="text-center">Check-ins</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($data['attendance']['labels'] as $index => $label)
+                <tr>
+                    <td>{{ $label }}</td>
+                    <td class="text-center">{{ $data['attendance']['values'][$index] ?? 0 }}</td>
                 </tr>
                 @endforeach
             </tbody>
