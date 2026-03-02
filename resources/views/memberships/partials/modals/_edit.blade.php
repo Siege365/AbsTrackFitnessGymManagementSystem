@@ -94,8 +94,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-update" onclick="showEditConfirmModal({{ $membership->id }})">
-            <i class="mdi mdi-pencil"></i> Update
+          <button type="button" class="btn btn-update" onclick="showEditConfirmModal({{ $membership->id }})"> Update
           </button>
         </div>
       </form>

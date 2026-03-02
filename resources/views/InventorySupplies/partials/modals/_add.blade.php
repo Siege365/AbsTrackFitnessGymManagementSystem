@@ -1,6 +1,6 @@
 <!-- Add Product Modal -->
 <div class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel">
-  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+  <div class="modal-dialog modal-dialog-centered modal-lg inventory-product-modal" role="document">
     <div class="modal-content" style="position: relative;">
       <div class="modal-header">
         <h5 class="modal-title" id="addProductModalLabel">Add New Product</h5>
@@ -8,9 +8,20 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form id="addProductForm" action="{{ route('inventory.store') }}" method="POST">
+      <form id="addProductForm" action="{{ route('inventory.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="modal-body">
+          <!-- Centered Product Avatar -->
+          <div class="text-center mb-4">
+            <div id="newProductAvatarPreview" class="avatar-preview-container avatar-preview-lg mx-auto">
+              <i class="mdi mdi-package-variant"></i>
+            </div>
+            <small class="text-muted">
+              <i class="mdi mdi-information-outline"></i>
+              Upload product image or provide image URL (optional)
+            </small>
+          </div>
+
           <!-- Row 1: Product Number and Product Name -->
           <div class="form-row">
             <div class="form-group col-md-6">
@@ -43,10 +54,6 @@
           <div class="form-row">
             <div class="form-group col-md-6">
               <label>Category <span class="text-danger">*</span></label>
-              <div class="d-flex align-items-center mb-2">
-                <input type="checkbox" id="newCategoryCheckbox" class="mr-2" onclick="toggleNewCategory(this)">
-                <label for="newCategoryCheckbox" class="mb-0" style="font-size: 0.85rem; color: rgba(255,255,255,0.6); cursor: pointer;">New Category</label>
-              </div>
               <!-- Category Dropdown (default) -->
               <select class="form-control @error('category') is-invalid @enderror" 
                       name="category" 
@@ -63,21 +70,16 @@
               <!-- New Category Input (hidden by default) -->
               <div id="newCategoryInputGroup" style="display: none;">
                 <input type="text" 
-                      class="form-control mb-2" 
+                      class="form-control" 
                       id="newCategoryInput"
                       placeholder="Enter new category name"
                       maxlength="50">
-                <div class="d-flex align-items-center gap-2">
-                  <label class="mb-0 mr-2" style="font-size: 0.85rem; color: rgba(255,255,255,0.6); white-space: nowrap;">Color:</label>
-                  <input type="color" 
-                        id="newCategoryColor" 
-                        class="category-color-picker"
-                        value="#FFA726"
-                        title="Category color">
-                  <span id="newCategoryColorHex" style="font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-left: 0.5rem;">#FFA726</span>
-                </div>
               </div>
-              <input type="hidden" name="category_color" id="addCategoryColorHidden" value="">
+              <!-- Checkbox below input field -->
+              <div class="d-flex align-items-center mt-2">
+                <input type="checkbox" id="newCategoryCheckbox" class="mr-2" onclick="toggleNewCategory(this)">
+                <label for="newCategoryCheckbox" class="mb-0" style="font-size: 0.85rem; color: rgba(255,255,255,0.6); cursor: pointer;">New Category</label>
+              </div>
               @error('category')
                 <div class="invalid-feedback d-block">{{ $message }}</div>
               @enderror
@@ -103,7 +105,27 @@
             </div>
           </div>
 
-          <!-- Row 3: Initial Stock Quantity and Low Stock Threshold -->
+          <!-- Row 3: Product Image Upload -->
+          <div class="form-row">
+            <div class="form-group col-12">
+              <label>Product Image</label>
+              <input type="file" name="avatar" id="newProductAvatar" class="form-control mb-2" accept="image/*" onchange="previewNewProductAvatar()">
+              <input type="text" name="avatar_url" id="newProductAvatarUrl" class="form-control mb-2" placeholder="https://example.com/product-image.jpg" style="display: none;" oninput="previewNewProductAvatar()">
+              <div class="btn-group btn-group-toggle btn-group-sm d-flex" data-toggle="buttons">
+                <label class="btn btn-outline-secondary active flex-fill">
+                  <input type="radio" name="productAvatarInputType" value="file" checked onclick="toggleProductAvatarInput('file')"> Upload File
+                </label>
+                <label class="btn btn-outline-secondary flex-fill">
+                  <input type="radio" name="productAvatarInputType" value="url" onclick="toggleProductAvatarInput('url')"> Image URL
+                </label>
+              </div>
+              @error('avatar')
+                <div class="invalid-feedback d-block">{{ $message }}</div>
+              @enderror
+            </div>
+          </div>
+
+          <!-- Row 4: Initial Stock Quantity and Low Stock Threshold -->
           <div class="form-row">
             <div class="form-group col-md-6">
               <label>Initial Stock Quantity <span class="text-danger">*</span></label>

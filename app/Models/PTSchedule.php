@@ -118,6 +118,29 @@ class PTSchedule extends Model
     }
 
     /**
+     * Auto-complete overdue in-progress PT sessions.
+     * Marks 'in_progress' sessions as 'done' if scheduled time has passed by 2 hours.
+     * This ensures trainers have time to manually update status, but forgotten sessions
+     * are automatically completed.
+     */
+    public static function completeOverdueInProgressSessions(): int
+    {
+        $now = Carbon::now();
+        $graceHours = 2; // Hours after scheduled time before auto-completing
+
+        return static::where('status', 'in_progress')
+            ->where(function ($query) use ($now, $graceHours) {
+                // Past dates (entire day passed + grace period)
+                $query->whereDate('scheduled_date', '<', $now->copy()->subHours($graceHours)->toDateString())
+                    // OR scheduled time has passed by grace period hours
+                    ->orWhereRaw("TIMESTAMP(scheduled_date, scheduled_time) < ?", [
+                        $now->copy()->subHours($graceHours)->format('Y-m-d H:i:s')
+                    ]);
+            })
+            ->update(['status' => 'done']);
+    }
+
+    /**
      * Get the display name (client name, membership name, or walk-in customer name)
      */
     public function getDisplayNameAttribute(): string

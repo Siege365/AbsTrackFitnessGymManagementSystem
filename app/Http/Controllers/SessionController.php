@@ -48,6 +48,7 @@ class SessionController extends Controller
 
             // PT type (default)
             PTSchedule::expireOverdueSchedules();
+            PTSchedule::completeOverdueInProgressSessions();
             
             $ptSessionsToday = PTSchedule::whereDate('scheduled_date', $today)->count();
             $upcomingPTSessions = PTSchedule::where('status', 'upcoming')
@@ -81,6 +82,8 @@ class SessionController extends Controller
         try {
             // Auto-expire overdue PT schedules
             PTSchedule::expireOverdueSchedules();
+            // Auto-complete overdue in-progress sessions
+            PTSchedule::completeOverdueInProgressSessions();
 
             $today = Carbon::today();
 

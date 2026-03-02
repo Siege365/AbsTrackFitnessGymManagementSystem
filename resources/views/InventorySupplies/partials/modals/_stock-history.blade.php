@@ -38,7 +38,7 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-cancel" data-dismiss="modal">Close</button>
         <a href="#" id="stockHistoryFullLink" class="btn btn-update">
-          <i class="mdi mdi-open-in-new"></i> Full History Page
+          <i class="mdi mdi-history"></i> Full Stock History
         </a>
       </div>
     </div>

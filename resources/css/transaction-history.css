@@ -3,6 +3,97 @@
    Extracted from transaction-history.blade.php
    ============================================= */
 
+/* Button Group Gap Fix for Bootstrap 4 */
+.d-flex.gap-2 > * + * {
+    margin-left: 0.5rem;
+}
+
+/* =============================================
+   Action Buttons (Edit Product Button)
+   ============================================= */
+.btn-page-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    border-radius: 10px;
+    border: 2px solid #FFA726;
+    background: linear-gradient(135deg, #FFA726, #FFB84D);
+    color: #1a1d24;
+    white-space: nowrap;
+    box-shadow: 
+        0 1px 2px rgba(0, 0, 0, 0.1),
+        0 2px 8px rgba(255, 167, 38, 0.2);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-page-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 4px 14px rgba(255, 167, 38, 0.4),
+        0 2px 4px rgba(0, 0, 0, 0.2);
+    border-color: #FFB84D;
+    color: #1a1d24;
+}
+
+.btn-page-action:active {
+    transform: translateY(0);
+}
+
+.btn-page-action i {
+    font-size: 1.25rem;
+}
+
+/* =============================================
+   Product Information Styles
+   ============================================= */
+.txn-product-avatar {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,0.1);
+}
+
+.txn-product-avatar-circle {
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.txn-product-name {
+    color: #fff;
+}
+
+.txn-stock-value {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+/* =============================================
+   Transaction Counter Badge
+   ============================================= */
+.txn-count-badge {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.6);
+    padding: 6px 14px;
+    font-size: 1rem;
+}
+
+/* =============================================
+   Timeline Styles
+   ============================================= */
+.timeline-container {
+    max-height: 680px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
 .timeline {
     position: relative;
     padding-left: 30px;
@@ -41,6 +132,43 @@
 }
 .timeline-item.stock-out::before {
     border-color: #ffc107;
+}
+
+/* Timeline Transaction Cards */
+.timeline-transaction-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.timeline-badge-text {
+    font-size: 0.8rem;
+}
+
+.timeline-detail-gap {
+    gap: 1.5rem;
+}
+
+/* =============================================
+   Summary Statistics Cards
+   ============================================= */
+.summary-card-stock-in {
+    border-left: 3px solid #4CAF50;
+}
+
+.summary-card-stock-out {
+    border-left: 3px solid #FFC107;
+}
+
+.summary-card-net-change {
+    border-left: 3px solid #9E9E9E;
+}
+
+.summary-icon-light {
+    opacity: 0.3;
+}
+
+.summary-icon-lighter {
+    opacity: 0.15;
 }
 
 /* Scrollable timeline */

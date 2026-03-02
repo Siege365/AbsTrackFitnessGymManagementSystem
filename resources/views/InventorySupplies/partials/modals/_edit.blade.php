@@ -1,6 +1,6 @@
 <!-- Edit Product Modal -->
 <div class="modal fade" id="editProductModal" tabindex="-1" role="dialog" aria-labelledby="editProductModalLabel">
-  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+  <div class="modal-dialog modal-dialog-centered modal-lg inventory-product-modal" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
@@ -8,10 +8,21 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form id="editProductForm" method="POST">
+      <form id="editProductForm" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="modal-body">
+          <!-- Centered Product Avatar -->
+          <div class="text-center mb-4">
+            <div id="editProductAvatarPreview" class="avatar-preview-container avatar-preview-lg mx-auto">
+              <i class="mdi mdi-package-variant"></i>
+            </div>
+            <small class="text-muted">
+              <i class="mdi mdi-information-outline"></i>
+              Upload product image or provide image URL (optional)
+            </small>
+          </div>
+
           <!-- Row 1: Product Number and Product Name -->
           <div class="form-row">
             <div class="form-group col-md-6">
@@ -29,10 +40,6 @@
           <div class="form-row">
             <div class="form-group col-md-6">
               <label>Category <span class="text-danger">*</span></label>
-              <div class="d-flex align-items-center mb-2">
-                <input type="checkbox" id="editNewCategoryCheckbox" class="mr-2" onclick="toggleEditNewCategory(this)">
-                <label for="editNewCategoryCheckbox" class="mb-0" style="font-size: 0.85rem; color: rgba(255,255,255,0.6); cursor: pointer;">New Category</label>
-              </div>
               <!-- Category Dropdown (default) -->
               <select class="form-control" name="category" id="editProductCategory" required>
                 <option value="Supplement">Supplement</option>
@@ -47,21 +54,17 @@
               <!-- New Category Input (hidden by default) -->
               <div id="editNewCategoryInputGroup" style="display: none;">
                 <input type="text" 
-                      class="form-control mb-2" 
+                      class="form-control" 
                       id="editNewCategoryInput"
                       placeholder="Enter new category name"
                       maxlength="50">
-                <div class="d-flex align-items-center gap-2">
-                  <label class="mb-0 mr-2" style="font-size: 0.85rem; color: rgba(255,255,255,0.6); white-space: nowrap;">Color:</label>
-                  <input type="color" 
-                        id="editNewCategoryColor" 
-                        class="category-color-picker"
-                        value="#FFA726"
-                        title="Category color">
-                  <span id="editNewCategoryColorHex" style="font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-left: 0.5rem;">#FFA726</span>
-                </div>
+                <small class="text-muted mt-1 d-block">Color will be auto-generated</small>
               </div>
-              <input type="hidden" name="category_color" id="editCategoryColorHidden" value="">
+              <!-- Checkbox below input field -->
+              <div class="d-flex align-items-center mt-2">
+                <input type="checkbox" id="editNewCategoryCheckbox" class="mr-2" onclick="toggleEditNewCategory(this)">
+                <label for="editNewCategoryCheckbox" class="mb-0" style="font-size: 0.85rem; color: rgba(255,255,255,0.6); cursor: pointer;">New Category</label>
+              </div>
             </div>
             <div class="form-group col-md-6">
               <label>Unit Price <span class="text-danger">*</span></label>
@@ -70,6 +73,23 @@
                   <span class="input-group-text">₱</span>
                 </div>
                 <input type="number" step="0.01" min="0" class="form-control" name="unit_price" id="editProductPrice" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 3: Product Avatar Upload -->
+          <div class="form-row">
+            <div class="form-group col-12">
+              <label>Product Image</label>
+              <input type="file" name="avatar" id="editProductAvatar" class="form-control mb-2" accept="image/*" onchange="previewEditProductAvatar()">
+              <input type="text" name="avatar_url" id="editProductAvatarUrl" class="form-control mb-2" placeholder="https://example.com/product-image.jpg" style="display: none;" oninput="previewEditProductAvatar()">
+              <div class="btn-group btn-group-toggle btn-group-sm d-flex" data-toggle="buttons">
+                <label class="btn btn-outline-secondary active flex-fill">
+                  <input type="radio" name="editProductAvatarInputType" value="file" checked onclick="toggleEditProductAvatarInput('file')"> Upload File
+                </label>
+                <label class="btn btn-outline-secondary flex-fill">
+                  <input type="radio" name="editProductAvatarInputType" value="url" onclick="toggleEditProductAvatarInput('url')"> Image URL
+                </label>
               </div>
             </div>
           </div>

@@ -89,6 +89,18 @@ const InventoryPage = (function() {
                 document.getElementById('viewProductStatus').textContent = this.dataset.status;
                 document.getElementById('viewProductRestocked').textContent = this.dataset.lastRestocked;
                 document.getElementById('viewProductHistoryLink').href = '/inventory/' + this.dataset.id + '/transaction-history';
+                
+                // Display avatar
+                const viewAvatarPreview = document.getElementById('viewProductAvatarPreview');
+                if (viewAvatarPreview) {
+                    if (this.dataset.avatar) {
+                        viewAvatarPreview.style.backgroundImage = `url(/storage/${this.dataset.avatar})`;
+                        viewAvatarPreview.innerHTML = '';
+                    } else {
+                        viewAvatarPreview.style.backgroundImage = '';
+                        viewAvatarPreview.innerHTML = '<i class="mdi mdi-package-variant"></i>';
+                    }
+                }
             });
         });
     }
@@ -105,6 +117,18 @@ const InventoryPage = (function() {
                 document.getElementById('editProductCategory').value = this.dataset.category;
                 document.getElementById('editProductPrice').value = this.dataset.unitPrice;
                 document.getElementById('editProductForm').action = '/inventory/' + itemId;
+                
+                // Display existing avatar
+                const editAvatarPreview = document.getElementById('editProductAvatarPreview');
+                if (editAvatarPreview) {
+                    if (this.dataset.avatar) {
+                        editAvatarPreview.style.backgroundImage = `url(/storage/${this.dataset.avatar})`;
+                        editAvatarPreview.innerHTML = '';
+                    } else {
+                        editAvatarPreview.style.backgroundImage = '';
+                        editAvatarPreview.innerHTML = '<i class="mdi mdi-package-variant"></i>';
+                    }
+                }
             });
         });
 
@@ -139,9 +163,6 @@ const InventoryPage = (function() {
                         select.appendChild(newOption);
                     }
                     select.style.display = 'none';
-                    // Store color in hidden input
-                    const colorValue = document.getElementById('editNewCategoryColor').value;
-                    document.getElementById('editCategoryColorHidden').value = colorValue;
                 }
 
                 const submitBtn = document.getElementById('editProductSubmitBtn');
@@ -553,12 +574,8 @@ function showAddProductConfirm() {
             newOption.selected = true;
             select.appendChild(newOption);
         }
-        // Store color in hidden input
-        const colorValue = document.getElementById('newCategoryColor').value;
-        document.getElementById('addCategoryColorHidden').value = colorValue;
     } else {
         category = form.querySelector('[name="category"]').value;
-        document.getElementById('addCategoryColorHidden').value = '';
     }
 
     if (!productName) {
@@ -715,12 +732,6 @@ function bulkDeleteInventory() {
 // ============================================
 // New Category Toggle Functions
 // ============================================
-function generateRandomColor() {
-    const r = Math.floor(Math.random() * 200) + 30;
-    const g = Math.floor(Math.random() * 200) + 30;
-    const b = Math.floor(Math.random() * 200) + 30;
-    return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
-}
 
 function toggleNewCategory(checkbox) {
     const select = document.getElementById('addCategorySelect');
@@ -731,10 +742,6 @@ function toggleNewCategory(checkbox) {
         select.removeAttribute('required');
         inputGroup.style.display = 'block';
         document.getElementById('newCategoryInput').setAttribute('required', 'required');
-        // Generate random color
-        const randomColor = generateRandomColor();
-        document.getElementById('newCategoryColor').value = randomColor;
-        document.getElementById('newCategoryColorHex').textContent = randomColor.toUpperCase();
     } else {
         select.style.display = 'block';
         select.setAttribute('required', 'required');
@@ -753,10 +760,6 @@ function toggleEditNewCategory(checkbox) {
         select.removeAttribute('required');
         inputGroup.style.display = 'block';
         document.getElementById('editNewCategoryInput').setAttribute('required', 'required');
-        // Generate random color
-        const randomColor = generateRandomColor();
-        document.getElementById('editNewCategoryColor').value = randomColor;
-        document.getElementById('editNewCategoryColorHex').textContent = randomColor.toUpperCase();
     } else {
         select.style.display = 'block';
         select.setAttribute('required', 'required');
@@ -770,22 +773,6 @@ function toggleEditNewCategory(checkbox) {
 document.addEventListener('DOMContentLoaded', function() {
     InventoryPage.init();
 
-    // Color picker sync for Add modal
-    const addColorPicker = document.getElementById('newCategoryColor');
-    if (addColorPicker) {
-        addColorPicker.addEventListener('input', function() {
-            document.getElementById('newCategoryColorHex').textContent = this.value.toUpperCase();
-        });
-    }
-
-    // Color picker sync for Edit modal
-    const editColorPicker = document.getElementById('editNewCategoryColor');
-    if (editColorPicker) {
-        editColorPicker.addEventListener('input', function() {
-            document.getElementById('editNewCategoryColorHex').textContent = this.value.toUpperCase();
-        });
-    }
-
     // Reset new category state on Add modal close
     $('#addProductModal').on('hidden.bs.modal', function () {
         const checkbox = document.getElementById('newCategoryCheckbox');
@@ -793,15 +780,6 @@ document.addEventListener('DOMContentLoaded', function() {
             checkbox.checked = false;
             toggleNewCategory(checkbox);
         }
-    });
-
-    // Generate random color when Add modal opens
-    $('#addProductModal').on('show.bs.modal', function () {
-        const randomColor = generateRandomColor();
-        const colorPicker = document.getElementById('newCategoryColor');
-        const colorHex = document.getElementById('newCategoryColorHex');
-        if (colorPicker) colorPicker.value = randomColor;
-        if (colorHex) colorHex.textContent = randomColor.toUpperCase();
     });
 
     // Reset new category state on Edit modal close
@@ -813,15 +791,142 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Generate random color when Edit modal opens
-    $('#editProductModal').on('show.bs.modal', function () {
-        const randomColor = generateRandomColor();
-        const colorPicker = document.getElementById('editNewCategoryColor');
-        const colorHex = document.getElementById('editNewCategoryColorHex');
-        if (colorPicker) colorPicker.value = randomColor;
-        if (colorHex) colorHex.textContent = randomColor.toUpperCase();
-    });
 });
+
+// ============================================
+// Avatar Preview Functions
+// ============================================
+
+// Toggle between file upload and URL input for new product avatar
+function toggleProductAvatarInput(type) {
+    const fileInput = document.getElementById('newProductAvatar');
+    const urlInput = document.getElementById('newProductAvatarUrl');
+    
+    if (type === 'file') {
+        fileInput.style.display = 'block';
+        urlInput.style.display = 'none';
+        urlInput.value = '';
+    } else {
+        fileInput.style.display = 'none';
+        urlInput.style.display = 'block';
+        fileInput.value = '';
+    }
+    // Reset preview
+    const preview = document.getElementById('newProductAvatarPreview');
+    if (preview) {
+        preview.style.backgroundImage = '';
+        preview.innerHTML = '<i class="mdi mdi-package-variant"></i>';
+    }
+}
+
+// Preview new product avatar
+function previewNewProductAvatar() {
+    const fileInput = document.getElementById('newProductAvatar');
+    const urlInput = document.getElementById('newProductAvatarUrl');
+    const preview = document.getElementById('newProductAvatarPreview');
+    
+    if (!preview) return;
+    
+    // Check file input first
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.style.backgroundImage = `url(${e.target.result})`;
+            preview.innerHTML = '';
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+    }
+    // Check URL input
+    else if (urlInput && urlInput.value) {
+        preview.style.backgroundImage = `url(${urlInput.value})`;
+        preview.innerHTML = '';
+    }
+    // Reset to default
+    else {
+        preview.style.backgroundImage = '';
+        preview.innerHTML = '<i class="mdi mdi-package-variant"></i>';
+    }
+}
+
+// Toggle between file upload and URL input for edit product avatar
+function toggleEditProductAvatarInput(type) {
+    const fileInput = document.getElementById('editProductAvatar');
+    const urlInput = document.getElementById('editProductAvatarUrl');
+    
+    if (type === 'file') {
+        fileInput.style.display = 'block';
+        urlInput.style.display = 'none';
+        urlInput.value = '';
+    } else {
+        fileInput.style.display = 'none';
+        urlInput.style.display = 'block';
+        fileInput.value = '';
+    }
+}
+
+// Preview edit product avatar
+function previewEditProductAvatar() {
+    const fileInput = document.getElementById('editProductAvatar');
+    const urlInput = document.getElementById('editProductAvatarUrl');
+    const preview = document.getElementById('editProductAvatarPreview');
+    
+    if (!preview) return;
+    
+    // Check file input first
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.style.backgroundImage = `url(${e.target.result})`;
+            preview.innerHTML = '';
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+    }
+    // Check URL input
+    else if (urlInput && urlInput.value) {
+        preview.style.backgroundImage = `url(${urlInput.value})`;
+        preview.innerHTML = '';
+    }
+}
+
+// =====================================================
+// TRANSACTION HISTORY PAGE FUNCTIONS
+// =====================================================
+
+/**
+ * Initialize transaction history page edit modal
+ */
+function initTransactionHistoryPage() {
+    const editBtn = document.getElementById('txnEditProductBtn');
+    if (!editBtn) return; // Not on transaction history page
+
+    editBtn.addEventListener('click', function() {
+        const itemId = this.dataset.id;
+        const editForm = document.getElementById('editProductForm');
+        const editProductNumber = document.getElementById('editProductNumber');
+        const editProductName = document.getElementById('editProductName');
+        const editProductCategory = document.getElementById('editProductCategory');
+        const editProductPrice = document.getElementById('editProductPrice');
+        const editAvatarPreview = document.getElementById('editProductAvatarPreview');
+
+        // Populate form fields
+        if (editProductNumber) editProductNumber.value = this.dataset.productNumber;
+        if (editProductName) editProductName.value = this.dataset.productName;
+        if (editProductCategory) editProductCategory.value = this.dataset.category;
+        if (editProductPrice) editProductPrice.value = this.dataset.unitPrice;
+        if (editForm) editForm.action = '/inventory/' + itemId;
+
+        // Display existing avatar
+        if (editAvatarPreview) {
+            if (this.dataset.avatar) {
+                editAvatarPreview.style.backgroundImage = 'url(/storage/' + this.dataset.avatar + ')';
+                editAvatarPreview.innerHTML = '';
+            } else {
+                editAvatarPreview.style.backgroundImage = '';
+                editAvatarPreview.innerHTML = '<i class="mdi mdi-package-variant"></i>';
+            }
+        }
+    });
+}
 
 // Expose to global scope for inline event handlers
 window.InventoryPage = InventoryPage;
@@ -835,3 +940,13 @@ window.showAddProductConfirm = showAddProductConfirm;
 window.backToAddProductForm = backToAddProductForm;
 window.submitAddProductForm = submitAddProductForm;
 window.toggleFilterSection = toggleFilterSection;
+window.previewNewProductAvatar = previewNewProductAvatar;
+window.toggleProductAvatarInput = toggleProductAvatarInput;
+window.previewEditProductAvatar = previewEditProductAvatar;
+window.toggleEditProductAvatarInput = toggleEditProductAvatarInput;
+window.initTransactionHistoryPage = initTransactionHistoryPage;
+
+// Initialize transaction history page on DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+    initTransactionHistoryPage();
+});
