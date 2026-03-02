@@ -164,7 +164,19 @@
                     </div>
                 </td>
                 <td>{{ $item->product_number }}</td>
-                <td>{{ $item->product_name }}</td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        @if ($item->avatar)
+                            <img src="{{ asset('storage/' . $item->avatar) }}"
+                                alt="Product Image" class="avatar-circle mr-2">
+                        @else
+                            <div class="avatar-circle avatar-initial mr-2">
+                                {{ strtoupper(substr($item->product_name, 0, 1)) }}
+                            </div>
+                        @endif
+                        <span>{{ $item->product_name }}</span>
+                    </div>
+                </td>
                 <td>
                     @php
                         $catSlug = strtolower(str_replace(' ', '-', $item->category));
@@ -198,6 +210,7 @@
                                   data-id="{{ $item->id }}"
                                   data-product-number="{{ $item->product_number }}"
                                   data-product-name="{{ $item->product_name }}"
+                                  data-avatar="{{ $item->avatar }}"
                                   data-category="{{ $item->category }}"
                                   data-unit-price="{{ $item->unit_price }}"
                                   data-stock-qty="{{ $item->stock_qty }}"
@@ -213,6 +226,7 @@
                                   data-id="{{ $item->id }}"
                                   data-product-number="{{ $item->product_number }}"
                                   data-product-name="{{ $item->product_name }}"
+                                  data-avatar="{{ $item->avatar }}"
                                   data-category="{{ $item->category }}"
                                   data-unit-price="{{ $item->unit_price }}"
                                   data-toggle="modal" 

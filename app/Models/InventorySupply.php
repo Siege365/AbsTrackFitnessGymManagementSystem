@@ -12,7 +12,9 @@ class InventorySupply extends Model
     protected $fillable = [
         'product_number',
         'product_name',
+        'avatar',
         'category',
+        'category_color',
         'unit_price',
         'stock_qty',
         'low_stock_threshold',

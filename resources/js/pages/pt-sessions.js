@@ -36,6 +36,16 @@ const PTSessionsPage = {
     this.setupSearchForms();
     this.setupCheckboxes();
     this.setupPTModal();
+    this.startAutoRefresh();
+  },
+
+  // Start automatic refresh of KPIs
+  startAutoRefresh: function() {
+    // Refresh KPIs every 60 seconds to reflect auto-completed sessions
+    // The backend automatically marks 'in_progress' sessions as 'done' after 2 hours
+    setInterval(() => {
+      this.refreshKPIs();
+    }, 60000); // 60 seconds
   },
 
   // Refresh KPI cards with latest data

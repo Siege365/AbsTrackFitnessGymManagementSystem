@@ -49,7 +49,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-update" onclick="showRenewConfirmModal()">Submit</button>
+          <button type="button" class="btn btn-update" onclick="showRenewConfirmModal()">Renew</button>
         </div>
       </div>
 

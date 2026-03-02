@@ -9,6 +9,13 @@
         </button>
       </div>
       <div class="modal-body">
+        <!-- Centered Product Avatar -->
+        <div class="text-center mb-4">
+          <div id="viewProductAvatarPreview" class="avatar-preview-container avatar-preview-lg mx-auto">
+            <i class="mdi mdi-package-variant"></i>
+          </div>
+        </div>
+
         <div class="product-detail-card">
           <div class="product-detail-row">
             <span class="product-detail-label">Product Number</span>
@@ -47,7 +54,7 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-cancel" data-dismiss="modal">Close</button>
         <a href="#" id="viewProductHistoryLink" class="btn btn-update">
-          <i class="mdi mdi-history"></i> Full Transaction History
+          <i class="mdi mdi-history"></i> View Stock History
         </a>
       </div>
     </div>
