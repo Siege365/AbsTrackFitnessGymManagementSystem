@@ -29,6 +29,7 @@ export default defineConfig({
                 'resources/css/activity-logs.css',
                 'resources/css/configuration.css',
                 'resources/css/staff.css',
+                'resources/css/trainer.css',
 
                 // Auth CSS
                 'resources/css/auth-login.css',
@@ -44,6 +45,7 @@ export default defineConfig({
                 'resources/js/common/autocomplete-utils.js',
 
                 // Page-specific JS
+                'resources/js/pages/dashboard.js',
                 'resources/js/pages/clients.js',
                 'resources/js/pages/memberships.js',
                 'resources/js/pages/payments.js',
@@ -55,6 +57,7 @@ export default defineConfig({
                 'resources/js/sessions.js',
                 'resources/js/pages/configuration.js',
                 'resources/js/pages/staff.js',
+                'resources/js/pages/trainer.js',
 
                 // Auth JS
                 'resources/js/auth-login.js',

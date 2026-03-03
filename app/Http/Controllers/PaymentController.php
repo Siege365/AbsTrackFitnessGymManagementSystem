@@ -156,7 +156,7 @@ class PaymentController extends Controller
             return $payment;
         });
 
-        ActivityLog::log('created', 'product_payment', "Processed product payment #{$payment->receipt_number} for {$payment->customer_name} — ₱" . number_format($payment->total_amount, 2), $payment->receipt_number, $payment->customer_name, $payment, ['amount' => $payment->total_amount, 'payment_method' => $payment->payment_method, 'items_count' => $payment->total_quantity]);
+        ActivityLog::log('created', 'product_payment', "Processed product payment for {$payment->customer_name} — ₱" . number_format($payment->total_amount, 2), $payment->receipt_number, $payment->customer_name, $payment, ['amount' => $payment->total_amount, 'payment_method' => $payment->payment_method, 'items_count' => $payment->total_quantity]);
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json(['success' => true, 'message' => 'Payment completed successfully.', 'payment' => $payment]);
@@ -312,7 +312,7 @@ class PaymentController extends Controller
 
             if ($result['success']) {
                 $p = $result['payment'];
-                ActivityLog::log('refunded', 'product_payment', "Refunded product payment #{$p->receipt_number} for {$p->customer_name} — ₱" . number_format($p->refunded_amount, 2), $p->receipt_number, $p->customer_name, $p, ['amount' => $p->refunded_amount, 'reason' => $validated['reason'] ?? null]);
+                ActivityLog::log('refunded', 'product_payment', "Refunded product payment for {$p->customer_name} — ₱" . number_format($p->refunded_amount, 2), $p->receipt_number, $p->customer_name, $p, ['amount' => $p->refunded_amount, 'reason' => $validated['reason'] ?? null]);
             }
 
             if ($request->expectsJson()) {
@@ -355,7 +355,7 @@ class PaymentController extends Controller
                 $paymentRecord->delete();
             });
 
-            ActivityLog::log('deleted', 'product_payment', "Deleted product payment #{$deletedReceipt} ({$deletedCustomer})", $deletedReceipt, $deletedCustomer);
+            ActivityLog::log('deleted', 'product_payment', "Deleted product payment for {$deletedCustomer}", $deletedReceipt, $deletedCustomer);
 
             return back()->with('success', 'Transaction deleted successfully.');
         } catch (\Exception $e) {

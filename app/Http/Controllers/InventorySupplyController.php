@@ -419,7 +419,7 @@ class InventorySupplyController extends Controller
                 ]);
             }
 
-            ActivityLog::log('created', 'inventory', "Added product: {$item->product_name} ({$item->product_number})", $item->product_number, null, $item, ['category' => $item->category, 'unit_price' => $item->unit_price, 'initial_stock' => $validated['stock_qty']]);
+            ActivityLog::log('created', 'inventory', "Added product: {$item->product_name}", $item->product_number, null, $item, ['category' => $item->category, 'unit_price' => $item->unit_price, 'initial_stock' => $validated['stock_qty']]);
 
             return redirect()->route('inventory.index')
                             ->with('success', 'Product added successfully!');
@@ -510,7 +510,7 @@ class InventorySupplyController extends Controller
 
             $item->update($validated);
 
-            ActivityLog::log('updated', 'inventory', "Updated product: {$item->product_name} ({$item->product_number})", $item->product_number, null, $item, ['category' => $item->category, 'unit_price' => $item->unit_price]);
+            ActivityLog::log('updated', 'inventory', "Updated product: {$item->product_name}", $item->product_number, null, $item, ['category' => $item->category, 'unit_price' => $item->unit_price]);
 
             return redirect()->back()
                             ->with('success', 'Product updated successfully!');
@@ -529,7 +529,7 @@ class InventorySupplyController extends Controller
         $productNumber = $item->product_number;
         $item->delete();
 
-        ActivityLog::log('deleted', 'inventory', "Deleted product: {$productName} ({$productNumber})", $productNumber);
+        ActivityLog::log('deleted', 'inventory', "Deleted product: {$productName}", $productNumber);
 
         return redirect()->route('inventory.index')
                         ->with('success', 'Product deleted successfully!');
@@ -602,7 +602,7 @@ class InventorySupplyController extends Controller
             DB::commit();
 
             $actionLabel = $validated['transaction_type'] === 'stock_in' ? 'Stock In' : 'Stock Out';
-            ActivityLog::log($validated['transaction_type'], 'inventory', "{$actionLabel}: {$validated['quantity']} unit(s) of {$item->product_name} ({$item->product_number})", $item->product_number, null, $item, ['quantity' => $validated['quantity'], 'previous_stock' => $previousStock, 'new_stock' => $newStock]);
+            ActivityLog::log($validated['transaction_type'], 'inventory', "{$actionLabel}: {$validated['quantity']} unit(s) of {$item->product_name}", $item->product_number, null, $item, ['quantity' => $validated['quantity'], 'previous_stock' => $previousStock, 'new_stock' => $newStock]);
 
             $message = $validated['transaction_type'] === 'stock_in' 
                 ? 'Stock added successfully!' 

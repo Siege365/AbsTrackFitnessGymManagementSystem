@@ -10,652 +10,639 @@
 
 <!-- Page Header -->
 <div class="card page-header-card">
-    <div class="card-body">
+    <div class="card-body d-flex align-items-center justify-content-between flex-wrap">
         <div>
-            <h2 class="page-header-title">Dashboard</h2>
-            <p class="page-header-subtitle">Welcome back! Here's what's happening with your gym today.</p>
+            <h2 class="page-header-title mb-1">Dashboard</h2>
+            <p class="page-header-subtitle mb-0">Welcome back, {{ auth()->user()->name }}! Here's what's happening at AbsTrack Fitness today.</p>
+        </div>
+        <div class="header-date text-right">
+            <span class="badge badge-outline-light px-3 py-2">
+                <i class="mdi mdi-calendar-today mr-1"></i>
+                {{ \Carbon\Carbon::now()->format('l, F d, Y') }}
+            </span>
         </div>
     </div>
 </div>
 
-            <div class="row">
-              <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-                <div class="card">
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-9">
-                        <div class="d-flex align-items-center align-self-start">
-                          <h3 class="mb-0">$12.34</h3>
-                          <p class="text-success ml-2 mb-0 font-weight-medium">+3.5%</p>
-                        </div>
-                      </div>
-                      <div class="col-3">
-                        <div class="icon icon-box-success ">
-                          <span class="mdi mdi-arrow-top-right icon-item"></span>
-                        </div>
-                      </div>
+<!-- ══════════════════════════════════════════════════════
+    ROW 1: Primary KPI Cards
+    ══════════════════════════════════════════════════════ -->
+<div class="row stats-row">
+    <!-- Today's Revenue -->
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="stats-icon bg-gradient-success">
+                        <i class="mdi mdi-currency-php"></i>
                     </div>
-                    <h6 class="text-muted font-weight-normal">Potential growth</h6>
-                  </div>
+                    <span class="badge badge-outline-success">Today</span>
                 </div>
-              </div>
-              <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-                <div class="card">
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-9">
-                        <div class="d-flex align-items-center align-self-start">
-                          <h3 class="mb-0">$17.34</h3>
-                          <p class="text-success ml-2 mb-0 font-weight-medium">+11%</p>
-                        </div>
-                      </div>
-                      <div class="col-3">
-                        <div class="icon icon-box-success">
-                          <span class="mdi mdi-arrow-top-right icon-item"></span>
-                        </div>
-                      </div>
-                    </div>
-                    <h6 class="text-muted font-weight-normal">Revenue current</h6>
-                  </div>
+                <h3 class="stats-value mb-1">₱{{ number_format($todayTotalRevenue, 2) }}</h3>
+                <p class="text-muted mb-0 stats-label">Today's Revenue</p>
+                <div class="stats-breakdown mt-2">
+                    <small class="text-muted">
+                        Retail: ₱{{ number_format($todayRetailRevenue, 2) }} &bull;
+                        Membership: ₱{{ number_format($todayMembershipRevenue, 2) }} &bull;
+                        PT: ₱{{ number_format($todayPTRevenue, 2) }}
+                    </small>
                 </div>
-              </div>
-              <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-                <div class="card">
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-9">
-                        <div class="d-flex align-items-center align-self-start">
-                          <h3 class="mb-0">$12.34</h3>
-                          <p class="text-danger ml-2 mb-0 font-weight-medium">-2.4%</p>
-                        </div>
-                      </div>
-                      <div class="col-3">
-                        <div class="icon icon-box-danger">
-                          <span class="mdi mdi-arrow-bottom-left icon-item"></span>
-                        </div>
-                      </div>
-                    </div>
-                    <h6 class="text-muted font-weight-normal">Daily Income</h6>
-                  </div>
-                </div>
-              </div>
-              <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-                <div class="card">
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-9">
-                        <div class="d-flex align-items-center align-self-start">
-                          <h3 class="mb-0">$31.53</h3>
-                          <p class="text-success ml-2 mb-0 font-weight-medium">+3.5%</p>
-                        </div>
-                      </div>
-                      <div class="col-3">
-                        <div class="icon icon-box-success ">
-                          <span class="mdi mdi-arrow-top-right icon-item"></span>
-                        </div>
-                      </div>
-                    </div>
-                    <h6 class="text-muted font-weight-normal">Expense current</h6>
-                  </div>
-                </div>
-              </div>
             </div>
-            <div class="row">
-              <div class="col-md-4 grid-margin stretch-card">
-                <div class="card">
-                  <div class="card-body">
-                    <h4 class="card-title">Transaction History</h4>
-                    <canvas id="transaction-history" class="transaction-chart"></canvas>
-                    <div class="bg-gray-dark d-flex d-md-block d-xl-flex flex-row py-3 px-4 px-md-3 px-xl-4 rounded mt-3">
-                      <div class="text-md-center text-xl-left">
-                        <h6 class="mb-1">Transfer to Paypal</h6>
-                        <p class="text-muted mb-0">07 Jan 2019, 09:12AM</p>
-                      </div>
-                      <div class="align-self-center flex-grow text-right text-md-center text-xl-right py-md-2 py-xl-0">
-                        <h6 class="font-weight-bold mb-0">$236</h6>
-                      </div>
+        </div>
+    </div>
+
+    <!-- Monthly Revenue -->
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="stats-icon bg-gradient-info">
+                        <i class="mdi mdi-chart-line"></i>
                     </div>
-                    <div class="bg-gray-dark d-flex d-md-block d-xl-flex flex-row py-3 px-4 px-md-3 px-xl-4 rounded mt-3">
-                      <div class="text-md-center text-xl-left">
-                        <h6 class="mb-1">Tranfer to Stripe</h6>
-                        <p class="text-muted mb-0">07 Jan 2019, 09:12AM</p>
-                      </div>
-                      <div class="align-self-center flex-grow text-right text-md-center text-xl-right py-md-2 py-xl-0">
-                        <h6 class="font-weight-bold mb-0">$593</h6>
-                      </div>
-                    </div>
-                  </div>
+                    @if($revenueChange >= 0)
+                        <span class="badge badge-outline-success">
+                            <i class="mdi mdi-arrow-up-bold"></i> {{ $revenueChange }}%
+                        </span>
+                    @else
+                        <span class="badge badge-outline-danger">
+                            <i class="mdi mdi-arrow-down-bold"></i> {{ abs($revenueChange) }}%
+                        </span>
+                    @endif
                 </div>
-              </div>
-              <div class="col-md-8 grid-margin stretch-card">
-                <div class="card">
-                  <div class="card-body">
-                    <div class="d-flex flex-row justify-content-between">
-                      <h4 class="card-title mb-1">Open Projects</h4>
-                      <p class="text-muted mb-1">Your data status</p>
-                    </div>
-                    <div class="row">
-                      <div class="col-12">
-                        <div class="preview-list">
-                          <div class="preview-item border-bottom">
-                            <div class="preview-thumbnail">
-                              <div class="preview-icon bg-primary">
-                                <i class="mdi mdi-file-document"></i>
-                              </div>
-                            </div>
-                            <div class="preview-item-content d-sm-flex flex-grow">
-                              <div class="flex-grow">
-                                <h6 class="preview-subject">Admin dashboard design</h6>
-                                <p class="text-muted mb-0">Broadcast web app mockup</p>
-                              </div>
-                              <div class="mr-auto text-sm-right pt-2 pt-sm-0">
-                                <p class="text-muted">15 minutes ago</p>
-                                <p class="text-muted mb-0">30 tasks, 5 issues </p>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="preview-item border-bottom">
-                            <div class="preview-thumbnail">
-                              <div class="preview-icon bg-success">
-                                <i class="mdi mdi-cloud-download"></i>
-                              </div>
-                            </div>
-                            <div class="preview-item-content d-sm-flex flex-grow">
-                              <div class="flex-grow">
-                                <h6 class="preview-subject">Wordpress Development</h6>
-                                <p class="text-muted mb-0">Upload new design</p>
-                              </div>
-                              <div class="mr-auto text-sm-right pt-2 pt-sm-0">
-                                <p class="text-muted">1 hour ago</p>
-                                <p class="text-muted mb-0">23 tasks, 5 issues </p>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="preview-item border-bottom">
-                            <div class="preview-thumbnail">
-                              <div class="preview-icon bg-info">
-                                <i class="mdi mdi-clock"></i>
-                              </div>
-                            </div>
-                            <div class="preview-item-content d-sm-flex flex-grow">
-                              <div class="flex-grow">
-                                <h6 class="preview-subject">Project meeting</h6>
-                                <p class="text-muted mb-0">New project discussion</p>
-                              </div>
-                              <div class="mr-auto text-sm-right pt-2 pt-sm-0">
-                                <p class="text-muted">35 minutes ago</p>
-                                <p class="text-muted mb-0">15 tasks, 2 issues</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="preview-item border-bottom">
-                            <div class="preview-thumbnail">
-                              <div class="preview-icon bg-danger">
-                                <i class="mdi mdi-email-open"></i>
-                              </div>
-                            </div>
-                            <div class="preview-item-content d-sm-flex flex-grow">
-                              <div class="flex-grow">
-                                <h6 class="preview-subject">Broadcast Mail</h6>
-                                <p class="text-muted mb-0">Sent release details to team</p>
-                              </div>
-                              <div class="mr-auto text-sm-right pt-2 pt-sm-0">
-                                <p class="text-muted">55 minutes ago</p>
-                                <p class="text-muted mb-0">35 tasks, 7 issues </p>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="preview-item">
-                            <div class="preview-thumbnail">
-                              <div class="preview-icon bg-warning">
-                                <i class="mdi mdi-chart-pie"></i>
-                              </div>
-                            </div>
-                            <div class="preview-item-content d-sm-flex flex-grow">
-                              <div class="flex-grow">
-                                <h6 class="preview-subject">UI Design</h6>
-                                <p class="text-muted mb-0">New application planning</p>
-                              </div>
-                              <div class="mr-auto text-sm-right pt-2 pt-sm-0">
-                                <p class="text-muted">50 minutes ago</p>
-                                <p class="text-muted mb-0">27 tasks, 4 issues </p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                <h3 class="stats-value mb-1">₱{{ number_format($monthlyTotalRevenue, 2) }}</h3>
+                <p class="text-muted mb-0 stats-label">Monthly Revenue</p>
+                <div class="stats-breakdown mt-2">
+                    <small class="text-muted">
+                        Retail: ₱{{ number_format($monthlyRetailRevenue, 2) }} &bull;
+                        Membership: ₱{{ number_format($monthlyMembershipRevenue, 2) }} &bull;
+                        PT: ₱{{ number_format($monthlyPTRevenue, 2) }}
+                    </small>
                 </div>
-              </div>
             </div>
-            <div class="row">
-              <div class="col-sm-4 grid-margin">
-                <div class="card">
-                  <div class="card-body">
-                    <h5>Revenue</h5>
-                    <div class="row">
-                      <div class="col-8 col-sm-12 col-xl-8 my-auto">
-                        <div class="d-flex d-sm-block d-md-flex align-items-center">
-                          <h2 class="mb-0">$32123</h2>
-                          <p class="text-success ml-2 mb-0 font-weight-medium">+3.5%</p>
-                        </div>
-                        <h6 class="text-muted font-weight-normal">11.38% Since last month</h6>
-                      </div>
-                      <div class="col-4 col-sm-12 col-xl-4 text-center text-xl-right">
-                        <i class="icon-lg mdi mdi-codepen text-primary ml-auto"></i>
-                      </div>
+        </div>
+    </div>
+
+    <!-- Today's Attendance -->
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="stats-icon bg-gradient-warning">
+                        <i class="mdi mdi-account-check"></i>
                     </div>
-                  </div>
+                    <span class="badge badge-outline-warning">Live</span>
                 </div>
-              </div>
-              <div class="col-sm-4 grid-margin">
-                <div class="card">
-                  <div class="card-body">
-                    <h5>Sales</h5>
-                    <div class="row">
-                      <div class="col-8 col-sm-12 col-xl-8 my-auto">
-                        <div class="d-flex d-sm-block d-md-flex align-items-center">
-                          <h2 class="mb-0">$45850</h2>
-                          <p class="text-success ml-2 mb-0 font-weight-medium">+8.3%</p>
-                        </div>
-                        <h6 class="text-muted font-weight-normal"> 9.61% Since last month</h6>
-                      </div>
-                      <div class="col-4 col-sm-12 col-xl-4 text-center text-xl-right">
-                        <i class="icon-lg mdi mdi-wallet-travel text-danger ml-auto"></i>
-                      </div>
-                    </div>
-                  </div>
+                <h3 class="stats-value mb-1">{{ $todayAttendance }}</h3>
+                <p class="text-muted mb-0 stats-label">Today's Check-ins</p>
+                <div class="stats-breakdown mt-2">
+                    <small class="text-muted">
+                        <span class="text-success"><i class="mdi mdi-circle-medium"></i> {{ $activeInGym }} currently in gym</span>
+                    </small>
                 </div>
-              </div>
-              <div class="col-sm-4 grid-margin">
-                <div class="card">
-                  <div class="card-body">
-                    <h5>Purchase</h5>
-                    <div class="row">
-                      <div class="col-8 col-sm-12 col-xl-8 my-auto">
-                        <div class="d-flex d-sm-block d-md-flex align-items-center">
-                          <h2 class="mb-0">$2039</h2>
-                          <p class="text-danger ml-2 mb-0 font-weight-medium">-2.1% </p>
-                        </div>
-                        <h6 class="text-muted font-weight-normal">2.27% Since last month</h6>
-                      </div>
-                      <div class="col-4 col-sm-12 col-xl-4 text-center text-xl-right">
-                        <i class="icon-lg mdi mdi-monitor text-success ml-auto"></i>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
-            <div class="row ">
-              <div class="col-12 grid-margin">
-                <div class="card">
-                  <div class="card-body">
-                    <h4 class="card-title">Order Status</h4>
+        </div>
+    </div>
+
+    <!-- Active Members -->
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="stats-icon bg-gradient-primary">
+                        <i class="mdi mdi-account-group"></i>
+                    </div>
+                    <span class="badge badge-outline-primary">{{ $totalCustomers }} total</span>
+                </div>
+                <h3 class="stats-value mb-1">{{ $activeMemberships + $activeClients }}</h3>
+                <p class="text-muted mb-0 stats-label">Active Subscriptions</p>
+                <div class="stats-breakdown mt-2">
+                    <small class="text-muted">
+                        {{ $activeMemberships }} members &bull; {{ $activeClients }} PT clients
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     ROW 2: Secondary KPI Cards
+     ══════════════════════════════════════════════════════ -->
+<div class="row stats-row">
+    <!-- PT Sessions Today -->
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="stats-icon bg-gradient-purple">
+                        <i class="mdi mdi-dumbbell"></i>
+                    </div>
+                    <span class="badge badge-outline-light">Today</span>
+                </div>
+                <h3 class="stats-value mb-1">{{ $todayPTSessions }}</h3>
+                <p class="text-muted mb-0 stats-label">PT Sessions Today</p>
+                <div class="stats-breakdown mt-2">
+                    <small>
+                        <span class="text-warning">{{ $upcomingPT }} upcoming</span> &bull;
+                        <span class="text-info">{{ $inProgressPT }} in progress</span> &bull;
+                        <span class="text-success">{{ $completedPTToday }} done</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Membership Health -->
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="stats-icon bg-gradient-danger">
+                        <i class="mdi mdi-card-account-details"></i>
+                    </div>
+                    @if($dueSoonMemberships > 0)
+                        <span class="badge badge-outline-warning">{{ $dueSoonMemberships }} due soon</span>
+                    @else
+                        <span class="badge badge-outline-success">Healthy</span>
+                    @endif
+                </div>
+                <h3 class="stats-value mb-1">{{ $totalMemberships }}</h3>
+                <p class="text-muted mb-0 stats-label">Total Memberships</p>
+                <div class="stats-breakdown mt-2">
+                    <small class="text-muted">
+                        <span class="text-success">{{ $activeMemberships }} active</span> &bull;
+                        <span class="text-danger">{{ $expiredMemberships }} expired</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Status -->
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="stats-icon bg-gradient-teal">
+                        <i class="mdi mdi-package-variant-closed"></i>
+                    </div>
+                    @if($outOfStockProducts > 0 || $lowStockProducts > 0)
+                        <span class="badge badge-outline-warning">
+                            {{ $lowStockProducts + $outOfStockProducts }} alert{{ ($lowStockProducts + $outOfStockProducts) > 1 ? 's' : '' }}
+                        </span>
+                    @else
+                        <span class="badge badge-outline-success">All Good</span>
+                    @endif
+                </div>
+                <h3 class="stats-value mb-1">{{ $totalProducts }}</h3>
+                <p class="text-muted mb-0 stats-label">Inventory Products</p>
+                <div class="stats-breakdown mt-2">
+                    <small class="text-muted">
+                        <span class="text-warning">{{ $lowStockProducts }} low stock</span> &bull;
+                        <span class="text-danger">{{ $outOfStockProducts }} out of stock</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trainers -->
+    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="stats-icon bg-gradient-orange">
+                        <i class="mdi mdi-human-handsup"></i>
+                    </div>
+                    <span class="badge badge-outline-light">Staff</span>
+                </div>
+                <h3 class="stats-value mb-1">{{ $totalTrainers }}</h3>
+                <p class="text-muted mb-0 stats-label">Active Trainers</p>
+                <div class="stats-breakdown mt-2">
+                    <small class="text-muted">
+                        {{ $totalClients }} PT clients total &bull; {{ $activeClients }} active
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <!-- Today's PT Schedule -->
+    <div class="col-xl-4 col-lg-4 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="card-title mb-0">
+                        <i class="mdi mdi-dumbbell mr-1" style="color: #AB47BC;"></i>
+                        Today's PT Schedule
+                    </h4>
+                    <a href="{{ route('sessions.pt.index') }}" class="btn btn-sm btn-outline-light">View All</a>
+                </div>
+                @if($todaySchedules->isEmpty())
+                    <div class="empty-state text-center py-4">
+                        <i class="mdi mdi-calendar-blank-outline" style="font-size: 48px; color: rgba(255,255,255,0.15);"></i>
+                        <p class="text-muted mt-2 mb-0">No PT sessions scheduled for today</p>
+                    </div>
+                @else
                     <div class="table-responsive">
-                      <table class="table">
-                        <thead>
-                          <tr>
-                            <th>
-                              <div class="form-check form-check-muted m-0">
-                                <label class="form-check-label">
-                                  <input type="checkbox" class="form-check-input">
-                                </label>
-                              </div>
-                            </th>
-                            <th> Client Name </th>
-                            <th> Order No </th>
-                            <th> Product Cost </th>
-                            <th> Project </th>
-                            <th> Payment Mode </th>
-                            <th> Start Date </th>
-                            <th> Payment Status </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>
-                              <div class="form-check form-check-muted m-0">
-                                <label class="form-check-label">
-                                  <input type="checkbox" class="form-check-input">
-                                </label>
-                              </div>
-                            </td>
-                            <td>
-                              <img src="{{ asset('template/assets/images/faces/face1.jpg') }}" alt="image" />
-                              <span class="pl-2">Henry Klein</span>
-                            </td>
-                            <td> 02312 </td>
-                            <td> $14,500 </td>
-                            <td> Dashboard </td>
-                            <td> Credit card </td>
-                            <td> 04 Dec 2019 </td>
-                            <td>
-                              <div class="badge badge-outline-success">Approved</div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <div class="form-check form-check-muted m-0">
-                                <label class="form-check-label">
-                                  <input type="checkbox" class="form-check-input">
-                                </label>
-                              </div>
-                            </td>
-                            <td>
-                              <img src="{{ asset('template/assets/images/faces/face2.jpg') }}" alt="image" />
-                              <span class="pl-2">Estella Bryan</span>
-                            </td>
-                            <td> 02312 </td>
-                            <td> $14,500 </td>
-                            <td> Website </td>
-                            <td> Cash on delivered </td>
-                            <td> 04 Dec 2019 </td>
-                            <td>
-                              <div class="badge badge-outline-warning">Pending</div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <div class="form-check form-check-muted m-0">
-                                <label class="form-check-label">
-                                  <input type="checkbox" class="form-check-input">
-                                </label>
-                              </div>
-                            </td>
-                            <td>
-                              <img src="{{ asset('template/assets/images/faces/face5.jpg') }}" alt="image" />
-                              <span class="pl-2">Lucy Abbott</span>
-                            </td>
-                            <td> 02312 </td>
-                            <td> $14,500 </td>
-                            <td> App design </td>
-                            <td> Credit card </td>
-                            <td> 04 Dec 2019 </td>
-                            <td>
-                              <div class="badge badge-outline-danger">Rejected</div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <div class="form-check form-check-muted m-0">
-                                <label class="form-check-label">
-                                  <input type="checkbox" class="form-check-input">
-                                </label>
-                              </div>
-                            </td>
-                            <td>
-                              <img src="{{ asset('template/assets/images/faces/face3.jpg') }}" alt="image" />
-                              <span class="pl-2">Peter Gill</span>
-                            </td>
-                            <td> 02312 </td>
-                            <td> $14,500 </td>
-                            <td> Development </td>
-                            <td> Online Payment </td>
-                            <td> 04 Dec 2019 </td>
-                            <td>
-                              <div class="badge badge-outline-success">Approved</div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <div class="form-check form-check-muted m-0">
-                                <label class="form-check-label">
-                                  <input type="checkbox" class="form-check-input">
-                                </label>
-                              </div>
-                            </td>
-                            <td>
-                              <img src="{{ asset('template/assets/images/faces/face4.jpg') }}" alt="image" />
-                              <span class="pl-2">Sallie Reyes</span>
-                            </td>
-                            <td> 02312 </td>
-                            <td> $14,500 </td>
-                            <td> Website </td>
-                            <td> Credit card </td>
-                            <td> 04 Dec 2019 </td>
-                            <td>
-                              <div class="badge badge-outline-success">Approved</div>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-6 col-xl-4 grid-margin stretch-card">
-                <div class="card">
-                  <div class="card-body">
-                    <div class="d-flex flex-row justify-content-between">
-                      <h4 class="card-title">Messages</h4>
-                      <p class="text-muted mb-1 small">View all</p>
-                    </div>
-                    <div class="preview-list">
-                      <div class="preview-item border-bottom">
-                        <div class="preview-thumbnail">
-                          <img src="{{ asset('template/assets/images/faces/face6.jpg') }}" alt="image" class="rounded-circle" />
-                        </div>
-                        <div class="preview-item-content d-flex flex-grow">
-                          <div class="flex-grow">
-                            <div class="d-flex d-md-block d-xl-flex justify-content-between">
-                              <h6 class="preview-subject">Leonard</h6>
-                              <p class="text-muted text-small">5 minutes ago</p>
-                            </div>
-                            <p class="text-muted">Well, it seems to be working now.</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="preview-item border-bottom">
-                        <div class="preview-thumbnail">
-                          <img src="{{ asset('template/assets/images/faces/face8.jpg') }}" alt="image" class="rounded-circle" />
-                        </div>
-                        <div class="preview-item-content d-flex flex-grow">
-                          <div class="flex-grow">
-                            <div class="d-flex d-md-block d-xl-flex justify-content-between">
-                              <h6 class="preview-subject">Luella Mills</h6>
-                              <p class="text-muted text-small">10 Minutes Ago</p>
-                            </div>
-                            <p class="text-muted">Well, it seems to be working now.</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="preview-item border-bottom">
-                        <div class="preview-thumbnail">
-                          <img src="{{ asset('template/assets/images/faces/face9.jpg') }}" alt="image" class="rounded-circle" />
-                        </div>
-                        <div class="preview-item-content d-flex flex-grow">
-                          <div class="flex-grow">
-                            <div class="d-flex d-md-block d-xl-flex justify-content-between">
-                              <h6 class="preview-subject">Ethel Kelly</h6>
-                              <p class="text-muted text-small">2 Hours Ago</p>
-                            </div>
-                            <p class="text-muted">Please review the tickets</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="preview-item border-bottom">
-                        <div class="preview-thumbnail">
-                          <img src="{{ asset('template/assets/images/faces/face11.jpg') }}" alt="image" class="rounded-circle" />
-                        </div>
-                        <div class="preview-item-content d-flex flex-grow">
-                          <div class="flex-grow">
-                            <div class="d-flex d-md-block d-xl-flex justify-content-between">
-                              <h6 class="preview-subject">Herman May</h6>
-                              <p class="text-muted text-small">4 Hours Ago</p>
-                            </div>
-                            <p class="text-muted">Thanks a lot. It was easy to fix it .</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6 col-xl-4 grid-margin stretch-card">
-                <div class="card">
-                  <div class="card-body">
-                    <h4 class="card-title">Portfolio Slide</h4>
-                    <div class="owl-carousel owl-theme full-width owl-carousel-dash portfolio-carousel" id="owl-carousel-basic">
-                      <div class="item">
-                        <img src="{{ asset('template/assets/images/dashboard/Rectangle.jpg') }}" alt="">
-                      </div>
-                      <div class="item">
-                        <img src="{{ asset('template/assets/images/dashboard/Img_5.jpg') }}" alt="">
-                      </div>
-                      <div class="item">
-                        <img src="{{ asset('template/assets/images/dashboard/img_6.jpg') }}" alt="">
-                      </div>
-                    </div>
-                    <div class="d-flex py-4">
-                      <div class="preview-list w-100">
-                        <div class="preview-item p-0">
-                          <div class="preview-thumbnail">
-                            <img src="{{ asset('template/assets/images/faces/face12.jpg') }}" class="rounded-circle" alt="">
-                          </div>
-                          <div class="preview-item-content d-flex flex-grow">
-                            <div class="flex-grow">
-                              <div class="d-flex d-md-block d-xl-flex justify-content-between">
-                                <h6 class="preview-subject">CeeCee Bass</h6>
-                                <p class="text-muted text-small">4 Hours Ago</p>
-                              </div>
-                              <p class="text-muted">Well, it seems to be working now.</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <p class="text-muted">Well, it seems to be working now. </p>
-                    <div class="progress progress-md portfolio-progress">
-                      <div class="progress-bar bg-success" role="progressbar" style="width: 50%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-12 col-xl-4 grid-margin stretch-card">
-                <div class="card">
-                  <div class="card-body">
-                    <h4 class="card-title">To do list</h4>
-                    <div class="add-items d-flex">
-                      <input type="text" class="form-control todo-list-input" placeholder="enter task..">
-                      <button class="add btn btn-primary todo-list-add-btn">Add</button>
-                    </div>
-                    <div class="list-wrapper">
-                      <ul class="d-flex flex-column-reverse text-white todo-list todo-list-custom">
-                        <li>
-                          <div class="form-check form-check-primary">
-                            <label class="form-check-label">
-                              <input class="checkbox" type="checkbox"> Create invoice </label>
-                          </div>
-                          <i class="remove mdi mdi-close-box"></i>
-                        </li>
-                        <li>
-                          <div class="form-check form-check-primary">
-                            <label class="form-check-label">
-                              <input class="checkbox" type="checkbox"> Meeting with Alita </label>
-                          </div>
-                          <i class="remove mdi mdi-close-box"></i>
-                        </li>
-                        <li class="completed">
-                          <div class="form-check form-check-primary">
-                            <label class="form-check-label">
-                              <input class="checkbox" type="checkbox" checked> Prepare for presentation </label>
-                          </div>
-                          <i class="remove mdi mdi-close-box"></i>
-                        </li>
-                        <li>
-                          <div class="form-check form-check-primary">
-                            <label class="form-check-label">
-                              <input class="checkbox" type="checkbox"> Plan weekend outing </label>
-                          </div>
-                          <i class="remove mdi mdi-close-box"></i>
-                        </li>
-                        <li>
-                          <div class="form-check form-check-primary">
-                            <label class="form-check-label">
-                              <input class="checkbox" type="checkbox"> Pick up kids from school </label>
-                          </div>
-                          <i class="remove mdi mdi-close-box"></i>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-12">
-                <div class="card">
-                  <div class="card-body">
-                    <h4 class="card-title">Visitors by Countries</h4>
-                    <div class="row">
-                      <div class="col-md-5">
-                        <div class="table-responsive">
-                          <table class="table">
+                        <table class="table table-hover dashboard-table" id="ptScheduleTable">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Trainer</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
                             <tbody>
-                              <tr>
-                                <td>
-                                  <i class="flag-icon flag-icon-us"></i>
-                                </td>
-                                <td>USA</td>
-                                <td class="text-right"> 1500 </td>
-                                <td class="text-right font-weight-medium"> 56.35% </td>
-                              </tr>
-                              <tr>
-                                <td>
-                                  <i class="flag-icon flag-icon-de"></i>
-                                </td>
-                                <td>Germany</td>
-                                <td class="text-right"> 800 </td>
-                                <td class="text-right font-weight-medium"> 33.25% </td>
-                              </tr>
-                              <tr>
-                                <td>
-                                  <i class="flag-icon flag-icon-au"></i>
-                                </td>
-                                <td>Australia</td>
-                                <td class="text-right"> 760 </td>
-                                <td class="text-right font-weight-medium"> 15.45% </td>
-                              </tr>
-                              <tr>
-                                <td>
-                                  <i class="flag-icon flag-icon-gb"></i>
-                                </td>
-                                <td>United Kingdom</td>
-                                <td class="text-right"> 450 </td>
-                                <td class="text-right font-weight-medium"> 25.00% </td>
-                              </tr>
-                              <tr>
-                                <td>
-                                  <i class="flag-icon flag-icon-ro"></i>
-                                </td>
-                                <td>Romania</td>
-                                <td class="text-right"> 620 </td>
-                                <td class="text-right font-weight-medium"> 10.25% </td>
-                              </tr>
-                              <tr>
-                                <td>
-                                  <i class="flag-icon flag-icon-br"></i>
-                                </td>
-                                <td>Brasil</td>
-                                <td class="text-right"> 230 </td>
-                                <td class="text-right font-weight-medium"> 75.00% </td>
-                              </tr>
+                                @foreach($todaySchedules as $schedule)
+                                <tr>
+                                    <td>
+                                        <span class="font-weight-medium">{{ $schedule->display_name }}</span>
+                                    </td>
+                                    <td class="text-muted">{{ $schedule->trainer_name ?? 'N/A' }}</td>
+                                    <td class="text-muted">{{ $schedule->formatted_time }}</td>
+                                    <td>
+                                        <span class="badge {{ $schedule->status_badge_class }}">
+                                            {{ ucfirst(str_replace('_', ' ', $schedule->status)) }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                @endforeach
                             </tbody>
-                          </table>
-                        </div>
-                      </div>
-                      <div class="col-md-7">
-                        <div id="audience-map" class="vector-map"></div>
-                      </div>
+                        </table>
                     </div>
-                  </div>
-                </div>
-              </div>
+                    <div id="ptSchedulePagination" class="dashboard-pagination mt-2"></div>
+                @endif
             </div>
-          
+        </div>
+    </div>
+
+    <!-- Expiring Soon -->
+    <div class="col-xl-4 col-lg-4 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="card-title mb-0">
+                        <i class="mdi mdi-alert-circle-outline mr-1" style="color: #FFA726;"></i>
+                        Expiring Soon (7 Days)
+                    </h4>
+                    <a href="{{ route('memberships.index') }}" class="btn btn-sm btn-outline-light">View All</a>
+                </div>
+                @if($expiringMemberships->isEmpty() && $expiringClients->isEmpty())
+                    <div class="empty-state text-center py-4">
+                        <i class="mdi mdi-check-circle-outline" style="font-size: 48px; color: rgba(102, 187, 106, 0.4);"></i>
+                        <p class="text-muted mt-2 mb-0">No subscriptions expiring in the next 7 days</p>
+                    </div>
+                @else
+                    <div class="table-responsive">
+                        <table class="table table-hover dashboard-table" id="expiringSoonTable">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Type</th>
+                                    <th>Plan</th>
+                                    <th>Expires</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($expiringMemberships as $m)
+                                <tr>
+                                    <td><span class="font-weight-medium">{{ $m->name }}</span></td>
+                                    <td><span class="badge badge-info badge-sm">Member</span></td>
+                                    <td class="text-muted">{{ $m->formatted_plan_type }}</td>
+                                    <td>
+                                        <span class="text-warning">{{ $m->due_date->format('M d, Y') }}</span>
+                                        <br><small class="text-muted">{{ $m->due_date->diffForHumans() }}</small>
+                                    </td>
+                                </tr>
+                                @endforeach
+                                @foreach($expiringClients as $c)
+                                <tr>
+                                    <td><span class="font-weight-medium">{{ $c->name }}</span></td>
+                                    <td><span class="badge badge-purple badge-sm">Client</span></td>
+                                    <td class="text-muted">{{ $c->formatted_plan_type }}</td>
+                                    <td>
+                                        <span class="text-warning">{{ $c->due_date->format('M d, Y') }}</span>
+                                        <br><small class="text-muted">{{ $c->due_date->diffForHumans() }}</small>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="expiringSoonPagination" class="dashboard-pagination mt-2"></div>
+                @endif
+            </div>
+        </div>
+    </div>
+    <!-- Low Stock Alerts -->
+    <div class="col-xl-4 col-lg-4 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="card-title mb-0">
+                        <i class="mdi mdi-alert-outline mr-1" style="color: #EF5350;"></i>
+                        Low Stock Alerts
+                    </h4>
+                    <a href="{{ route('inventory.index') }}" class="btn btn-sm btn-outline-light">Manage</a>
+                </div>
+                @if($lowStockItems->isEmpty())
+                    <div class="empty-state text-center py-4">
+                        <i class="mdi mdi-check-all" style="font-size: 48px; color: rgba(102, 187, 106, 0.4);"></i>
+                        <p class="text-muted mt-2 mb-0">All products are well stocked</p>
+                    </div>
+                @else
+                    <div class="stock-alert-list" id="lowStockList">
+                        @foreach($lowStockItems as $item)
+                        <div class="stock-alert-item d-flex align-items-center justify-content-between py-2 {{ !$loop->last ? 'border-bottom-subtle' : '' }}">
+                            <div class="d-flex align-items-center">
+                                <div class="stock-indicator {{ $item->stock_qty == 0 ? 'bg-danger' : 'bg-warning' }}"></div>
+                                <div>
+                                    <p class="mb-0 font-weight-medium text-white">{{ $item->product_name }}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="badge {{ $item->stock_qty == 0 ? 'badge-danger' : 'badge-warning' }}">
+                                    {{ $item->stock_qty }} left
+                                </span>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    <div id="lowStockPagination" class="dashboard-pagination mt-2"></div>
+                @endif
+            </div>
+        </div>
+      </div>
+</div>
+<!-- ══════════════════════════════════════════════════════
+     ROW 3: Charts - Attendance & Revenue
+     ══════════════════════════════════════════════════════ -->
+<div class="row">
+    <!-- Attendance Chart -->
+    <div class="col-xl-6 col-lg-6 grid-margin stretch-card">
+        <div class="card chart-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="card-title mb-0">Customer Attendance</h4>
+                    <div class="chart-filter-group">
+                        <button class="btn btn-sm btn-filter active" data-chart="attendance" data-period="today">Today</button>
+                        <button class="btn btn-sm btn-filter" data-chart="attendance" data-period="this_week">Week</button>
+                        <button class="btn btn-sm btn-filter" data-chart="attendance" data-period="this_month">Month</button>
+                    </div>
+                </div>
+                <div class="chart-container" style="position: relative; height: 280px;">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue Trend Chart -->
+    <div class="col-xl-6 col-lg-6 grid-margin stretch-card">
+        <div class="card chart-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="card-title mb-0">Revenue Trend</h4>
+                    <div class="chart-filter-group">
+                        <button class="btn btn-sm btn-filter active" data-chart="revenue" data-period="this_month">Month</button>
+                        <button class="btn btn-sm btn-filter" data-chart="revenue" data-period="this_week">Week</button>
+                        <button class="btn btn-sm btn-filter" data-chart="revenue" data-period="this_year">Year</button>
+                    </div>
+                </div>
+                <div class="chart-container" style="position: relative; height: 280px;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     ROW 4: Doughnut Charts - Membership & Revenue Split
+     ══════════════════════════════════════════════════════ -->
+<div class="row">
+    <!-- Membership Status Doughnut -->
+    <div class="col-xl-4 col-lg-4 grid-margin stretch-card">
+        <div class="card chart-card">
+            <div class="card-body">
+                <h4 class="card-title mb-3">Membership Status</h4>
+                <div class="chart-container d-flex align-items-center justify-content-space-between" style="position: relative; height: 240px;">
+                    <canvas id="membershipStatusChart"></canvas>
+                </div>
+                <div class="doughnut-legend mt-3" style="justify-content: space-between;">
+                    <div class="d-flex justify-content-between">
+                        <div class="text-center">
+                            <h5 class="mb-0 text-success">{{ $activeMemberships }}</h5>
+                            <small class="text-muted">Active</small>
+                        </div>
+                        <div class="text-center">
+                            <h5 class="mb-0 text-warning">{{ $dueSoonMemberships }}</h5>
+                            <small class="text-muted">Due Soon</small>
+                        </div>
+                        <div class="text-center">
+                            <h5 class="mb-0 text-danger">{{ $expiredMemberships }}</h5>
+                            <small class="text-muted">Expired</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Plan Distribution -->
+    <div class="col-xl-4 col-lg-4 grid-margin stretch-card">
+        <div class="card chart-card">
+            <div class="card-body">
+                <h4 class="card-title mb-3">Plan Distribution</h4>
+                <div class="chart-container d-flex align-items-center justify-content-center" style="position: relative; height: 240px;">
+                    <canvas id="planDistributionChart"></canvas>
+                </div>
+                <div class="plan-legend mt-3">
+                    @foreach($planDistribution->take(5) as $plan)
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <small class="text-muted">
+                            <span class="legend-dot" style="background: {{ ['#42A5F5','#66BB6A','#FFA726','#AB47BC','#26C6DA','#EF5350','#EC407A'][$loop->index % 7] }};"></span>
+                            {{ $plan->plan_type ? ucfirst(preg_replace('/(?<!^)[A-Z]/', ' $0', $plan->plan_type)) : 'N/A' }}
+                        </small>
+                        <small class="text-white font-weight-bold">{{ $plan->count }}</small>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue Breakdown -->
+    <div class="col-xl-4 col-lg-4 grid-margin stretch-card">
+        <div class="card chart-card">
+            <div class="card-body">
+                <h4 class="card-title mb-3">Revenue Breakdown</h4>
+                <div class="chart-container d-flex align-items-center justify-content-center" style="position: relative; height: 240px;">
+                    <canvas id="revenueBreakdownChart"></canvas>
+                </div>
+                <div class="doughnut-legend mt-3">
+                    <div class="d-flex justify-content-between">
+                        <div class="text-center">
+                            <h6 class="mb-0" style="color: #42A5F5;">₱{{ number_format($monthlyRetailRevenue, 0) }}</h6>
+                            <small class="text-muted">Retail</small>
+                        </div>
+                        <div class="text-center">
+                            <h6 class="mb-0" style="color: #66BB6A;">₱{{ number_format($monthlyMembershipRevenue, 0) }}</h6>
+                            <small class="text-muted">Membership</small>
+                        </div>
+                        <div class="text-center">
+                            <h6 class="mb-0" style="color: #FFA726;">₱{{ number_format($monthlyPTRevenue, 0) }}</h6>
+                            <small class="text-muted">Personal Training</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+    ROW 6: Recent Payments & Recent Activity
+    ══════════════════════════════════════════════════════ -->
+<div class="row">
+  <!-- Recent Payments -->
+    <div class="col-xl-8 col-lg-7 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="card-title mb-0">
+                        <i class="mdi mdi-receipt mr-1" style="color: #42A5F5;"></i>
+                        Recent Payments
+                    </h4>
+                    <div class="d-flex align-items-center">
+                        <div class="dropdown mr-2" id="paymentFilterDropdown">
+                            <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+                                <i class="mdi mdi-filter-outline mr-1"></i>
+                                <span id="paymentFilterLabel">All</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right payment-filter-dropdown">
+                                <a class="dropdown-item active" href="#" data-filter="all">All Types</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" data-filter="Membership">
+                                    Membership
+                                </a>
+                                <a class="dropdown-item" href="#" data-filter="PT">
+                                    Personal Training
+                                </a>
+                                <a class="dropdown-item" href="#" data-filter="Product">
+                                    Product
+                                </a>
+                            </div>
+                        </div>
+                        <a href="{{ route('payments.history') }}" class="btn btn-sm btn-outline-light">View History</a>
+                    </div>
+                </div>
+                @if($recentPayments->isEmpty())
+                    <div class="empty-state text-center py-4">
+                        <i class="mdi mdi-cash-register" style="font-size: 48px; color: rgba(255,255,255,0.15);"></i>
+                        <p class="text-muted mt-2 mb-0">No recent payments</p>
+                    </div>
+                @else
+                    <div class="table-responsive">
+                        <table class="table table-hover dashboard-table" id="recentPaymentsTable">
+                            <thead>
+                                <tr>
+                                    <th>Receipt #</th>
+                                    <th>Customer</th>
+                                    <th>Category</th>
+                                    <th>Plan / Type</th>
+                                    <th>Method</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($recentPayments as $payment)
+                                <tr data-payment-category="{{ $payment->category }}">
+                                    <td class="font-weight-medium text-info">{{ $payment->receipt_number }}</td>
+                                    <td>{{ $payment->name }}</td>
+                                    <td>
+                                        @if($payment->category === 'Membership')
+                                            <span class="badge badge-outline-success">Membership</span>
+                                        @elseif($payment->category === 'PT')
+                                            <span class="badge badge-purple">Personal Training</span>
+                                        @else
+                                            <span class="badge badge-outline-info">Product</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-muted">{{ ucfirst($payment->plan_type) }}</td>
+                                    <td class="text-muted">{{ ucfirst($payment->payment_method ?? 'N/A') }}</td>
+                                    <td class="font-weight-medium text-success">₱{{ number_format($payment->amount, 2) }}</td>
+                                    <td class="text-muted">{{ $payment->created_at->format('M d, g:i A') }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state text-center py-4" id="noFilteredPayments" style="display:none;">
+                        <i class="mdi mdi-filter-remove-outline" style="font-size: 48px; color: rgba(255,255,255,0.15);"></i>
+                        <p class="text-muted mt-2 mb-0">No payments match this filter</p>
+                    </div>
+                    <div id="paymentsPagination" class="dashboard-pagination mt-2"></div>
+                @endif
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-lg-5 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="card-title mb-0">
+                        <i class="mdi mdi-history mr-1" style="color: #66BB6A;"></i>
+                        Recent Activity
+                    </h4>
+                    <a href="{{ route('UserAndAdmin.CashierActivity') }}" class="btn btn-sm btn-outline-light">View All</a>
+                </div>
+                @if($recentActivities->isEmpty())
+                    <div class="empty-state text-center py-4 flex-grow-1 d-flex flex-column align-items-center justify-content-center">
+                        <i class="mdi mdi-clock-outline" style="font-size: 48px; color: rgba(255,255,255,0.15);"></i>
+                        <p class="text-muted mt-2 mb-0">No recent activity</p>
+                    </div>
+                @else
+                    <div class="activity-timeline flex-grow-1" id="activityTimeline">
+                        @foreach($recentActivities as $activity)
+                        <div class="activity-item d-flex align-items-start {{ !$loop->last ? 'mb-3' : '' }}">
+                            <div class="activity-content flex-grow-1">
+                                <p class="mb-1 text-white">
+                                    <small class="badge badge-outline-light mr-1">{{ $activity->module }}</small>
+                                    {{ $activity->description }}
+                                </p>
+                                <div class="d-flex align-items-center">
+                                    <small class="text-muted" style="min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 8px;">
+                                        by {{ $activity->user_name }}
+                                        @if($activity->reference_number)
+                                            &bull; Ref: {{ $activity->reference_number }}
+                                        @endif
+                                    </small>
+                                    <small class="text-muted" style="flex-shrink: 0; white-space: nowrap;">{{ $activity->created_at->diffForHumans() }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                @endif
+                <div id="activityPagination" class="dashboard-pagination mt-auto pt-2" style="align-self: flex-end;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden data for charts -->
+<script id="planDistributionData" type="application/json">
+    @json($planDistribution)
+</script>
+
 @endsection
+
+@push('scripts')
+@vite(['resources/js/pages/dashboard.js'])
+@endpush
 

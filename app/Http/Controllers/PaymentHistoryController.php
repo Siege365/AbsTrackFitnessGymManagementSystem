@@ -304,7 +304,7 @@ class PaymentHistoryController extends Controller
 
             if ($result['success']) {
                 $p = $result['payment'];
-                ActivityLog::log('refunded', 'product_payment', "Refunded product payment #{$p->receipt_number} for {$p->customer_name} — ₱" . number_format($p->refunded_amount, 2), $p->receipt_number, $p->customer_name, $p, ['amount' => $p->refunded_amount, 'reason' => $validated['reason'] ?? null]);
+                ActivityLog::log('refunded', 'product_payment', "Refunded product payment for {$p->customer_name} — ₱" . number_format($p->refunded_amount, 2), $p->receipt_number, $p->customer_name, $p, ['amount' => $p->refunded_amount, 'reason' => $validated['reason'] ?? null]);
             }
 
             if ($request->expectsJson()) {
@@ -341,7 +341,7 @@ class PaymentHistoryController extends Controller
 
             if ($result['success']) {
                 $p = $result['payment'];
-                ActivityLog::log('refunded', 'membership_payment', "Refunded membership payment #{$p->receipt_number} for {$p->member_name} — ₱" . number_format($p->refunded_amount, 2), $p->receipt_number, $p->member_name, $p, ['amount' => $p->refunded_amount, 'reason' => $validated['reason'] ?? null]);
+                ActivityLog::log('refunded', 'membership_payment', "Refunded membership payment for {$p->member_name} — ₱" . number_format($p->refunded_amount, 2), $p->receipt_number, $p->member_name, $p, ['amount' => $p->refunded_amount, 'reason' => $validated['reason'] ?? null]);
             }
 
             if ($request->expectsJson()) {
@@ -390,7 +390,7 @@ class PaymentHistoryController extends Controller
                 $paymentRecord->delete();
             });
 
-            ActivityLog::log('deleted', 'product_payment', "Deleted product payment #{$deletedReceipt} ({$deletedCustomer})", $deletedReceipt, $deletedCustomer);
+            ActivityLog::log('deleted', 'product_payment', "Deleted product payment for {$deletedCustomer}", $deletedReceipt, $deletedCustomer);
 
             return back()->with('success', 'Transaction deleted successfully.');
         } catch (\Exception $e) {
@@ -465,7 +465,7 @@ class PaymentHistoryController extends Controller
                 $payment->delete();
             });
 
-            ActivityLog::log('deleted', 'membership_payment', "Deleted membership payment #{$deletedReceipt} ({$deletedName})", $deletedReceipt, $deletedName);
+            ActivityLog::log('deleted', 'membership_payment', "Deleted membership payment for {$deletedName}", $deletedReceipt, $deletedName);
 
             return back()->with('success', 'Membership payment deleted successfully.');
         } catch (\Exception $e) {
@@ -525,7 +525,7 @@ class PaymentHistoryController extends Controller
 
             if ($result['success']) {
                 $p = $result['payment'];
-                ActivityLog::log('refunded', 'pt_payment', "Refunded PT payment #{$p->receipt_number} for {$p->member_name} — ₱" . number_format($p->refunded_amount, 2), $p->receipt_number, $p->member_name, $p, ['amount' => $p->refunded_amount, 'reason' => $validated['reason'] ?? null]);
+                ActivityLog::log('refunded', 'pt_payment', "Refunded PT payment for {$p->member_name} — ₱" . number_format($p->refunded_amount, 2), $p->receipt_number, $p->member_name, $p, ['amount' => $p->refunded_amount, 'reason' => $validated['reason'] ?? null]);
             }
 
             if ($request->expectsJson()) {
@@ -571,7 +571,7 @@ class PaymentHistoryController extends Controller
                 $payment->delete();
             });
 
-            ActivityLog::log('deleted', 'pt_payment', "Deleted PT payment #{$deletedReceipt} ({$deletedName})", $deletedReceipt, $deletedName);
+            ActivityLog::log('deleted', 'pt_payment', "Deleted PT payment for {$deletedName}", $deletedReceipt, $deletedName);
 
             return back()->with('success', 'PT payment deleted successfully.');
         } catch (\Exception $e) {

@@ -97,8 +97,8 @@ class ReportService
     {
         $range = $this->getDateRange($period);
 
-        // "this_month" renders daily; everything else renders monthly
-        if ($period === 'this_month') {
+        // Short periods render daily; longer periods render monthly
+        if (in_array($period, ['today', 'this_week', 'this_month'])) {
             return $this->buildDailyRevenue($range);
         }
 

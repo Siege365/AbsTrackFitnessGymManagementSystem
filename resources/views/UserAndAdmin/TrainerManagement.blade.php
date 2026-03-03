@@ -1,6 +1,10 @@
 @extends('layouts.admin')
 
-@section('title', 'Trainers')
+@section('title', 'Trainer Management - AbsTrack Fitness Gym')
+
+@push('styles')
+@vite(['resources/css/trainer.css'])
+@endpush
 
 @section('content')
 
@@ -8,50 +12,23 @@
 <div class="card page-header-card">
     <div class="card-body">
         <div>
-            <h2 class="page-header-title">Trainers</h2>
+            <h2 class="page-header-title">Trainer Management</h2>
             <p class="page-header-subtitle">View, add, and manage gym trainers and their specializations.</p>
         </div>
+        <button class="btn btn-page-action" data-toggle="modal" data-target="#addTrainerModal">
+            <i class="mdi mdi-plus"></i> Add New Trainer
+        </button>
     </div>
 </div>
 
-            <div class="row">
-              <div class="col-12 grid-margin">
-                <div class="card">
-                  <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                      <h4 class="card-title mb-0">List of Trainers</h4>
-                      <div class="d-flex">
-                        <button class="btn btn-sm btn-outline-secondary mr-2">
-                          <i class="mdi mdi-filter-variant"></i> Filter
-                        </button>
-                        <input type="text" class="form-control form-control-sm" placeholder="Search" style="width: 200px;">
-                      </div>
-                    </div>
-                    <div class="table-responsive" style="min-height: 600px;">
-                      <table class="table table-hover">
-                        <thead>
-                          <tr>
-                            <th style="min-width: 50px;">
-                              <div class="form-check form-check-muted m-0">
-                                <label class="form-check-label">
-                                  <input type="checkbox" class="form-check-input">
-                                </label>
-                              </div>
-                            </th>
-                            <th> Trainer ID# </th>
-                            <th> Full Name </th>
-                            <th> Specialization </th>
-                            <th> Contact # </th>
-                            <th> Emergency Contact # </th>
-                            <th> Birthdate </th>
-                            <th> Address </th>
-                            <th> Actions </th>
-                          </tr>
-                        </thead>
-                       </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+@include('UserAndAdmin.trainer-partials._stats')
+@include('UserAndAdmin.trainer-partials._table')
+@include('UserAndAdmin.trainer-partials.modals._add')
+@include('UserAndAdmin.trainer-partials.modals._delete')
+@include('UserAndAdmin.trainer-partials.modals._bulk-delete')
+
 @endsection
+
+@push('scripts')
+@include('UserAndAdmin.trainer-partials._scripts')
+@endpush

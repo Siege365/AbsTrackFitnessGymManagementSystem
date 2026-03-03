@@ -341,7 +341,7 @@ class MembershipPaymentController extends Controller
 
             DB::commit();
 
-            ActivityLog::log('created', 'membership_payment', "Processed membership payment #{$payment->receipt_number} for {$payment->member_name} ({$request->payment_type}) — ₱" . number_format($payment->amount, 2), $payment->receipt_number, $payment->member_name, $payment, ['plan_type' => $payment->plan_type, 'payment_type' => $request->payment_type, 'amount' => $payment->amount, 'payment_method' => $request->payment_method]);
+            ActivityLog::log('created', 'membership_payment', "Processed membership payment for {$payment->member_name} ({$request->payment_type}) — ₱" . number_format($payment->amount, 2), $payment->receipt_number, $payment->member_name, $payment, ['plan_type' => $payment->plan_type, 'payment_type' => $request->payment_type, 'amount' => $payment->amount, 'payment_method' => $request->payment_method]);
 
             $message = 'Payment processed successfully! ';
             if ($request->payment_type === 'new') {

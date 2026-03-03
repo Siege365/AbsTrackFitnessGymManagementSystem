@@ -134,11 +134,33 @@ const PTSessionsPage = {
       setTimeout(() => location.reload(), 300);
     });
 
-    // When confirm PT modal is dismissed (Go Back), re-open the Add PT form
+    // Single consolidated handler for confirm PT modal dismiss
     $('#confirmPTModal').on('hidden.bs.modal', function() {
+      // Always reset the confirm button state
+      $('#confirmPTSubmitBtn').prop('disabled', false).html('<i class="mdi mdi-check"></i> Confirm');
+
+      // If submission was completed, just clean up flags and let the page reload
       if (PTSessionsPage._ptConfirmSubmitted) {
         PTSessionsPage._ptConfirmSubmitted = false;
+        PTSessionsPage._ptShowingConfirmation = false;
         return;
+      }
+
+      // Going back to edit — preserve form data, re-open the Add PT modal
+      if (PTSessionsPage._ptShowingConfirmation) {
+        PTSessionsPage._ptShowingConfirmation = false;
+        $('#addPTScheduleModal').modal('show');
+        return;
+      }
+
+      // User dismissed (X / outside click) — reset form and re-open
+      PTSessionsPage._ptShowingConfirmation = false;
+      PTSessionsPage._resetPTFields();
+      $('#pt_customer_select').val('');
+      $('#pt_customer_id').val('');
+      $('#pt_customer_type').val('');
+      if ($('#pt_trainer').hasClass('select2-hidden-accessible')) {
+        try { $('#pt_trainer').select2('destroy'); } catch(e) {}
       }
       $('#addPTScheduleModal').modal('show');
     });
@@ -146,11 +168,6 @@ const PTSessionsPage = {
     // Reset bulk delete confirm button on close
     $('#bulkDeleteConfirmModal').on('hidden.bs.modal', function() {
       $('#bulkDeleteConfirmBtn').prop('disabled', false).html('<i class="mdi mdi-delete"></i> Delete');
-    });
-
-    // Reset confirm PT button on close
-    $('#confirmPTModal').on('hidden.bs.modal', function() {
-      $('#confirmPTSubmitBtn').prop('disabled', false).html('<i class="mdi mdi-check"></i> Confirm');
     });
   },
 
@@ -194,6 +211,17 @@ const PTSessionsPage = {
       }
     });
 
+    // Clear stale selection when user modifies the input text after selecting from autocomplete
+    $('#pt_customer_select').on('input', function() {
+      if (PTSessionsPage._ptSelectedData) {
+        // User is typing over a previous selection — reset to walk-in state
+        PTSessionsPage._ptSelectedData = null;
+        PTSessionsPage._ptIsWalkIn = false;
+        $('#pt_customer_id').val('');
+        $('#pt_customer_type').val('');
+      }
+    });
+
     // Handle walk-in when user types a name not in the list
     $('#pt_customer_select').on('blur', function() {
       var enteredText = $(this).val().trim();
@@ -228,21 +256,7 @@ const PTSessionsPage = {
       }
     });
 
-    // Reset when confirmation modal is closed
-    $('#confirmPTModal').on('hidden.bs.modal', function() {
-      PTSessionsPage._ptShowingConfirmation = false;
-      if (!PTSessionsPage._ptConfirmSubmitted) {
-        PTSessionsPage._resetPTFields();
-        $('#pt_customer_select').val('');
-        $('#pt_customer_id').val('');
-        $('#pt_customer_type').val('');
-        
-        if ($('#pt_trainer').hasClass('select2-hidden-accessible')) {
-          $('#pt_trainer').select2('destroy');
-        }
-      }
-      PTSessionsPage._ptConfirmSubmitted = false;
-    });
+    // Note: confirmPTModal hidden handler is consolidated in bindEvents()
   },
 
   // Reset PT form fields
@@ -425,15 +439,10 @@ const PTSessionsPage = {
   goBackToPTForm: function() {
     this._ptShowingConfirmation = true;
     $('#confirmPTModal').modal('hide');
-    $('#confirmPTModal').one('hidden.bs.modal', function() {
-      $('#addPTScheduleModal').modal('show');
-      PTSessionsPage._ptShowingConfirmation = false;
-    });
   },
 
   // Execute PT schedule submission after confirmation
   executeSubmitPT: function() {
-    this._ptConfirmSubmitted = true;
     var $btn = $('#confirmPTSubmitBtn');
     $btn.prop('disabled', true).html('<i class="mdi mdi-loading mdi-spin"></i> Submitting...');
 
@@ -467,10 +476,14 @@ const PTSessionsPage = {
       method: 'POST',
       data: data,
       success: function(response) {
+        PTSessionsPage._ptConfirmSubmitted = true;
         $('#confirmPTModal').modal('hide');
         PTSessionsPage.showToast('success', 'PT Schedule added successfully!');
         PTSessionsPage.refreshKPIs();
-        setTimeout(() => location.reload(), 1000);
+        // Force a fresh page load (avoids potential browser cache with location.reload)
+        setTimeout(function() {
+          window.location.href = window.location.pathname + window.location.search;
+        }, 1000);
       },
       error: function(xhr) {
         $btn.prop('disabled', false).html('<i class="mdi mdi-check"></i> Confirm');
@@ -706,7 +719,10 @@ const PTSessionsPage = {
         $('#bookNextModal').modal('hide');
         PTSessionsPage.showToast('success', 'Next session booked successfully!');
         PTSessionsPage.refreshKPIs();
-        setTimeout(() => location.reload(), 1000);
+        // Force a fresh page load (avoids potential browser cache with location.reload)
+        setTimeout(function() {
+          window.location.href = window.location.pathname + window.location.search;
+        }, 1000);
       },
       error: function(xhr) {
         const errors = xhr.responseJSON?.errors || {};

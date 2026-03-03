@@ -112,8 +112,8 @@
         <ul class="nav flex-column sub-menu">
           @if(auth()->user() && auth()->user()->isAdmin())
           <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.UserManagement') }}"> Staff Accounts </a></li>
-          @endif
           <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.TrainerManagement') }}"> Trainers </a></li>
+          @endif
           <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.CashierActivity') }}"> Activity Logs </a></li>
         </ul>
       </div>

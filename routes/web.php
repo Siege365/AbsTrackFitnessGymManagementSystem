@@ -18,6 +18,8 @@ use App\Http\Controllers\RefundController;
 use App\Http\Controllers\PTpaymentController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\TrainerController;
+use App\Http\Controllers\DashboardController;
 
 
 
@@ -28,15 +30,18 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
 // Dashboard (Protected)
-Route::get('/', function () {
-    return view('pages.dashboard');
-})->middleware('auth')->name('dashboard');
+Route::get('/', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 
 // Protected Routes (Require Authentication)
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
+
+    // Dashboard API Routes
+    Route::get('/dashboard/attendance-chart', [DashboardController::class, 'getAttendanceChart'])->name('dashboard.attendance-chart');
+    Route::get('/dashboard/revenue-chart', [DashboardController::class, 'getRevenueChart'])->name('dashboard.revenue-chart');
+    Route::get('/dashboard/membership-chart', [DashboardController::class, 'getMembershipChart'])->name('dashboard.membership-chart');
     // UI Elements
     Route::get('/ui/buttons', function () {
         return view('pages.ui.buttons');
@@ -206,18 +211,21 @@ Route::middleware(['auth'])->group(function () {
     // Legacy route (redirect to new reports route)
     Route::get('/ReportAndBilling', [ReportController::class, 'index'])->name('ReportAndBilling');
 
-    // User and Admin — Staff Account Management (Admin Only)
+    // User and Admin — Staff & Trainer Management (Admin Only)
     Route::middleware(['admin'])->group(function () {
         Route::get('/UserAndAdmin/UserManagement', [StaffController::class, 'index'])->name('UserAndAdmin.UserManagement');
         Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
         Route::put('/staff/{id}', [StaffController::class, 'update'])->name('staff.update');
         Route::delete('/staff/bulk-delete', [StaffController::class, 'bulkDelete'])->name('staff.bulk-delete');
         Route::delete('/staff/{id}', [StaffController::class, 'destroy'])->name('staff.destroy');
-    });
 
-    Route::get('/UserAndAdmin/TrainerManagement', function () {
-        return view('UserAndAdmin.TrainerManagement');
-    })->name('UserAndAdmin.TrainerManagement');
+        // Trainer Management (Admin Only)
+        Route::get('/UserAndAdmin/TrainerManagement', [TrainerController::class, 'index'])->name('UserAndAdmin.TrainerManagement');
+        Route::post('/trainers', [TrainerController::class, 'store'])->name('trainers.store');
+        Route::put('/trainers/{id}', [TrainerController::class, 'update'])->name('trainers.update');
+        Route::delete('/trainers/bulk-delete', [TrainerController::class, 'bulkDelete'])->name('trainers.bulk-delete');
+        Route::delete('/trainers/{id}', [TrainerController::class, 'destroy'])->name('trainers.destroy');
+    });
     
     Route::get('/UserAndAdmin/CashierActivity', [ActivityLogController::class, 'index'])->name('UserAndAdmin.CashierActivity');
     Route::delete('/activity-logs/bulk-delete', [ActivityLogController::class, 'bulkDelete'])->name('activity-logs.bulk-delete');

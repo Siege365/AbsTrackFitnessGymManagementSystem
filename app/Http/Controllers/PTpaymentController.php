@@ -173,7 +173,7 @@ class PTpaymentController extends Controller
 
             DB::commit();
 
-            ActivityLog::log('created', 'pt_payment', "Processed PT payment #{$payment->receipt_number} for {$payment->member_name} ({$request->payment_type}) — ₱" . number_format($payment->amount, 2), $payment->receipt_number, $payment->member_name, $payment, ['plan_type' => $payment->plan_type, 'payment_type' => $request->payment_type, 'amount' => $payment->amount, 'duration_days' => $payment->duration_days]);
+            ActivityLog::log('created', 'pt_payment', "Processed PT payment for {$payment->member_name} ({$request->payment_type}) — ₱" . number_format($payment->amount, 2), $payment->receipt_number, $payment->member_name, $payment, ['plan_type' => $payment->plan_type, 'payment_type' => $request->payment_type, 'amount' => $payment->amount, 'duration_days' => $payment->duration_days]);
 
             $messages = [
                 'new'       => 'New PT client enrolled successfully!',

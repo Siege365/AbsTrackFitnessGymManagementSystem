@@ -21,14 +21,14 @@
     </div>
 </div>
 
-@include('UserAndAdmin.partials._stats')
-@include('UserAndAdmin.partials._table')
-@include('UserAndAdmin.partials.modals._add')
-@include('UserAndAdmin.partials.modals._delete')
-@include('UserAndAdmin.partials.modals._bulk-delete')
+@include('UserAndAdmin.staff-partials._stats')
+@include('UserAndAdmin.staff-partials._table')
+@include('UserAndAdmin.staff-partials.modals._add')
+@include('UserAndAdmin.staff-partials.modals._delete')
+@include('UserAndAdmin.staff-partials.modals._bulk-delete')
 
 @endsection
 
 @push('scripts')
-@include('UserAndAdmin.partials._scripts')
+@include('UserAndAdmin.staff-partials._scripts')
 @endpush

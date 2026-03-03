@@ -6,6 +6,7 @@ use App\Models\PTSchedule;
 use App\Models\Attendance;
 use App\Models\Client;
 use App\Models\Membership;
+use App\Models\Trainer;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -203,14 +204,8 @@ class SessionController extends Controller
             // Get all clients for dropdowns
             $clients = Client::orderBy('name')->get();
             
-            // Trainers list
-            $trainers = [
-                'David Laid',
-                'Eulo Icon Sexcion',
-                'Justin Troy Rosalada',
-                'Nicolas Deloso Torre III',
-                'Ronnie Coleman',
-            ];
+            // Trainers list - pulled from database
+            $trainers = Trainer::orderBy('full_name')->pluck('full_name')->toArray();
 
             return view('Sessions.pt-sessions', compact(
                 'ptSessionsToday',
@@ -391,7 +386,7 @@ class SessionController extends Controller
             $ptSchedule->load(['client', 'membership']);
 
             $displayName = $ptSchedule->display_name;
-            ActivityLog::log('created', 'pt_session', "Created PT session for {$displayName} on {$ptSchedule->scheduled_date}", 'PT-' . $ptSchedule->id, $displayName, $ptSchedule, ['trainer' => $ptSchedule->trainer_name, 'date' => $ptSchedule->scheduled_date, 'time' => $ptSchedule->scheduled_time]);
+            ActivityLog::log('created', 'pt_session', "Created PT session for {$displayName}", 'PT-' . $ptSchedule->id, $displayName, $ptSchedule, ['trainer' => $ptSchedule->trainer_name, 'date' => $ptSchedule->scheduled_date, 'time' => $ptSchedule->scheduled_time]);
 
             return response()->json([
                 'success' => true,
@@ -566,7 +561,7 @@ class SessionController extends Controller
             $ptSchedule->load(['client', 'membership']);
 
             $displayName = $ptSchedule->display_name;
-            ActivityLog::log('created', 'pt_session', "Booked next PT session for {$displayName} on {$ptSchedule->scheduled_date}", 'PT-' . $ptSchedule->id, $displayName, $ptSchedule, ['date' => $ptSchedule->scheduled_date, 'time' => $ptSchedule->scheduled_time]);
+            ActivityLog::log('created', 'pt_session', "Booked next PT session for {$displayName}", 'PT-' . $ptSchedule->id, $displayName, $ptSchedule, ['date' => $ptSchedule->scheduled_date, 'time' => $ptSchedule->scheduled_time]);
 
             return response()->json([
                 'success' => true,
@@ -1052,32 +1047,25 @@ class SessionController extends Controller
     public function searchTrainers(Request $request)
     {
         try {
-            // Accept both 'q' and 'query' parameters for compatibility
             $search = $request->input('q') ?? $request->input('query', '');
 
-            // Static trainers list (can be moved to database in future)
-            $trainers = [
-                'Ronnie Coleman',
-                'Justin Troy Rosalada',
-                'Eulo Icon Sexcion',
-                'David Laid',
-                'Nicolas Deloso Torre III',
-            ];
+            $query = Trainer::query();
 
-            // Filter trainers based on search query
-            $filtered = collect($trainers)
-                ->filter(function ($trainer) use ($search) {
-                    return empty($search) || stripos($trainer, $search) !== false;
-                })
-                ->map(function ($trainer, $index) {
+            if (!empty($search)) {
+                $query->where('full_name', 'LIKE', "%{$search}%");
+            }
+
+            $trainers = $query->orderBy('full_name')
+                ->limit(15)
+                ->get()
+                ->map(function ($trainer) {
                     return [
-                        'id' => $index + 1,
-                        'name' => $trainer,
+                        'id' => $trainer->id,
+                        'name' => $trainer->full_name,
                     ];
-                })
-                ->values();
+                });
 
-            return response()->json($filtered);
+            return response()->json($trainers);
         } catch (\Exception $e) {
             return response()->json([], 500);
         }
