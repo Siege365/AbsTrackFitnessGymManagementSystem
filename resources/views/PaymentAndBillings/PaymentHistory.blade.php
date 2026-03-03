@@ -767,19 +767,6 @@ let currentRefundId = null;
 document.addEventListener('DOMContentLoaded', function() {
   initializeCheckboxes();
   initializePageToggle();
-  
-  // Display Laravel messages
-  @if(session('success'))
-    ToastUtils.showSuccess('{{ session('success') }}');
-  @endif
-
-  @if(session('error'))
-    ToastUtils.showError('{{ session('error') }}');
-  @endif
-
-  @if($errors->any())
-    ToastUtils.showError('{{ $errors->first() }}');
-  @endif
 });
 
 // FIX #3: Checkbox Management
