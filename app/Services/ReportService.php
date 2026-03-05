@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Payment;
 use App\Models\PaymentItem;
 use App\Models\MembershipPayment;
+use App\Models\PTPayment;
 use App\Models\PTSchedule;
 use App\Models\Attendance;
 use Carbon\Carbon;
@@ -395,6 +396,13 @@ class ReportService
             ->groupBy('payment_method')
             ->get();
 
+        // PT payments by method
+        $ptTx = PTPayment::selectRaw('payment_method, SUM(amount) as total')
+            ->whereBetween('created_at', [$range['start'], $range['end']])
+            ->where('is_refunded', false)
+            ->groupBy('payment_method')
+            ->get();
+
         // Merge into single map
         $combined = [];
         foreach ($retailTx as $t) {
@@ -402,6 +410,10 @@ class ReportService
             $combined[$method] = ($combined[$method] ?? 0) + (float) $t->total;
         }
         foreach ($membershipTx as $t) {
+            $method = ucfirst(strtolower($t->payment_method));
+            $combined[$method] = ($combined[$method] ?? 0) + (float) $t->total;
+        }
+        foreach ($ptTx as $t) {
             $method = ucfirst(strtolower($t->payment_method));
             $combined[$method] = ($combined[$method] ?? 0) + (float) $t->total;
         }
@@ -560,15 +572,13 @@ class ReportService
     }
 
     /**
-     * Sum PT revenue (done sessions x P500) in a date range.
+     * Sum PT revenue from actual PT payments in a date range.
      */
     public function sumPTRevenue(Carbon $start, Carbon $end): float
     {
-        $sessions = PTSchedule::whereBetween('scheduled_date', [$start, $end])
-            ->where('status', 'done')
-            ->count();
-
-        return (float) ($sessions * self::PT_SESSION_RATE);
+        return (float) PTPayment::whereBetween('created_at', [$start, $end])
+            ->where('is_refunded', false)
+            ->sum('amount');
     }
 
     // ──────────────────────────────────────────────────
@@ -668,9 +678,9 @@ class ReportService
             ->get()
             ->keyBy(fn($i) => $i->year . '-' . str_pad($i->month, 2, '0', STR_PAD_LEFT));
 
-        $ptData = PTSchedule::selectRaw('MONTH(scheduled_date) as month, YEAR(scheduled_date) as year, COUNT(*) as sessions')
-            ->whereBetween('scheduled_date', [$range['start'], $range['end']])
-            ->where('status', 'done')
+        $ptData = PTPayment::selectRaw('MONTH(created_at) as month, YEAR(created_at) as year, SUM(amount) as total')
+            ->whereBetween('created_at', [$range['start'], $range['end']])
+            ->where('is_refunded', false)
             ->groupBy('year', 'month')
             ->orderBy('year')->orderBy('month')
             ->get()
@@ -687,7 +697,7 @@ class ReportService
             $labels[]     = $cursor->format('M');
             $retail[]     = $retailData->has($key) ? (float) $retailData[$key]->total : 0;
             $membership[] = $membershipData->has($key) ? (float) $membershipData[$key]->total : 0;
-            $pt[]         = $ptData->has($key) ? ($ptData[$key]->sessions * self::PT_SESSION_RATE) : 0;
+            $pt[]         = $ptData->has($key) ? (float) $ptData[$key]->total : 0;
             $cursor->addMonth();
         }
 
@@ -720,9 +730,9 @@ class ReportService
             ->get()
             ->keyBy('day');
 
-        $ptData = PTSchedule::selectRaw('DATE(scheduled_date) as day, COUNT(*) as sessions')
-            ->whereBetween('scheduled_date', [$range['start'], $range['end']])
-            ->where('status', 'done')
+        $ptData = PTPayment::selectRaw('DATE(created_at) as day, SUM(amount) as total')
+            ->whereBetween('created_at', [$range['start'], $range['end']])
+            ->where('is_refunded', false)
             ->groupBy('day')
             ->orderBy('day')
             ->get()
@@ -739,7 +749,7 @@ class ReportService
             $labels[]     = $cursor->format('M d');
             $retail[]     = $retailData->has($key) ? (float) $retailData[$key]->total : 0;
             $membership[] = $membershipData->has($key) ? (float) $membershipData[$key]->total : 0;
-            $pt[]         = $ptData->has($key) ? ($ptData[$key]->sessions * self::PT_SESSION_RATE) : 0;
+            $pt[]         = $ptData->has($key) ? (float) $ptData[$key]->total : 0;
             $cursor->addDay();
         }
 

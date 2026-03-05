@@ -387,6 +387,7 @@ const InventoryPage = (function() {
                     if (quantity > currentStock) {
                         document.getElementById('stockOutPreview').style.display = 'none';
                         document.getElementById('confirmStockOut').disabled = true;
+                        ToastUtils.showError('Insufficient stock! Current stock: ' + currentStock + '.', 'Insufficient Stock');
                     } else {
                         document.getElementById('previewCurrentOut').textContent = currentStock;
                         document.getElementById('previewRemoveQuantity').textContent = '-' + quantity;
@@ -416,7 +417,7 @@ const InventoryPage = (function() {
                     return;
                 } else if (quantity > currentStock) {
                     e.preventDefault();
-                    ToastUtils.showError('Insufficient stock! Cannot remove more than available quantity.', 'Insufficient Stock');
+                    ToastUtils.showError('Insufficient stock! Current stock: ' + currentStock + '.', 'Insufficient Stock');
                     document.getElementById('stockOutQuantity').focus();
                     return;
                 }
