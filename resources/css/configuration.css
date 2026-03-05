@@ -1,29 +1,30 @@
 /* ============================================
-   Configuration Page Styles
+   Configuration / Settings Page Styles
+   Consistent with Inventory, Memberships, Clients
    ============================================ */
 
-/* ── Section Toggle ── */
+/* -- Section Toggle (inside page-header-card) -- */
 .config-toggle-container {
     display: flex;
     gap: 0.5rem;
-    margin-bottom: 1.5rem;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     padding: 0.375rem;
-    width: fit-content;
 }
 
 .config-toggle-btn {
     display: inline-flex;
+    flex: 1;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
-    padding: 0.625rem 1.25rem;
+    padding: 0.75rem 1.5rem;
     border: none;
     border-radius: 10px;
     background: transparent;
     color: #999;
-    font-size: 0.9375rem;
+    font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.25s ease;
@@ -46,7 +47,7 @@
     font-size: 1.25rem;
 }
 
-/* ── Section visibility ── */
+/* -- Section Visibility -- */
 .config-section {
     display: none;
 }
@@ -56,567 +57,318 @@
     animation: fadeInDown 0.3s ease;
 }
 
-/* ── Config Card ── */
-.config-card {
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    margin-bottom: 1.5rem;
-    overflow: visible;
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-.config-card .card-body {
-    padding: 1.5rem;
+/* ============================================
+   TABLE � Standard Sizing (matches global)
+   ============================================ */
+.config-section .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
 }
 
-.config-section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.25rem;
-    flex-wrap: wrap;
-    gap: 0.75rem;
+.config-section .table-responsive::-webkit-scrollbar {
+    height: 8px;
 }
 
-.config-section-title {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+.config-section .table-responsive::-webkit-scrollbar-track {
+    background: #191C24;
 }
 
-.config-section-title i {
-    font-size: 1.5rem;
-    color: #FFA726;
+.config-section .table-responsive::-webkit-scrollbar-thumb {
+    background-color: #3a3f4b;
+    border-radius: 4px;
 }
 
-.config-section-title h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #fff;
-    margin: 0;
-}
-
-/* ── Add Plan Button ── */
-.btn-add-plan {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1.125rem;
-    border: 2px solid #FFA726;
+.config-section .table {
+    color: #ffffff;
     background: transparent;
-    color: #FFA726;
-    font-weight: 600;
-    font-size: 0.875rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.25s ease;
 }
 
-.btn-add-plan:hover {
-    background: linear-gradient(135deg, #FFA726, #FFB84D);
-    color: #1a1d24;
-    box-shadow: 0 2px 8px rgba(255, 167, 38, 0.3);
-    transform: translateY(-1px);
+.config-section .table .dropdown {
+    position: relative;
 }
 
-.btn-add-plan i {
-    font-size: 1.125rem;
+.config-section .table .dropdown-menu {
+    position: absolute;
+    z-index: 1050;
+    margin-top: 0.125rem;
 }
 
-/* ── Config Table ── */
-.config-table-wrapper {
-    overflow-x: auto;
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.config-table {
-    width: 100%;
-    margin: 0;
-    border-collapse: collapse;
-}
-
-.config-table thead th {
-    background: rgba(255, 255, 255, 0.04);
-    color: #999;
-    font-weight: 600;
-    font-size: 0.8125rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 0.75rem 1rem;
-    border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+.config-section .table thead th {
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 700;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 1rem;
+    padding: 20px 18px;
+    text-align: left;
+    vertical-align: middle;
     white-space: nowrap;
 }
 
-.config-table tbody td {
-    padding: 0.875rem 1rem;
-    border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    color: #e0e0e0;
-    font-size: 0.9375rem;
+.config-section .table tbody td {
+    color: rgba(255, 255, 255, 0.9);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 20px 18px;
+    font-size: 1.125rem;
+    text-align: left;
     vertical-align: middle;
 }
 
-.config-table tbody tr:hover {
-    background: rgba(255, 255, 255, 0.03);
-}
-
-.config-table tbody tr:last-child td {
+.config-section .table tbody tr:last-child td {
     border-bottom: none;
 }
 
-.plan-name-cell {
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
+.config-section .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.03);
 }
 
-.plan-name-cell strong {
-    color: #fff;
-    font-weight: 600;
+/* ============================================
+   KEBAB MENU � Action Button + Dropdown
+   ============================================ */
+.btn-action {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    padding: 0.5rem 0.75rem;
+    font-size: 1.25rem;
 }
 
-.plan-description {
-    color: #888;
-    font-size: 0.8125rem;
+.dropdown-menu {
+    background: #191C24;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: fadeInDown 0.2s ease;
+    z-index: 1050;
+    position: absolute;
+}
+
+.dropdown-menu.show {
     display: block;
 }
 
-.plan-price-cell {
-    font-weight: 600;
-    color: #FFA726;
+.dropdown-item {
+    color: #ffffff;
+    font-size: 1rem;
+    padding: 0.625rem 1.25rem;
+    white-space: nowrap;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.dropdown-item.text-danger:hover {
+    background: rgba(244, 67, 54, 0.15);
+    color: #F44336 !important;
+}
+
+.dropdown-item.text-success:hover {
+    background: rgba(76, 175, 80, 0.15);
+    color: #4CAF50 !important;
+}
+
+.dropdown-divider {
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   BADGES � Status, Category, Special
+   ============================================ */
+.badge-active {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-weight: 500;
     font-size: 1rem;
 }
 
-/* ── Badges ── */
-.config-badge {
-    display: inline-flex;
-    padding: 0.25rem 0.625rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
+.badge-inactive {
+    background: rgba(158, 158, 158, 0.15);
+    color: #9E9E9E;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.badge-config {
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.03em;
 }
 
-.config-badge.badge-success {
+.badge-special {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    background: rgba(33, 150, 243, 0.2);
+    color: #42A5F5;
+}
+
+.badge-special.badge-special-warning {
+    background: rgba(255, 167, 38, 0.2);
+    color: #FFA726;
+}
+
+.badge-config.badge-success {
     background: rgba(76, 175, 80, 0.15);
     color: #66BB6A;
     border: 1px solid rgba(76, 175, 80, 0.3);
 }
 
-.config-badge.badge-info {
+.badge-config.badge-info {
     background: rgba(33, 150, 243, 0.15);
     color: #42A5F5;
     border: 1px solid rgba(33, 150, 243, 0.3);
 }
 
-.config-badge.badge-warning {
+.badge-config.badge-warning {
     background: rgba(255, 167, 38, 0.15);
     color: #FFA726;
     border: 1px solid rgba(255, 167, 38, 0.3);
 }
 
-.config-badge.badge-danger {
+.badge-config.badge-danger {
     background: rgba(244, 67, 54, 0.15);
     color: #EF5350;
     border: 1px solid rgba(244, 67, 54, 0.3);
 }
 
-.config-badge.badge-primary {
+.badge-config.badge-primary {
     background: rgba(156, 39, 176, 0.15);
     color: #BA68C8;
     border: 1px solid rgba(156, 39, 176, 0.3);
 }
 
-/* ── Special Tags ── */
-.special-tag {
+.badge-count {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 500;
-}
-
-.special-tag i {
-    font-size: 0.875rem;
-}
-
-.tag-student {
-    background: rgba(33, 150, 243, 0.12);
-    color: #42A5F5;
-}
-
-.tag-buddy {
-    background: rgba(255, 167, 38, 0.12);
-    color: #FFA726;
-}
-
-/* ── Status Indicator ── */
-.status-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.25rem 0.625rem;
-    border-radius: 6px;
-    font-size: 0.8125rem;
+    justify-content: center;
+    min-width: 36px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    color: #ccc;
     font-weight: 600;
-}
-
-.status-indicator::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-}
-
-.status-active {
-    background: rgba(76, 175, 80, 0.12);
-    color: #66BB6A;
-}
-
-.status-active::before {
-    background: #66BB6A;
-}
-
-.status-inactive {
-    background: rgba(158, 158, 158, 0.12);
-    color: #9E9E9E;
-}
-
-.status-inactive::before {
-    background: #9E9E9E;
-}
-
-/* ── Action Buttons ── */
-.action-buttons {
-    display: flex;
-    gap: 0.375rem;
-}
-
-.btn-action-icon {
-    width: 32px;
-    height: 32px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 1rem;
-}
-
-.btn-action-icon.btn-edit {
-    background: rgba(33, 150, 243, 0.12);
-    color: #42A5F5;
-}
-
-.btn-action-icon.btn-edit:hover {
-    background: rgba(33, 150, 243, 0.25);
-    transform: translateY(-1px);
-}
-
-.btn-action-icon.btn-delete {
-    background: rgba(244, 67, 54, 0.12);
-    color: #EF5350;
-}
-
-.btn-action-icon.btn-delete:hover {
-    background: rgba(244, 67, 54, 0.25);
-    transform: translateY(-1px);
-}
-
-/* ============================================
-   Client Rate Preview Cards
-   ============================================ */
-
-.preview-category {
-    margin-bottom: 2rem;
-}
-
-.preview-category-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.25rem;
-}
-
-.preview-category-header i {
-    font-size: 1.5rem;
-    color: #FFA726;
-}
-
-.preview-category-header h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #fff;
-    margin: 0;
-}
-
-.preview-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1rem;
-}
-
-.preview-rate-card {
-    background: #191C24;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
-    padding: 1.5rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.preview-rate-card:hover {
-    border-color: rgba(255, 167, 38, 0.3);
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-}
-
-.preview-rate-card--pt {
-    border-left: 3px solid #BA68C8;
-}
-
-.preview-badge {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    padding: 0.2rem 0.5rem;
-    border-radius: 5px;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-}
-
-.preview-plan-name {
-    font-size: 1.0625rem;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 0.75rem;
-    margin-top: 0.25rem;
-}
-
-.preview-plan-price {
-    font-size: 1.75rem;
-    font-weight: 800;
-    color: #FFA726;
-    margin-bottom: 0.25rem;
-    letter-spacing: -0.02em;
-}
-
-.preview-per-person {
-    font-size: 0.8125rem;
-    color: #999;
-    margin-bottom: 0.5rem;
-}
-
-.preview-plan-duration {
-    font-size: 0.875rem;
-    color: #b0b0b0;
-    margin-bottom: 0.75rem;
-    font-weight: 500;
-}
-
-.preview-plan-desc {
-    font-size: 0.8125rem;
-    color: #888;
-    line-height: 1.4;
-    margin-bottom: 0.5rem;
-}
-
-.preview-plan-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.375rem;
-    justify-content: center;
-    margin-top: 0.5rem;
-}
-
-.preview-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.2rem 0.5rem;
-    border-radius: 5px;
-    font-size: 0.6875rem;
-    font-weight: 500;
-}
-
-.preview-tag.tag-student {
-    background: rgba(33, 150, 243, 0.12);
-    color: #42A5F5;
-}
-
-.preview-tag.tag-buddy {
-    background: rgba(255, 167, 38, 0.12);
-    color: #FFA726;
-}
-
-.preview-empty {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 3rem;
-    color: #666;
-}
-
-.preview-empty i {
-    font-size: 3rem;
-    margin-bottom: 0.75rem;
-    display: block;
-    color: #555;
-}
-
-.preview-empty p {
-    font-size: 0.9375rem;
-    margin: 0;
-}
-
-/* ============================================
-   Modal Styles
-   ============================================ */
-
-#planModal .modal-content,
-#confirmSaveModal .modal-content,
-#finalSaveModal .modal-content,
-#confirmDeleteModal .modal-content,
-#finalDeleteModal .modal-content {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 14px;
-}
-
-#planModal .modal-header,
-#confirmSaveModal .modal-header,
-#finalSaveModal .modal-header,
-#confirmDeleteModal .modal-header,
-#finalDeleteModal .modal-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    padding: 1.25rem 1.5rem;
-}
-
-#planModal .modal-title,
-#confirmSaveModal .modal-title,
-#finalSaveModal .modal-title,
-#confirmDeleteModal .modal-title,
-#finalDeleteModal .modal-title {
-    color: #fff;
-    font-weight: 700;
     font-size: 1.125rem;
 }
 
-#planModal .close,
-#confirmSaveModal .close,
-#finalSaveModal .close,
-#confirmDeleteModal .close,
-#finalDeleteModal .close {
-    color: #999;
-    opacity: 1;
-    text-shadow: none;
-    font-size: 1rem;
+/* ============================================
+   CATEGORIES TABLE � Specific Column Widths
+   ============================================ */
+/* Column 1: # (Row Number) */
+#categoriesTable thead th:nth-child(1),
+#categoriesTable tbody td:nth-child(1) {
+    width: 50px;
+    text-align: center;
 }
 
-#planModal .close:hover,
-#confirmSaveModal .close:hover,
-#finalSaveModal .close:hover,
-#confirmDeleteModal .close:hover,
-#finalDeleteModal .close:hover {
-    color: #fff;
+/* Column 2: Category Name - longer than others */
+#categoriesTable thead th:nth-child(2),
+#categoriesTable tbody td:nth-child(2) {
+    width: 25%;
 }
 
-#planModal .modal-body,
-#confirmSaveModal .modal-body,
-#finalSaveModal .modal-body,
-#confirmDeleteModal .modal-body,
-#finalDeleteModal .modal-body {
-    padding: 1.5rem;
+/* Column 3-6: Even distribution for Color, Icon, Products, Actions */
+#categoriesTable thead th:nth-child(3),
+#categoriesTable tbody td:nth-child(3),
+#categoriesTable thead th:nth-child(4),
+#categoriesTable tbody td:nth-child(4),
+#categoriesTable thead th:nth-child(5),
+#categoriesTable tbody td:nth-child(5) {
+    width: auto;
 }
 
-#planModal .modal-footer,
-#confirmSaveModal .modal-footer,
-#finalSaveModal .modal-footer,
-#confirmDeleteModal .modal-footer,
-#finalDeleteModal .modal-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    padding: 1rem 1.5rem;
-    display: flex;
+/* Column 4: Icon - centered */
+#categoriesTable thead th:nth-child(4),
+#categoriesTable tbody td:nth-child(4) {
+    text-align: center;
+}
+
+/* Column 5: Products Count - centered */
+#categoriesTable thead th:nth-child(5),
+#categoriesTable tbody td:nth-child(5) {
+    text-align: center;
+}
+
+/* Column 6: Actions - centered */
+#categoriesTable thead th:nth-child(6),
+#categoriesTable tbody td:nth-child(6) {
+    width: 150px;
+    text-align: center;
+}
+
+#categoriesTable tbody td:nth-child(4) i {
+    font-size: 1.75rem;
+}
+
+/* ============================================
+   CATEGORY � Color Swatch
+   ============================================ */
+.category-color-swatch {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-right: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* ============================================
+   ADD PLAN BUTTON (inside section cards)
+   ============================================ */
+.config-section .btn-page-action {
+    display: inline-flex;
+    align-items: center;
     gap: 0.5rem;
-    justify-content: flex-end;
-}
-
-/* ── Modal Form ── */
-#planModal .form-label {
-    color: #ccc;
+    padding: 0.875rem 1.5rem;
+    font-size: 1.0625rem;
     font-weight: 600;
-    font-size: 0.8125rem;
-    margin-bottom: 0.375rem;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
+    border-radius: 10px;
+    border: 2px solid #FFA726;
+    background: linear-gradient(135deg, #FFA726, #FFB84D);
+    color: #1a1d24;
+    white-space: nowrap;
+    box-shadow: 
+        0 1px 2px rgba(0, 0, 0, 0.1),
+        0 2px 8px rgba(255, 167, 38, 0.2);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-#planModal .form-control {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border-radius: 8px;
-    padding: 0.625rem 0.875rem;
-    font-size: 0.9375rem;
-    transition: border-color 0.2s ease;
+.config-section .btn-page-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 4px 14px rgba(255, 167, 38, 0.4),
+        0 2px 4px rgba(0, 0, 0, 0.2);
+    border-color: #FFB84D;
+    color: #1a1d24;
 }
 
-#planModal .form-control:focus {
-    border-color: #FFA726;
-    box-shadow: 0 0 0 2px rgba(255, 167, 38, 0.15);
-    outline: none;
-    background: rgba(255, 255, 255, 0.07);
+.config-section .btn-page-action:active {
+    transform: translateY(0);
 }
 
-#planModal .form-control::placeholder {
-    color: #666;
+.config-section .btn-page-action i {
+    font-size: 1.25rem;
 }
 
-#planModal .form-row {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-#planModal .form-group {
-    margin-bottom: 0;
-}
-
-#planModal .form-group.col-md-4 {
-    flex: 0 0 calc(33.333% - 0.667rem);
-}
-
-#planModal .form-group.col-md-8 {
-    flex: 0 0 calc(66.666% - 0.333rem);
-}
-
-.modal-divider {
-    border-color: rgba(255, 255, 255, 0.06);
-    margin: 1rem 0 0.75rem;
-}
-
-.modal-section-label {
-    color: #999;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.75rem;
-}
-
-.required-mark {
-    color: #EF5350;
-}
-
-/* ── Toggle Switch ── */
+/* ============================================
+   TOGGLE SWITCH � Student / Buddy
+   ============================================ */
 .toggle-switch-container {
     display: flex;
     align-items: center;
@@ -627,8 +379,8 @@
 .toggle-switch {
     position: relative;
     display: inline-block;
-    width: 40px;
-    height: 22px;
+    width: 44px;
+    height: 24px;
     margin: 0;
 }
 
@@ -643,15 +395,15 @@
     cursor: pointer;
     inset: 0;
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 22px;
+    border-radius: 24px;
     transition: 0.3s;
 }
 
 .toggle-slider::before {
     content: '';
     position: absolute;
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     left: 3px;
     bottom: 3px;
     background: #aaa;
@@ -664,183 +416,404 @@
 }
 
 .toggle-switch input:checked + .toggle-slider::before {
-    transform: translateX(18px);
+    transform: translateX(20px);
     background: #FFA726;
 }
 
 .toggle-text {
     color: #999;
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: 500;
-}
-
-/* ── Confirm Modal Styles ── */
-.confirm-icon {
-    text-align: center;
-    margin-bottom: 1rem;
-}
-
-.confirm-icon i {
-    font-size: 3.5rem;
-}
-
-.confirm-icon-save i {
-    color: #FFA726;
-}
-
-.confirm-icon-final i {
-    color: #66BB6A;
-}
-
-.confirm-icon-delete i {
-    color: #EF5350;
-}
-
-.confirm-icon-danger i {
-    color: #EF5350;
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-}
-
-.confirm-text {
-    text-align: center;
-    color: #ccc;
-    font-size: 0.9375rem;
-    margin-bottom: 0.5rem;
-}
-
-.confirm-plan-name {
-    text-align: center;
-    color: #FFA726;
-    font-weight: 700;
-    font-size: 1.125rem;
-    margin-bottom: 0;
-}
-
-.confirm-plan-name--danger {
-    color: #EF5350;
-}
-
-/* ── Modal Buttons ── */
-.btn-cancel {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #ccc;
-    padding: 0.5rem 1.25rem;
-    border-radius: 8px;
-    font-weight: 500;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-cancel:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-}
-
-.btn-save-plan {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    background: linear-gradient(135deg, #FFA726, #FFB84D);
-    border: none;
-    color: #1a1d24;
-    padding: 0.5rem 1.25rem;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.25s ease;
-}
-
-.btn-save-plan:hover {
-    box-shadow: 0 4px 12px rgba(255, 167, 38, 0.4);
-    transform: translateY(-1px);
-}
-
-.btn-confirm-proceed {
-    background: linear-gradient(135deg, #FFA726, #FFB84D);
-    border: none;
-    color: #1a1d24;
-    padding: 0.5rem 1.25rem;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.25s ease;
-}
-
-.btn-confirm-proceed:hover {
-    box-shadow: 0 4px 12px rgba(255, 167, 38, 0.4);
-    transform: translateY(-1px);
-}
-
-.btn-confirm-final {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    background: linear-gradient(135deg, #43A047, #66BB6A);
-    border: none;
-    color: #fff;
-    padding: 0.5rem 1.25rem;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.25s ease;
-}
-
-.btn-confirm-final:hover {
-    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
-    transform: translateY(-1px);
-}
-
-.btn-confirm-delete-proceed {
-    background: linear-gradient(135deg, #E53935, #EF5350);
-    border: none;
-    color: #fff;
-    padding: 0.5rem 1.25rem;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.25s ease;
-}
-
-.btn-confirm-delete-proceed:hover {
-    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
-    transform: translateY(-1px);
-}
-
-.btn-confirm-danger {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    background: linear-gradient(135deg, #E53935, #EF5350);
-    border: none;
-    color: #fff;
-    padding: 0.5rem 1.25rem;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.25s ease;
-}
-
-.btn-confirm-danger:hover {
-    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
-    transform: translateY(-1px);
 }
 
 /* ============================================
-   Responsive Adjustments
+   COLOR PICKER GRID
    ============================================ */
-@media (max-width: 768px) {
+.category-color-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.625rem;
+    margin-top: 0.5rem;
+}
+
+.color-picker-swatch {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    outline: none;
+}
+
+.color-picker-swatch:hover {
+    transform: scale(1.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.color-picker-swatch.active {
+    border-color: #fff;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* ============================================
+   MODAL � Font + Sizing Overrides
+   (matches Inventory / Memberships standard)
+   ============================================ */
+.modal-title {
+    font-size: 1.5rem !important;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.modal-body {
+    padding: 2rem !important;
+}
+
+.modal-body .form-group {
+    margin-bottom: 1.5rem !important;
+}
+
+.modal-body label {
+    color: #ffffff;
+    font-size: 1.125rem !important;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+.modal-body .form-control {
+    font-size: 1.125rem !important;
+    padding: 0.875rem 1.25rem;
+    min-height: 52px;
+    color: #fff;
+    background-color: #2c2e3e;
+    border: 1px solid #3a3f4b;
+}
+
+.modal-body .form-control:focus {
+    border-color: #FFA726;
+    background-color: #2c2e3e;
+    box-shadow: 0 0 0 2px rgba(255, 167, 38, 0.15);
+}
+
+.modal-body .form-control::placeholder {
+    color: #666;
+}
+
+.modal-body select.form-control {
+    background-color: #2c2e3e;
+    border: 1px solid #3a3f4b;
+}
+
+.modal-footer {
+    padding: 1.25rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-footer .btn {
+    font-size: 1.125rem !important;
+    padding: 0.875rem 2rem;
+    min-width: 130px;
+}
+
+.modal-footer .btn-cancel {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+}
+
+.modal-footer .btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.modal-footer .btn-update {
+    background-color: #FFA500;
+    border: none;
+    color: white;
+}
+
+.modal-footer .btn-update:hover {
+    background-color: #ff8c00;
+}
+
+.modal-footer .btn-danger {
+    background: linear-gradient(135deg, #E53935, #EF5350);
+    border: none;
+    color: #fff;
+}
+
+.modal-footer .btn-danger:hover {
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+}
+
+.modal-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header .close {
+    color: rgba(255, 255, 255, 0.6);
+    text-shadow: none;
+    opacity: 1;
+}
+
+.modal-header .close:hover {
+    color: #ffffff;
+}
+
+/* ============================================
+   CONFIRM OVERLAY (inside modal-content)
+   ============================================ */
+.confirm-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1060;
+    border-radius: 0.3rem;
+    backdrop-filter: blur(2px);
+}
+
+.confirm-overlay-content {
+    background: #191C24;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    animation: confirmSlideIn 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes confirmSlideIn {
+    from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.confirm-overlay-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.confirm-overlay-header i {
+    font-size: 1.5rem;
+    color: #FFA726;
+    margin-right: 0.75rem;
+}
+
+.confirm-overlay-header h5 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+    flex: 1;
+}
+
+.confirm-overlay-header .close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+}
+
+.confirm-overlay-header .close:hover {
+    color: #ffffff;
+}
+
+.confirm-overlay-body {
+    padding: 1.25rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.confirm-overlay-body p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+}
+
+.confirm-details {
+    background: #282A36;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.confirm-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.confirm-row:last-child {
+    border-bottom: none;
+}
+
+.confirm-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+}
+
+.confirm-value {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 0.9rem;
+}
+
+.confirm-overlay-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.confirm-overlay-footer .btn-cancel {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.confirm-overlay-footer .btn-cancel:hover {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.confirm-overlay-footer .btn-update {
+    background: linear-gradient(135deg, #FFA726, #FFB84D);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(255, 167, 38, 0.3);
+    cursor: pointer;
+}
+
+.confirm-overlay-footer .btn-update:hover {
+    background: linear-gradient(135deg, #FF9800, #FFA726);
+    box-shadow: 0 4px 12px rgba(255, 167, 38, 0.4);
+}
+
+.confirm-overlay-footer .btn-delete {
+    background: linear-gradient(135deg, #dc3545, #e25563);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    cursor: pointer;
+}
+
+.confirm-overlay-footer .btn-delete:hover {
+    background: linear-gradient(135deg, #c82333, #dc3545);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+/* ============================================
+   DELETE MODAL � Details + Warning
+   ============================================ */
+.delete-details {
+    margin-top: 1rem;
+}
+
+.delete-details .form-group {
+    margin-bottom: 1rem !important;
+}
+
+.delete-details label {
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-size: 0.9375rem !important;
+    margin-bottom: 0.375rem;
+}
+
+.delete-details .form-control {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    pointer-events: none;
+    min-height: auto !important;
+    padding: 0.75rem 1rem !important;
+}
+
+.category-delete-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    background: rgba(255, 167, 38, 0.1);
+    border: 1px solid rgba(255, 167, 38, 0.25);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-top: 0.75rem;
+    color: #FFA726;
+    font-size: 0.9375rem;
+    line-height: 1.4;
+}
+
+.category-delete-warning i {
+    font-size: 1.25rem;
+    margin-top: 1px;
+    flex-shrink: 0;
+}
+
+/* ============================================
+   SEARCH WRAPPER
+   ============================================ */
+.search-wrapper {
+    position: relative;
+    display: inline-flex;
+    width: 450px;
+    max-width: 100%;
+}
+
+.search-wrapper .form-control {
+    padding-right: 35px;
+    width: 100%;
+}
+
+.search-clear-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0 5px;
+    line-height: 1;
+    z-index: 2;
+}
+
+.search-clear-btn:hover {
+    color: #ffffff;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 991px) {
+    .page-header-card .card-body {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 1rem;
+    }
+
     .config-toggle-container {
         width: 100%;
     }
@@ -848,26 +821,34 @@
     .config-toggle-btn {
         flex: 1;
         justify-content: center;
-        font-size: 0.8125rem;
-        padding: 0.5rem 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .config-toggle-btn {
+        font-size: 0.875rem;
+        padding: 0.625rem 1rem;
     }
 
-    .config-section-header {
+    .config-toggle-btn i {
+        display: none;
+    }
+
+    .config-section .table thead th,
+    .config-section .table tbody td {
+        padding: 14px 12px;
+        font-size: 1rem;
+    }
+
+    .modal-body .form-row {
         flex-direction: column;
-        align-items: flex-start;
+        gap: 0;
     }
 
-    .preview-cards-grid {
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    }
-
-    #planModal .form-row {
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    #planModal .form-group.col-md-4,
-    #planModal .form-group.col-md-8 {
+    .modal-body .form-group.col-md-3,
+    .modal-body .form-group.col-md-4,
+    .modal-body .form-group.col-md-6 {
         flex: 1 1 100%;
+        max-width: 100%;
     }
 }

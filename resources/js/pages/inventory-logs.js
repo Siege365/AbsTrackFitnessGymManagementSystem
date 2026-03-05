@@ -86,5 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
     InventoryLogsPage.init();
 });
 
-// Backward compatibility alias
+// Expose global functions to window
 window.InventoryLogsPage = InventoryLogsPage;
+window.toggleFilterSection = toggleFilterSection;
+window.clearLogsSearch = clearLogsSearch;

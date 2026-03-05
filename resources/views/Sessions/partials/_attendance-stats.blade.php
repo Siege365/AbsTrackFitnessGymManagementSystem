@@ -5,7 +5,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h2 class="mb-0" id="kpi_customers_today">{{ $customersEnteredToday ?? 0 }}</h2>
+                        <h2 class="mb-0" id="kpi_customers_today" data-kpi-value="{{ $customersEnteredToday ?? 0 }}">{{ $customersEnteredToday ?? 0 }}</h2>
                         <p class="text-muted mb-0">Customers Today</p>
                     </div>
                     <div class="stats-icon bg-success">
@@ -21,7 +21,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h2 class="mb-0" id="kpi_members_today">{{ $membersToday ?? 0 }}</h2>
+                        <h2 class="mb-0" id="kpi_members_today" data-kpi-value="{{ $membersToday ?? 0 }}">{{ $membersToday ?? 0 }}</h2>
                         <p class="text-muted mb-0">Members Today</p>
                     </div>
                     <div class="stats-icon bg-primary">
@@ -37,7 +37,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h2 class="mb-0" id="kpi_walkins_today">{{ $walkInsToday ?? 0 }}</h2>
+                        <h2 class="mb-0" id="kpi_walkins_today" data-kpi-value="{{ $walkInsToday ?? 0 }}">{{ $walkInsToday ?? 0 }}</h2>
                         <p class="text-muted mb-0">Walk-ins Today</p>
                     </div>
                     <div class="stats-icon bg-info">
@@ -53,7 +53,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h2 class="mb-0" id="kpi_total_month">{{ $totalThisMonth ?? 0 }}</h2>
+                        <h2 class="mb-0" id="kpi_total_month" data-kpi-value="{{ $totalThisMonth ?? 0 }}">{{ $totalThisMonth ?? 0 }}</h2>
                         <p class="text-muted mb-0">Total This Month</p>
                     </div>
                     <div class="stats-icon bg-warning">

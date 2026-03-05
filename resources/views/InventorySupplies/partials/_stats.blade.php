@@ -5,7 +5,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h2 class="mb-0">{{ $totalProducts ?? 0 }}</h2>
+              <h2 class="mb-0" data-kpi-value="{{ $totalProducts ?? 0 }}">{{ $totalProducts ?? 0 }}</h2>
               <p class="text-muted mb-0">Total Products</p>
             </div>
             <div class="stats-icon bg-info">
@@ -21,7 +21,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h2 class="mb-0">{{ $lowStockItems ?? 0 }}</h2>
+              <h2 class="mb-0" data-kpi-value="{{ $lowStockItems ?? 0 }}">{{ $lowStockItems ?? 0 }}</h2>
               <p class="text-muted mb-0">Low Stock Items</p>
             </div>
             <div class="stats-icon bg-warning">
@@ -37,7 +37,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h2 class="mb-0">{{ $outOfStockItems ?? 0 }}</h2>
+              <h2 class="mb-0" data-kpi-value="{{ $outOfStockItems ?? 0 }}">{{ $outOfStockItems ?? 0 }}</h2>
               <p class="text-muted mb-0">Out Of Stock Items</p>
             </div>
             <div class="stats-icon bg-danger">
@@ -53,7 +53,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h2 class="mb-0">₱{{ number_format($stockValue ?? 0, 2) }}</h2>
+              <h2 class="mb-0" data-kpi-value="{{ $stockValue ?? 0 }}" data-kpi-type="currency">₱{{ number_format($stockValue ?? 0, 2) }}</h2>
               <p class="text-muted mb-0">Stock Value</p>
             </div>
             <div class="stats-icon bg-success">

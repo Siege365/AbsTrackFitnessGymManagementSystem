@@ -1131,3 +1131,37 @@ body.modal-open {
     font-size: 0.75rem;
   }
 }
+
+/* =====================================================
+   SEARCH WRAPPER
+   ===================================================== */
+.search-wrapper {
+  position: relative;
+  display: inline-flex;
+  width: 450px;
+  max-width: 100%;
+}
+
+.search-wrapper .form-control {
+  padding-right: 35px;
+  width: 100%;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0 5px;
+  line-height: 1;
+  z-index: 2;
+}
+
+.search-clear-btn:hover {
+  color: #ffffff;
+}

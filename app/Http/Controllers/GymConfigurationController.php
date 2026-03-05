@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\GymPlan;
+use App\Models\InventorySupply;
+use App\Helpers\CategoryHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -14,10 +16,40 @@ class GymConfigurationController extends Controller
      */
     public function index()
     {
-        $membershipPlans = GymPlan::membership()->ordered()->get();
-        $ptPlans         = GymPlan::personalTraining()->ordered()->get();
+        $membershipPlans = GymPlan::membership()->ordered()->paginate(10, ['*'], 'membership_page');
+        $ptPlans         = GymPlan::personalTraining()->ordered()->paginate(10, ['*'], 'pt_page');
 
-        return view('configuration.index', compact('membershipPlans', 'ptPlans'));
+        // Get categories with product counts for category management
+        $categoriesCollection = InventorySupply::select('category', 'category_color')
+            ->whereNotNull('category')
+            ->where('category', '!=', '')
+            ->groupBy('category', 'category_color')
+            ->selectRaw('COUNT(*) as product_count')
+            ->get()
+            ->map(function ($item) {
+                return (object) [
+                    'name'          => $item->category,
+                    'color'         => $item->category_color,
+                    'icon'          => CategoryHelper::getIcon($item->category),
+                    'product_count' => $item->product_count,
+                ];
+            })
+            ->sortBy('name')
+            ->values();
+
+        // Manually paginate the categories collection
+        $perPage = 10;
+        $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage('category_page');
+        $currentItems = $categoriesCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        $categories = new \Illuminate\Pagination\LengthAwarePaginator(
+            $currentItems,
+            $categoriesCollection->count(),
+            $perPage,
+            $currentPage,
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(), 'pageName' => 'category_page']
+        );
+
+        return view('configuration.index', compact('membershipPlans', 'ptPlans', 'categories'));
     }
 
     /**
@@ -109,6 +141,28 @@ class GymConfigurationController extends Controller
     }
 
     /**
+     * Toggle plan status (enable/disable).
+     */
+    public function toggleStatus(Request $request, $id)
+    {
+        $plan = GymPlan::findOrFail($id);
+        
+        $validated = $request->validate([
+            'is_active' => 'required|boolean',
+        ]);
+
+        $plan->is_active = $validated['is_active'];
+        $plan->save();
+
+        $status = $plan->is_active ? 'enabled' : 'disabled';
+
+        return response()->json([
+            'success' => true,
+            'message' => "Plan \"{$plan->plan_name}\" has been {$status}.",
+        ]);
+    }
+
+    /**
      * Reorder plans (drag & drop / sort).
      */
     public function reorder(Request $request)
@@ -139,6 +193,119 @@ class GymConfigurationController extends Controller
         return response()->json([
             'membership'        => $plans->where('category', 'membership')->values(),
             'personal_training' => $plans->where('category', 'personal_training')->values(),
+        ]);
+    }
+
+    /**
+     * Update a category (rename and/or change color).
+     */
+    public function updateCategory(Request $request, $name)
+    {
+        $name = urldecode($name);
+
+        $validated = $request->validate([
+            'new_name'  => 'required|string|max:100',
+            'new_color' => 'nullable|string|max:20',
+        ]);
+
+        $newName  = trim($validated['new_name']);
+        $newColor = $validated['new_color'] ?? null;
+
+        // Check if category exists
+        $count = InventorySupply::where('category', $name)->count();
+        if ($count === 0) {
+            return response()->json(['success' => false, 'message' => 'Category not found.'], 404);
+        }
+
+        // If renaming, check for similarity with existing categories
+        if (strtolower($newName) !== strtolower($name)) {
+            $existing = InventorySupply::whereRaw('LOWER(category) = ?', [strtolower($newName)])
+                ->where('category', '!=', $name)
+                ->exists();
+            if ($existing) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "A category named \"{$newName}\" already exists.",
+                ], 422);
+            }
+
+            // Check similarity
+            $similar = CategoryHelper::checkSimilarCategories($newName, 85.0);
+            $similar = array_filter($similar, fn($s) => strtolower($s['name']) !== strtolower($name));
+            if (!empty($similar)) {
+                $top = reset($similar);
+                return response()->json([
+                    'success' => false,
+                    'message' => "The name \"{$newName}\" is too similar to \"{$top['name']}\" ({$top['score']}% match).",
+                ], 422);
+            }
+        }
+
+        // Update all products with this category
+        InventorySupply::where('category', $name)->update([
+            'category'       => $newName,
+            'category_color' => $newColor,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Category updated successfully. {$count} product(s) affected.",
+        ]);
+    }
+
+    /**
+     * Delete a category (optionally reassign products to another category).
+     */
+    public function destroyCategory(Request $request, $name)
+    {
+        $name = urldecode($name);
+
+        $count = InventorySupply::where('category', $name)->count();
+        if ($count === 0) {
+            return response()->json(['success' => false, 'message' => 'Category not found.'], 404);
+        }
+
+        $reassignTo = $request->input('reassign_to');
+
+        if ($count > 0 && $reassignTo) {
+            // Verify destination category exists
+            $destExists = InventorySupply::where('category', $reassignTo)->exists();
+            if (!$destExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Destination category \"{$reassignTo}\" does not exist.",
+                ], 422);
+            }
+
+            // Get destination color
+            $destColor = InventorySupply::where('category', $reassignTo)->value('category_color');
+
+            // Reassign products
+            InventorySupply::where('category', $name)->update([
+                'category'       => $reassignTo,
+                'category_color' => $destColor,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Category \"{$name}\" deleted. {$count} product(s) reassigned to \"{$reassignTo}\".",
+            ]);
+        } elseif ($count > 0 && !$reassignTo) {
+            // Clear category from products (set to null)
+            InventorySupply::where('category', $name)->update([
+                'category'       => null,
+                'category_color' => null,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Category \"{$name}\" deleted. {$count} product(s) are now uncategorized.",
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Category \"{$name}\" deleted successfully.",
         ]);
     }
 

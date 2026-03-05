@@ -420,14 +420,11 @@ const ReportsPage = (function() {
    * @param {Object} data - KPI data from API
    */
   function updateKPIDisplay(data) {
-    // Format currency
-    const formatCurrency = (value) => '₱' + parseFloat(value).toLocaleString('en-PH', { minimumFractionDigits: 2 });
-    
-    // Update values
-    document.getElementById('kpi_monthly_revenue').textContent = formatCurrency(data.monthly_revenue);
-    document.getElementById('kpi_retail_sales').textContent = formatCurrency(data.retail_sales);
-    document.getElementById('kpi_membership_revenue').textContent = formatCurrency(data.membership_revenue);
-    document.getElementById('kpi_pt_revenue').textContent = formatCurrency(data.pt_revenue);
+    // Update values with abbreviated formatting
+    document.getElementById('kpi_monthly_revenue').textContent = formatKPICurrency(data.monthly_revenue);
+    document.getElementById('kpi_retail_sales').textContent = formatKPICurrency(data.retail_sales);
+    document.getElementById('kpi_membership_revenue').textContent = formatKPICurrency(data.membership_revenue);
+    document.getElementById('kpi_pt_revenue').textContent = formatKPICurrency(data.pt_revenue);
     
     // Update badges
     updateKPIBadge('kpi_revenue_badge', 'kpi_revenue_icon', data.revenue_change);

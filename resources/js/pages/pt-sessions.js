@@ -59,16 +59,16 @@ const PTSessionsPage = {
           const data = response.data;
           
           // Update PT Sessions Today
-          $('#kpi_pt_sessions_today').text(data.ptSessionsToday);
+          $('#kpi_pt_sessions_today').text(formatKPINumber(data.ptSessionsToday));
           
           // Update Upcoming PT Sessions
-          $('#kpi_upcoming_pt').text(data.upcomingPTSessions);
+          $('#kpi_upcoming_pt').text(formatKPINumber(data.upcomingPTSessions));
           
           // Update Completed Sessions
-          $('#kpi_completed_sessions').text(data.completedSessions);
+          $('#kpi_completed_sessions').text(formatKPINumber(data.completedSessions));
           
           // Update PT Cancellations
-          $('#kpi_pt_cancellations').text(data.ptCancellations);
+          $('#kpi_pt_cancellations').text(formatKPINumber(data.ptCancellations));
         }
       },
       error: function() {

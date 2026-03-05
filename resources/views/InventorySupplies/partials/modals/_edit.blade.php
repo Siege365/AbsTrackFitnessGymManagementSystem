@@ -42,14 +42,18 @@
               <label>Category <span class="text-danger">*</span></label>
               <!-- Category Dropdown (default) -->
               <select class="form-control" name="category" id="editProductCategory" required>
-                <option value="Supplement">Supplement</option>
-                <option value="Equipment">Equipment</option>
-                <option value="Apparel">Apparel</option>
-                <option value="Beverages">Beverages</option>
-                <option value="Snacks">Snacks</option>
-                <option value="Accessories">Accessories</option>
-                <option value="Food">Food</option>
-                <option value="Drink">Drink</option>
+                @if(isset($categories) && $categories->count() > 0)
+                  @foreach($categories as $cat)
+                    <option value="{{ $cat->name }}">{{ $cat->name }}</option>
+                  @endforeach
+                @else
+                  <option value="Supplement">Supplement</option>
+                  <option value="Equipment">Equipment</option>
+                  <option value="Apparel">Apparel</option>
+                  <option value="Beverages">Beverages</option>
+                  <option value="Snacks">Snacks</option>
+                  <option value="Accessories">Accessories</option>
+                @endif
               </select>
               <!-- New Category Input (hidden by default) -->
               <div id="editNewCategoryInputGroup" style="display: none;">
@@ -57,8 +61,10 @@
                       class="form-control" 
                       id="editNewCategoryInput"
                       placeholder="Enter new category name"
-                      maxlength="50">
-                <small class="text-muted mt-1 d-block">Color will be auto-generated</small>
+                      maxlength="50"
+                      oninput="checkCategorySimilarity(this.value, 'edit')">
+                <!-- Similarity warning container -->
+                <div id="editCategorySimilarityWarning" class="category-similarity-warning" style="display: none;"></div>
               </div>
               <!-- Checkbox below input field -->
               <div class="d-flex align-items-center mt-2">

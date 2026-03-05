@@ -33,6 +33,7 @@ export default defineConfig({
                 'resources/css/auth-register.css',
 
                 // Common JS utilities
+                'resources/js/common/kpi-utils.js',
                 'resources/js/common/toast-utils.js',
                 'resources/js/common/avatar-utils.js',
                 'resources/js/common/form-utils.js',

@@ -8,9 +8,11 @@
                     <div class="d-flex align-items-center">
                         <form action="{{ route('sessions.attendance.index') }}" method="GET" class="d-flex align-items-center"
                             id="attendanceSearchForm">
-                            <input type="text" name="attendance_search" class="form-control form-control-sm mr-2"
-                                placeholder="Search by name or contact..." value="{{ request('attendance_search') }}"
-                                style="width: 100%; max-width: 450px;">
+                            <div class="search-wrapper mr-2">
+                                <input type="text" name="attendance_search" class="form-control form-control-sm"
+                                    placeholder="Search by name or contact..." value="{{ request('attendance_search') }}"
+                                    style="width: 100%; max-width: 450px;">
+                            </div>
                             <div class="dropdown d-inline-block mr-2">
                                 <button type="button" class="btn btn-sm filter-button dropdown-toggle"
                                     id="filterDropdownAttendance" data-toggle="dropdown" data-offset="0,2" data-flip="false"

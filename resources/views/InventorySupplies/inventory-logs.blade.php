@@ -25,7 +25,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h2 class="mb-0">{{ $totalTransactions ?? 0 }}</h2>
+              <h2 class="mb-0" data-kpi-value="{{ $totalTransactions ?? 0 }}">{{ $totalTransactions ?? 0 }}</h2>
               <p class="text-muted mb-0">Total Transactions</p>
             </div>
             <div class="stats-icon bg-info">
@@ -41,7 +41,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h2 class="mb-0">{{ $totalStockIn ?? 0 }}</h2>
+              <h2 class="mb-0" data-kpi-value="{{ $totalStockIn ?? 0 }}">{{ $totalStockIn ?? 0 }}</h2>
               <p class="text-muted mb-0">Stock In Today</p>
             </div>
             <div class="stats-icon bg-success">
@@ -57,7 +57,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h2 class="mb-0">{{ $totalStockOut ?? 0 }}</h2>
+              <h2 class="mb-0" data-kpi-value="{{ $totalStockOut ?? 0 }}">{{ $totalStockOut ?? 0 }}</h2>
               <p class="text-muted mb-0">Stock Out Today</p>
             </div>
             <div class="stats-icon bg-warning">
@@ -73,7 +73,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h2 class="mb-0">{{ $transactionsThisMonth ?? 0 }}</h2>
+              <h2 class="mb-0" data-kpi-value="{{ $transactionsThisMonth ?? 0 }}">{{ $transactionsThisMonth ?? 0 }}</h2>
               <p class="text-muted mb-0">This Month</p>
             </div>
             <div class="stats-icon bg-primary">
@@ -169,30 +169,17 @@
                     <i class="mdi mdi-chevron-down filter-chevron"></i>
                   </div>
                   <div class="filter-section-content">
-                    <a class="filter-option filter-option-category-supplement {{ ($activityFilter ?? '') == 'Supplement' ? 'active' : '' }}" 
-                      href="{{ route('inventory.logs', array_merge(request()->except('activity_filter'), ['activity_filter' => 'Supplement'])) }}">
-                      <i class="mdi mdi-pill"></i> Supplement
-                    </a>
-                    <a class="filter-option filter-option-category-equipment {{ ($activityFilter ?? '') == 'Equipment' ? 'active' : '' }}" 
-                      href="{{ route('inventory.logs', array_merge(request()->except('activity_filter'), ['activity_filter' => 'Equipment'])) }}">
-                      <i class="mdi mdi-dumbbell"></i> Equipment
-                    </a>
-                    <a class="filter-option filter-option-category-apparel {{ ($activityFilter ?? '') == 'Apparel' ? 'active' : '' }}" 
-                      href="{{ route('inventory.logs', array_merge(request()->except('activity_filter'), ['activity_filter' => 'Apparel'])) }}">
-                      <i class="mdi mdi-tshirt-crew"></i> Apparel
-                    </a>
-                    <a class="filter-option filter-option-category-beverages {{ ($activityFilter ?? '') == 'Beverages' ? 'active' : '' }}" 
-                      href="{{ route('inventory.logs', array_merge(request()->except('activity_filter'), ['activity_filter' => 'Beverages'])) }}">
-                      <i class="mdi mdi-cup"></i> Beverages
-                    </a>
-                    <a class="filter-option filter-option-category-snacks {{ ($activityFilter ?? '') == 'Snacks' ? 'active' : '' }}" 
-                      href="{{ route('inventory.logs', array_merge(request()->except('activity_filter'), ['activity_filter' => 'Snacks'])) }}">
-                      <i class="mdi mdi-food-apple"></i> Snacks
-                    </a>
-                    <a class="filter-option filter-option-category-accessories {{ ($activityFilter ?? '') == 'Accessories' ? 'active' : '' }}" 
-                      href="{{ route('inventory.logs', array_merge(request()->except('activity_filter'), ['activity_filter' => 'Accessories'])) }}">
-                      <i class="mdi mdi-bag-personal"></i> Accessories
-                    </a>
+                    @if(isset($categories) && $categories->count() > 0)
+                      @foreach($categories as $cat)
+                        <a class="filter-option filter-option-category-{{ $cat->slug }} {{ ($activityFilter ?? '') == $cat->name ? 'active' : '' }}" 
+                          href="{{ route('inventory.logs', array_merge(request()->except('activity_filter'), ['activity_filter' => $cat->name])) }}"
+                          @if($cat->color) style="--cat-color: {{ $cat->color }};" @endif>
+                          <i class="mdi {{ $cat->icon }}"></i> {{ $cat->name }}
+                        </a>
+                      @endforeach
+                    @else
+                      <span class="text-muted px-3 py-2 d-block" style="font-size: 0.85rem;">No categories yet</span>
+                    @endif
                   </div>
                 </div>
               </div>
@@ -203,30 +190,45 @@
           <table class="table table-hover">
             <thead>
               <tr>
-                <th>Date & Time</th>
                 <th>Product#</th>
                 <th>Product Name</th>
                 <th>Category</th>
                 <th>Unit Price</th>
                 <th>Status</th>
                 <th>Quantity</th>
+                <th>Date & Time</th>
               </tr>
             </thead>
             <tbody>
             @forelse($recentActivity ?? [] as $activity)
                 <tr>
-                  <td>{{ \Carbon\Carbon::parse($activity->created_at)->timezone('Asia/Manila')->format('M d, Y h:i A') }}</td>
                   <td>{{ $activity->inventorySupply->product_number ?? 'N/A' }}</td>
-                  <td>{{ $activity->inventorySupply->product_name ?? 'N/A' }}</td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                        @if ($activity->inventorySupply && $activity->inventorySupply->avatar)
+                            <img src="{{ asset('storage/' . $activity->inventorySupply->avatar) }}"
+                                alt="Product Image" class="avatar-circle mr-2">
+                        @else
+                            <div class="avatar-circle avatar-initial mr-2">
+                                {{ $activity->inventorySupply ? strtoupper(substr($activity->inventorySupply->product_name, 0, 1)) : 'N' }}
+                            </div>
+                        @endif
+                        <span>{{ $activity->inventorySupply->product_name ?? 'N/A' }}</span>
+                    </div>
+                  </td>
                   <td>
                     @if($activity->inventorySupply)
                       @php
                           $catSlug = strtolower(str_replace(' ', '-', $activity->inventorySupply->category));
                           $knownCats = ['supplement','supplements','equipment','apparel','beverages','drink','snacks','food','accessories'];
-                          $badgeClass = in_array($catSlug, $knownCats) ? 'badge-category-'.$catSlug : 'badge-category-other';
+                          $badgeClass = in_array($catSlug, $knownCats) ? 'badge-category-'.$catSlug : 'badge-category-dynamic';
+                          $catIcon = \App\Helpers\CategoryHelper::getIcon($activity->inventorySupply->category);
+                          $dynamicStyle = !in_array($catSlug, $knownCats) && $activity->inventorySupply->category_color 
+                              ? 'background: ' . $activity->inventorySupply->category_color . '20; color: ' . $activity->inventorySupply->category_color . ';' 
+                              : '';
                       @endphp
-                      <span class="badge-category {{ $badgeClass }}">
-                          <i class="mdi mdi-tag-outline"></i>
+                      <span class="badge-category {{ $badgeClass }}" @if($dynamicStyle) style="{{ $dynamicStyle }}" @endif>
+                          <i class="mdi {{ $catIcon }}"></i>
                           {{ $activity->inventorySupply->category }}
                       </span>
                     @else
@@ -248,6 +250,7 @@
                       <span class="text-warning font-weight-bold">-{{ $activity->quantity }}</span>
                     @endif
                   </td>
+                  <td>{{ \Carbon\Carbon::parse($activity->created_at)->timezone('Asia/Manila')->format('M d, Y h:i A') }}</td>
                 </tr>
             @empty
                 <tr>

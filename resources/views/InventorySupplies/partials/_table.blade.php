@@ -94,30 +94,17 @@
                     <i class="mdi mdi-chevron-down filter-chevron"></i>
                   </div>
                   <div class="filter-section-content">
-                    <a class="filter-option filter-option-category-supplement {{ request('filter') == 'Supplement' ? 'active' : '' }}" 
-                      href="{{ route('inventory.index', ['filter' => 'Supplement', 'search' => request('search')]) }}">
-                      <i class="mdi mdi-pill"></i> Supplement
-                    </a>
-                    <a class="filter-option filter-option-category-equipment {{ request('filter') == 'Equipment' ? 'active' : '' }}" 
-                      href="{{ route('inventory.index', ['filter' => 'Equipment', 'search' => request('search')]) }}">
-                      <i class="mdi mdi-dumbbell"></i> Equipment
-                    </a>
-                    <a class="filter-option filter-option-category-apparel {{ request('filter') == 'Apparel' ? 'active' : '' }}" 
-                      href="{{ route('inventory.index', ['filter' => 'Apparel', 'search' => request('search')]) }}">
-                      <i class="mdi mdi-tshirt-crew"></i> Apparel
-                    </a>
-                    <a class="filter-option filter-option-category-beverages {{ request('filter') == 'Beverages' ? 'active' : '' }}" 
-                      href="{{ route('inventory.index', ['filter' => 'Beverages', 'search' => request('search')]) }}">
-                      <i class="mdi mdi-cup"></i> Beverages
-                    </a>
-                    <a class="filter-option filter-option-category-snacks {{ request('filter') == 'Snacks' ? 'active' : '' }}" 
-                      href="{{ route('inventory.index', ['filter' => 'Snacks', 'search' => request('search')]) }}">
-                      <i class="mdi mdi-food-apple"></i> Snacks
-                    </a>
-                    <a class="filter-option filter-option-category-accessories {{ request('filter') == 'Accessories' ? 'active' : '' }}" 
-                      href="{{ route('inventory.index', ['filter' => 'Accessories', 'search' => request('search')]) }}">
-                      <i class="mdi mdi-bag-personal"></i> Accessories
-                    </a>
+                    @if(isset($categories) && $categories->count() > 0)
+                      @foreach($categories as $cat)
+                        <a class="filter-option filter-option-category-{{ $cat->slug }} {{ request('filter') == $cat->name ? 'active' : '' }}" 
+                          href="{{ route('inventory.index', ['filter' => $cat->name, 'search' => request('search')]) }}"
+                          @if($cat->color) style="--cat-color: {{ $cat->color }};" @endif>
+                          <i class="mdi {{ $cat->icon }}"></i> {{ $cat->name }}
+                        </a>
+                      @endforeach
+                    @else
+                      <span class="text-muted px-3 py-2 d-block" style="font-size: 0.85rem;">No categories yet</span>
+                    @endif
                   </div>
                 </div>
               </div>
@@ -181,10 +168,14 @@
                     @php
                         $catSlug = strtolower(str_replace(' ', '-', $item->category));
                         $knownCats = ['supplement','supplements','equipment','apparel','beverages','drink','snacks','food','accessories'];
-                        $badgeClass = in_array($catSlug, $knownCats) ? 'badge-category-'.$catSlug : 'badge-category-other';
+                        $badgeClass = in_array($catSlug, $knownCats) ? 'badge-category-'.$catSlug : 'badge-category-dynamic';
+                        $catIcon = \App\Helpers\CategoryHelper::getIcon($item->category);
+                        $dynamicStyle = !in_array($catSlug, $knownCats) && $item->category_color 
+                            ? 'background: ' . $item->category_color . '20; color: ' . $item->category_color . ';' 
+                            : '';
                     @endphp
-                    <span class="badge-category {{ $badgeClass }}">
-                        <i class="mdi mdi-tag-outline"></i>
+                    <span class="badge-category {{ $badgeClass }}" @if($dynamicStyle) style="{{ $dynamicStyle }}" @endif>
+                        <i class="mdi {{ $catIcon }}"></i>
                         {{ $item->category }}
                     </span>
                 </td>
@@ -193,7 +184,7 @@
                 <td>
                     @if($item->stock_qty == 0)
                     <span class="badge badge-danger"><span class="status-dot"></span>Out of Stock</span>
-                    @elseif($item->stock_qty < $item->low_stock_threshold)
+                    @elseif($item->stock_qty <= $item->low_stock_threshold)
                     <span class="badge badge-warning"><span class="status-dot"></span>Low Stock</span>
                     @else
                     <span class="badge badge-success"><span class="status-dot"></span>In Stock</span>
@@ -216,7 +207,7 @@
                                   data-stock-qty="{{ $item->stock_qty }}"
                                   data-low-stock-threshold="{{ $item->low_stock_threshold }}"
                                   data-last-restocked="{{ $item->last_restocked ? \Carbon\Carbon::parse($item->last_restocked)->timezone('Asia/Manila')->format('M d, Y h:i A') : 'Never' }}"
-                                  data-status="{{ $item->stock_qty == 0 ? 'Out of Stock' : ($item->stock_qty < $item->low_stock_threshold ? 'Low Stock' : 'In Stock') }}"
+                                  data-status="{{ $item->stock_qty == 0 ? 'Out of Stock' : ($item->stock_qty <= $item->low_stock_threshold ? 'Low Stock' : 'In Stock') }}"
                                   data-toggle="modal" 
                                   data-target="#viewProductModal">
                               <i class="mdi mdi-eye mr-2"></i> View Product
@@ -250,8 +241,8 @@
                                   data-product-name="{{ $item->product_name }}"
                                   data-category="{{ $item->category }}"
                                   data-stock-qty="{{ $item->stock_qty }}"
-                                  data-status="{{ $item->stock_qty == 0 ? 'Out of Stock' : ($item->stock_qty < $item->low_stock_threshold ? 'Low Stock' : 'In Stock') }}"
-                                  data-status-class="{{ $item->stock_qty == 0 ? 'badge-danger' : ($item->stock_qty < $item->low_stock_threshold ? 'badge-warning' : 'badge-success') }}"
+                                  data-status="{{ $item->stock_qty == 0 ? 'Out of Stock' : ($item->stock_qty <= $item->low_stock_threshold ? 'Low Stock' : 'In Stock') }}"
+                                  data-status-class="{{ $item->stock_qty == 0 ? 'badge-danger' : ($item->stock_qty <= $item->low_stock_threshold ? 'badge-warning' : 'badge-success') }}"
                                   data-toggle="modal" 
                                   data-target="#stockInModal">
                               <i class="mdi mdi-plus-circle mr-2"></i> Stock In
@@ -263,8 +254,8 @@
                                   data-product-name="{{ $item->product_name }}"
                                   data-category="{{ $item->category }}"
                                   data-stock-qty="{{ $item->stock_qty }}"
-                                  data-status="{{ $item->stock_qty == 0 ? 'Out of Stock' : ($item->stock_qty < $item->low_stock_threshold ? 'Low Stock' : 'In Stock') }}"
-                                  data-status-class="{{ $item->stock_qty == 0 ? 'badge-danger' : ($item->stock_qty < $item->low_stock_threshold ? 'badge-warning' : 'badge-success') }}"
+                                  data-status="{{ $item->stock_qty == 0 ? 'Out of Stock' : ($item->stock_qty <= $item->low_stock_threshold ? 'Low Stock' : 'In Stock') }}"
+                                  data-status-class="{{ $item->stock_qty == 0 ? 'badge-danger' : ($item->stock_qty <= $item->low_stock_threshold ? 'badge-warning' : 'badge-success') }}"
                                   data-toggle="modal" 
                                   data-target="#stockOutModal">
                               <i class="mdi mdi-minus-circle mr-2"></i> Stock Out
