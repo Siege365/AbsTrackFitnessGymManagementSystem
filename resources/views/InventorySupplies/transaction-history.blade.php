@@ -50,10 +50,14 @@
                             @php
                                 $catSlug = strtolower(str_replace(' ', '-', $item->category));
                                 $knownCats = ['supplement','supplements','equipment','apparel','beverages','drink','snacks','food','accessories'];
-                                $badgeClass = in_array($catSlug, $knownCats) ? 'badge-category-'.$catSlug : 'badge-category-other';
+                                $badgeClass = in_array($catSlug, $knownCats) ? 'badge-category-'.$catSlug : 'badge-category-dynamic';
+                                $catIcon = \App\Helpers\CategoryHelper::getIcon($item->category);
+                                $dynamicStyle = !in_array($catSlug, $knownCats) && $item->category_color 
+                                    ? 'background: ' . $item->category_color . '20; color: ' . $item->category_color . ';' 
+                                    : '';
                             @endphp
-                            <span class="badge-category {{ $badgeClass }} ml-2">
-                                <i class="mdi mdi-tag-outline"></i>
+                            <span class="badge-category {{ $badgeClass }} ml-2" @if($dynamicStyle) style="{{ $dynamicStyle }}" @endif>
+                                <i class="mdi {{ $catIcon }}"></i>
                                 {{ $item->category }}
                             </span>
                         </div>
@@ -77,7 +81,7 @@
                             <span class="product-detail-value">
                                 @if($item->stock_qty == 0)
                                     <span class="badge badge-danger"><span class="status-dot"></span>Out of Stock</span>
-                                @elseif($item->stock_qty < $item->low_stock_threshold)
+                                @elseif($item->stock_qty <= $item->low_stock_threshold)
                                     <span class="badge badge-warning"><span class="status-dot"></span>Low Stock</span>
                                 @else
                                     <span class="badge badge-success"><span class="status-dot"></span>In Stock</span>

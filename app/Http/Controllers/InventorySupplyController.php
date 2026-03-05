@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InventorySupply;
 use App\Models\InventoryTransaction;
-use App\Models\ActivityLog;
+use App\Helpers\CategoryHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -37,6 +37,27 @@ class InventorySupplyController extends Controller
         
         return response()->json([
             'product_number' => 'PRD-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT)
+        ]);
+    }
+
+    /**
+     * Check a category name for similarity against existing categories.
+     * Returns JSON with exact match, similar matches, and icon info.
+     */
+    public function checkCategory(Request $request)
+    {
+        $name = trim($request->get('name', ''));
+        
+        if (empty($name)) {
+            return response()->json(['similar' => [], 'icon' => 'mdi-tag-outline']);
+        }
+
+        $similar = CategoryHelper::checkSimilarCategories($name);
+        $icon = CategoryHelper::getIcon($name);
+
+        return response()->json([
+            'similar' => $similar,
+            'icon' => $icon,
         ]);
     }
 
@@ -77,12 +98,12 @@ class InventorySupplyController extends Controller
                     $query->orderBy('stock_qty', 'desc');
                     break;
                 case 'in_stock':
-                    $query->whereColumn('stock_qty', '>=', 'low_stock_threshold')
+                    $query->whereColumn('stock_qty', '>', 'low_stock_threshold')
                           ->where('stock_qty', '>', 0)
                           ->orderBy('created_at', 'desc');
                     break;
                 case 'low_stock':
-                    $query->whereColumn('stock_qty', '<', 'low_stock_threshold')
+                    $query->whereColumn('stock_qty', '<=', 'low_stock_threshold')
                           ->where('stock_qty', '>', 0)
                           ->orderBy('created_at', 'desc');
                     break;
@@ -90,19 +111,15 @@ class InventorySupplyController extends Controller
                     $query->where('stock_qty', 0)
                           ->orderBy('created_at', 'desc');
                     break;
-                case 'Supplement':
-                case 'Equipment':
-                case 'Apparel':
-                case 'Beverages':
-                case 'Snacks':
-                case 'Accessories':
-                case 'Food':
-                case 'Drink':
-                    $query->where('category', $request->filter)
-                          ->orderBy('created_at', 'desc');
-                    break;
                 default:
-                    $query->orderBy('created_at', 'desc');
+                    // Dynamic category filter: check if the filter matches an existing category
+                    $categoryExists = InventorySupply::where('category', $request->filter)->exists();
+                    if ($categoryExists) {
+                        $query->where('category', $request->filter)
+                              ->orderBy('created_at', 'desc');
+                    } else {
+                        $query->orderBy('created_at', 'desc');
+                    }
             }
         } else {
             $query->orderBy('created_at', 'desc');
@@ -113,18 +130,22 @@ class InventorySupplyController extends Controller
         
         // Calculate statistics (based on all items)
         $totalProducts = InventorySupply::count();
-        $lowStockItems = InventorySupply::whereColumn('stock_qty', '<', 'low_stock_threshold')
+        $lowStockItems = InventorySupply::whereColumn('stock_qty', '<=', 'low_stock_threshold')
                                     ->where('stock_qty', '>', 0)
                                     ->count();
         $outOfStockItems = InventorySupply::where('stock_qty', 0)->count();
         $stockValue = InventorySupply::sum(DB::raw('unit_price * stock_qty'));
+
+        // Get all categories for dynamic filters and dropdowns
+        $categories = CategoryHelper::getAllCategories();
         
-        return view('inventorySupplies.inventory', compact(
+        return view('InventorySupplies.Inventory', compact(
             'inventoryItems',
             'totalProducts',
             'lowStockItems',
             'outOfStockItems',
-            'stockValue'
+            'stockValue',
+            'categories'
         ));
     }
 
@@ -159,20 +180,17 @@ class InventorySupplyController extends Controller
             case 'stock_out':
                 $activityQuery->where('transaction_type', 'stock_out')->orderBy('created_at', 'desc');
                 break;
-            case 'Supplement':
-            case 'Equipment':
-            case 'Apparel':
-            case 'Beverages':
-            case 'Snacks':
-            case 'Accessories':
-            case 'Food':
-            case 'Drink':
-                $activityQuery->whereHas('inventorySupply', function($q) use ($activityFilter) {
-                    $q->where('category', $activityFilter);
-                })->orderBy('created_at', 'desc');
-                break;
-            default: // newest
-                $activityQuery->orderBy('created_at', 'desc');
+            default:
+                // Dynamic category filter: check if the filter matches an existing category
+                $categoryExists = InventorySupply::where('category', $activityFilter)->exists();
+                if ($categoryExists) {
+                    $activityQuery->whereHas('inventorySupply', function($q) use ($activityFilter) {
+                        $q->where('category', $activityFilter);
+                    })->orderBy('created_at', 'desc');
+                } else {
+                    // Default: newest
+                    $activityQuery->orderBy('created_at', 'desc');
+                }
         }
         
         $recentActivity = $activityQuery->paginate(10)->withQueryString();
@@ -193,6 +211,9 @@ class InventorySupplyController extends Controller
         $transactionsThisMonth = InventoryTransaction::whereHas('inventorySupply')
             ->where('created_at', '>=', $monthStart)
             ->count();
+
+        // Get all categories for dynamic filters
+        $categories = CategoryHelper::getAllCategories();
         
         return view('inventorySupplies.inventory-logs', compact(
             'recentActivity',
@@ -200,7 +221,8 @@ class InventorySupplyController extends Controller
             'totalTransactions',
             'totalStockIn',
             'totalStockOut',
-            'transactionsThisMonth'
+            'transactionsThisMonth',
+            'categories'
         ));
     }
 
@@ -330,7 +352,7 @@ class InventorySupplyController extends Controller
         try {
             $validated = $request->validate([
                 'product_number' => 'required|unique:inventory_supplies,product_number',
-                'product_name' => 'required|string|max:255',
+                'product_name' => 'required|string|max:255|unique:inventory_supplies,product_name',
                 'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:2048',
                 'avatar_url' => 'nullable|url',
                 'category' => 'required|string|max:255',
@@ -341,6 +363,7 @@ class InventorySupplyController extends Controller
                 'product_number.required' => 'Product number is required.',
                 'product_number.unique' => 'This product number already exists.',
                 'product_name.required' => 'Product name is required.',
+                'product_name.unique' => 'A product with this name already exists.',
                 'avatar.image' => 'Avatar must be an image file.',
                 'avatar.mimes' => 'Avatar must be a JPEG, PNG, GIF, or WebP image.',
                 'avatar.max' => 'Avatar size must not exceed 2MB.',
@@ -385,6 +408,25 @@ class InventorySupplyController extends Controller
 
             // Remove avatar_url from validated data as it's not a database field
             unset($validated['avatar_url']);
+
+            // Strict category similarity check — reject categories too similar to existing ones
+            $similarCategories = CategoryHelper::checkSimilarCategories($validated['category']);
+            $highMatch = collect($similarCategories)->first(function ($s) {
+                return $s['score'] >= 85 && $s['type'] !== 'exact';
+            });
+            $exactMatch = collect($similarCategories)->first(function ($s) {
+                return $s['type'] === 'exact';
+            });
+
+            if ($exactMatch) {
+                // If exact match (case-insensitive), normalize to the existing category name
+                $validated['category'] = $exactMatch['name'];
+            } elseif ($highMatch) {
+                // Block creation for highly similar categories (plural forms, typos, etc.)
+                return redirect()->back()
+                    ->withErrors(['category' => 'This category is too similar to "' . $highMatch['name'] . '". Please use the existing category instead.'])
+                    ->withInput();
+            }
 
             // Auto-generate category color if not already set for this category
             $existingCategoryColor = InventorySupply::where('category', $validated['category'])
@@ -437,19 +479,19 @@ class InventorySupplyController extends Controller
             $item = InventorySupply::findOrFail($id);
             
             $validated = $request->validate([
-                'product_name' => 'required|string|max:255',
+                'product_name' => 'required|string|max:255|unique:inventory_supplies,product_name,' . $id,
                 'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:2048',
                 'avatar_url' => 'nullable|url',
-                'category' => 'required|string|in:Supplement,Equipment,Apparel,Beverages,Snacks,Accessories,Food,Drink',
+                'category' => 'required|string|max:255',
                 'unit_price' => 'required|numeric|min:0',
             ], [
                 'product_name.required' => 'Product name is required.',
+                'product_name.unique' => 'A product with this name already exists.',
                 'avatar.image' => 'Avatar must be an image file.',
                 'avatar.mimes' => 'Avatar must be a JPEG, PNG, GIF, or WebP image.',
                 'avatar.max' => 'Avatar size must not exceed 2MB.',
                 'avatar_url.url' => 'Avatar URL must be a valid URL.',
                 'category.required' => 'Category is required.',
-                'category.in' => 'Please select a valid category.',
                 'unit_price.required' => 'Unit price is required.',
                 'unit_price.numeric' => 'Unit price must be a number.',
                 'unit_price.min' => 'Unit price must be at least 0.',
@@ -492,8 +534,26 @@ class InventorySupplyController extends Controller
             // Remove avatar_url from validated data as it's not a database field
             unset($validated['avatar_url']);
 
-            // Auto-generate category color if category is changed to a new one
+            // Strict category similarity check — reject categories too similar to existing ones
             if (isset($validated['category']) && $validated['category'] !== $item->category) {
+                $similarCategories = CategoryHelper::checkSimilarCategories($validated['category']);
+                $highMatch = collect($similarCategories)->first(function ($s) {
+                    return $s['score'] >= 85 && $s['type'] !== 'exact';
+                });
+                $exactMatch = collect($similarCategories)->first(function ($s) {
+                    return $s['type'] === 'exact';
+                });
+
+                if ($exactMatch) {
+                    // If exact match (case-insensitive), normalize to the existing category name
+                    $validated['category'] = $exactMatch['name'];
+                } elseif ($highMatch) {
+                    // Block update for highly similar categories
+                    return redirect()->back()
+                        ->withErrors(['category' => 'This category is too similar to "' . $highMatch['name'] . '". Please use the existing category instead.'])
+                        ->withInput();
+                }
+
                 $existingCategoryColor = InventorySupply::where('category', $validated['category'])
                     ->whereNotNull('category_color')
                     ->where('id', '!=', $item->id)
@@ -624,7 +684,9 @@ class InventorySupplyController extends Controller
             $query->orderBy('created_at', 'desc');
         }])->findOrFail($id);
 
-        return view('inventorySupplies.transaction-history', compact('item'));
+        $categories = CategoryHelper::getAllCategories();
+
+        return view('inventorySupplies.transaction-history', compact('item', 'categories'));
     }
 
     /**
@@ -633,7 +695,7 @@ class InventorySupplyController extends Controller
     public function stockHistoryJson($id)
     {
         $item = InventorySupply::with(['transactions' => function($query) {
-            $query->orderBy('created_at', 'desc')->limit(20);
+            $query->orderBy('created_at', 'desc')->limit(5);
         }])->findOrFail($id);
 
         $totalIn = $item->transactions->where('transaction_type', 'stock_in')->sum('quantity');

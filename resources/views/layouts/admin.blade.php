@@ -51,6 +51,7 @@
     <!-- End plugin js for this page -->
     
     <!-- Common JS Utilities (Vite-managed) -->
+    @vite(['resources/js/common/kpi-utils.js'])
     @vite(['resources/js/common/toast-utils.js'])
     @vite(['resources/js/common/sidebar.js'])
     <script src="{{ asset('template/assets/js/misc.js') }}?v={{ time() }}"></script>

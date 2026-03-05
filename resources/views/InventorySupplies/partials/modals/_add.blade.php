@@ -32,7 +32,6 @@
                     id="autoProductNumber"
                     value="{{ old('product_number') }}" 
                     readonly>
-              <small class="text-muted">Auto-generated product number</small>
             </div>
             <div class="form-group col-md-6">
               <label>Product Name <span class="text-danger">*</span></label>
@@ -60,12 +59,18 @@
                       id="addCategorySelect"
                       required>
                 <option value="" disabled {{ old('category') ? '' : 'selected' }}>Select category</option>
-                <option value="Supplement" {{ old('category') == 'Supplement' ? 'selected' : '' }}>Supplement</option>
-                <option value="Equipment" {{ old('category') == 'Equipment' ? 'selected' : '' }}>Equipment</option>
-                <option value="Apparel" {{ old('category') == 'Apparel' ? 'selected' : '' }}>Apparel</option>
-                <option value="Beverages" {{ old('category') == 'Beverages' ? 'selected' : '' }}>Beverages</option>
-                <option value="Snacks" {{ old('category') == 'Snacks' ? 'selected' : '' }}>Snacks</option>
-                <option value="Accessories" {{ old('category') == 'Accessories' ? 'selected' : '' }}>Accessories</option>
+                @if(isset($categories) && $categories->count() > 0)
+                  @foreach($categories as $cat)
+                    <option value="{{ $cat->name }}" {{ old('category') == $cat->name ? 'selected' : '' }}>{{ $cat->name }}</option>
+                  @endforeach
+                @else
+                  <option value="Supplement" {{ old('category') == 'Supplement' ? 'selected' : '' }}>Supplement</option>
+                  <option value="Equipment" {{ old('category') == 'Equipment' ? 'selected' : '' }}>Equipment</option>
+                  <option value="Apparel" {{ old('category') == 'Apparel' ? 'selected' : '' }}>Apparel</option>
+                  <option value="Beverages" {{ old('category') == 'Beverages' ? 'selected' : '' }}>Beverages</option>
+                  <option value="Snacks" {{ old('category') == 'Snacks' ? 'selected' : '' }}>Snacks</option>
+                  <option value="Accessories" {{ old('category') == 'Accessories' ? 'selected' : '' }}>Accessories</option>
+                @endif
               </select>
               <!-- New Category Input (hidden by default) -->
               <div id="newCategoryInputGroup" style="display: none;">
@@ -73,7 +78,10 @@
                       class="form-control" 
                       id="newCategoryInput"
                       placeholder="Enter new category name"
-                      maxlength="50">
+                      maxlength="50"
+                      oninput="checkCategorySimilarity(this.value, 'add')">
+                <!-- Similarity warning container -->
+                <div id="addCategorySimilarityWarning" class="category-similarity-warning" style="display: none;"></div>
               </div>
               <!-- Checkbox below input field -->
               <div class="d-flex align-items-center mt-2">

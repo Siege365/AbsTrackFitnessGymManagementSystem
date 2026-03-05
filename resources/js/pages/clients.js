@@ -673,10 +673,10 @@ const ClientsPage = (function() {
         const kpiCards = document.querySelectorAll('.stats-card h2');
         
         // Update KPI numbers with server data
-        if (kpiCards[0]) kpiCards[0].textContent = data.total;
-        if (kpiCards[1]) kpiCards[1].textContent = data.active;
-        if (kpiCards[2]) kpiCards[2].textContent = data.expiring;
-        if (kpiCards[3]) kpiCards[3].textContent = data.new_signups;
+        if (kpiCards[0]) kpiCards[0].textContent = formatKPINumber(data.total);
+        if (kpiCards[1]) kpiCards[1].textContent = formatKPINumber(data.active);
+        if (kpiCards[2]) kpiCards[2].textContent = formatKPINumber(data.expiring);
+        if (kpiCards[3]) kpiCards[3].textContent = formatKPINumber(data.new_signups);
       } else {
         console.error('Failed to update KPIs:', result.message);
       }

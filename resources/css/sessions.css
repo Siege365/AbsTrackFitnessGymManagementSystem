@@ -1133,23 +1133,36 @@ body.modal-open {
   pointer-events: none;
 }
 
-#viewEditPTModal:has(.edit-field:not([disabled])) .form-control[readonly] {
-  opacity: 0.45;
-  cursor: default;
-}
-#viewEditPTModal:has(.edit-field:not([disabled])) .form-group:has(.form-control[readonly]) label {
-  opacity: 0.55;
-}
-
-/* Editable fields — always full opacity */
-#viewEditPTModal .edit-field {
-  opacity: 1 !important;
-}
-#viewEditPTModal .form-group:has(.edit-field) label {
-  opacity: 1;
+/* =====================================================
+   SEARCH WRAPPER
+   ===================================================== */
+.search-wrapper {
+  position: relative;
+  display: inline-flex;
+  width: 450px;
+  max-width: 100%;
 }
 
-#editableTag {
-  padding: 5px;
-  border-radius: 20px;
+.search-wrapper .form-control {
+  padding-right: 35px;
+  width: 100%;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0 5px;
+  line-height: 1;
+  z-index: 2;
+}
+
+.search-clear-btn:hover {
+  color: #ffffff;
 }

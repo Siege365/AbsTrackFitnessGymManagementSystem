@@ -38,16 +38,16 @@ const AttendancePage = {
           const data = response.data;
           
           // Update Customers Today
-          $('#kpi_customers_today').text(data.customersEnteredToday);
+          $('#kpi_customers_today').text(formatKPINumber(data.customersEnteredToday));
           
           // Update Members Today
-          $('#kpi_members_today').text(data.membersToday);
+          $('#kpi_members_today').text(formatKPINumber(data.membersToday));
           
           // Update Walk-ins Today
-          $('#kpi_walkins_today').text(data.walkInsToday);
+          $('#kpi_walkins_today').text(formatKPINumber(data.walkInsToday));
           
           // Update Total This Month
-          $('#kpi_total_month').text(data.totalThisMonth);
+          $('#kpi_total_month').text(formatKPINumber(data.totalThisMonth));
           
           // Update percentage change
           const percentChange = data.customerPercentChange;

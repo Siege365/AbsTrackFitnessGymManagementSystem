@@ -143,6 +143,20 @@ const InventoryPage = (function() {
                         document.getElementById('editNewCategoryInput').focus();
                         return;
                     }
+                    // Block submission if exact match or high-similarity warning is showing
+                    const warning = document.getElementById('editCategorySimilarityWarning');
+                    if (warning && warning.querySelector('.similarity-exact')) {
+                        e.preventDefault();
+                        ToastUtils.showError('This category already exists. Please use the existing category or choose a different name.', 'Duplicate Category');
+                        document.getElementById('editNewCategoryInput').focus();
+                        return;
+                    }
+                    if (warning && warning.querySelector('.similarity-warning')) {
+                        e.preventDefault();
+                        ToastUtils.showError('This category is too similar to an existing one. Please use the suggested category or choose a different name.', 'Similar Category');
+                        document.getElementById('editNewCategoryInput').focus();
+                        return;
+                    }
                     // Add the option to the select so it's submitted
                     const select = document.getElementById('editProductCategory');
                     let optionExists = false;
@@ -554,6 +568,18 @@ function showAddProductConfirm() {
             document.getElementById('newCategoryInput').focus();
             return;
         }
+        // Block submission if exact match or high-similarity warning is showing
+        const warning = document.getElementById('addCategorySimilarityWarning');
+        if (warning && warning.querySelector('.similarity-exact')) {
+            ToastUtils.showError('This category already exists. Please use the existing category or choose a different name.', 'Duplicate Category');
+            document.getElementById('newCategoryInput').focus();
+            return;
+        }
+        if (warning && warning.querySelector('.similarity-warning')) {
+            ToastUtils.showError('This category is too similar to an existing one. Please use the suggested category or choose a different name.', 'Similar Category');
+            document.getElementById('newCategoryInput').focus();
+            return;
+        }
         // Set the hidden select value to the custom category
         const select = document.getElementById('addCategorySelect');
         // Add the option if it doesn't exist
@@ -797,6 +823,9 @@ document.addEventListener('DOMContentLoaded', function() {
             checkbox.checked = false;
             toggleNewCategory(checkbox);
         }
+        // Clear similarity warning
+        const warning = document.getElementById('addCategorySimilarityWarning');
+        if (warning) { warning.style.display = 'none'; warning.innerHTML = ''; }
     });
 
     // Reset new category state on Edit modal close
@@ -806,9 +835,190 @@ document.addEventListener('DOMContentLoaded', function() {
             checkbox.checked = false;
             toggleEditNewCategory(checkbox);
         }
+        // Clear similarity warning
+        const warning = document.getElementById('editCategorySimilarityWarning');
+        if (warning) { warning.style.display = 'none'; warning.innerHTML = ''; }
     });
 
 });
+
+// ============================================
+// Category Similarity Check (AJAX)
+// ============================================
+
+let categorySimilarityTimeout = null;
+
+/**
+ * Debounced AJAX check for similar category names.
+ * Called on input event of new category text fields.
+ * @param {string} value - The category name typed by the user
+ * @param {string} context - 'add' or 'edit' to target the correct warning container
+ */
+function checkCategorySimilarity(value, context) {
+    const warningId = context === 'add' ? 'addCategorySimilarityWarning' : 'editCategorySimilarityWarning';
+    const warningEl = document.getElementById(warningId);
+    
+    if (!warningEl) return;
+
+    // Clear previous timeout
+    if (categorySimilarityTimeout) {
+        clearTimeout(categorySimilarityTimeout);
+    }
+
+    const trimmed = value.trim();
+    
+    // Hide warning if input is empty
+    if (!trimmed || trimmed.length < 2) {
+        warningEl.style.display = 'none';
+        warningEl.innerHTML = '';
+        return;
+    }
+
+    // Debounce: wait 400ms after user stops typing
+    categorySimilarityTimeout = setTimeout(function() {
+        fetch('/inventory/check-category?name=' + encodeURIComponent(trimmed), {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.similar && data.similar.length > 0) {
+                let html = '';
+                const hasExact = data.similar.some(function(s) { return s.type === 'exact'; });
+
+                if (hasExact) {
+                    // Exact match found
+                    const exact = data.similar.find(function(s) { return s.type === 'exact'; });
+                    html = '<div class="similarity-alert similarity-exact">' +
+                           '<i class="mdi mdi-alert-circle"></i> ' +
+                           '<span>Category <strong>"' + escapeHtml(exact.name) + '"</strong> already exists. ' +
+                           '<a href="#" class="similarity-use-link" onclick="useSuggestedCategory(\'' + escapeAttr(exact.name) + '\', \'' + context + '\'); return false;">Use it instead</a></span>' +
+                           '</div>';
+                } else {
+                    // Similar matches found
+                    html = '<div class="similarity-alert similarity-warning">' +
+                           '<i class="mdi mdi-alert-outline"></i> ' +
+                           '<span>Similar categories found:</span>' +
+                           '</div>';
+                    data.similar.forEach(function(s) {
+                        const typeLabel = s.type === 'plural' ? 'plural form' : 
+                                         s.type === 'phonetic' ? 'sounds similar' : 
+                                         s.type === 'contains' ? 'similar name' : 'similar';
+                        html += '<div class="similarity-suggestion">' +
+                                '<span class="similarity-name">"' + escapeHtml(s.name) + '"</span>' +
+                                '<span class="similarity-type">(' + typeLabel + ', ' + Math.round(s.score) + '% match)</span>' +
+                                '<a href="#" class="similarity-use-link" onclick="useSuggestedCategory(\'' + escapeAttr(s.name) + '\', \'' + context + '\'); return false;">Use this</a>' +
+                                '</div>';
+                    });
+                }
+                warningEl.innerHTML = html;
+                warningEl.style.display = 'block';
+            } else {
+                // No similar categories - show green "new category" indicator
+                warningEl.innerHTML = '<div class="similarity-alert similarity-ok">' +
+                    '<i class="mdi mdi-check-circle"></i> ' +
+                    '<span>"' + escapeHtml(trimmed) + '" will be created as a new category</span>' +
+                    '</div>';
+                warningEl.style.display = 'block';
+            }
+        })
+        .catch(function(err) {
+            console.error('Category check failed:', err);
+            warningEl.style.display = 'none';
+        });
+    }, 400);
+}
+
+/**
+ * When user clicks "Use this" on a similarity suggestion, 
+ * switch back to the dropdown and select the suggested category.
+ */
+function useSuggestedCategory(categoryName, context) {
+    if (context === 'add') {
+        const checkbox = document.getElementById('newCategoryCheckbox');
+        const select = document.getElementById('addCategorySelect');
+        const input = document.getElementById('newCategoryInput');
+        const warning = document.getElementById('addCategorySimilarityWarning');
+
+        // Check if option exists in the dropdown
+        let found = false;
+        for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].value === categoryName) {
+                select.selectedIndex = i;
+                found = true;
+                break;
+            }
+        }
+        // If not found in dropdown, add it
+        if (!found) {
+            const newOption = document.createElement('option');
+            newOption.value = categoryName;
+            newOption.textContent = categoryName;
+            newOption.selected = true;
+            select.appendChild(newOption);
+        }
+
+        // Uncheck "New Category" and toggle back to dropdown
+        if (checkbox) {
+            checkbox.checked = false;
+            toggleNewCategory(checkbox);
+        }
+        // Clear warning
+        if (warning) { warning.style.display = 'none'; warning.innerHTML = ''; }
+        if (input) input.value = '';
+    } else {
+        const checkbox = document.getElementById('editNewCategoryCheckbox');
+        const select = document.getElementById('editProductCategory');
+        const input = document.getElementById('editNewCategoryInput');
+        const warning = document.getElementById('editCategorySimilarityWarning');
+
+        // Check if option exists in the dropdown
+        let found = false;
+        for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].value === categoryName) {
+                select.selectedIndex = i;
+                found = true;
+                break;
+            }
+        }
+        // If not found, add it
+        if (!found) {
+            const newOption = document.createElement('option');
+            newOption.value = categoryName;
+            newOption.textContent = categoryName;
+            newOption.selected = true;
+            select.appendChild(newOption);
+        }
+
+        // Uncheck "New Category" and toggle back to dropdown
+        if (checkbox) {
+            checkbox.checked = false;
+            toggleEditNewCategory(checkbox);
+        }
+        // Clear warning
+        if (warning) { warning.style.display = 'none'; warning.innerHTML = ''; }
+        if (input) input.value = '';
+    }
+}
+
+/**
+ * Utility: HTML-escape a string
+ */
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+}
+
+/**
+ * Utility: Escape for use in HTML attribute (single-quoted)
+ */
+function escapeAttr(str) {
+    return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
 
 // ============================================
 // Avatar Preview Functions
@@ -962,6 +1172,8 @@ window.toggleProductAvatarInput = toggleProductAvatarInput;
 window.previewEditProductAvatar = previewEditProductAvatar;
 window.toggleEditProductAvatarInput = toggleEditProductAvatarInput;
 window.initTransactionHistoryPage = initTransactionHistoryPage;
+window.checkCategorySimilarity = checkCategorySimilarity;
+window.useSuggestedCategory = useSuggestedCategory;
 
 // Initialize transaction history page on DOM ready
 document.addEventListener('DOMContentLoaded', function() {

@@ -41,7 +41,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h2 class="mb-0">₱{{ number_format($membershipIncome ?? 0, 2) }}</h2>
+              <h2 class="mb-0" data-kpi-value="{{ $membershipIncome ?? 0 }}" data-kpi-type="currency">₱{{ number_format($membershipIncome ?? 0, 2) }}</h2>
               <p class="text-muted mb-0">Membership Income</p>
             </div>
             <div class="stats-icon bg-danger">
@@ -57,7 +57,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h2 class="mb-0">₱{{ number_format($ptIncome ?? 0, 2) }}</h2>
+              <h2 class="mb-0" data-kpi-value="{{ $ptIncome ?? 0 }}" data-kpi-type="currency">₱{{ number_format($ptIncome ?? 0, 2) }}</h2>
               <p class="text-muted mb-0">PT Income</p>
             </div>
             <div class="stats-icon bg-primary">
@@ -73,7 +73,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h2 class="mb-0">₱{{ number_format($productIncome ?? 0, 2) }}</h2>
+              <h2 class="mb-0" data-kpi-value="{{ $productIncome ?? 0 }}" data-kpi-type="currency">₱{{ number_format($productIncome ?? 0, 2) }}</h2>
               <p class="text-muted mb-0">Product Income</p>
             </div>
             <div class="stats-icon bg-warning">
@@ -89,7 +89,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h2 class="mb-0">₱{{ number_format($refundedTotal ?? 0, 2) }}</h2>
+              <h2 class="mb-0" data-kpi-value="{{ $refundedTotal ?? 0 }}" data-kpi-type="currency">₱{{ number_format($refundedTotal ?? 0, 2) }}</h2>
               <p class="text-muted mb-0">Total Refunded</p>
             </div>
             <div class="stats-icon bg-info">

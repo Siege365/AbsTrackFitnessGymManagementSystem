@@ -5,7 +5,7 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
           <div>
-            <h2 class="mb-0">{{ $totalClients }}</h2>
+            <h2 class="mb-0" data-kpi-value="{{ $totalClients }}">{{ $totalClients }}</h2>
             <p class="text-muted mb-0">Total Clients</p>
           </div>
           <div class="stats-icon bg-danger">
@@ -21,7 +21,7 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
           <div>
-            <h2 class="mb-0">{{ $activeClients }}</h2>
+            <h2 class="mb-0" data-kpi-value="{{ $activeClients }}">{{ $activeClients }}</h2>
             <p class="text-muted mb-0">Active Clients</p>
           </div>
           <div class="stats-icon bg-success">
@@ -37,7 +37,7 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
           <div>
-            <h2 class="mb-0">{{ $expiringThisWeek }}</h2>
+            <h2 class="mb-0" data-kpi-value="{{ $expiringThisWeek }}">{{ $expiringThisWeek }}</h2>
             <p class="text-muted mb-0">Expiring This Week</p>
           </div>
           <div class="stats-icon bg-warning">
@@ -53,7 +53,7 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
           <div>
-            <h2 class="mb-0">{{ $newSignupsThisMonth }}</h2>
+            <h2 class="mb-0" data-kpi-value="{{ $newSignupsThisMonth }}">{{ $newSignupsThisMonth }}</h2>
             <p class="text-muted mb-0">New Signups This Month</p>
           </div>
           <div class="stats-icon bg-info">

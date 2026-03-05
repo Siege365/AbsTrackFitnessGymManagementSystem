@@ -8,14 +8,16 @@
           <h4 class="card-title mb-0">List Of Memberships</h4>
           <div class="d-flex align-items-center">
             <form action="{{ route('memberships.index') }}" method="GET" class="d-flex align-items-center" id="searchForm">
-              <input 
-                type="text" 
-                name="search" 
-                class="form-control form-control-sm mr-2" 
-                placeholder="Search by name, contact, plan, or status..." 
-                value="{{ request('search') }}" 
-                style="width: 100%; max-width: 450px;"
-                id="searchInput">
+              <div class="search-wrapper mr-2">
+                <input 
+                  type="text" 
+                  name="search" 
+                  class="form-control form-control-sm" 
+                  placeholder="Search by name, contact, plan, or status..." 
+                  value="{{ request('search') }}" 
+                  style="width: 100%; max-width: 450px;"
+                  id="searchInput">
+              </div>
               <div class="dropdown d-inline-block mr-2">
                 <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="filterDropdown" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                   <i class="mdi mdi-filter-variant"></i> Filter

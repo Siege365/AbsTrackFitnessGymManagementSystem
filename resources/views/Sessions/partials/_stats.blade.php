@@ -5,7 +5,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h2 class="mb-0" id="kpi_pt_sessions_today">{{ $ptSessionsToday ?? 0 }}</h2>
+                        <h2 class="mb-0" id="kpi_pt_sessions_today" data-kpi-value="{{ $ptSessionsToday ?? 0 }}">{{ $ptSessionsToday ?? 0 }}</h2>
                         <p class="text-muted mb-0">PT Sessions Today</p>
                     </div>
                     <div class="stats-icon bg-primary">
@@ -21,7 +21,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h2 class="mb-0" id="kpi_upcoming_pt">{{ $upcomingPTSessions ?? 0 }}</h2>
+                        <h2 class="mb-0" id="kpi_upcoming_pt" data-kpi-value="{{ $upcomingPTSessions ?? 0 }}">{{ $upcomingPTSessions ?? 0 }}</h2>
                         <p class="text-muted mb-0">Upcoming PT Sessions</p>
                     </div>
                     <div class="stats-icon bg-info">
@@ -37,7 +37,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h2 class="mb-0" id="kpi_pt_cancellations">{{ $ptCancellations ?? 0 }}</h2>
+                        <h2 class="mb-0" id="kpi_pt_cancellations" data-kpi-value="{{ $ptCancellations ?? 0 }}">{{ $ptCancellations ?? 0 }}</h2>
                         <p class="text-muted mb-0">PT Cancellations</p>
                     </div>
                     <div class="stats-icon bg-danger">
@@ -53,7 +53,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h2 class="mb-0" id="kpi_customers_today">{{ $customersEnteredToday ?? 0 }}</h2>
+                        <h2 class="mb-0" id="kpi_customers_today" data-kpi-value="{{ $customersEnteredToday ?? 0 }}">{{ $customersEnteredToday ?? 0 }}</h2>
                         <p class="text-muted mb-0">Customers Entered Today</p>
                     </div>
                     <div class="stats-icon bg-success">

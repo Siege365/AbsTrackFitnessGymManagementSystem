@@ -126,6 +126,9 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}', [InventorySupplyController::class, 'destroy'])->name('destroy');
         Route::delete('/', [InventorySupplyController::class, 'bulkDelete'])->name('bulk-delete');
 
+        // Category check route
+        Route::get('/check-category', [InventorySupplyController::class, 'checkCategory'])->name('check-category');
+
         // Stock transaction routes
         Route::post('/{id}/stock-transaction', [InventorySupplyController::class, 'stockTransaction'])->name('stock-transaction');
         Route::get('/{id}/transaction-history', [InventorySupplyController::class, 'transactionHistory'])->name('transaction-history');
@@ -239,7 +242,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/plans', [GymConfigurationController::class, 'store'])->name('plans.store');
         Route::put('/plans/{id}', [GymConfigurationController::class, 'update'])->name('plans.update');
         Route::delete('/plans/{id}', [GymConfigurationController::class, 'destroy'])->name('plans.destroy');
+        Route::patch('/plans/toggle-status/{id}', [GymConfigurationController::class, 'toggleStatus'])->name('plans.toggleStatus');
         Route::post('/plans/reorder', [GymConfigurationController::class, 'reorder'])->name('plans.reorder');
+
+        // Category Management
+        Route::put('/categories/{name}', [GymConfigurationController::class, 'updateCategory'])->name('categories.update');
+        Route::delete('/categories/{name}', [GymConfigurationController::class, 'destroyCategory'])->name('categories.destroy');
     });
 
     // API: Active plans (for Payment page dynamic loading)

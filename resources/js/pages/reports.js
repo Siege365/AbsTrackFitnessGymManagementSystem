@@ -302,16 +302,15 @@ const ReportsPage = (function () {
 
   /** Update KPI DOM elements with values. */
   function updateKPIDisplay(data) {
-    const fmt = (v) => '\u20b1' + parseFloat(v).toLocaleString('en-PH', { minimumFractionDigits: 2 });
-
-    const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    setVal('kpi_monthly_revenue',   fmt(data.monthly_revenue));
-    setVal('kpi_retail_sales',      fmt(data.retail_sales));
-    setVal('kpi_membership_revenue', fmt(data.membership_revenue));
-    setVal('kpi_pt_revenue',        fmt(data.pt_revenue));
-
-    updateKPIBadge('kpi_revenue_badge',    'kpi_revenue_icon',    data.revenue_change);
-    updateKPIBadge('kpi_retail_badge',     'kpi_retail_icon',     data.retail_change);
+    // Update values with abbreviated formatting
+    document.getElementById('kpi_monthly_revenue').textContent = formatKPICurrency(data.monthly_revenue);
+    document.getElementById('kpi_retail_sales').textContent = formatKPICurrency(data.retail_sales);
+    document.getElementById('kpi_membership_revenue').textContent = formatKPICurrency(data.membership_revenue);
+    document.getElementById('kpi_pt_revenue').textContent = formatKPICurrency(data.pt_revenue);
+    
+    // Update badges
+    updateKPIBadge('kpi_revenue_badge', 'kpi_revenue_icon', data.revenue_change);
+    updateKPIBadge('kpi_retail_badge', 'kpi_retail_icon', data.retail_change);
     updateKPIBadge('kpi_membership_badge', 'kpi_membership_icon', data.membership_change);
     updateKPIBadge('kpi_pt_badge',         'kpi_pt_icon',         data.pt_change);
   }
