@@ -250,7 +250,7 @@
 
         {{-- Footer: Delete Selected + Pagination --}}
         <div class="table-footer">
-          <button type="button" onclick="bulkDeleteLogs()" class="btn btn-sm btn-delete-selected" id="deleteLogBtn" disabled>
+          <button type="button" onclick="bulkDeleteLogs()" class="btn btn-sm btn-delete-selected" id="deleteLogBtn">
             <i class="mdi mdi-delete"></i> Delete Selected (<span id="logCount">0</span>)
           </button>
           {{ $logs->links('vendor.pagination.custom') }}

@@ -195,7 +195,7 @@ class MembershipController extends Controller
                 'name' => 'required|string|max:255',
                 'age' => 'nullable|integer|min:1|max:120',
                 'sex' => 'nullable|in:Male,Female',
-                'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
+                'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2047',
                 'avatar_url' => 'nullable|url',
                 'plan_type' => 'required|exists:gym_plans,plan_key',
                 'start_date' => 'required|date|after_or_equal:today',
@@ -204,6 +204,9 @@ class MembershipController extends Controller
                 'confirm_similar' => 'nullable|boolean',
             ], [
                 'start_date.after_or_equal' => 'Start date cannot be in the past. Please select today or a future date.',
+                'avatar.max' => 'Avatar file size must be less than 2MB.',
+                'avatar.mimes' => 'Avatar must be a JPEG, JPG, PNG, or GIF file.',
+                'avatar.image' => 'Avatar must be a valid image file (JPEG, JPG, PNG, or GIF).',
             ]);
 
             // Server-side due_date calculation (never trust client)
@@ -390,12 +393,16 @@ class MembershipController extends Controller
                     'name' => 'required|string|max:255',
                     'age' => 'nullable|integer|min:1|max:120',
                     'sex' => 'nullable|in:Male,Female',
-                    'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
+                    'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2047',
                     'avatar_url' => 'nullable|url',
                     'plan_type' => 'required|exists:gym_plans,plan_key',
                     'start_date' => 'required|date',
                     'due_date' => 'nullable|date',
                     'contact' => ['required', 'string', 'max:255', 'regex:/^[+]?[0-9()\- ]+$/'],
+                ], [
+                    'avatar.max' => 'Avatar file size must be less than 2MB.',
+                    'avatar.mimes' => 'Avatar must be a JPEG, JPG, PNG, or GIF file.',
+                    'avatar.image' => 'Avatar must be a valid image file (JPEG, JPG, PNG, or GIF).',
                 ]);
 
             // Server-side due_date calculation (never trust client)
@@ -618,7 +625,9 @@ class MembershipController extends Controller
                 // Validate input
                 $validated = $request->validate([
                     'start_date' => 'required|date',
-                    'due_date' => 'required|date|after_or_equal:start_date'
+                    'due_date' => 'required|date|after:start_date'
+                ], [
+                    'due_date.after' => 'Due date must be after the start date.',
                 ]);
                 
                 // Parse dates
@@ -672,14 +681,24 @@ class MembershipController extends Controller
         } catch (\Exception $e) {
             Log::error('Error renewing membership: ' . $e->getMessage());
             
+            $errorMessage = $e->getMessage();
+            // Return specific messages for known validation errors
+            $knownErrors = [
+                'Due date must be after start date',
+                'Start date cannot be more than 30 days in the past',
+            ];
+            if (!in_array($errorMessage, $knownErrors)) {
+                $errorMessage = 'An error occurred while renewing the membership';
+            }
+            
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'An error occurred while renewing the membership'
-                ], 500);
+                    'message' => $errorMessage
+                ], 422);
             }
             
-            return back()->with('error', 'An error occurred while renewing the membership');
+            return back()->with('error', $errorMessage);
         }
     }
 

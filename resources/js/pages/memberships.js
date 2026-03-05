@@ -13,6 +13,11 @@ const MembershipsPage = (function() {
     avatarUrl: null
   };
 
+  // Allowed avatar file types and max size
+  const ALLOWED_AVATAR_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+  const ALLOWED_AVATAR_EXTENSIONS = ['jpeg', 'jpg', 'png', 'gif'];
+  const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2MB in bytes
+
   // Configuration passed from Laravel (set via MembershipsPage.init())
   let config = {
     csrfToken: '',
@@ -84,38 +89,101 @@ const MembershipsPage = (function() {
   }
 
   /**
+   * Validate avatar file size and type
+   * @param {HTMLInputElement} fileInput - The file input element
+   * @returns {string|null} Error message or null if valid
+   */
+  function validateAvatarFile(fileInput) {
+    if (!fileInput || !fileInput.files || !fileInput.files[0]) return null;
+    const file = fileInput.files[0];
+
+    // Check file type
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!ALLOWED_AVATAR_TYPES.includes(file.type) && !ALLOWED_AVATAR_EXTENSIONS.includes(ext)) {
+      return 'Avatar must be a JPEG, JPG, PNG, or GIF file.';
+    }
+
+    // Check file size (must be strictly less than 2MB)
+    if (file.size >= MAX_AVATAR_SIZE) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      return 'Avatar file size must be less than 2MB. Selected file is ' + sizeMB + 'MB.';
+    }
+
+    return null;
+  }
+
+  /**
    * Validate form and show confirmation modal
    */
   function showConfirmModal() {
     const elements = getAddModalElements();
+    const sexInput = document.getElementById('newMemberSex');
+
+    // Clear all previous invalid highlights
+    [elements.nameInput, elements.ageInput, sexInput, elements.contactInput, elements.planInput, elements.startDateInput]
+      .forEach(el => el && el.classList.remove('is-invalid'));
+
     const name = elements.nameInput.value.trim();
     const age = elements.ageInput.value;
-    const sex = document.getElementById('newMemberSex').value;
+    const sex = sexInput.value;
     const contact = elements.contactInput.value.trim();
     const plan = elements.planInput.value;
     const startDate = elements.startDateInput.value;
     const endDate = elements.endDateInput.value;
 
-    // Run validations
-    const validations = [
-      FormUtils.validateRequired(name, 'a name', elements.nameInput),
-      FormUtils.validateAge(age, elements.ageInput),
-      FormUtils.validateRequired(sex, 'a sex', document.getElementById('newMemberSex')),
-      FormUtils.validateRequired(contact, 'a contact number', elements.contactInput),
-      FormUtils.validateContact(contact, elements.contactInput),
-      FormUtils.validateSelect(plan, 'a membership plan', elements.planInput),
-      FormUtils.validateRequired(startDate, 'a start date', elements.startDateInput)
-    ];
+    // Helper: mark field invalid, focus it, and show toast
+    function fail(message, el) {
+      if (el) { el.classList.add('is-invalid'); el.focus(); }
+      ToastUtils.showError(message, 'Validation Error');
+    }
 
-    const result = FormUtils.runValidations(validations);
-    if (result !== true) {
-      ToastUtils.showError(result, 'Validation Error');
+    // 1. Name
+    const nameResult = FormUtils.validateRequired(name, 'a name', elements.nameInput);
+    if (nameResult !== true) { fail(nameResult, elements.nameInput); return; }
+
+    // 2. Age
+    const ageResult = FormUtils.validateAge(age, elements.ageInput);
+    if (ageResult !== true) { fail(ageResult, elements.ageInput); return; }
+
+    // 3. Sex
+    const sexResult = FormUtils.validateRequired(sex, 'a sex', sexInput);
+    if (sexResult !== true) { fail(sexResult, sexInput); return; }
+
+    // 4. Contact – required
+    const contactRequiredResult = FormUtils.validateRequired(contact, 'a contact number', elements.contactInput);
+    if (contactRequiredResult !== true) { fail(contactRequiredResult, elements.contactInput); return; }
+
+    // 4b. Contact – valid characters
+    const contactFormatResult = FormUtils.validateContact(contact, elements.contactInput);
+    if (contactFormatResult !== true) { fail(contactFormatResult, elements.contactInput); return; }
+
+    // 4c. Contact – digit count / prefix rules
+    const digitsOnly = contact.replace(/\D/g, '');
+    if (contact.startsWith('+63')) {
+      if (digitsOnly.length !== 12) { fail('Phone number with +63 must have exactly 12 digits', elements.contactInput); return; }
+    } else {
+      if (digitsOnly.length !== 11) { fail('Phone number must have exactly 11 digits', elements.contactInput); return; }
+      if (!digitsOnly.startsWith('09')) { fail('Phone number must start with 09', elements.contactInput); return; }
+    }
+
+    // 5. Membership plan
+    const planResult = FormUtils.validateSelect(plan, 'a membership plan', elements.planInput);
+    if (planResult !== true) { fail(planResult, elements.planInput); return; }
+
+    // 6. Start date
+    const startDateResult = FormUtils.validateRequired(startDate, 'a start date', elements.startDateInput);
+    if (startDateResult !== true) { fail(startDateResult, elements.startDateInput); return; }
+
+    if (!endDate) {
+      fail(FormUtils.MESSAGES.endDateRequired, elements.startDateInput);
       return;
     }
 
-    if (!endDate) {
-      ToastUtils.showError(FormUtils.MESSAGES.endDateRequired, 'Validation Error');
-      elements.startDateInput.focus();
+    // Validate avatar file if one is selected
+    const avatarError = validateAvatarFile(elements.fileInput);
+    if (avatarError) {
+      ToastUtils.showError(avatarError, 'Validation Error');
+      elements.fileInput.focus();
       return;
     }
 
@@ -278,11 +346,29 @@ const MembershipsPage = (function() {
     const preview = document.getElementById('avatarPreview' + membershipId);
 
     if (input.files && input.files[0]) {
+      const file = input.files[0];
+
+      // Validate file type
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (!ALLOWED_AVATAR_TYPES.includes(file.type) && !ALLOWED_AVATAR_EXTENSIONS.includes(ext)) {
+        preview.innerHTML = AvatarUtils.createMessage('Avatar must be a JPEG, JPG, PNG, or GIF file.', 'error');
+        input.value = '';
+        return;
+      }
+
+      // Validate file size (must be strictly less than 2MB)
+      if (file.size >= MAX_AVATAR_SIZE) {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        preview.innerHTML = AvatarUtils.createMessage('Avatar file size must be less than 2MB. Selected file is ' + sizeMB + 'MB.', 'error');
+        input.value = '';
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = function(e) {
         preview.innerHTML = AvatarUtils.createPreviewImage(e.target.result);
       };
-      reader.readAsDataURL(input.files[0]);
+      reader.readAsDataURL(file);
     }
   }
 
@@ -312,6 +398,15 @@ const MembershipsPage = (function() {
     // Basic validation
     if (!name) {
       ToastUtils.showError('Please enter a name.', 'Validation Error');
+      return;
+    }
+
+    // Validate avatar file if one is selected
+    const avatarFileInput = document.getElementById('avatarInput' + membershipId);
+    const avatarError = validateAvatarFile(avatarFileInput);
+    if (avatarError) {
+      ToastUtils.showError(avatarError, 'Validation Error');
+      avatarFileInput.focus();
       return;
     }
     
@@ -454,6 +549,25 @@ const MembershipsPage = (function() {
     
     if (!endDate) {
       ToastUtils.showError('End date is required. Please select a start date to auto-calculate.', 'Validation Error');
+      document.getElementById('renewStartDate').focus();
+      return;
+    }
+
+    // Validate: due date must be strictly after start date
+    if (new Date(endDate) <= new Date(startDate)) {
+      ToastUtils.showError('Due date must be after the start date.', 'Validation Error');
+      document.getElementById('renewStartDate').focus();
+      return;
+    }
+
+    // Validate: start date cannot be more than 30 days in the past
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const start = new Date(startDate);
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    if (start < thirtyDaysAgo) {
+      ToastUtils.showError('Start date cannot be more than 30 days in the past.', 'Validation Error');
       document.getElementById('renewStartDate').focus();
       return;
     }

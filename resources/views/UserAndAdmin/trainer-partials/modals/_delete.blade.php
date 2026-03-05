@@ -24,10 +24,13 @@
           @csrf
           @method('DELETE')
         </form>
+        <p class="mt-3 mb-1">Type <strong>"delete"</strong> to confirm:</p>
+        <input type="text" class="form-control" id="deleteTrainerConfirmInput" placeholder="Type delete to confirm" autocomplete="off">
+        <small class="text-danger d-none" id="deleteTrainerConfirmError">Text doesn't match. Please type "delete".</small>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteTrainerBtn" onclick="confirmDeleteTrainer()">Delete Trainer</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteTrainerBtn" disabled onclick="confirmDeleteTrainer()">Delete Trainer</button>
       </div>
     </div>
   </div>

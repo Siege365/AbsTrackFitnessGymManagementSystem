@@ -127,7 +127,7 @@
                             </div>
                             <div class="member-form-col member-form-col-3">
                                 <label class="form-label">Avatar <span style="color:#666; font-weight:400;">(Optional)</span></label>
-                                <input type="file" class="form-control" name="new_member_avatar" id="newMemberAvatar" accept="image/*">
+                                <input type="file" class="form-control" name="new_member_avatar" id="newMemberAvatar" accept=".jpeg,.jpg,.png,.gif">
                             </div>
                         </div>
                         <div class="member-form-row">
@@ -179,7 +179,7 @@
                                 </div>
                                 <div class="member-form-col member-form-col-3">
                                     <label class="form-label">Avatar <span style="color:#666; font-weight:400;">(Optional)</span></label>
-                                    <input type="file" class="form-control" name="buddy_avatar" id="buddyAvatar" accept="image/*">
+                                    <input type="file" class="form-control" name="buddy_avatar" id="buddyAvatar" accept=".jpeg,.jpg,.png,.gif">
                                 </div>
                             </div>
                             <div class="member-form-row">
@@ -394,6 +394,30 @@
     </div>
   </div>
 
+  <!-- Similar Name Confirmation Modal -->
+  <div id="similarNameModal" class="modal-overlay">
+    <div class="confirm-overlay-content">
+      <div class="confirm-overlay-header">
+        <i class="mdi mdi-alert-outline" style="color: #FFA726; font-size: 2rem;"></i>
+        <h5>Similar Name Found</h5>
+        <button type="button" class="close" onclick="closeSimilarNameModal()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="confirm-overlay-body">
+        <p id="similarNameMessage">A member with a similar name already exists.</p>
+      </div>
+      <div class="confirm-overlay-footer">
+        <button type="button" class="btn btn-cancel" onclick="closeSimilarNameModal()">
+          <i class="mdi mdi-close"></i> Cancel
+        </button>
+        <button type="button" class="btn btn-update" onclick="proceedWithSimilarName()">
+          <i class="mdi mdi-check"></i> Proceed Anyway
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Membership Receipt Modal -->
   <div id="receiptModal" class="modal-overlay" role="document">
     <div class="modal-content">
@@ -481,6 +505,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let selectedMemberIsStudent = false;
   let selectedBuddyDueDate = '';
   let isMembershipSubmitting = false;
+  let skipSimilarNameCheck = false;
 
   const paymentTypePills = document.querySelectorAll('.payment-type-pill');
   const paymentTypeInput = document.getElementById('paymentType');
@@ -827,17 +852,35 @@ document.addEventListener('DOMContentLoaded', function() {
     ToastUtils.showError('Please fix the following:\n' + errorList);
   }
 
-  // Helper: check duplicate member name via API
+  // Helper: validate avatar file (type + size)
+  function validateMembershipAvatarFile(fileInput) {
+    if (!fileInput || !fileInput.files || !fileInput.files[0]) return null;
+    const file = fileInput.files[0];
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    const allowedExts = ['jpeg', 'jpg', 'png', 'gif'];
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!allowedTypes.includes(file.type) && !allowedExts.includes(ext)) {
+      return 'Avatar must be a JPEG, JPG, PNG, or GIF file.';
+    }
+    if (file.size >= maxSize) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      return 'Avatar file size must be less than 2MB. Selected file is ' + sizeMB + 'MB.';
+    }
+    return null;
+  }
+
+  // Helper: check duplicate/similar member name via API
   async function checkDuplicateName(name) {
     try {
       const resp = await fetch('{{ url("/api/members/check-duplicate") }}?name=' + encodeURIComponent(name), {
         headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
       });
       const data = await resp.json();
-      return data.exists;
+      return data; // { exists: bool, similar: bool, similar_name?: string }
     } catch (err) {
       console.error('Duplicate check failed:', err);
-      return false;
+      return { exists: false, similar: false };
     }
   }
 
@@ -877,6 +920,10 @@ document.addEventListener('DOMContentLoaded', function() {
         errors.push('Member Sex is required.');
       }
 
+      // Avatar validation for new member
+      const avatarError = validateMembershipAvatarFile(document.getElementById('newMemberAvatar'));
+      if (avatarError) { errors.push(avatarError); }
+
       // GymBuddy new member fields
       if (planType === 'GymBuddy') {
         const buddyNameEl = document.getElementById('buddyName');
@@ -902,6 +949,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!buddySexEl.value) {
           errors.push("Buddy's Sex is required.");
         }
+
+        // Buddy avatar validation
+        const buddyAvatarError = validateMembershipAvatarFile(document.getElementById('buddyAvatar'));
+        if (buddyAvatarError) { errors.push('Buddy: ' + buddyAvatarError); }
       }
     } else {
       // Renewal / Extension – existing member selection
@@ -947,22 +998,25 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    // -- Duplicate member name check (only for new memberships) --
+    // -- Duplicate / similar member name check (only for new memberships) --
     if (paymentType === 'new') {
       const submitBtn = paymentForm.querySelector('button[type="submit"]');
       if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Checking...'; }
 
       const memberName = document.getElementById('newMemberName').value.trim();
-      const memberDuplicate = await checkDuplicateName(memberName);
-      if (memberDuplicate) {
+      const memberCheck = await checkDuplicateName(memberName);
+
+      // Exact full-name match → block
+      if (memberCheck.exists) {
         errors.push('A member named "' + memberName + '" already exists. Please use a different name or select the existing member via Renewal/Extension.');
       }
 
       // Also check buddy name if GymBuddy
+      let buddyCheck = { exists: false, similar: false };
       if (planType === 'GymBuddy') {
         const buddyName = document.getElementById('buddyName').value.trim();
-        const buddyDuplicate = await checkDuplicateName(buddyName);
-        if (buddyDuplicate) {
+        buddyCheck = await checkDuplicateName(buddyName);
+        if (buddyCheck.exists) {
           errors.push('A member named "' + buddyName + '" already exists as a buddy. Please use a different name or select the existing member.');
         }
       }
@@ -973,10 +1027,42 @@ document.addEventListener('DOMContentLoaded', function() {
         showValidationErrors(errors);
         return;
       }
+
+      // Similar first-name match → ask for confirmation (unless already confirmed)
+      if (!skipSimilarNameCheck) {
+        if (memberCheck.similar) {
+          showSimilarNameModal(memberCheck.similar_name);
+          return;
+        }
+        if (buddyCheck.similar) {
+          showSimilarNameModal(buddyCheck.similar_name);
+          return;
+        }
+      }
     }
 
     showConfirmationModal();
   });
+
+  // ========================================
+  // SIMILAR NAME MODAL FUNCTIONS
+  // ========================================
+  function showSimilarNameModal(similarName) {
+    document.getElementById('similarNameMessage').innerHTML =
+      'A member with a similar name "<strong>' + similarName + '</strong>" already exists. Do you want to proceed anyway?';
+    document.getElementById('similarNameModal').classList.add('show');
+  }
+
+  window.closeSimilarNameModal = function() {
+    document.getElementById('similarNameModal').classList.remove('show');
+  };
+
+  window.proceedWithSimilarName = function() {
+    closeSimilarNameModal();
+    skipSimilarNameCheck = true;
+    // Re-trigger form submission (which will now skip the similar check and go to confirmation)
+    document.getElementById('membershipPaymentForm').dispatchEvent(new Event('submit'));
+  };
 
   function showConfirmationModal() {
     const pt = paymentTypeInput.value, pl = planTypeInput.value, amt = amountInput.value;
@@ -1076,6 +1162,7 @@ document.addEventListener('DOMContentLoaded', function() {
     extensionPill.style.opacity = '0.5'; extensionPill.style.pointerEvents = 'none';
     document.querySelector('[data-type="renewal"]').style.opacity = '1'; document.querySelector('[data-type="renewal"]').style.pointerEvents = 'auto';
     isMembershipSubmitting = false;
+    skipSimilarNameCheck = false;
     const submitBtn = document.getElementById('submitPaymentBtn');
     if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="mdi mdi-check"></i> Process Payment'; }
     updatePlanDependentFields(); enforcePlanRestrictions();
@@ -1139,6 +1226,7 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     if (typeof closeModal === 'function') closeModal();
     if (typeof closeConfirmationModal === 'function') closeConfirmationModal();
+    if (typeof closeSimilarNameModal === 'function') closeSimilarNameModal();
     if (typeof closeProductConfirmation === 'function') closeProductConfirmation();
     if (typeof closeProductReceiptModal === 'function') closeProductReceiptModal();
   }

@@ -103,15 +103,63 @@
   function bulkDeleteTrainers() {
     const checkedBoxes = document.querySelectorAll('.trainer-checkbox:checked');
     if (checkedBoxes.length === 0) {
-      ToastUtils.showWarning('Please select at least one trainer to delete.', 'Warning');
+      ToastUtils.showError('Please select at least 1 row before proceeding.', 'No Selection');
       return false;
     }
     document.getElementById('bulkDeleteTrainerCount').textContent = checkedBoxes.length;
+
+    // Reset confirm input
+    const confirmInput = document.getElementById('bulkDeleteTrainerConfirmInput');
+    const confirmBtn = document.getElementById('bulkDeleteTrainerConfirmBtn');
+    const confirmError = document.getElementById('bulkDeleteTrainerConfirmError');
+    if (confirmInput) confirmInput.value = '';
+    if (confirmBtn) confirmBtn.disabled = true;
+    if (confirmError) confirmError.classList.add('d-none');
+
     $('#bulkDeleteTrainerConfirmModal').modal('show');
   }
 
+  // Wire up type-to-confirm inputs
+  document.addEventListener('DOMContentLoaded', function() {
+    const bulkInput = document.getElementById('bulkDeleteTrainerConfirmInput');
+    const bulkBtn = document.getElementById('bulkDeleteTrainerConfirmBtn');
+    if (bulkInput && bulkBtn) {
+      bulkInput.addEventListener('input', function() {
+        bulkBtn.disabled = this.value.trim().toLowerCase() !== 'delete';
+      });
+    }
+
+    const deleteInput = document.getElementById('deleteTrainerConfirmInput');
+    const deleteBtn = document.getElementById('confirmDeleteTrainerBtn');
+    if (deleteInput && deleteBtn) {
+      deleteInput.addEventListener('input', function() {
+        deleteBtn.disabled = this.value.trim().toLowerCase() !== 'delete';
+      });
+    }
+
+    $('#deleteTrainerConfirmModal').on('show.bs.modal', function() {
+      const inp = document.getElementById('deleteTrainerConfirmInput');
+      const btn = document.getElementById('confirmDeleteTrainerBtn');
+      if (inp) inp.value = '';
+      if (btn) btn.disabled = true;
+    });
+
+    $('#bulkDeleteTrainerConfirmModal').on('hidden.bs.modal', function() {
+      const inp = document.getElementById('bulkDeleteTrainerConfirmInput');
+      const btn = document.getElementById('bulkDeleteTrainerConfirmBtn');
+      if (inp) inp.value = '';
+      if (btn) btn.disabled = true;
+    });
+  });
+
   function confirmBulkDeleteTrainers() {
     const submitBtn = event.target;
+    const confirmInput = document.getElementById('bulkDeleteTrainerConfirmInput');
+    if (!confirmInput || confirmInput.value.trim().toLowerCase() !== 'delete') {
+      const err = document.getElementById('bulkDeleteTrainerConfirmError');
+      if (err) err.classList.remove('d-none');
+      return;
+    }
     const form = document.getElementById('bulkDeleteTrainerForm');
     const checkedBoxes = document.querySelectorAll('.trainer-checkbox:checked');
     submitBtn.disabled = true;

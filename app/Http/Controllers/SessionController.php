@@ -9,6 +9,7 @@ use App\Models\Membership;
 use App\Models\Trainer;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
@@ -67,7 +68,7 @@ class SessionController extends Controller
                     'completedSessions' => $completedSessions
                 ]
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch KPI data'
@@ -150,54 +151,8 @@ class SessionController extends Controller
                     ')
                     ->paginate(10, ['*'], 'pt_page');
             } else {
-                $todayString = $today->toDateString();
-                
                 $ptSchedules = $ptQuery
-                    ->selectRaw('pt_schedules.*, 
-                        CASE 
-                            WHEN scheduled_date = ? THEN 1 
-                            WHEN scheduled_date > ? THEN 2 
-                            ELSE 3 
-                        END as date_priority', [$todayString, $todayString])
-                    ->orderByRaw('date_priority ASC')
-                    ->orderByRaw('
-                        CASE 
-                            WHEN date_priority = 1 THEN scheduled_time
-                            WHEN date_priority = 2 THEN NULL
-                            ELSE NULL
-                        END ASC
-                    ')
-                    ->orderByRaw('
-                        CASE 
-                            WHEN date_priority = 2 THEN scheduled_date
-                            ELSE NULL
-                        END ASC
-                    ')
-                    ->orderByRaw('
-                        CASE 
-                            WHEN date_priority = 2 THEN scheduled_time
-                            ELSE NULL
-                        END ASC
-                    ')
-                    ->orderByRaw('
-                        CASE 
-                            WHEN date_priority = 3 THEN scheduled_date
-                            ELSE NULL
-                        END DESC
-                    ')
-                    ->orderByRaw('
-                        CASE 
-                            WHEN date_priority = 3 THEN scheduled_time
-                            ELSE NULL
-                        END DESC
-                    ')
-                    ->orderByRaw('
-                        COALESCE(
-                            (SELECT name FROM clients WHERE clients.id = pt_schedules.client_id),
-                            (SELECT name FROM memberships WHERE memberships.id = pt_schedules.membership_id),
-                            pt_schedules.customer_name
-                        ) ASC
-                    ')
+                    ->orderBy('created_at', 'desc')
                     ->paginate(10, ['*'], 'pt_page');
             }
 
@@ -216,7 +171,7 @@ class SessionController extends Controller
                 'clients',
                 'trainers'
             ));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return back()->with('error', 'Failed to load training sessions: ' . $e->getMessage());
         }
     }
@@ -305,7 +260,7 @@ class SessionController extends Controller
                 'clients',
                 'memberships'
             ));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return back()->with('error', 'Failed to load customer attendance: ' . $e->getMessage());
         }
     }
@@ -393,7 +348,7 @@ class SessionController extends Controller
                 'message' => 'PT Schedule created successfully!',
                 'data' => $ptSchedule
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create PT schedule: ' . $e->getMessage()
@@ -407,45 +362,59 @@ class SessionController extends Controller
     public function updatePTSchedule(Request $request, $id)
     {
         try {
-            $ptSchedule = PTSchedule::findOrFail($id);
+            return DB::transaction(function () use ($request, $id) {
+                $ptSchedule = PTSchedule::lockForUpdate()->findOrFail($id);
 
-            $validator = Validator::make($request->all(), [
-                'trainer_name' => 'required|string|max:255',
-                'scheduled_date' => 'required|date',
-                'scheduled_time' => 'required',
-                'payment_type' => 'required|string|in:Cash,Gcash,Card,Bank Transfer',
-                'status' => 'sometimes|in:upcoming,in_progress,done,cancelled,expired',
-                'notes' => 'nullable|string|max:500',
-            ]);
+                // Concurrency check
+                if ($request->filled('last_updated_at')) {
+                    $clientTimestamp = (int) $request->input('last_updated_at');
+                    $serverTimestamp = $ptSchedule->updated_at->timestamp;
+                    if ($clientTimestamp !== $serverTimestamp) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'This record was modified by someone else while you were editing. Please close and reopen to get the latest data.'
+                        ], 409);
+                    }
+                }
 
-            if ($validator->fails()) {
+                $validator = Validator::make($request->all(), [
+                    'trainer_name' => 'required|string|max:255',
+                    'scheduled_date' => 'required|date',
+                    'scheduled_time' => 'required',
+                    'payment_type' => 'required|string|in:Cash,Gcash,Card,Bank Transfer',
+                    'status' => 'sometimes|in:upcoming,in_progress,done,cancelled,expired',
+                    'notes' => 'nullable|string|max:500',
+                ]);
+
+                if ($validator->fails()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Validation failed',
+                        'errors' => $validator->errors()
+                    ], 422);
+                }
+
+                $ptSchedule->update($request->only([
+                    'trainer_name',
+                    'scheduled_date',
+                    'scheduled_time',
+                    'payment_type',
+                    'status',
+                    'notes'
+                ]));
+
+                $ptSchedule->load(['client', 'membership']);
+
+                $displayName = $ptSchedule->display_name;
+                ActivityLog::log('updated', 'pt_session', "Updated PT session for {$displayName}", 'PT-' . $ptSchedule->id, $displayName, $ptSchedule, ['trainer' => $ptSchedule->trainer_name, 'date' => $ptSchedule->scheduled_date]);
+
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            $ptSchedule->update($request->only([
-                'trainer_name',
-                'scheduled_date',
-                'scheduled_time',
-                'payment_type',
-                'status',
-                'notes'
-            ]));
-
-            $ptSchedule->load(['client', 'membership']);
-
-            $displayName = $ptSchedule->display_name;
-            ActivityLog::log('updated', 'pt_session', "Updated PT session for {$displayName}", 'PT-' . $ptSchedule->id, $displayName, $ptSchedule, ['trainer' => $ptSchedule->trainer_name, 'date' => $ptSchedule->scheduled_date]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'PT Schedule updated successfully!',
-                'data' => $ptSchedule
-            ]);
-        } catch (\Exception $e) {
+                    'success' => true,
+                    'message' => 'PT Schedule updated successfully!',
+                    'data' => $ptSchedule
+                ]);
+            });
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update PT schedule: ' . $e->getMessage()
@@ -470,7 +439,12 @@ class SessionController extends Controller
                 'success' => true,
                 'message' => 'PT Schedule deleted successfully!'
             ]);
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'PT Schedule not found. It may have already been deleted.'
+            ], 404);
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete PT schedule: ' . $e->getMessage()
@@ -484,32 +458,46 @@ class SessionController extends Controller
     public function updatePTStatus(Request $request, $id)
     {
         try {
-            $ptSchedule = PTSchedule::findOrFail($id);
-            
-            $validator = Validator::make($request->all(), [
-                'status' => 'required|in:upcoming,in_progress,done,cancelled,expired',
-            ]);
+            return DB::transaction(function () use ($request, $id) {
+                $ptSchedule = PTSchedule::lockForUpdate()->findOrFail($id);
 
-            if ($validator->fails()) {
+                // Concurrency check
+                if ($request->filled('last_updated_at')) {
+                    $clientTimestamp = (int) $request->input('last_updated_at');
+                    $serverTimestamp = $ptSchedule->updated_at->timestamp;
+                    if ($clientTimestamp !== $serverTimestamp) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'This session was already updated by someone else. Please refresh the page to see the latest status.'
+                        ], 409);
+                    }
+                }
+
+                $validator = Validator::make($request->all(), [
+                    'status' => 'required|in:upcoming,in_progress,done,cancelled,expired',
+                ]);
+
+                if ($validator->fails()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid status',
+                        'errors' => $validator->errors()
+                    ], 422);
+                }
+
+                $ptSchedule->update(['status' => $request->status]);
+                $ptSchedule->load(['client', 'membership']);
+
+                $displayName = $ptSchedule->display_name;
+                ActivityLog::log('updated', 'pt_session', "Updated PT session status to '{$request->status}' for {$displayName}", 'PT-' . $ptSchedule->id, $displayName, $ptSchedule, ['status' => $request->status]);
+
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid status',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            $ptSchedule->update(['status' => $request->status]);
-            $ptSchedule->load(['client', 'membership']);
-
-            $displayName = $ptSchedule->display_name;
-            ActivityLog::log('updated', 'pt_session', "Updated PT session status to '{$request->status}' for {$displayName}", 'PT-' . $ptSchedule->id, $displayName, $ptSchedule, ['status' => $request->status]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Status updated to ' . ucfirst($request->status) . '!',
-                'data' => $ptSchedule
-            ]);
-        } catch (\Exception $e) {
+                    'success' => true,
+                    'message' => 'Status updated to ' . ucfirst($request->status) . '!',
+                    'data' => $ptSchedule
+                ]);
+            });
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update status: ' . $e->getMessage()
@@ -528,6 +516,7 @@ class SessionController extends Controller
                 'trainer_name'      => 'required|string|max:255',
                 'scheduled_date'    => 'required|date|after_or_equal:today',
                 'scheduled_time'    => 'required',
+                'payment_type'      => 'required|in:Cash,Gcash',
             ], [
                 'scheduled_date.after_or_equal' => 'Date cannot be in the past.',
             ]);
@@ -554,7 +543,7 @@ class SessionController extends Controller
                 'trainer_name'    => $request->trainer_name,
                 'scheduled_date'  => $request->scheduled_date,
                 'scheduled_time'  => $request->scheduled_time,
-                'payment_type'    => $sourceSession->payment_type ?? 'Cash',
+                'payment_type'    => $request->payment_type,
                 'status'          => 'upcoming',
             ]);
 
@@ -568,7 +557,7 @@ class SessionController extends Controller
                 'message' => 'Next session booked successfully!',
                 'data' => $ptSchedule
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to book session: ' . $e->getMessage()
@@ -721,7 +710,7 @@ class SessionController extends Controller
                 'message' => 'Attendance recorded successfully!',
                 'data' => $attendance
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to record attendance: ' . $e->getMessage()
@@ -833,7 +822,7 @@ class SessionController extends Controller
                 'message' => 'Attendance updated successfully!',
                 'data' => $attendance
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update attendance: ' . $e->getMessage()
@@ -858,7 +847,7 @@ class SessionController extends Controller
                 'success' => true,
                 'message' => 'Attendance record deleted successfully!'
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete attendance: ' . $e->getMessage()
@@ -878,7 +867,7 @@ class SessionController extends Controller
                 'success' => true,
                 'data' => $ptSchedule
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'PT Schedule not found'
@@ -898,7 +887,7 @@ class SessionController extends Controller
                 'success' => true,
                 'data' => $attendance
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Attendance record not found'
@@ -929,7 +918,7 @@ class SessionController extends Controller
                 'success' => true,
                 'message' => "{$count} attendance record(s) deleted successfully"
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error deleting attendance records: ' . $e->getMessage()
@@ -960,7 +949,7 @@ class SessionController extends Controller
                 'success' => true,
                 'message' => "{$count} PT schedule(s) deleted successfully"
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error deleting PT schedules: ' . $e->getMessage()
@@ -1036,7 +1025,7 @@ class SessionController extends Controller
                 ->take(15);
 
             return response()->json($combined);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([], 500);
         }
     }
@@ -1066,7 +1055,7 @@ class SessionController extends Controller
                 });
 
             return response()->json($trainers);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([], 500);
         }
     }

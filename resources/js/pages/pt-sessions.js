@@ -82,9 +82,7 @@ const PTSessionsPage = {
     // Add PT Schedule form submission
     $('#addPTScheduleForm').on('submit', function(e) {
       e.preventDefault();
-      if (PTSessionsPage.validatePTScheduleDateTime()) {
-        PTSessionsPage.submitPTSchedule();
-      }
+      PTSessionsPage.submitPTSchedule();
     });
 
     // Edit PT Schedule form submission
@@ -109,6 +107,14 @@ const PTSessionsPage = {
       
       $('#finalDeleteBtn').prop('disabled', !isMatch);
       $('#confirmError').toggleClass('d-none', isMatch || input === '');
+    });
+
+    // Bulk delete type-in validation
+    $('#bulkDeleteConfirmInput').on('input', function() {
+      const input = $(this).val();
+      const isMatch = input.toLowerCase() === 'delete';
+      $('#bulkDeleteConfirmBtn').prop('disabled', !isMatch);
+      $('#bulkDeleteConfirmError').toggleClass('d-none', isMatch || input === '');
     });
 
     // Reset modals on close (excluding confirm/bulk-delete modals which have custom handlers)
@@ -167,7 +173,9 @@ const PTSessionsPage = {
 
     // Reset bulk delete confirm button on close
     $('#bulkDeleteConfirmModal').on('hidden.bs.modal', function() {
-      $('#bulkDeleteConfirmBtn').prop('disabled', false).html('<i class="mdi mdi-delete"></i> Delete');
+      $('#bulkDeleteConfirmInput').val('');
+      $('#bulkDeleteConfirmError').addClass('d-none');
+      $('#bulkDeleteConfirmBtn').prop('disabled', true).html('<i class="mdi mdi-delete"></i> Delete');
     });
   },
 
@@ -384,26 +392,79 @@ const PTSessionsPage = {
 
   // Submit new PT Schedule — show confirmation modal first
   submitPTSchedule: function() {
-    var customerName = $('#pt_customer_select').val();
-    var trainerVal = $('#pt_trainer').val();
-    var dateVal = $('[name="scheduled_date"]', '#addPTScheduleForm').val();
-    var timeVal = $('[name="scheduled_time"]', '#addPTScheduleForm').val();
-    var paymentVal = $('[name="payment_type"]', '#addPTScheduleForm').val();
+    var $form = $('#addPTScheduleForm');
+    var $clientInput   = $('#pt_customer_select');
+    var $trainerInput  = $('#pt_trainer');
+    var $dateInput     = $('[name="scheduled_date"]', $form);
+    var $timeInput     = $('[name="scheduled_time"]', $form);
+    var $paymentInput  = $('[name="payment_type"]', $form);
 
+    var customerName = $clientInput.val();
+    var trainerVal   = $trainerInput.val();
+    var dateVal      = $dateInput.val();
+    var timeVal      = $timeInput.val();
+    var paymentVal   = $paymentInput.val();
+
+    // Clear previous highlights
+    [$clientInput, $trainerInput, $dateInput, $timeInput, $paymentInput]
+      .forEach(function($el) { $el.removeClass('is-invalid'); });
+
+    // Helper
+    var self = this;
+    function fail(msg, $el) {
+      if ($el) { $el.addClass('is-invalid'); $el.trigger('focus'); }
+      self.showToast('error', msg);
+    }
+
+    // 1. Client
     if (!customerName || !customerName.trim()) {
-      PTSessionsPage.showToast('error', 'Please search and select a customer or type a walk-in name.');
+      fail('Please search and select a customer or type a walk-in name.', $clientInput);
       return;
     }
+
+    // 2. Trainer
     if (!trainerVal) {
-      PTSessionsPage.showToast('error', 'Please select a trainer.');
+      fail('Please select a trainer.', $trainerInput);
       return;
     }
+
+    // 3. Date — required
     if (!dateVal) {
-      PTSessionsPage.showToast('error', 'Please select a date.');
+      fail('Please select a scheduled date.', $dateInput);
       return;
     }
+
+    // 3b. Date — not in the past (date-only check)
+    var selectedDate = new Date(dateVal + 'T00:00:00');
+    var todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+    if (selectedDate < todayStart) {
+      fail('Cannot schedule a session in the past. Please select today or a future date.', $dateInput);
+      return;
+    }
+
+    // 4. Time — required
     if (!timeVal) {
-      PTSessionsPage.showToast('error', 'Please select a time.');
+      fail('Please select a time.', $timeInput);
+      return;
+    }
+
+    // 4b. Time — operating hours (6 AM – 9 PM)
+    var hour = parseInt(timeVal.split(':')[0]);
+    if (hour < 6 || hour >= 21) {
+      fail('Gym operating hours are 6:00 AM to 9:00 PM. Please select a time within operating hours.', $timeInput);
+      return;
+    }
+
+    // 4c. Date+time — not in the past (combined check)
+    var selectedDateTime = new Date(dateVal + 'T' + timeVal);
+    if (selectedDateTime < new Date()) {
+      fail('Cannot schedule a session in the past. Please select a future date and time.', $dateInput);
+      return;
+    }
+
+    // 5. Payment type
+    if (!paymentVal) {
+      fail('Please select a payment type.', $paymentInput);
       return;
     }
 
@@ -531,13 +592,14 @@ const PTSessionsPage = {
         }
 
         $('#edit_pt_id').val(data.id);
+        $('#edit_last_updated_at').val(data.updated_at ? Math.floor(new Date(data.updated_at).getTime() / 1000) : '');
         $('#edit_pt_name').val(displayName);
         $('#edit_pt_age').val(isWalkIn ? (data.customer_age || '') : (customerData?.age || ''));
         $('#edit_pt_sex').val(isWalkIn ? (data.customer_sex || '') : (customerData?.sex || ''));
         $('#edit_pt_contact').val(isWalkIn ? (data.customer_contact || '') : (customerData?.contact || ''));
         $('#edit_pt_plan').val(isWalkIn ? 'Walk-in' : (customerData?.plan_type || ''));
         $('#edit_trainer').val(data.trainer_name);
-        $('#edit_date').val(data.scheduled_date);
+        $('#edit_date').val(data.scheduled_date ? data.scheduled_date.substring(0, 10) : '');
         $('#edit_time').val(data.scheduled_time?.substring(0, 5));
         $('#edit_payment').val(data.payment_type);
         $('#edit_pt_status').val(data.status?.charAt(0).toUpperCase() + data.status?.slice(1).replace('_', ' '));
@@ -583,8 +645,45 @@ const PTSessionsPage = {
       trainer_name: $('#edit_trainer').val(),
       scheduled_date: $('#edit_date').val(),
       scheduled_time: $('#edit_time').val(),
-      payment_type: $('#edit_payment').val()
+      payment_type: $('#edit_payment').val(),
+      last_updated_at: $('#edit_last_updated_at').val()
     };
+
+    // Validate required fields
+    if (!formData.trainer_name) {
+      this.showToast('error', 'Please select a trainer.');
+      return;
+    }
+    if (!formData.scheduled_date) {
+      this.showToast('error', 'Please select a date.');
+      return;
+    }
+
+    // Validate date is not in the past
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(formData.scheduled_date + 'T00:00:00');
+    if (selectedDate < today) {
+      this.showToast('error', 'Cannot schedule a session in the past. Please select today or a future date.');
+      return;
+    }
+
+    if (!formData.scheduled_time) {
+      this.showToast('error', 'Please select a time.');
+      return;
+    }
+
+    // Validate date+time is not in the past
+    const selectedDateTime = new Date(formData.scheduled_date + 'T' + formData.scheduled_time);
+    const now = new Date();
+    if (selectedDateTime < now) {
+      this.showToast('error', 'Cannot schedule a session in the past. Please select a future date and time.');
+      return;
+    }
+    if (!formData.payment_type) {
+      this.showToast('error', 'Please select a payment type.');
+      return;
+    }
 
     $.ajax({
       url: '/sessions/pt-schedule/' + id,
@@ -600,6 +699,11 @@ const PTSessionsPage = {
         setTimeout(() => location.reload(), 1000);
       },
       error: function(xhr) {
+        if (xhr.status === 409) {
+          PTSessionsPage.showToast('error', xhr.responseJSON?.message || 'This record was modified by someone else. Please refresh.');
+          setTimeout(() => $('#viewEditPTModal').modal('hide'), 1500);
+          return;
+        }
         const errors = xhr.responseJSON?.errors || {};
         const message = Object.values(errors)[0]?.[0] || 'Failed to update PT Schedule';
         PTSessionsPage.showToast('error', message);
@@ -608,11 +712,11 @@ const PTSessionsPage = {
   },
 
   // Update PT Schedule status
-  updateStatus: function(id, status) {
+  updateStatus: function(id, status, lastUpdatedAt) {
     $.ajax({
       url: '/sessions/pt-schedule/' + id + '/status',
       method: 'PATCH',
-      data: { status: status },
+      data: { status: status, last_updated_at: lastUpdatedAt },
       headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
       },
@@ -622,6 +726,11 @@ const PTSessionsPage = {
         setTimeout(() => location.reload(), 1000);
       },
       error: function(xhr) {
+        if (xhr.status === 409) {
+          PTSessionsPage.showToast('error', xhr.responseJSON?.message || 'This record was already modified. Please refresh the page.');
+          setTimeout(() => location.reload(), 1500);
+          return;
+        }
         const message = xhr.responseJSON?.message || 'Failed to update status';
         PTSessionsPage.showToast('error', message);
       }
@@ -629,7 +738,7 @@ const PTSessionsPage = {
   },
 
   // Open Book Next Session modal
-  openBookNextModal: function(sessionId, clientName, trainerName) {
+  openBookNextModal: function(sessionId, clientName, trainerName, paymentType) {
     $('#book_source_session_id').val(sessionId);
     $('#book_client_name').val(clientName);
 
@@ -640,6 +749,9 @@ const PTSessionsPage = {
       $('#book_trainer_name').val('');
     }
 
+    // Pre-select last used payment type, default to Cash
+    $('#book_payment_type').val(paymentType || 'Cash');
+
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const dateStr = tomorrow.toISOString().split('T')[0];
@@ -649,8 +761,8 @@ const PTSessionsPage = {
   },
 
   // Confirm cancel PT session
-  confirmCancelPT: function(id, clientId, clientName, trainerName) {
-    this.pendingCancel = { id: id, clientId: clientId, clientName: clientName, trainerName: trainerName || '' };
+  confirmCancelPT: function(id, clientId, clientName, trainerName, paymentType, lastUpdatedAt) {
+    this.pendingCancel = { id: id, clientId: clientId, clientName: clientName, trainerName: trainerName || '', paymentType: paymentType || 'Cash', lastUpdatedAt: lastUpdatedAt || '' };
     $('#cancelPTClientName').text(clientName);
     $('#cancelPTId').val(id);
     $('#cancelPTClientId').val(clientId);
@@ -668,7 +780,7 @@ const PTSessionsPage = {
     $.ajax({
       url: '/sessions/pt-schedule/' + id + '/status',
       method: 'PATCH',
-      data: { status: 'cancelled' },
+      data: { status: 'cancelled', last_updated_at: this.pendingCancel.lastUpdatedAt },
       headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
       },
@@ -682,6 +794,11 @@ const PTSessionsPage = {
         }, 500);
       },
       error: function(xhr) {
+        if (xhr.status === 409) {
+          PTSessionsPage.showToast('error', xhr.responseJSON?.message || 'This record was already modified. Please refresh the page.');
+          setTimeout(() => location.reload(), 1500);
+          return;
+        }
         const message = xhr.responseJSON?.message || 'Failed to cancel session';
         PTSessionsPage.showToast('error', message);
       }
@@ -697,7 +814,7 @@ const PTSessionsPage = {
     $('#rescheduleOfferModal').modal('hide');
 
     $('#rescheduleOfferModal').one('hidden.bs.modal', function() {
-      PTSessionsPage.openBookNextModal(PTSessionsPage.pendingCancel.id, clientName, PTSessionsPage.pendingCancel.trainerName);
+      PTSessionsPage.openBookNextModal(PTSessionsPage.pendingCancel.id, clientName, PTSessionsPage.pendingCancel.trainerName, PTSessionsPage.pendingCancel.paymentType);
     });
   },
 
@@ -742,21 +859,25 @@ const PTSessionsPage = {
     $('#deleteType').val('pt');
     $('#deleteId').val(id);
     $('#deleteConfirmText').html('Are you sure you want to delete the PT Schedule for <strong>' + name + '</strong>?');
+    $('#deleteSessionConfirmInput').val('');
+    $('#deleteSessionConfirmBtn').prop('disabled', true);
+    $('#deleteSessionConfirmError').addClass('d-none');
     $('#deleteConfirmModal').modal('show');
   },
 
-  // Execute delete (first confirmation)
+  // Execute delete
   executeDelete: function() {
+    const confirmInput = document.getElementById('deleteSessionConfirmInput');
+    const confirmError = document.getElementById('deleteSessionConfirmError');
+    if (!confirmInput || confirmInput.value.trim().toLowerCase() !== 'delete') {
+      if (confirmError) confirmError.classList.remove('d-none');
+      return;
+    }
     $('#deleteConfirmModal').modal('hide');
-    
-    $('#confirmName').text(this.pendingDelete.name);
-    $('#confirmInput').val('');
-    $('#confirmError').addClass('d-none');
-    $('#finalDeleteBtn').prop('disabled', true);
-    $('#doubleConfirmModal').modal('show');
+    this.finalDelete();
   },
 
-  // Final delete (double confirmation)
+  // Final delete
   finalDelete: function() {
     const type = this.pendingDelete.type;
     const id = this.pendingDelete.id;
@@ -770,54 +891,35 @@ const PTSessionsPage = {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
       },
       success: function(response) {
-        $('#doubleConfirmModal').modal('hide');
         PTSessionsPage.showToast('success', 'Record deleted successfully!');
         PTSessionsPage.refreshKPIs();
         setTimeout(() => location.reload(), 1000);
       },
-      error: function() {
-        $('#doubleConfirmModal').modal('hide');
-        PTSessionsPage.showToast('error', 'Failed to delete record');
+      error: function(xhr) {
+        const message = xhr.responseJSON?.message || 'Failed to delete record. Please try again.';
+        PTSessionsPage.showToast('error', message);
       }
     });
   },
 
-  // Show toast notification
+  // Show toast notification using ToastUtils
   showToast: function(type, message) {
-    $('.toast-container').remove();
-    
-    const bgClass = type === 'success' ? 'toast-success' : 
-                    type === 'error' ? 'toast-error' : 'bg-info';
-    const icon = type === 'success' ? 'mdi-check-circle' : 
-                 type === 'error' ? 'mdi-alert-circle' : 'mdi-information';
-
-    const toast = $(`
-      <div class="toast-container">
-        <div class="toast ${bgClass}" role="alert" aria-live="assertive" aria-atomic="true">
-          <div class="d-flex align-items-center p-3">
-            <i class="mdi ${icon} mr-2" style="font-size: 24px;"></i>
-            <div class="flex-grow-1">${message}</div>
-            <button type="button" class="ml-2 close text-white" data-dismiss="toast" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    `);
-
-    $('body').append(toast);
-    
-    setTimeout(() => {
-      toast.fadeOut(300, function() {
-        $(this).remove();
-      });
-    }, 4000);
-
-    toast.find('.close').on('click', function() {
-      toast.fadeOut(300, function() {
-        $(this).remove();
-      });
-    });
+    if (typeof ToastUtils !== 'undefined') {
+      switch (type) {
+        case 'success':
+          ToastUtils.showSuccess(message, 'Success');
+          break;
+        case 'error':
+          ToastUtils.showError(message, 'Validation Error');
+          break;
+        case 'warning':
+          ToastUtils.showWarning(message, 'Warning');
+          break;
+        default:
+          ToastUtils.showInfo(message, 'Info');
+          break;
+      }
+    }
   },
 
   // Bulk delete PT schedules
@@ -834,6 +936,9 @@ const PTSessionsPage = {
     this._bulkDeleteType = 'pt';
     this._bulkDeleteIds = checkedIds;
     $('#bulkDeleteText').html('Are you sure you want to delete <strong>' + checkedIds.length + '</strong> PT schedule(s)? This action cannot be undone.');
+    $('#bulkDeleteConfirmInput').val('');
+    $('#bulkDeleteConfirmError').addClass('d-none');
+    $('#bulkDeleteConfirmBtn').prop('disabled', true).html('<i class="mdi mdi-delete"></i> Delete');
     $('#bulkDeleteConfirmModal').modal('show');
   },
 
@@ -944,3 +1049,22 @@ window.PTSessionsPage = PTSessionsPage;
 
 // Backward compatibility alias - shared modals reference SessionsPage
 window.SessionsPage = PTSessionsPage;
+
+// Wire up single-delete confirm input
+document.addEventListener('DOMContentLoaded', function() {
+  const confirmInput = document.getElementById('deleteSessionConfirmInput');
+  const confirmBtn = document.getElementById('deleteSessionConfirmBtn');
+  if (confirmInput && confirmBtn) {
+    confirmInput.addEventListener('input', function() {
+      confirmBtn.disabled = this.value.trim().toLowerCase() !== 'delete';
+    });
+  }
+  $('#deleteConfirmModal').on('hidden.bs.modal', function() {
+    const inp = document.getElementById('deleteSessionConfirmInput');
+    const btn = document.getElementById('deleteSessionConfirmBtn');
+    const err = document.getElementById('deleteSessionConfirmError');
+    if (inp) inp.value = '';
+    if (btn) btn.disabled = true;
+    if (err) err.classList.add('d-none');
+  });
+});

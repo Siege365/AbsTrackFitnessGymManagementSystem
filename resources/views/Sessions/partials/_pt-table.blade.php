@@ -193,7 +193,7 @@
                                                     <i class="mdi mdi-eye mr-2"></i> View
                                                 </a>
                                                 <a class="dropdown-item text-info" href="javascript:void(0)"
-                                                    onclick="SessionsPage.openBookNextModal({{ $schedule->id }}, '{{ addslashes($schedule->display_name) }}', '{{ addslashes($schedule->trainer_name) }}')">
+                                                    onclick="SessionsPage.openBookNextModal({{ $schedule->id }}, '{{ addslashes($schedule->display_name) }}', '{{ addslashes($schedule->trainer_name) }}', '{{ addslashes($schedule->payment_type ?? 'Cash') }}')">
                                                     <i class="mdi mdi-calendar-plus mr-2"></i> Book Next Session
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -202,17 +202,17 @@
                                                 @endphp
                                                 <a class="dropdown-item text-success {{ $isFinalized ? 'disabled' : '' }}" 
                                                     href="javascript:void(0)"
-                                                    onclick="{{ $isFinalized ? 'return false;' : 'SessionsPage.updateStatus(' . $schedule->id . ', \'done\')' }}">
+                                                    onclick="{{ $isFinalized ? 'return false;' : 'SessionsPage.updateStatus(' . $schedule->id . ', \'done\', ' . $schedule->updated_at->timestamp . ')' }}">
                                                     <i class="mdi mdi-check mr-2"></i> Mark as Done
                                                 </a>
                                                 <a class="dropdown-item text-primary {{ $isFinalized ? 'disabled' : '' }}" 
                                                     href="javascript:void(0)"
-                                                    onclick="{{ $isFinalized ? 'return false;' : 'SessionsPage.updateStatus(' . $schedule->id . ', \'in_progress\')' }}">
+                                                    onclick="{{ $isFinalized ? 'return false;' : 'SessionsPage.updateStatus(' . $schedule->id . ', \'in_progress\', ' . $schedule->updated_at->timestamp . ')' }}">
                                                     <i class="mdi mdi-progress-clock mr-2"></i> Mark as In Progress
                                                 </a>
                                                 <a class="dropdown-item text-warning {{ $isFinalized ? 'disabled' : '' }}" 
                                                     href="javascript:void(0)"
-                                                    onclick="{{ $isFinalized ? 'return false;' : 'SessionsPage.confirmCancelPT(' . $schedule->id . ', ' . ($schedule->client_id ?? 'null') . ', \'' . addslashes($schedule->display_name) . '\', \'' . addslashes($schedule->trainer_name) . '\')' }}">
+                                                    onclick="{{ $isFinalized ? 'return false;' : 'SessionsPage.confirmCancelPT(' . $schedule->id . ', ' . ($schedule->client_id ?? 'null') . ', \'' . addslashes($schedule->display_name) . '\', \'' . addslashes($schedule->trainer_name) . '\', \'' . addslashes($schedule->payment_type ?? 'Cash') . '\', ' . $schedule->updated_at->timestamp . ')' }}">
                                                     <i class="mdi mdi-close mr-2"></i> Mark as Cancelled
                                                 </a>
                                                 <div class="dropdown-divider"></div>

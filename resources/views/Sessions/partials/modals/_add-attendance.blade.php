@@ -8,13 +8,13 @@
                     <span>&times;</span>
                 </button>
             </div>
-            <form id="addAttendanceForm">
+            <form id="addAttendanceForm" novalidate>
                 @csrf
                 <div class="modal-body">
                     <div class="form-group">
                         <label>Customer Name <span class="text-danger">*</span></label>
                         <input type="text" id="attendance_customer_select" class="form-control" 
-                            placeholder="Type customer name..." autocomplete="off" required
+                            placeholder="Type customer name..." autocomplete="off"
                             pattern="[A-Za-z\s\-']+" title="Only letters, spaces, hyphens, and apostrophes are allowed"
                             oninput="this.value = this.value.replace(/[^A-Za-z\s\-']/g, '')">
                         <input type="hidden" id="attendance_customer_id">
@@ -27,13 +27,13 @@
                     <div class="form-group">
                         <label>Date</label>
                         <input type="date" name="date" id="attendance_date" class="form-control"
-                            value="{{ date('Y-m-d') }}" readonly required>
+                            value="{{ date('Y-m-d') }}" readonly>
                         <small class="text-muted">Auto-set to today's date</small>
                     </div>
                     <div class="form-group">
                         <label>Time In</label>
                         <input type="time" name="time_in" id="attendance_time" class="form-control"
-                            value="{{ date('H:i') }}" readonly required>
+                            value="{{ date('H:i') }}" readonly>
                         <small class="text-muted">Auto-set to current time</small>
                     </div>
                 </div>

@@ -288,7 +288,7 @@
         
         <!-- Pagination and Bulk Delete -->
         <div class="table-footer">
-          <button type="button" id="bulkActionBtn" class="btn btn-sm btn-delete-selected" disabled onclick="bulkDeleteInventory()">
+          <button type="button" id="bulkActionBtn" class="btn btn-sm btn-delete-selected" onclick="bulkDeleteInventory()">
             <i class="mdi mdi-delete"></i> Delete Selected (<span id="selectedCount">0</span>)
           </button>
           @if(isset($inventoryItems))

@@ -8,7 +8,7 @@
                     <span>&times;</span>
                 </button>
             </div>
-            <form id="addPTScheduleForm">
+            <form id="addPTScheduleForm" novalidate>
                 @csrf
                 <div class="modal-body">
                     <!-- Centered Avatar -->
@@ -28,14 +28,14 @@
                         <div class="form-group col-md-6">
                             <label>Name <span class="text-danger">*</span></label>
                             <input type="text" id="pt_customer_select" class="form-control" 
-                                placeholder="Enter customer name" autocomplete="off" required>
+                                placeholder="Enter customer name" autocomplete="off">
                             <input type="hidden" id="pt_customer_id" name="client_id">
                             <input type="hidden" id="pt_customer_type">
                         </div>
                         <div class="form-group col-md-6">
                             <label>Trainer <span class="text-danger">*</span></label>
-                            <select name="trainer_name" id="pt_trainer" class="form-control" required>
-                                <option value="">Select Trainer</option>
+                            <select name="trainer_name" id="pt_trainer" class="form-control">
+                                <option value=""></option>
                                 @foreach ($trainers ?? [] as $trainer)
                                     <option value="{{ $trainer }}">{{ $trainer }}</option>
                                 @endforeach
@@ -50,7 +50,7 @@
                         </div>
                         <div class="form-group col-md-6">
                             <label>Scheduled Date <span class="text-danger">*</span></label>
-                            <input type="date" name="scheduled_date" class="form-control" required min="{{ date('Y-m-d') }}">
+                            <input type="date" name="scheduled_date" class="form-control" min="{{ date('Y-m-d') }}">
                         </div>
                     </div>
                     <div class="form-row">
@@ -64,7 +64,7 @@
                         </div>
                         <div class="form-group col-md-6">
                             <label>Time <span class="text-danger">*</span></label>
-                            <select name="scheduled_time" class="form-control" required>
+                            <select name="scheduled_time" class="form-control">
                                 <option value="">Select Time</option>
                                 <option value="06:00">6:00 AM</option>
                                 <option value="07:00">7:00 AM</option>
@@ -93,7 +93,8 @@
                         </div>
                         <div class="form-group col-md-6">
                             <label>Payment Type <span class="text-danger">*</span></label>
-                            <select name="payment_type" class="form-control" required>
+                            <select name="payment_type" class="form-control">
+                                <option value="">Select Payment Type</option>
                                 <option value="Cash">Cash</option>
                                 <option value="Gcash">Gcash</option>
                             </select>

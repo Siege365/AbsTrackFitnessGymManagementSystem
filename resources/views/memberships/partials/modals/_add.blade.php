@@ -75,7 +75,7 @@
             </div>
             <div class="form-group col-md-6">
               <label>Avatar</label>
-              <input type="file" name="avatar" id="newMemberAvatar" class="form-control mb-2" accept="image/*" onchange="previewNewAvatar()">
+              <input type="file" name="avatar" id="newMemberAvatar" class="form-control mb-2" accept=".jpeg,.jpg,.png,.gif" onchange="previewNewAvatar()">
               <input type="text" name="avatar_url" id="newMemberAvatarUrl" class="form-control mb-2" placeholder="https://example.com/avatar.jpg" style="display: none;" oninput="previewNewAvatar()">
               <div class="btn-group btn-group-toggle btn-group-sm d-flex" data-toggle="buttons">
                 <label class="btn btn-outline-secondary active flex-fill">

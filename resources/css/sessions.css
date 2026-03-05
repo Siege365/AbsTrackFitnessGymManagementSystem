@@ -1132,3 +1132,24 @@ body.modal-open {
   cursor: not-allowed !important;
   pointer-events: none;
 }
+
+#viewEditPTModal:has(.edit-field:not([disabled])) .form-control[readonly] {
+  opacity: 0.45;
+  cursor: default;
+}
+#viewEditPTModal:has(.edit-field:not([disabled])) .form-group:has(.form-control[readonly]) label {
+  opacity: 0.55;
+}
+
+/* Editable fields — always full opacity */
+#viewEditPTModal .edit-field {
+  opacity: 1 !important;
+}
+#viewEditPTModal .form-group:has(.edit-field) label {
+  opacity: 1;
+}
+
+#editableTag {
+  padding: 5px;
+  border-radius: 20px;
+}

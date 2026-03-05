@@ -132,15 +132,63 @@
   function bulkDeleteStaff() {
     const checkedBoxes = document.querySelectorAll('.staff-checkbox:checked');
     if (checkedBoxes.length === 0) {
-      ToastUtils.showWarning('Please select at least one staff to delete.', 'Warning');
+      ToastUtils.showError('Please select at least 1 row before proceeding.', 'No Selection');
       return false;
     }
     document.getElementById('bulkDeleteCount').textContent = checkedBoxes.length;
+
+    // Reset confirm input
+    const confirmInput = document.getElementById('bulkDeleteStaffConfirmInput');
+    const confirmBtn = document.getElementById('bulkDeleteStaffConfirmBtn');
+    const confirmError = document.getElementById('bulkDeleteStaffConfirmError');
+    if (confirmInput) confirmInput.value = '';
+    if (confirmBtn) confirmBtn.disabled = true;
+    if (confirmError) confirmError.classList.add('d-none');
+
     $('#bulkDeleteStaffConfirmModal').modal('show');
   }
 
+  // Wire up type-to-confirm inputs
+  document.addEventListener('DOMContentLoaded', function() {
+    const bulkInput = document.getElementById('bulkDeleteStaffConfirmInput');
+    const bulkBtn = document.getElementById('bulkDeleteStaffConfirmBtn');
+    if (bulkInput && bulkBtn) {
+      bulkInput.addEventListener('input', function() {
+        bulkBtn.disabled = this.value.trim().toLowerCase() !== 'delete';
+      });
+    }
+
+    const deleteInput = document.getElementById('deleteStaffConfirmInput');
+    const deleteBtn = document.getElementById('confirmDeleteStaffBtn');
+    if (deleteInput && deleteBtn) {
+      deleteInput.addEventListener('input', function() {
+        deleteBtn.disabled = this.value.trim().toLowerCase() !== 'delete';
+      });
+    }
+
+    $('#deleteStaffConfirmModal').on('show.bs.modal', function() {
+      const inp = document.getElementById('deleteStaffConfirmInput');
+      const btn = document.getElementById('confirmDeleteStaffBtn');
+      if (inp) inp.value = '';
+      if (btn) btn.disabled = true;
+    });
+
+    $('#bulkDeleteStaffConfirmModal').on('hidden.bs.modal', function() {
+      const inp = document.getElementById('bulkDeleteStaffConfirmInput');
+      const btn = document.getElementById('bulkDeleteStaffConfirmBtn');
+      if (inp) inp.value = '';
+      if (btn) btn.disabled = true;
+    });
+  });
+
   function confirmBulkDeleteStaff() {
     const submitBtn = event.target;
+    const confirmInput = document.getElementById('bulkDeleteStaffConfirmInput');
+    if (!confirmInput || confirmInput.value.trim().toLowerCase() !== 'delete') {
+      const err = document.getElementById('bulkDeleteStaffConfirmError');
+      if (err) err.classList.remove('d-none');
+      return;
+    }
     const form = document.getElementById('bulkDeleteForm');
     const checkedBoxes = document.querySelectorAll('.staff-checkbox:checked');
     submitBtn.disabled = true;

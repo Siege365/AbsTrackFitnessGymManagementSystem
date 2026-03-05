@@ -11,7 +11,7 @@ use Carbon\Carbon;
 
 /**
  * ReportService
- * 
+ *
  * Centralizes all report data aggregation logic.
  * Keeps calculations reusable and separated from controller/UI concerns.
  */
@@ -27,9 +27,9 @@ class ReportService
      */
     const SUPPORTED_EXPORT_FORMATS = ['pdf', 'csv', 'excel'];
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
     // KPI Calculations
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
 
     /**
      * Get all KPI data for the current (or specified) month,
@@ -59,7 +59,7 @@ class ReportService
         $currentMembership = $this->sumMembershipRevenue($currentStart, $currentEnd);
         $prevMembership    = $this->sumMembershipRevenue($prevStart, $prevEnd);
 
-        // PT revenue (done sessions Ã— rate)
+        // PT revenue (done sessions x rate)
         $currentPT = $this->sumPTRevenue($currentStart, $currentEnd);
         $prevPT    = $this->sumPTRevenue($prevStart, $prevEnd);
 
@@ -79,16 +79,16 @@ class ReportService
         ];
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
     // Revenue Over Time (line chart)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
 
     /**
      * Build revenue-over-time datasets.
      *
-     * - "this_year"       â†’ monthly totals for the year
-     * - "last_3_months"   â†’ monthly totals for the last 3 months
-     * - "this_month"      â†’ daily totals for the current month
+     * - "this_year"       -> monthly totals for the year
+     * - "last_3_months"   -> monthly totals for the last 3 months
+     * - "this_month"      -> daily totals for the current month
      *
      * @param  string  $period
      * @return array   { labels, datasets }
@@ -105,13 +105,19 @@ class ReportService
         return $this->buildMonthlyRevenue($range);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
     // Top Selling Products (bar chart)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
 
     /**
-     * Get top 4 products by quantity sold, broken down by day of week.
-     * Returns empty datasets gracefully when no sales data exists.
+     * Get top 4 products by quantity sold, broken down by the appropriate
+     * time grouping for the selected period.
+     *
+     * - "today"         -> single "Today" label
+     * - "this_week"     -> Mon-Sun (day of week)
+     * - "this_month"    -> Week 1, Week 2, ...
+     * - "last_3_months" -> month names
+     * - "this_year"     -> month names
      *
      * @param  string  $period
      * @return array   { labels, datasets }
@@ -119,7 +125,6 @@ class ReportService
     public function getTopSellingProducts(string $period = 'this_week'): array
     {
         $range = $this->getDateRange($period);
-        $days  = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
         // Identify top 4 products
         $topProducts = PaymentItem::join('payments', 'payment_items.payment_id', '=', 'payments.id')
@@ -131,15 +136,59 @@ class ReportService
             ->pluck('product_name')
             ->toArray();
 
-        // No products sold in this period â†’ return empty but valid structure
+        return match ($period) {
+            'today'                      => $this->buildTopSellingForToday($range, $topProducts),
+            'this_week'                  => $this->buildTopSellingByDayOfWeek($range, $topProducts),
+            'this_month'                 => $this->buildTopSellingByWeek($range, $topProducts),
+            'last_3_months', 'this_year' => $this->buildTopSellingByMonth($range, $topProducts),
+            default                      => $this->buildTopSellingByDayOfWeek($range, $topProducts),
+        };
+    }
+
+    /**
+     * Top selling: single "Today" bar per product.
+     */
+    private function buildTopSellingForToday(array $range, array $topProducts): array
+    {
+        $labels = ['Today'];
         if (empty($topProducts)) {
-            return [
-                'labels'   => $days,
-                'datasets' => [],
+            return ['labels' => $labels, 'datasets' => []];
+        }
+
+        $salesData = PaymentItem::join('payments', 'payment_items.payment_id', '=', 'payments.id')
+            ->selectRaw('payment_items.product_name, SUM(payment_items.quantity) as qty')
+            ->whereBetween('payments.created_at', [$range['start'], $range['end']])
+            ->whereIn('payment_items.product_name', $topProducts)
+            ->groupBy('payment_items.product_name')
+            ->get()
+            ->keyBy('product_name');
+
+        $colors   = ['#66BB6A', '#FFA726', '#AB47BC', '#26C6DA'];
+        $datasets = [];
+
+        foreach ($topProducts as $index => $product) {
+            $datasets[] = [
+                'label'           => $product,
+                'data'            => [$salesData->has($product) ? (int) $salesData[$product]->qty : 0],
+                'backgroundColor' => $colors[$index] ?? '#42A5F5',
+                'borderRadius'    => 4,
             ];
         }
 
-        // Fetch daily breakdown for those products
+        return ['labels' => $labels, 'datasets' => $datasets];
+    }
+
+    /**
+     * Top selling: breakdown by day of week (Mon-Sun).
+     */
+    private function buildTopSellingByDayOfWeek(array $range, array $topProducts): array
+    {
+        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        if (empty($topProducts)) {
+            return ['labels' => $days, 'datasets' => []];
+        }
+
         $salesData = PaymentItem::join('payments', 'payment_items.payment_id', '=', 'payments.id')
             ->selectRaw('payment_items.product_name, DAYOFWEEK(payments.created_at) as day_of_week, SUM(payment_items.quantity) as qty')
             ->whereBetween('payments.created_at', [$range['start'], $range['end']])
@@ -155,7 +204,7 @@ class ReportService
 
             foreach ($salesData as $sale) {
                 if ($sale->product_name === $product) {
-                    // MySQL DAYOFWEEK: 1=Sun â€¦ 7=Sat â†’ convert to 0=Mon index
+                    // MySQL DAYOFWEEK: 1=Sun, 7=Sat -> convert to 0=Mon index
                     $dayIndex = ($sale->day_of_week + 5) % 7;
                     $data[$dayIndex] = (int) $sale->qty;
                 }
@@ -169,15 +218,127 @@ class ReportService
             ];
         }
 
-        return [
-            'labels'   => $days,
-            'datasets' => $datasets,
-        ];
+        return ['labels' => $days, 'datasets' => $datasets];
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    /**
+     * Top selling: breakdown by week of the month (Week 1, Week 2, ...).
+     */
+    private function buildTopSellingByWeek(array $range, array $topProducts): array
+    {
+        // Build week buckets for the month
+        $cursor = $range['start']->copy();
+        $weeks  = [];
+        $weekIndex = 1;
+        while ($cursor->lte($range['end'])) {
+            $weekStart = $cursor->copy();
+            $weekEnd   = $cursor->copy()->endOfWeek();
+            if ($weekEnd->gt($range['end'])) {
+                $weekEnd = $range['end']->copy();
+            }
+            $weeks[] = ['label' => 'Week ' . $weekIndex, 'start' => $weekStart, 'end' => $weekEnd];
+            $cursor = $weekEnd->copy()->addDay()->startOfDay();
+            $weekIndex++;
+        }
+
+        $labels = array_column($weeks, 'label');
+
+        if (empty($topProducts)) {
+            return ['labels' => $labels, 'datasets' => []];
+        }
+
+        $salesData = PaymentItem::join('payments', 'payment_items.payment_id', '=', 'payments.id')
+            ->selectRaw('payment_items.product_name, DATE(payments.created_at) as sale_date, SUM(payment_items.quantity) as qty')
+            ->whereBetween('payments.created_at', [$range['start'], $range['end']])
+            ->whereIn('payment_items.product_name', $topProducts)
+            ->groupBy('payment_items.product_name', 'sale_date')
+            ->get();
+
+        $colors   = ['#66BB6A', '#FFA726', '#AB47BC', '#26C6DA'];
+        $datasets = [];
+
+        foreach ($topProducts as $index => $product) {
+            $data = array_fill(0, count($weeks), 0);
+
+            foreach ($salesData as $sale) {
+                if ($sale->product_name === $product) {
+                    $saleDate = Carbon::parse($sale->sale_date);
+                    foreach ($weeks as $wi => $week) {
+                        if ($saleDate->between($week['start'], $week['end'])) {
+                            $data[$wi] += (int) $sale->qty;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            $datasets[] = [
+                'label'           => $product,
+                'data'            => $data,
+                'backgroundColor' => $colors[$index] ?? '#42A5F5',
+                'borderRadius'    => 4,
+            ];
+        }
+
+        return ['labels' => $labels, 'datasets' => $datasets];
+    }
+
+    /**
+     * Top selling: breakdown by month (for last_3_months / this_year).
+     */
+    private function buildTopSellingByMonth(array $range, array $topProducts): array
+    {
+        // Build month labels
+        $monthKeys = [];
+        $labels    = [];
+        $cursor    = $range['start']->copy()->startOfMonth();
+        while ($cursor->lte($range['end'])) {
+            $monthKeys[] = $cursor->format('Y-m');
+            $labels[]    = $cursor->format('M');
+            $cursor->addMonth();
+        }
+
+        if (empty($topProducts)) {
+            return ['labels' => $labels, 'datasets' => []];
+        }
+
+        $salesData = PaymentItem::join('payments', 'payment_items.payment_id', '=', 'payments.id')
+            ->selectRaw('payment_items.product_name, MONTH(payments.created_at) as month, YEAR(payments.created_at) as year, SUM(payment_items.quantity) as qty')
+            ->whereBetween('payments.created_at', [$range['start'], $range['end']])
+            ->whereIn('payment_items.product_name', $topProducts)
+            ->groupBy('payment_items.product_name', 'year', 'month')
+            ->get();
+
+        $colors   = ['#66BB6A', '#FFA726', '#AB47BC', '#26C6DA'];
+        $datasets = [];
+
+        foreach ($topProducts as $index => $product) {
+            $data = array_fill(0, count($monthKeys), 0);
+
+            foreach ($salesData as $sale) {
+                if ($sale->product_name === $product) {
+                    $saleKey  = $sale->year . '-' . str_pad($sale->month, 2, '0', STR_PAD_LEFT);
+                    $keyIndex = array_search($saleKey, $monthKeys);
+                    if ($keyIndex !== false) {
+                        $data[$keyIndex] = (int) $sale->qty;
+                    }
+                }
+            }
+
+            $datasets[] = [
+                'label'           => $product,
+                'data'            => $data,
+                'backgroundColor' => $colors[$index] ?? '#42A5F5',
+                'borderRadius'    => 4,
+            ];
+        }
+
+        return ['labels' => $labels, 'datasets' => $datasets];
+    }
+
+    // ──────────────────────────────────────────────────
     // Revenue Breakdown (donut chart)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
 
     /**
      * Split revenue into Retail, Membership, and PT.
@@ -207,9 +368,9 @@ class ReportService
         ];
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
     // Transaction History (pie chart)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
 
     /**
      * Group all transactions by payment method (Cash, GCash, etc.).
@@ -260,29 +421,33 @@ class ReportService
         return compact('labels', 'values', 'colors');
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
     // Customer Attendance (line chart)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
 
     /**
-     * - "today"     â†’ hourly check-ins from 6 AM to 10 PM
-     * - "this_week" â†’ daily attendance totals
+     * - "today"         -> hourly check-ins from 6 AM to 10 PM
+     * - "this_week"     -> daily attendance totals
+     * - "this_month"    -> daily attendance totals
+     * - "last_3_months" -> weekly attendance totals
+     * - "this_year"     -> monthly attendance totals
      *
      * @param  string  $period
      * @return array   { labels, values }
      */
     public function getCustomerAttendance(string $period = 'today'): array
     {
-        if ($period === 'today') {
-            return $this->buildHourlyAttendance();
-        }
-
-        return $this->buildDailyAttendance($period);
+        return match ($period) {
+            'today'         => $this->buildHourlyAttendance(),
+            'last_3_months' => $this->buildWeeklyAttendance($period),
+            'this_year'     => $this->buildMonthlyAttendance($period),
+            default         => $this->buildDailyAttendance($period),
+        };
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
     // Export helpers
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
 
     /**
      * Check whether a given export format is supported.
@@ -299,13 +464,13 @@ class ReportService
      * Gather all data needed for an export based on scope.
      *
      * Scope mapping:
-     *   "all"          â†’ KPIs + revenue + products + breakdown + transactions + attendance
-     *   "revenue"      â†’ KPIs + revenue-related data
-     *   "kpis"         â†’ KPIs only
-     *   "products"     â†’ KPIs + top selling products
-     *   "breakdown"    â†’ KPIs + revenue breakdown
-     *   "transactions" â†’ KPIs + transaction history
-     *   "attendance"   â†’ KPIs + attendance
+     *   "all"          -> KPIs + revenue + products + breakdown + transactions + attendance
+     *   "revenue"      -> KPIs + revenue-related data
+     *   "kpis"         -> KPIs only
+     *   "products"     -> KPIs + top selling products
+     *   "breakdown"    -> KPIs + revenue breakdown
+     *   "transactions" -> KPIs + transaction history
+     *   "attendance"   -> KPIs + attendance
      *
      * @param  string  $scope
      * @param  string  $dateRange
@@ -372,9 +537,9 @@ class ReportService
         return $data;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
     // Reusable revenue aggregation helpers
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
 
     /**
      * Sum retail (product) payments in a date range.
@@ -395,7 +560,7 @@ class ReportService
     }
 
     /**
-     * Sum PT revenue (done sessions Ã— â‚±500) in a date range.
+     * Sum PT revenue (done sessions x P500) in a date range.
      */
     public function sumPTRevenue(Carbon $start, Carbon $end): float
     {
@@ -406,15 +571,15 @@ class ReportService
         return (float) ($sessions * self::PT_SESSION_RATE);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
     // Percentage change
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
 
     /**
      * Calculate percentage change between two values.
      *
-     * - If previous = 0 and current > 0 â†’ 100%
-     * - If both = 0 â†’ 0%
+     * - If previous = 0 and current > 0 -> 100%
+     * - If both = 0 -> 0%
      * - Otherwise normal formula.
      *
      * @param  float  $old
@@ -430,9 +595,9 @@ class ReportService
         return round((($new - $old) / $old) * 100, 1);
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
     // Date range helpers
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
 
     /**
      * Convert a period string into start/end Carbon instances.
@@ -480,9 +645,9 @@ class ReportService
         };
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
     // Private builders
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ──────────────────────────────────────────────────
 
     /**
      * Build monthly revenue datasets for line chart.
@@ -589,7 +754,7 @@ class ReportService
     }
 
     /**
-     * Build hourly attendance for today (6 AM â€“ 10 PM).
+     * Build hourly attendance for today (6 AM - 10 PM).
      */
     private function buildHourlyAttendance(): array
     {
@@ -612,7 +777,7 @@ class ReportService
     }
 
     /**
-     * Build daily attendance for a given period.
+     * Build daily attendance for a given period (this_week, this_month).
      */
     private function buildDailyAttendance(string $period): array
     {
@@ -631,9 +796,88 @@ class ReportService
         $cursor = $range['start']->copy();
         while ($cursor <= $range['end']) {
             $key = $cursor->format('Y-m-d');
-            $labels[] = $cursor->format('D');
+            $labels[] = $cursor->format('D, M d');
             $values[] = $data->has($key) ? (int) $data[$key]->count : 0;
             $cursor->addDay();
+        }
+
+        return compact('labels', 'values');
+    }
+
+    /**
+     * Build weekly attendance for last_3_months.
+     * Aggregates check-ins by week instead of every single day.
+     */
+    private function buildWeeklyAttendance(string $period): array
+    {
+        $range = $this->getDateRange($period);
+
+        $data = Attendance::selectRaw('DATE(date) as day, COUNT(*) as count')
+            ->whereBetween('date', [$range['start'], $range['end']])
+            ->groupBy('day')
+            ->orderBy('day')
+            ->get()
+            ->keyBy('day');
+
+        // Build week buckets
+        $cursor = $range['start']->copy();
+        $weeks  = [];
+        while ($cursor->lte($range['end'])) {
+            $weekStart = $cursor->copy();
+            $weekEnd   = $cursor->copy()->endOfWeek();
+            if ($weekEnd->gt($range['end'])) {
+                $weekEnd = $range['end']->copy();
+            }
+            $weeks[] = [
+                'label' => $weekStart->format('M d') . ' - ' . $weekEnd->format('M d'),
+                'start' => $weekStart,
+                'end'   => $weekEnd,
+            ];
+            $cursor = $weekEnd->copy()->addDay()->startOfDay();
+        }
+
+        $labels = [];
+        $values = [];
+
+        foreach ($weeks as $week) {
+            $labels[] = $week['label'];
+            $total = 0;
+            $dayCursor = $week['start']->copy();
+            while ($dayCursor->lte($week['end'])) {
+                $key = $dayCursor->format('Y-m-d');
+                $total += $data->has($key) ? (int) $data[$key]->count : 0;
+                $dayCursor->addDay();
+            }
+            $values[] = $total;
+        }
+
+        return compact('labels', 'values');
+    }
+
+    /**
+     * Build monthly attendance for this_year.
+     * Aggregates check-ins by month instead of every single day.
+     */
+    private function buildMonthlyAttendance(string $period): array
+    {
+        $range = $this->getDateRange($period);
+
+        $data = Attendance::selectRaw('MONTH(date) as month, YEAR(date) as year, COUNT(*) as count')
+            ->whereBetween('date', [$range['start'], $range['end']])
+            ->groupBy('year', 'month')
+            ->orderBy('year')->orderBy('month')
+            ->get()
+            ->keyBy(fn($i) => $i->year . '-' . str_pad($i->month, 2, '0', STR_PAD_LEFT));
+
+        $labels = [];
+        $values = [];
+
+        $cursor = $range['start']->copy()->startOfMonth();
+        while ($cursor->lte($range['end'])) {
+            $key = $cursor->format('Y-m');
+            $labels[] = $cursor->format('M');
+            $values[] = $data->has($key) ? (int) $data[$key]->count : 0;
+            $cursor->addMonth();
         }
 
         return compact('labels', 'values');

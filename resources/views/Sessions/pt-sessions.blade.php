@@ -10,23 +10,6 @@
 
 @section('content')
 
-    <!-- Session Flash Messages -->
-    @if(session('success'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                PTSessionsPage.showToast('success', '{{ session('success') }}');
-            });
-        </script>
-    @endif
-
-    @if(session('error'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                PTSessionsPage.showToast('error', '{{ session('error') }}');
-            });
-        </script>
-    @endif
-
     <!-- Page Header -->
     <div class="card page-header-card">
         <div class="card-body">
@@ -53,8 +36,6 @@
     @include('Sessions.partials.modals._book-next')
 
     @include('Sessions.partials.modals._delete')
-
-    @include('Sessions.partials.modals._double-confirm')
 
     @include('Sessions.partials.modals._cancel-pt')
 

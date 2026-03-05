@@ -89,8 +89,9 @@ class PTpaymentController extends Controller
                 $client = Client::where('name', $membership->name)->first();
 
                 if (!$client) {
-                    // Find or create the customer link
-                    $customer = \App\Models\Customer::where('name', $membership->name)->first();
+                    // Find or create the customer link (look up by contact first since it has a unique constraint)
+                    $customer = \App\Models\Customer::where('contact', $membership->contact)->first()
+                             ?? \App\Models\Customer::where('name', $membership->name)->first();
                     if (!$customer) {
                         $customer = \App\Models\Customer::create([
                             'name'    => $membership->name,

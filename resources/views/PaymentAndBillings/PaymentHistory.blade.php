@@ -264,7 +264,7 @@
           </div>
 
           <div class="table-footer">
-            <button type="button" onclick="bulkDeleteMemberships()" class="btn btn-sm btn-delete-selected" id="deleteMembershipBtn" disabled>
+            <button type="button" onclick="bulkDeleteMemberships()" class="btn btn-sm btn-delete-selected" id="deleteMembershipBtn">
               <i class="mdi mdi-delete"></i> Delete Selected (<span id="membershipCount">0</span>)
             </button>
             {{ $membershipPayments->links('vendor.pagination.custom') }}
@@ -395,7 +395,7 @@
           </div>
 
           <div class="table-footer">
-            <button type="button" onclick="bulkDeletePT()" class="btn btn-sm btn-delete-selected" id="deletePTBtn" disabled>
+            <button type="button" onclick="bulkDeletePT()" class="btn btn-sm btn-delete-selected" id="deletePTBtn">
               <i class="mdi mdi-delete"></i> Delete Selected (<span id="ptCount">0</span>)
             </button>
             {{ $ptPayments->links('vendor.pagination.custom') }}
@@ -506,7 +506,7 @@
           </div>
 
           <div class="table-footer">
-            <button type="button" onclick="bulkDeleteProducts()" class="btn btn-sm btn-delete-selected" id="deleteProductBtn" disabled>
+            <button type="button" onclick="bulkDeleteProducts()" class="btn btn-sm btn-delete-selected" id="deleteProductBtn">
               <i class="mdi mdi-delete"></i> Delete Selected (<span id="productCount">0</span>)
             </button>
             {{ $productPayments->links('vendor.pagination.custom') }}
@@ -632,7 +632,7 @@
         </table>
       </div>
       <div class="table-footer">
-        <button type="button" onclick="bulkDeleteRefunds()" class="btn btn-sm btn-delete-selected" id="deleteRefundBtn" disabled>
+        <button type="button" onclick="bulkDeleteRefunds()" class="btn btn-sm btn-delete-selected" id="deleteRefundBtn">
           <i class="mdi mdi-delete"></i> Delete Selected (<span id="refundCount">0</span>)
         </button>
         {{ $combinedRefunds->links('vendor.pagination.custom') }}
@@ -731,10 +731,13 @@
           <span class="confirm-value" id="deleteItemCount">1</span>
         </div>
       </div>
+      <p class="mt-3 mb-1">Type <strong>"delete"</strong> to confirm:</p>
+      <input type="text" class="form-control" id="deletePaymentConfirmInput" placeholder="Type delete to confirm" autocomplete="off">
+      <small class="text-danger" style="display:none;" id="deletePaymentConfirmError">Text doesn't match. Please type "delete".</small>
     </div>
     <div class="confirm-overlay-footer">
       <button type="button" class="btn btn-cancel" onclick="closeDeleteModal()">Cancel</button>
-      <button type="button" class="btn btn-delete" id="confirmDeleteBtn" onclick="executeDelete()">
+      <button type="button" class="btn btn-delete" id="confirmDeleteBtn" disabled onclick="executeDelete()">
         <i class="mdi mdi-delete"></i> Delete
       </button>
     </div>
@@ -898,13 +901,12 @@ function updateDeleteButton(type) {
   const deleteBtn = document.getElementById(`delete${idSuffix}Btn`);
   
   if (countSpan) countSpan.textContent = count;
-  if (deleteBtn) deleteBtn.disabled = count === 0;
 }
 
 function bulkDeleteProducts() {
   const checked = document.querySelectorAll('.product-checkbox:checked');
   if (checked.length === 0) {
-    ToastUtils.showWarning('Please select at least one payment to delete');
+    ToastUtils.showError('Please select at least 1 row before proceeding.', 'No Selection');
     return;
   }
   
@@ -929,7 +931,7 @@ function bulkDeleteProducts() {
 function bulkDeleteMemberships() {
   const checked = document.querySelectorAll('.membership-checkbox:checked');
   if (checked.length === 0) {
-    ToastUtils.showWarning('Please select at least one payment to delete');
+    ToastUtils.showError('Please select at least 1 row before proceeding.', 'No Selection');
     return;
   }
   
@@ -954,7 +956,7 @@ function bulkDeleteMemberships() {
 function bulkDeletePT() {
   const checked = document.querySelectorAll('.pt-checkbox:checked');
   if (checked.length === 0) {
-    ToastUtils.showWarning('Please select at least one PT payment to delete');
+    ToastUtils.showError('Please select at least 1 row before proceeding.', 'No Selection');
     return;
   }
   
@@ -979,7 +981,7 @@ function bulkDeletePT() {
 function bulkDeleteRefunds() {
   const checked = document.querySelectorAll('.refund-checkbox:checked');
   if (checked.length === 0) {
-    ToastUtils.showWarning('Please select at least one refund to delete');
+    ToastUtils.showError('Please select at least 1 row before proceeding.', 'No Selection');
     return;
   }
   
@@ -1072,21 +1074,50 @@ function confirmDeleteSingle(type, id) {
 
 function showDeleteModal(itemDescription) {
   document.getElementById('deleteItemCount').textContent = itemDescription;
+  const confirmInput = document.getElementById('deletePaymentConfirmInput');
+  const confirmBtn = document.getElementById('confirmDeleteBtn');
+  const confirmError = document.getElementById('deletePaymentConfirmError');
+  if (confirmInput) confirmInput.value = '';
+  if (confirmBtn) confirmBtn.disabled = true;
+  if (confirmError) confirmError.style.display = 'none';
   document.getElementById('deleteConfirmModal').classList.add('show');
 }
 
 function closeDeleteModal() {
   document.getElementById('deleteConfirmModal').classList.remove('show');
   pendingDeleteAction = null;
+  const confirmInput = document.getElementById('deletePaymentConfirmInput');
+  const confirmBtn = document.getElementById('confirmDeleteBtn');
+  const confirmError = document.getElementById('deletePaymentConfirmError');
+  if (confirmInput) confirmInput.value = '';
+  if (confirmBtn) confirmBtn.disabled = true;
+  if (confirmError) confirmError.style.display = 'none';
 }
 
 function executeDelete() {
+  const confirmInput = document.getElementById('deletePaymentConfirmInput');
+  const confirmError = document.getElementById('deletePaymentConfirmError');
+  if (!confirmInput || confirmInput.value.trim().toLowerCase() !== 'delete') {
+    if (confirmError) confirmError.style.display = 'block';
+    return;
+  }
   if (pendingDeleteAction) {
     pendingDeleteAction();
     pendingDeleteAction = null;
   }
   closeDeleteModal();
 }
+
+// Wire up confirm input → confirm button
+document.addEventListener('DOMContentLoaded', function() {
+  const confirmInput = document.getElementById('deletePaymentConfirmInput');
+  const confirmBtn = document.getElementById('confirmDeleteBtn');
+  if (confirmInput && confirmBtn) {
+    confirmInput.addEventListener('input', function() {
+      confirmBtn.disabled = this.value.trim().toLowerCase() !== 'delete';
+    });
+  }
+});
 
 // Clear search input and submit form
 function clearSearch(inputId, formId) {

@@ -483,10 +483,13 @@
           </div>
           <p class="confirm-text">This action cannot be undone. Confirm deletion of:</p>
           <p class="confirm-plan-name confirm-plan-name--danger" id="finalDeletePlanName"></p>
+          <p class="mt-3 mb-1">Type <strong>"delete"</strong> to confirm:</p>
+          <input type="text" class="form-control" id="deletePlanConfirmInput" placeholder="Type delete to confirm" autocomplete="off">
+          <small class="text-danger d-none" id="deletePlanConfirmError">Text doesn't match. Please type "delete".</small>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-cancel" onclick="goBackToDeleteStep1()">Go Back</button>
-          <button type="button" class="btn btn-confirm-danger" onclick="executeDeletePlan()">
+          <button type="button" class="btn btn-confirm-danger" id="deletePlanConfirmBtn" disabled onclick="executeDeletePlan()">
             <i class="mdi mdi-delete"></i> Yes, Delete
           </button>
         </div>

@@ -22,7 +22,6 @@
     const checked = document.querySelectorAll('.log-checkbox:checked');
     const count = checked.length;
     countSpan.textContent = count;
-    deleteBtn.disabled = count === 0;
   }
 
   if (selectAllCheckbox) {
@@ -49,12 +48,45 @@
   function bulkDeleteLogs() {
     const checked = document.querySelectorAll('.log-checkbox:checked');
     const ids = Array.from(checked).map(cb => cb.value);
-    if (ids.length === 0) return;
+    if (ids.length === 0) {
+      ToastUtils.showError('Please select at least 1 row before proceeding.', 'No Selection');
+      return;
+    }
 
     document.getElementById('bulkDeleteCount').textContent = ids.length;
     document.getElementById('bulkDeleteIds').value = JSON.stringify(ids);
+
+    // Reset confirm input
+    const inp = document.getElementById('bulkDeleteLogsConfirmInput');
+    const btn = document.getElementById('bulkDeleteLogsConfirmBtn');
+    const err = document.getElementById('bulkDeleteLogsConfirmError');
+    if (inp) inp.value = '';
+    if (btn) btn.disabled = true;
+    if (err) err.style.display = 'none';
+
     document.getElementById('bulkDeleteModal').classList.add('show');
   }
+
+  function submitBulkDeleteLogs() {
+    const inp = document.getElementById('bulkDeleteLogsConfirmInput');
+    if (!inp || inp.value.trim().toLowerCase() !== 'delete') {
+      const err = document.getElementById('bulkDeleteLogsConfirmError');
+      if (err) err.style.display = '';
+      return;
+    }
+    document.getElementById('bulkDeleteForm').submit();
+  }
+
+  // Wire up type-to-confirm input
+  document.addEventListener('DOMContentLoaded', function() {
+    const confirmInput = document.getElementById('bulkDeleteLogsConfirmInput');
+    const confirmBtn = document.getElementById('bulkDeleteLogsConfirmBtn');
+    if (confirmInput && confirmBtn) {
+      confirmInput.addEventListener('input', function() {
+        confirmBtn.disabled = this.value.trim().toLowerCase() !== 'delete';
+      });
+    }
+  });
 
   function closeBulkDeleteModal() {
     document.getElementById('bulkDeleteModal').classList.remove('show');

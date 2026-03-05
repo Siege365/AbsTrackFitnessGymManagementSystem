@@ -88,32 +88,65 @@ const ClientsPage = (function() {
    */
   function showClientConfirmModal() {
     const elements = getAddModalElements();
+    const sexInput = document.getElementById('newClientSex');
+
+    // Clear all previous invalid highlights
+    [elements.nameInput, elements.ageInput, sexInput, elements.contactInput, elements.planInput, elements.startDateInput]
+      .forEach(el => el && el.classList.remove('is-invalid'));
+
     const name = elements.nameInput.value.trim();
     const age = elements.ageInput.value;
+    const sex = sexInput.value;
     const contact = elements.contactInput.value.trim();
     const plan = elements.planInput.value;
     const startDate = elements.startDateInput.value;
     const endDate = elements.endDateInput.value;
 
-    // Run validations
-    const validations = [
-      FormUtils.validateRequired(name, 'a name', elements.nameInput),
-      FormUtils.validateAge(age, elements.ageInput),
-      FormUtils.validateRequired(contact, 'a contact number', elements.contactInput),
-      FormUtils.validateContact(contact, elements.contactInput),
-      FormUtils.validateSelect(plan, 'a membership plan', elements.planInput),
-      FormUtils.validateRequired(startDate, 'a start date', elements.startDateInput)
-    ];
-
-    const result = FormUtils.runValidations(validations);
-    if (result !== true) {
-      ToastUtils.showError(result, 'Validation Error');
-      return;
+    // Helper: mark field invalid, focus it, and show toast
+    function fail(message, el) {
+      if (el) { el.classList.add('is-invalid'); el.focus(); }
+      ToastUtils.showError(message, 'Validation Error');
     }
 
+    // 1. Name
+    const nameResult = FormUtils.validateRequired(name, 'a name', elements.nameInput);
+    if (nameResult !== true) { fail(nameResult, elements.nameInput); return; }
+
+    // 2. Age
+    const ageResult = FormUtils.validateAge(age, elements.ageInput);
+    if (ageResult !== true) { fail(ageResult, elements.ageInput); return; }
+
+    // 3. Sex
+    const sexResult = FormUtils.validateRequired(sex, 'a sex', sexInput);
+    if (sexResult !== true) { fail(sexResult, sexInput); return; }
+
+    // 4. Contact – required
+    const contactRequiredResult = FormUtils.validateRequired(contact, 'a contact number', elements.contactInput);
+    if (contactRequiredResult !== true) { fail(contactRequiredResult, elements.contactInput); return; }
+
+    // 4b. Contact – valid characters
+    const contactFormatResult = FormUtils.validateContact(contact, elements.contactInput);
+    if (contactFormatResult !== true) { fail(contactFormatResult, elements.contactInput); return; }
+
+    // 4c. Contact – digit count / prefix rules
+    const digitsOnly = contact.replace(/\D/g, '');
+    if (contact.startsWith('+63')) {
+      if (digitsOnly.length !== 12) { fail('Phone number with +63 must have exactly 12 digits', elements.contactInput); return; }
+    } else {
+      if (digitsOnly.length !== 11) { fail('Phone number must have exactly 11 digits', elements.contactInput); return; }
+      if (!digitsOnly.startsWith('09')) { fail('Phone number must start with 09', elements.contactInput); return; }
+    }
+
+    // 5. Membership plan
+    const planResult = FormUtils.validateSelect(plan, 'a membership plan', elements.planInput);
+    if (planResult !== true) { fail(planResult, elements.planInput); return; }
+
+    // 6. Start date
+    const startDateResult = FormUtils.validateRequired(startDate, 'a start date', elements.startDateInput);
+    if (startDateResult !== true) { fail(startDateResult, elements.startDateInput); return; }
+
     if (!endDate) {
-      ToastUtils.showError(FormUtils.MESSAGES.endDateRequired, 'Validation Error');
-      elements.startDateInput.focus();
+      fail(FormUtils.MESSAGES.endDateRequired, elements.startDateInput);
       return;
     }
 

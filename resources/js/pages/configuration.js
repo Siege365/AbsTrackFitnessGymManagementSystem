@@ -49,6 +49,15 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // Wire confirm input for plan deletion
+    const deletePlanInput = document.getElementById('deletePlanConfirmInput');
+    const deletePlanBtn = document.getElementById('deletePlanConfirmBtn');
+    if (deletePlanInput && deletePlanBtn) {
+        deletePlanInput.addEventListener('input', function () {
+            deletePlanBtn.disabled = this.value.trim().toLowerCase() !== 'delete';
+        });
+    }
 });
 
 // ============================================
@@ -243,6 +252,13 @@ window.confirmDeletePlan = function (id, name) {
 
 window.confirmDeleteStep2 = function () {
     document.getElementById('finalDeletePlanName').textContent = pendingDeleteName;
+    // Reset confirm input
+    const confirmInput = document.getElementById('deletePlanConfirmInput');
+    const confirmBtn = document.getElementById('deletePlanConfirmBtn');
+    const confirmError = document.getElementById('deletePlanConfirmError');
+    if (confirmInput) confirmInput.value = '';
+    if (confirmBtn) confirmBtn.disabled = true;
+    if (confirmError) confirmError.classList.add('d-none');
     $('#confirmDeleteModal').modal('hide');
     setTimeout(() => {
         $('#finalDeleteModal').modal('show');
@@ -259,7 +275,14 @@ window.goBackToDeleteStep1 = function () {
 window.executeDeletePlan = function () {
     if (!pendingDeleteId) return;
 
-    const deleteBtn = document.querySelector('#finalDeleteModal .btn-confirm-danger');
+    const confirmInput = document.getElementById('deletePlanConfirmInput');
+    const confirmError = document.getElementById('deletePlanConfirmError');
+    if (!confirmInput || confirmInput.value.trim().toLowerCase() !== 'delete') {
+        if (confirmError) confirmError.classList.remove('d-none');
+        return;
+    }
+
+    const deleteBtn = document.getElementById('deletePlanConfirmBtn');
     if (deleteBtn) {
         deleteBtn.disabled = true;
         deleteBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Deleting...';

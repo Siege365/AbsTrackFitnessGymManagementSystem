@@ -92,20 +92,27 @@ const AttendancePage = {
       $('#confirmError').toggleClass('d-none', isMatch || input === '');
     });
 
+    // Bulk delete type-in validation
+    $('#bulkDeleteConfirmInput').on('input', function() {
+      const input = $(this).val();
+      const isMatch = input.toLowerCase() === 'delete';
+      $('#bulkDeleteConfirmBtn').prop('disabled', !isMatch);
+      $('#bulkDeleteConfirmError').toggleClass('d-none', isMatch || input === '');
+    });
+
     // Reset modals on close
     $('.modal').not('#bulkDeleteConfirmModal, #addAttendanceModal').on('hidden.bs.modal', function() {
       $(this).find('form')[0]?.reset();
       $(this).find('.is-invalid').removeClass('is-invalid');
       $(this).find('.invalid-feedback').remove();
       $(this).find('button[type="submit"]').prop('disabled', false);
-      $('#confirmInput').val('');
-      $('#confirmError').addClass('d-none');
-      $('#finalDeleteBtn').prop('disabled', true);
     });
 
     // Reset bulk delete confirm button on close
     $('#bulkDeleteConfirmModal').on('hidden.bs.modal', function() {
-      $('#bulkDeleteConfirmBtn').prop('disabled', false).html('<i class="mdi mdi-delete"></i> Delete');
+      $('#bulkDeleteConfirmInput').val('');
+      $('#bulkDeleteConfirmError').addClass('d-none');
+      $('#bulkDeleteConfirmBtn').prop('disabled', true).html('<i class="mdi mdi-delete"></i> Delete');
     });
   },
 
@@ -402,21 +409,25 @@ const AttendancePage = {
     $('#deleteType').val('attendance');
     $('#deleteId').val(id);
     $('#deleteConfirmText').html('Are you sure you want to delete the attendance record for <strong>' + name + '</strong>?');
+    $('#deleteSessionConfirmInput').val('');
+    $('#deleteSessionConfirmBtn').prop('disabled', true);
+    $('#deleteSessionConfirmError').addClass('d-none');
     $('#deleteConfirmModal').modal('show');
   },
 
-  // Execute delete (first confirmation)
+  // Execute delete
   executeDelete: function() {
+    const confirmInput = document.getElementById('deleteSessionConfirmInput');
+    const confirmError = document.getElementById('deleteSessionConfirmError');
+    if (!confirmInput || confirmInput.value.trim().toLowerCase() !== 'delete') {
+      if (confirmError) confirmError.classList.remove('d-none');
+      return;
+    }
     $('#deleteConfirmModal').modal('hide');
-    
-    $('#confirmName').text(this.pendingDelete.name);
-    $('#confirmInput').val('');
-    $('#confirmError').addClass('d-none');
-    $('#finalDeleteBtn').prop('disabled', true);
-    $('#doubleConfirmModal').modal('show');
+    this.finalDelete();
   },
 
-  // Final delete (double confirmation)
+  // Final delete
   finalDelete: function() {
     const id = this.pendingDelete.id;
     
@@ -429,54 +440,34 @@ const AttendancePage = {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
       },
       success: function(response) {
-        $('#doubleConfirmModal').modal('hide');
         AttendancePage.showToast('success', 'Record deleted successfully!');
         AttendancePage.refreshKPIs();
         setTimeout(() => location.reload(), 1000);
       },
       error: function() {
-        $('#doubleConfirmModal').modal('hide');
         AttendancePage.showToast('error', 'Failed to delete record');
       }
     });
   },
 
-  // Show toast notification
+  // Show toast notification using ToastUtils
   showToast: function(type, message) {
-    $('.toast-container').remove();
-    
-    const bgClass = type === 'success' ? 'toast-success' : 
-                    type === 'error' ? 'toast-error' : 'bg-info';
-    const icon = type === 'success' ? 'mdi-check-circle' : 
-                 type === 'error' ? 'mdi-alert-circle' : 'mdi-information';
-
-    const toast = $(`
-      <div class="toast-container">
-        <div class="toast ${bgClass}" role="alert" aria-live="assertive" aria-atomic="true">
-          <div class="d-flex align-items-center p-3">
-            <i class="mdi ${icon} mr-2" style="font-size: 24px;"></i>
-            <div class="flex-grow-1">${message}</div>
-            <button type="button" class="ml-2 close text-white" data-dismiss="toast" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    `);
-
-    $('body').append(toast);
-    
-    setTimeout(() => {
-      toast.fadeOut(300, function() {
-        $(this).remove();
-      });
-    }, 4000);
-
-    toast.find('.close').on('click', function() {
-      toast.fadeOut(300, function() {
-        $(this).remove();
-      });
-    });
+    if (typeof ToastUtils !== 'undefined') {
+      switch (type) {
+        case 'success':
+          ToastUtils.showSuccess(message, 'Success');
+          break;
+        case 'error':
+          ToastUtils.showError(message, 'Validation Error');
+          break;
+        case 'warning':
+          ToastUtils.showWarning(message, 'Warning');
+          break;
+        default:
+          ToastUtils.showInfo(message, 'Info');
+          break;
+      }
+    }
   },
 
   // Bulk delete attendance records
@@ -493,6 +484,9 @@ const AttendancePage = {
     this._bulkDeleteType = 'attendance';
     this._bulkDeleteIds = checkedIds;
     $('#bulkDeleteText').html('Are you sure you want to delete <strong>' + checkedIds.length + '</strong> attendance record(s)? This action cannot be undone.');
+    $('#bulkDeleteConfirmInput').val('');
+    $('#bulkDeleteConfirmError').addClass('d-none');
+    $('#bulkDeleteConfirmBtn').prop('disabled', true).html('<i class="mdi mdi-delete"></i> Delete');
     $('#bulkDeleteConfirmModal').modal('show');
   },
 
@@ -577,3 +571,22 @@ window.AttendancePage = AttendancePage;
 
 // Backward compatibility alias - shared modals reference SessionsPage
 window.SessionsPage = AttendancePage;
+
+// Wire up single-delete confirm input
+document.addEventListener('DOMContentLoaded', function() {
+  const confirmInput = document.getElementById('deleteSessionConfirmInput');
+  const confirmBtn = document.getElementById('deleteSessionConfirmBtn');
+  if (confirmInput && confirmBtn) {
+    confirmInput.addEventListener('input', function() {
+      confirmBtn.disabled = this.value.trim().toLowerCase() !== 'delete';
+    });
+  }
+  $('#deleteConfirmModal').on('hidden.bs.modal', function() {
+    const inp = document.getElementById('deleteSessionConfirmInput');
+    const btn = document.getElementById('deleteSessionConfirmBtn');
+    const err = document.getElementById('deleteSessionConfirmError');
+    if (inp) inp.value = '';
+    if (btn) btn.disabled = true;
+    if (err) err.classList.add('d-none');
+  });
+});

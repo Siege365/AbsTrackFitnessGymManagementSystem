@@ -31,7 +31,8 @@ class MemberApiController extends Controller
     }
 
     /**
-     * Check if a member with the given name already exists
+     * Check if a member with the given name already exists (exact match)
+     * or a similar first name exists (partial match).
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -41,12 +42,34 @@ class MemberApiController extends Controller
         $name = trim($request->input('name', ''));
 
         if (empty($name)) {
-            return response()->json(['exists' => false]);
+            return response()->json(['exists' => false, 'similar' => false]);
         }
 
-        $exists = Membership::whereRaw('LOWER(name) = ?', [strtolower($name)])->exists();
+        // Check for exact full-name match (case-insensitive)
+        $exactMatch = Membership::whereRaw('LOWER(name) = ?', [strtolower($name)])->exists();
 
-        return response()->json(['exists' => $exists]);
+        if ($exactMatch) {
+            return response()->json(['exists' => true, 'similar' => false]);
+        }
+
+        // Check for similar first name (different full name)
+        $nameParts = explode(' ', $name);
+        $firstName = strtolower($nameParts[0]);
+
+        if (strlen($firstName) >= 2) {
+            $similarMember = Membership::whereRaw('LOWER(SUBSTRING_INDEX(name, " ", 1)) = ?', [$firstName])
+                ->first(['id', 'name']);
+
+            if ($similarMember) {
+                return response()->json([
+                    'exists' => false,
+                    'similar' => true,
+                    'similar_name' => $similarMember->name
+                ]);
+            }
+        }
+
+        return response()->json(['exists' => false, 'similar' => false]);
     }
 
     /**
