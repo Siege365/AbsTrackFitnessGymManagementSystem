@@ -285,125 +285,336 @@
   transform: none !important;
 }
 
-.payment-type-selector {
+/* ========================================
+   3-ROW REGISTER FLOW LAYOUT
+   ======================================== */
+
+/* --- ROW 1: Payment Type Toggle Bar --- */
+.pay-row-type {
+  margin-bottom: 1rem;
+}
+
+.pay-type-pills {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 0.5rem;
 }
 
-.payment-type-pill {
-  flex: 1;
-  padding: 1rem;
+.pay-type-pill {
+  flex: 0 0 auto;
+  padding: 0.45rem 1.25rem;
   background: #191C24;
-  border: 2px solid #555;
-  border-radius: 4px;
-  text-align: center;
+  border: 2px solid #444;
+  border-radius: 6px;
+  color: #999;
+  font-weight: 600;
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
-.payment-type-pill:hover {
+.pay-type-pill i {
+  font-size: 1rem;
+}
+
+.pay-type-pill:hover {
   border-color: #0d6efd;
-  transform: translateY(-3px);
+  color: #ccc;
 }
 
-.payment-type-pill.active {
+.pay-type-pill.active {
   background: #282A36;
   border-color: #0d6efd;
+  color: #fff;
 }
 
-.payment-type-pill .icon {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  display: block;
+/* --- ROW 2: Two-column member + plans --- */
+.pay-row-main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1rem;
 }
 
-.payment-type-pill .label {
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: #ffffff;
+.pay-col-member {
+  min-width: 0;
 }
 
-.plan-type-selector {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+.pay-col-plans {
+  min-width: 0;
 }
 
-.plan-type-card {
-  flex: 1 1 calc(33.333% - 1rem);
-  min-width: 180px;
-  padding: 1.5rem;
+/* Plan Card Grid */
+.plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 0.6rem;
+}
+
+.plan-card {
+  padding: 0.65rem 0.75rem;
   background: #191C24;
-  border: 2px solid #555;
+  border: 2px solid #444;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+  transition: all 0.2s ease, opacity 0.2s ease;
   position: relative;
   overflow: hidden;
 }
 
-.plan-type-card:hover {
+.plan-card:hover {
   border-color: #0d6efd;
-  transform: translateY(-3px);
 }
 
-.plan-type-card.active {
+.plan-card.active {
   background: #282A36;
   border-color: #0d6efd;
 }
 
-/* Disabled plan card styling */
-.plan-type-card[style*="pointer-events: none"] {
+/* Disabled plan card */
+.plan-card[style*="pointer-events: none"] {
   filter: grayscale(60%);
 }
-.plan-type-card[style*="pointer-events: none"]:hover {
+.plan-card[style*="pointer-events: none"]:hover {
   transform: none;
-  border-color: #555;
+  border-color: #444;
 }
 
-.plan-type-card .plan-name {
-  font-size: 1.25rem;
+.plan-card-name {
+  font-size: 0.85rem;
   font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 0.5rem;
+  color: #fff;
+  margin-bottom: 0.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.plan-type-card .plan-duration {
-  font-size: 0.875rem;
-  color: #999;
+.plan-card-name i {
+  font-size: 0.9rem;
+  margin-right: 0.15rem;
 }
 
-.plan-type-card .plan-price {
+.plan-card-meta {
+  font-size: 0.7rem;
+  color: #888;
+  margin-bottom: 0.2rem;
+}
+
+.plan-card-price {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #28a745;
+}
+
+.plan-card-price small {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #888;
+}
+
+/* --- ROW 3: Checkout Bar (POS-style) --- */
+.pay-checkout-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #1a1d28;
+  border: 1px solid #3a3d4d;
+  border-radius: 10px;
+  padding: 0.75rem 1.25rem;
+}
+
+.checkout-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.checkout-dates {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+.buddy-checkout-dates {
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.checkout-date-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.checkout-date-label {
+  font-size: 0.65rem;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-weight: 600;
+}
+
+.checkout-date-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ccc;
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: 90px;
+  cursor: default;
+}
+
+.checkout-date-value:focus {
+  outline: none;
+}
+
+.checkout-date-new {
+  color: #28a745;
+}
+
+.checkout-arrow {
+  color: #666;
+  font-size: 1rem;
+  margin-top: 0.8rem;
+}
+
+.checkout-days {
+  margin-left: 0.25rem;
+}
+
+.checkout-days .checkout-date-value {
+  width: 40px;
+  text-align: center;
+  /* Hide number arrows */
+  -moz-appearance: textfield;
+}
+
+.checkout-days .checkout-date-value::-webkit-outer-spin-button,
+.checkout-days .checkout-date-value::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Payment method dropdown */
+.checkout-payment {
+  flex-shrink: 0;
+}
+
+.checkout-method {
+  width: 160px;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.85rem !important;
+}
+
+/* Total display */
+.checkout-total {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: 100px;
+}
+
+.checkout-total-label {
+  font-size: 0.65rem;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.checkout-total-amount {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.checkout-currency {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #28a745;
+}
+
+.checkout-total-amount input {
   font-size: 1.5rem;
   font-weight: 700;
   color: #28a745;
-  margin-top: 0.5rem;
+  background: transparent;
+  border: none;
+  width: 100px;
+  padding: 0;
+  cursor: default;
+  -moz-appearance: textfield;
 }
 
-.plan-badge {
-  position: absolute;
-  top: 23px;
-  right: -30px;
-  background: #ffc107;
-  color: #000;
-  font-size: 0.65rem;
+.checkout-total-amount input::-webkit-outer-spin-button,
+.checkout-total-amount input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.checkout-total-amount input:focus {
+  outline: none;
+}
+
+/* Action buttons */
+.checkout-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.btn-checkout-clear {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(220, 53, 69, 0.12);
+  border: 1px solid rgba(220, 53, 69, 0.3);
+  color: #dc3545;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-checkout-clear:hover {
+  background: rgba(220, 53, 69, 0.25);
+}
+
+.btn-checkout-pay {
+  padding: 0.55rem 1.25rem;
+  background: linear-gradient(135deg, #28a745, #34c759);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
   font-weight: 700;
-  padding: 3px 30px;
-  transform: rotate(45deg);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.plan-badge.buddy {
-  background: #0d6efd;
-  color: #fff;
+.btn-checkout-pay:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.35);
 }
 
-.plan-badge.promo {
-  background: #28a745;
-  color: #fff;
+.btn-checkout-pay:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 /* ========================================
@@ -669,6 +880,19 @@
   }
   .payment-details-col-2,
   .payment-details-col-3 {
+    flex: 1 1 100%;
+  }
+}
+
+/* Responsive: 3-row layout */
+@media (max-width: 992px) {
+  .pay-row-main {
+    grid-template-columns: 1fr;
+  }
+  .pay-checkout-bar {
+    flex-wrap: wrap;
+  }
+  .checkout-info {
     flex: 1 1 100%;
   }
 }
@@ -1264,9 +1488,12 @@
     grid-template-columns: 1fr;
   }
 
-  .payment-type-selector,
-  .plan-type-selector {
+  .pay-type-pills {
     flex-direction: column;
+  }
+
+  .plan-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
   }
 
   .pagination-container {
@@ -1418,6 +1645,7 @@
 .pages-slider {
   position: relative;
   overflow: hidden;
+  min-height: 600px; /* Prevents collapse during transitions */
 }
 
 .page-panel {
@@ -1429,6 +1657,18 @@
 
 .page-panel.active {
   display: block;
+}
+
+/* During animation, use absolute positioning so panels overlay instead of stacking */
+.page-panel.slide-out-left,
+.page-panel.slide-out-right,
+.page-panel.slide-in-left,
+.page-panel.slide-in-right {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
 }
 
 /* Slide out to the left */
@@ -1666,4 +1906,360 @@
     font-size: 0.75rem;
     white-space: nowrap;
   }
+}
+
+/* ============================================
+   PRODUCT PAYMENT - Cart Table & Details
+   ============================================ */
+
+.product-cart-table {
+  background: #191C24;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.product-cart-table .table {
+  color: #ccc;
+}
+
+.product-cart-table .table thead th {
+  background: #282A36;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+}
+
+.product-cart-table .table tbody td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+.product-cart-table .table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.product-cart-table .form-control-sm {
+  background: #282A36;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  text-align: center;
+  padding: 0.25rem 0.4rem;
+}
+
+/* Confirmation detail rows (product payment) */
+.confirm-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.confirm-detail-row:last-child {
+  border-bottom: none;
+}
+
+.confirm-detail-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+}
+
+.confirm-detail-value {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 0.9rem;
+}
+
+/* Receipt info wrapper (alternative to receipt-info-grid) */
+.receipt-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Receipt footer */
+.receipt-footer {
+  text-align: center;
+  padding-top: 1.5rem;
+  border-top: 2px dashed #ddd;
+  margin-top: 1.5rem;
+  color: #666;
+}
+
+.receipt-footer p:first-child {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* ============================================
+   UTILITY CLASSES (Inline Style Replacements)
+   ============================================ */
+
+/* Hidden element - display none by default */
+.hidden {
+  display: none !important;
+}
+
+/* Relative positioning context (for autocomplete dropdowns) */
+.pos-relative {
+  position: relative;
+}
+
+/* Autocomplete results popup - hidden by default, high z-index */
+.autocomplete-results {
+  z-index: 9999;
+}
+
+/* Flex utility: no shrink */
+.flex-no-shrink {
+  flex: 0 0 auto;
+}
+
+/* Student warning alert box */
+.student-warning-box {
+  background: #f8d7da;
+  border: 1px solid #dc3545;
+  color: #721c24;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+/* Disabled plan card state */
+.plan-card.disabled-card {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Search result meta text (sub-info in autocomplete items) */
+.autocomplete-item-meta {
+  font-size: 0.875rem;
+  color: #999;
+}
+
+/* Small badge in autocomplete results */
+.badge-inline {
+  margin-left: 0.5rem;
+  font-size: 0.7rem;
+}
+
+/* Receipt info grid */
+.receipt-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* Receipt info cell */
+.receipt-info-cell {
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+/* Receipt info cell (buddy variant) */
+.receipt-info-cell.buddy {
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+}
+
+.receipt-info-cell.buddy .receipt-info-label {
+  color: #2e7d32;
+}
+
+/* Receipt info labels and values */
+.receipt-info-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #666;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.receipt-info-value {
+  display: block;
+  font-weight: 600;
+}
+
+.receipt-info-value.success {
+  color: #28a745;
+}
+
+/* Receipt due date section */
+.receipt-due-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px dashed #ccc;
+}
+
+/* Receipt notes section */
+.receipt-notes-section {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.receipt-notes-section strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #666;
+}
+
+.receipt-notes-section p {
+  margin: 0;
+  color: #333;
+}
+
+/* Receipt total row styling */
+.receipt-total .receipt-row.grand {
+  font-size: 1.3rem;
+}
+
+/* Error/loading state in receipt modal */
+.receipt-error-state {
+  padding: 2rem;
+  color: #dc3545;
+  text-align: center;
+}
+
+.receipt-error-state i {
+  font-size: 3rem;
+}
+
+/* Checkout summary value - auto width, muted color */
+.checkout-summary-value {
+  width: auto;
+  color: #ccc;
+}
+
+/* PT empty state styling */
+.empty-state-content {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.empty-state-icon {
+  font-size: 4rem;
+  color: #555;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.empty-state-text {
+  color: #999;
+  font-size: 1rem;
+}
+
+.empty-state-subtext {
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.empty-state-subtext a,
+.link-accent {
+  color: #FFA726;
+}
+
+/* Plan card description meta */
+.plan-card-desc {
+  margin-top: 0.15rem;
+  font-size: 0.65rem;
+}
+
+/* Member card with top margin */
+.member-card.mt-card {
+  margin-top: 0.75rem;
+}
+
+/* Buddy due date section label margin */
+.buddy-select-label {
+  margin-top: 0.75rem;
+}
+
+/* Confirmation detail green highlight */
+.confirm-value.success {
+  color: #28a745;
+}
+
+/* Student warning container */
+.student-warning-container {
+  margin-top: 0.75rem;
+}
+
+/* Form label small variant */
+.form-label-sm {
+  font-size: 0.85rem;
+}
+
+/* Change amount highlight */
+.change-amount {
+  color: #28a745;
+  font-weight: 600;
+}
+
+/* Refund warning alert box */
+.refund-warning-box {
+  background: rgba(220, 53, 69, 0.1);
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border-left: 4px solid #dc3545;
+}
+
+/* Member card body compact padding */
+.member-card-body.compact {
+  padding: 1rem;
+}
+
+/* Product row with bottom margin */
+.pay-row-type.mb-sm {
+  margin-bottom: 0.75rem;
+}
+
+/* Refund warning icon color */
+.refund-warning-icon {
+  color: #dc3545;
+}
+
+/* Refund reason section spacing */
+.refund-reason-section {
+  margin-top: 12px;
+}
+
+/* Member form row no bottom margin */
+.member-form-row.mb-0 {
+  margin-bottom: 0;
+}
+
+/* Receipt paid section top spacing */
+.receipt-total-row.receipt-paid-section {
+  margin-top: 20px;
+}
+
+/* Receipt footer sub-text */
+.receipt-footer-sub {
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* Refund button (red) */
+.btn-refund {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+
+/* Refund amount highlight */
+.confirm-detail-value.refund-amount {
+  color: #dc3545;
 }

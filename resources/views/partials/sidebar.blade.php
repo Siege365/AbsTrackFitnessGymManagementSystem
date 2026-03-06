@@ -54,21 +54,21 @@
         </ul>
       </div>
     </li>
-    <li class="nav-item menu-items">
-      <a class="nav-link" data-toggle="collapse" href="#payments-menu" aria-expanded="false" aria-controls="payments-menu">
+    <li class="nav-item menu-items {{ request()->is('payment-system*') || request()->is('payments/history') ? 'active' : '' }}">
+      <a class="nav-link" data-toggle="collapse" href="#payments-menu" aria-expanded="{{ request()->is('payment-system*') || request()->is('payments/history') ? 'true' : 'false' }}" aria-controls="payments-menu">
         <span class="menu-icon">
           <i class="mdi mdi-credit-card"></i>
         </span>
         <span class="menu-title">Payments & Billing</span>
         <i class="menu-arrow mdi mdi-chevron-down"></i>
       </a>
-      <div class="collapse" id="payments-menu">
+      <div class="collapse {{ request()->is('payment-system*') || request()->is('payments/history') ? 'show' : '' }}" id="payments-menu">
         <ul class="nav flex-column sub-menu">
-          <li class="nav-item">
-            <a class="nav-link" href="{{ route('membership.payment.index') }}">Payment System</a>
+          <li class="nav-item {{ request()->is('payment-system*') ? 'active' : '' }}">
+            <a class="nav-link {{ request()->is('payment-system*') ? 'active' : '' }}" href="{{ route('payment.system.membership') }}">Payment System</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ route('payments.history') }}">Payment History</a>
+          <li class="nav-item {{ request()->is('payments/history') ? 'active' : '' }}">
+            <a class="nav-link {{ request()->is('payments/history') ? 'active' : '' }}" href="{{ route('payments.history') }}">Payment History</a>
           </li>
         </ul>
       </div>

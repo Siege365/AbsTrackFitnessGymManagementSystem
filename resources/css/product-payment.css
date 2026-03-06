@@ -1423,3 +1423,70 @@ height: 8px;
     white-space: nowrap;
   }
 }
+
+/* ============================================
+   PRODUCT SEARCH BAR
+   ============================================ */
+
+/* Search bar flex container */
+.prod-search-bar {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+/* Search input wrapper (flex grow + relative for icon) */
+.prod-search-input-wrap {
+  flex: 1;
+  position: relative;
+}
+
+/* Search input with icon padding */
+.prod-search-input-wrap .form-control {
+  padding-left: 2.5rem;
+}
+
+/* Search magnify icon */
+.prod-search-icon {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* Add item button (green outline) */
+.btn-add-item {
+  cursor: pointer;
+  border-color: #28a745;
+  color: #28a745;
+}
+
+.btn-add-item:hover {
+  background: rgba(40, 167, 69, 0.1);
+}
+
+/* Quantity input in cart */
+.qty-input-sm {
+  width: 60px;
+}
+
+/* Delete button in cart (ghost danger) */
+.btn-delete-item {
+  color: #dc3545;
+  background: none;
+  border: none;
+  padding: 0.25rem;
+}
+
+.btn-delete-item:hover {
+  color: #a71d2a;
+}
+
+/* Muted text for stock info in search results */
+.text-stock-muted {
+  color: #888;
+}

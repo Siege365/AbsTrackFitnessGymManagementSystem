@@ -25,14 +25,11 @@ function formatKPINumber(num) {
     const sign = num < 0 ? '-' : '';
 
     if (absNum >= 1000000000) {
-        const formatted = (absNum / 1000000000).toFixed(1);
-        return sign + (formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted) + 'B';
+        return sign + (absNum / 1000000000).toFixed(2) + 'B';
     } else if (absNum >= 1000000) {
-        const formatted = (absNum / 1000000).toFixed(1);
-        return sign + (formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted) + 'M';
+        return sign + (absNum / 1000000).toFixed(2) + 'M';
     } else if (absNum >= 1000) {
-        const formatted = (absNum / 1000).toFixed(1);
-        return sign + (formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted) + 'K';
+        return sign + (absNum / 1000).toFixed(2) + 'K';
     } else {
         return num.toString();
     }

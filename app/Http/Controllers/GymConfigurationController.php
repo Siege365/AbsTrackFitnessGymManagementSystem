@@ -8,7 +8,6 @@ use App\Helpers\CategoryHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-
 class GymConfigurationController extends Controller
 {
     /**

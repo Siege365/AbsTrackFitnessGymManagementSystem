@@ -15,6 +15,7 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PaymentHistoryController;
 use App\Http\Controllers\RefundController;
+use App\Http\Controllers\PTpaymentController;
 
 
 
@@ -132,12 +133,32 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/payments/products', [PaymentController::class, 'store'])->name('payments.store');
     Route::delete('/payments/products/bulk-delete', [PaymentController::class, 'bulkDelete'])->name('payments.bulkDelete');
     
+    // ==========================================
+    // UNIFIED PAYMENT SYSTEM (SPA-STYLE)
+    // ==========================================
+    // Nested routes for payment system (SPA behavior with clean URLs)
+    Route::prefix('payment-system')->name('payment.system.')->group(function () {
+        Route::get('/membership-payment', [PaymentController::class, 'membership'])->defaults('paymentType', 'membership')->name('membership');
+        Route::get('/pt-payment', [PaymentController::class, 'membership'])->defaults('paymentType', 'pt')->name('pt');
+        Route::get('/product-payment', [PaymentController::class, 'membership'])->defaults('paymentType', 'product')->name('product');
+        
+        // Default fallback - redirect to membership
+        Route::get('/', function() {
+            return redirect()->route('payment.system.membership');
+        })->name('index');
+    });
+    
+    // Legacy aliases for backward compatibility
+    Route::get('/payments/membership', function() {
+        return redirect()->route('payment.system.membership');
+    })->name('payments.membership');
+    
     // Payment History Routes
     Route::get('/payments/history', [PaymentHistoryController::class, 'index'])->name('payments.history');
     Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt'])->name('payments.receipt');
     Route::get('/payments/{payment}/receipt-data', [PaymentController::class, 'receiptData'])->name('payments.receiptData');
     Route::delete('/payments/{payment}', [PaymentHistoryController::class, 'destroy'])->name('payments.destroy');
-    Route::get('/payments/membership', [PaymentController::class, 'membership'])->name('payments.membership');
+    
     // ==========================================
     // MEMBERSHIP PAYMENT ROUTES (UPDATED)
     // ==========================================
@@ -146,6 +167,19 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [MembershipPaymentController::class, 'store'])->name('store');
         Route::get('/{id}/receipt', [MembershipPaymentController::class, 'receiptData'])->name('receipt');
     });
+
+    // ==========================================
+    // LEGACY SEPARATE PAYMENT PAGES (Deprecated - use /payment-system/* instead)
+    // ==========================================
+    // PT Payment Page (legacy - redirects to unified page with PT tab active)
+    Route::get('/pt-payment', function() {
+        return redirect()->route('payment.system.pt');
+    })->name('pt.payment.index');
+
+    // Product Payment Page (legacy - redirects to unified page with product tab active)
+    Route::get('/product-payment', function() {
+        return redirect()->route('payment.system.product');
+    })->name('product.payment.index');
     
     // Member search API
     Route::get('/api/members/search', [MemberApiController::class, 'search']);

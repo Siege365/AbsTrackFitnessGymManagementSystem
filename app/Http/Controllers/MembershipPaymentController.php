@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Membership;
 use App\Models\MembershipPayment;
-use App\Models\InventorySupply;
 use App\Models\GymPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -35,20 +34,14 @@ class MembershipPaymentController extends Controller
 
         $transactionCount = MembershipPayment::whereDate('created_at', today())->count();
 
-        // Product payment data
-        $inventoryItems = InventorySupply::all();
-
         // Dynamic plans from configuration
         $membershipPlans = GymPlan::active()->membership()->ordered()->get();
-        $ptPlans = GymPlan::active()->personalTraining()->ordered()->get();
 
-        return view('PaymentAndBillings.MembershipPayment', compact(
+        return view('PaymentAndBillings.membership-payment', compact(
             'monthlyRevenue',
             'todayRevenue',
             'transactionCount',
-            'inventoryItems',
-            'membershipPlans',
-            'ptPlans'
+            'membershipPlans'
         ));
     }
 
@@ -100,6 +93,11 @@ class MembershipPaymentController extends Controller
             $rules['new_member_contact'] = ['required', 'regex:/^(09\d{9}|\+639\d{9})$/'];
             $rules['new_member_avatar'] = 'nullable|image|max:2048';
 
+            // Student plan requires student_id
+            if ($request->plan_type === 'Student') {
+                $rules['student_id'] = 'required|string|max:100';
+            }
+
             // Gym Buddy plan requires buddy info
             if ($request->plan_type === 'GymBuddy') {
                 $rules['buddy_name'] = 'required|string|max:255';
@@ -139,12 +137,8 @@ class MembershipPaymentController extends Controller
             // Validate student plan for renewals/extensions
             if ($planType === 'Student' && $request->payment_type !== 'new') {
                 $existingMember = Membership::findOrFail($request->member_id);
-                if (!$existingMember->is_student && $existingMember->plan_type !== 'Student') {
+                if (!$existingMember->is_student) {
                     throw new \Exception('Student rate is only available for members registered as students.');
-                }
-                // Ensure is_student flag is synced if member was on Student plan
-                if (!$existingMember->is_student && $existingMember->plan_type === 'Student') {
-                    $existingMember->update(['is_student' => true]);
                 }
             }
 
@@ -174,7 +168,7 @@ class MembershipPaymentController extends Controller
                     'due_date' => now()->addDays($duration),
                     'status' => 'Active',
                     'is_student' => $isStudent,
-                    'student_id' => null,
+                    'student_id' => $isStudent ? $request->student_id : null,
                 ]);
 
                 $newDueDate = $member->due_date;
@@ -199,7 +193,7 @@ class MembershipPaymentController extends Controller
                         'due_date' => now()->addDays($duration),
                         'status' => 'Active',
                         'is_student' => $buddyIsStudent,
-                        'student_id' => null,
+                        'student_id' => $buddyIsStudent ? $request->buddy_student_id : null,
                     ]);
                 }
 
@@ -221,13 +215,20 @@ class MembershipPaymentController extends Controller
                         throw new \Exception('Member is active. Please use Extension instead of Renewal.');
                     }
 
-                    // Renewal always starts from today
-                    $newDueDate = now()->addDays($duration);
+                    $planChanged = $previousPlanType !== $planType;
+                    
+                    if ($member->due_date && Carbon::parse($member->due_date)->isFuture() && !$planChanged) {
+                        $newDueDate = Carbon::parse($member->due_date)->addDays($duration);
+                    } else {
+                        $newDueDate = now()->addDays($duration);
+                    }
 
                     $member->update([
                         'status' => 'Active',
                         'plan_type' => $planType,
-                        'start_date' => now(),
+                        'start_date' => ($member->due_date && Carbon::parse($member->due_date)->isFuture() && !$planChanged)
+                            ? $member->start_date 
+                            : now(),
                         'due_date' => $newDueDate,
                     ]);
 

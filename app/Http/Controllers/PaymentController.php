@@ -100,6 +100,13 @@ class PaymentController extends Controller
         return redirect()->route('membership.payment.index', ['tab' => 'product']);
     }
 
+    public function productPaymentIndex()
+    {
+        $inventoryItems = InventorySupply::all();
+
+        return view('PaymentAndBillings.product-payment', compact('inventoryItems'));
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -376,10 +383,53 @@ class PaymentController extends Controller
             return back()->withErrors(['error' => 'Failed to delete transactions: ' . $e->getMessage()]);
         }
     }
-    public function membership()
+    /**
+     * Display unified Payment System page (SPA-style with all 3 payment forms)
+     * Accepts paymentType via route defaults: 'membership', 'pt', or 'product'
+     */
+    public function membership(Request $request)
     {
-        // You can later preload members, active memberships, etc.
-        return view('PaymentAndBillings.MembershipPayment');
+        // Get payment type from route default (set in route definition)
+        $paymentType = $request->route()->parameter('paymentType') ?? 'membership';
+
+        // Fetch data for Membership Payment form
+        $monthlyRevenue = \App\Models\MembershipPayment::whereNull('refunded_at')
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->sum('amount');
+
+        $todayRevenue = \App\Models\MembershipPayment::whereNull('refunded_at')
+            ->whereDate('created_at', today())
+            ->sum('amount');
+
+        $transactionCount = \App\Models\MembershipPayment::whereDate('created_at', today())->count();
+
+        $membershipPlans = \App\Models\GymPlan::active()->membership()->ordered()->get();
+
+        // Fetch data for PT Payment form  
+        $ptPlans = \App\Models\GymPlan::active()->personalTraining()->ordered()->get();
+        
+        $trainers = [
+            'David Laid',
+            'Eulo Icon Sexcion',
+            'Justin Troy Rosalada',
+            'Nicolas Deloso Torre III',
+            'Ronnie Coleman',
+        ];
+
+        // Fetch data for Product Payment form
+        $inventoryItems = InventorySupply::all();
+
+        return view('PaymentAndBillings.payment-system', compact(
+            'monthlyRevenue',
+            'todayRevenue',
+            'transactionCount',
+            'membershipPlans',
+            'ptPlans',
+            'trainers',
+            'inventoryItems',
+            'paymentType'
+        ));
     }
 
 }
