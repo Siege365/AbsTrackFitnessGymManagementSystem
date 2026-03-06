@@ -511,7 +511,7 @@
   <!-- Recent Payments -->
     <div class="col-xl-8 col-lg-7 grid-margin stretch-card">
         <div class="card">
-            <div class="card-body">
+            <div class="card-body d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="card-title mb-0">
                         <i class="mdi mdi-receipt mr-1" style="color: #42A5F5;"></i>
@@ -541,53 +541,57 @@
                     </div>
                 </div>
                 @if($recentPayments->isEmpty())
-                    <div class="empty-state text-center py-4">
-                        <i class="mdi mdi-cash-register" style="font-size: 48px; color: rgba(255,255,255,0.15);"></i>
-                        <p class="text-muted mt-2 mb-0">No recent payments</p>
+                    <div class="dash-table-wrap dash-table-wrap-payments d-flex align-items-center justify-content-center">
+                        <div class="empty-state text-center py-4">
+                            <i class="mdi mdi-cash-register" style="font-size: 48px; color: rgba(255,255,255,0.15);"></i>
+                            <p class="text-muted mt-2 mb-0">No recent payments</p>
+                        </div>
                     </div>
                 @else
-                    <div class="table-responsive">
-                        <table class="table table-hover dashboard-table" id="recentPaymentsTable">
-                            <thead>
-                                <tr>
-                                    <th>Receipt #</th>
-                                    <th>Customer</th>
-                                    <th>Category</th>
-                                    <th>Plan / Type</th>
-                                    <th>Method</th>
-                                    <th>Amount</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($recentPayments as $payment)
-                                <tr data-payment-category="{{ $payment->category }}">
-                                    <td class="font-weight-medium text-info">{{ $payment->receipt_number }}</td>
-                                    <td>{{ $payment->name }}</td>
-                                    <td>
-                                        @if($payment->category === 'Membership')
-                                            <span class="badge badge-outline-success">Membership</span>
-                                        @elseif($payment->category === 'PT')
-                                            <span class="badge badge-purple">Personal Training</span>
-                                        @else
-                                            <span class="badge badge-outline-info">Product</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-muted">{{ ucfirst($payment->plan_type) }}</td>
-                                    <td class="text-muted">{{ ucfirst($payment->payment_method ?? 'N/A') }}</td>
-                                    <td class="font-weight-medium text-success">₱{{ number_format($payment->amount, 2) }}</td>
-                                    <td class="text-muted">{{ $payment->created_at->format('M d, g:i A') }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                    <div class="dash-table-wrap dash-table-wrap-payments">
+                        <div class="table-responsive">
+                            <table class="table table-hover dashboard-table" id="recentPaymentsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Receipt #</th>
+                                        <th>Customer</th>
+                                        <th>Category</th>
+                                        <th>Plan / Type</th>
+                                        <th>Method</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($recentPayments as $payment)
+                                    <tr data-payment-category="{{ $payment->category }}">
+                                        <td class="font-weight-medium text-info">{{ $payment->receipt_number }}</td>
+                                        <td>{{ $payment->name }}</td>
+                                        <td>
+                                            @if($payment->category === 'Membership')
+                                                <span class="badge badge-outline-success">Membership</span>
+                                            @elseif($payment->category === 'PT')
+                                                <span class="badge badge-purple">Personal Training</span>
+                                            @else
+                                                <span class="badge badge-outline-info">Product</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-muted">{{ ucfirst($payment->plan_type) }}</td>
+                                        <td class="text-muted">{{ ucfirst($payment->payment_method ?? 'N/A') }}</td>
+                                        <td class="font-weight-medium text-success">₱{{ number_format($payment->amount, 2) }}</td>
+                                        <td class="text-muted">{{ $payment->created_at->format('M d, g:i A') }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="empty-state text-center py-4" id="noFilteredPayments" style="display:none;">
+                            <i class="mdi mdi-filter-remove-outline" style="font-size: 48px; color: rgba(255,255,255,0.15);"></i>
+                            <p class="text-muted mt-2 mb-0">No payments match this filter</p>
+                        </div>
                     </div>
-                    <div class="empty-state text-center py-4" id="noFilteredPayments" style="display:none;">
-                        <i class="mdi mdi-filter-remove-outline" style="font-size: 48px; color: rgba(255,255,255,0.15);"></i>
-                        <p class="text-muted mt-2 mb-0">No payments match this filter</p>
-                    </div>
-                    <div id="paymentsPagination" class="dashboard-pagination mt-2"></div>
                 @endif
+                <div id="paymentsPagination" class="dashboard-pagination mt-2"></div>
             </div>
         </div>
     </div>
@@ -601,35 +605,44 @@
                     </h4>
                     <a href="{{ route('UserAndAdmin.CashierActivity') }}" class="btn btn-sm btn-outline-light">View All</a>
                 </div>
-                @if($recentActivities->isEmpty())
-                    <div class="empty-state text-center py-4 flex-grow-1 d-flex flex-column align-items-center justify-content-center">
-                        <i class="mdi mdi-clock-outline" style="font-size: 48px; color: rgba(255,255,255,0.15);"></i>
-                        <p class="text-muted mt-2 mb-0">No recent activity</p>
-                    </div>
-                @else
-                    <div class="activity-timeline flex-grow-1" id="activityTimeline">
-                        @foreach($recentActivities as $activity)
-                        <div class="activity-item d-flex align-items-start {{ !$loop->last ? 'mb-3' : '' }}">
-                            <div class="activity-content flex-grow-1">
-                                <p class="mb-1 text-white">
-                                    <small class="badge badge-outline-light mr-1">{{ $activity->module }}</small>
-                                    {{ $activity->description }}
-                                </p>
-                                <div class="d-flex align-items-center">
-                                    <small class="text-muted" style="min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 8px;">
-                                        by {{ $activity->user_name }}
-                                        @if($activity->reference_number)
-                                            &bull; Ref: {{ $activity->reference_number }}
-                                        @endif
-                                    </small>
-                                    <small class="text-muted" style="flex-shrink: 0; white-space: nowrap;">{{ $activity->created_at->diffForHumans() }}</small>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                @endif
-                <div id="activityPagination" class="dashboard-pagination mt-auto pt-2" style="align-self: flex-end;"></div>
+                <div class="table-responsive dash-table-wrap dash-table-wrap-activity">
+                    <table class="table table-hover dashboard-table" id="activityTimeline">
+                        <thead>
+                            <tr>
+                                <th>Activity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($recentActivities as $activity)
+                            <tr>
+                                <td>
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="badge badge-outline-light mr-1">{{ $activity->module }}</span>
+                                            <span class="text-white">{{ $activity->description }}</span>
+                                            @if($activity->reference_number)
+                                                <br><small class="text-muted">Ref: {{ $activity->reference_number }}</small>
+                                            @endif
+                                            <br><small class="text-muted">by {{ $activity->user_name }}</small>
+                                        </div>
+                                        <small class="text-muted ml-2" style="white-space: nowrap; flex-shrink: 0;">{{ $activity->created_at->diffForHumans() }}</small>
+                                    </div>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td>
+                                    <div class="empty-state text-center py-4">
+                                        <i class="mdi mdi-clock-outline" style="font-size: 48px; color: rgba(255,255,255,0.15);"></i>
+                                        <p class="text-muted mt-2 mb-0">No recent activity</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <div id="activityPagination" class="dashboard-pagination mt-2"></div>
             </div>
         </div>
     </div>

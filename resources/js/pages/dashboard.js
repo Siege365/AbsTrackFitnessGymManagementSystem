@@ -515,40 +515,6 @@ const DashboardPage = (function () {
     applyPaymentView();
   }
 
-  // ──────────────── Activity Pagination ────────────────
-
-  const activityState = { page: 1, perPage: 8 };
-
-  function applyActivityView() {
-    const items      = Array.from(document.querySelectorAll('#activityTimeline .activity-item'));
-    const totalPages = Math.max(1, Math.ceil(items.length / activityState.perPage));
-    if (activityState.page > totalPages) activityState.page = totalPages;
-
-    const start = (activityState.page - 1) * activityState.perPage;
-    const end   = start + activityState.perPage;
-
-    items.forEach((item, i) => {
-      const show = i >= start && i < end;
-      if (show) {
-        item.classList.add('d-flex');
-        item.style.removeProperty('display');
-      } else {
-        item.classList.remove('d-flex');
-        item.style.setProperty('display', 'none', 'important');
-      }
-    });
-
-    renderPagination('activityPagination', activityState.page, totalPages, (p) => {
-      activityState.page = p;
-      applyActivityView();
-    });
-  }
-
-  function initActivityPagination() {
-    if (!document.getElementById('activityTimeline')) return;
-    applyActivityView();
-  }
-
   // ──────────────── Generic Table Pagination (5 per page) ────────────────
 
   function initTablePagination(tableId, paginationId, perPage) {
@@ -632,10 +598,8 @@ const DashboardPage = (function () {
     // Set up payment table filters
     initPaymentFilters();
 
-    // Set up activity pagination
-    initActivityPagination();
-
     // Set up row-5 pagination (5 rows per page)
+    initTablePagination('activityTimeline', 'activityPagination', 5);
     initTablePagination('ptScheduleTable', 'ptSchedulePagination', 5);
     initTablePagination('expiringSoonTable', 'expiringSoonPagination', 5);
     initLowStockPagination(5);

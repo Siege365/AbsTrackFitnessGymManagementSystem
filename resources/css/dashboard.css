@@ -420,6 +420,19 @@ body {
   background-color: rgba(255, 255, 255, 0.03);
 }
 
+/* ── Fixed-height table wrappers — keeps pagination pinned at bottom ── */
+.dash-table-wrap {
+  overflow: hidden;
+}
+
+.dash-table-wrap-payments {
+  height: 500px;
+}
+
+.dash-table-wrap-activity {
+  height: 500px;
+}
+
 .font-weight-medium {
   font-weight: 500;
 }
