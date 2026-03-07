@@ -13,6 +13,11 @@ const ClientsPage = (function() {
     avatarUrl: null
   };
 
+  // Allowed avatar file types and max size
+  const ALLOWED_AVATAR_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+  const ALLOWED_AVATAR_EXTENSIONS = ['jpeg', 'jpg', 'png', 'gif'];
+  const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2MB in bytes
+
   // Configuration passed from Laravel (set via ClientsPage.init())
   let config = {
     csrfToken: '',
@@ -76,6 +81,26 @@ const ClientsPage = (function() {
    */
   function previewNewClientAvatar() {
     const elements = getAddModalElements();
+    const fileInput = elements.fileInput;
+
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      const file = fileInput.files[0];
+      const ext = file.name.split('.').pop().toLowerCase();
+
+      if (!ALLOWED_AVATAR_TYPES.includes(file.type) && !ALLOWED_AVATAR_EXTENSIONS.includes(ext)) {
+        ToastUtils.showError('Avatar must be a JPEG, JPG, PNG, or GIF file.', 'Invalid File Type');
+        fileInput.value = '';
+        return;
+      }
+
+      if (file.size >= MAX_AVATAR_SIZE) {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        ToastUtils.showError('Avatar file size must be less than 2MB. Selected file is ' + sizeMB + 'MB.', 'File Too Large');
+        fileInput.value = '';
+        return;
+      }
+    }
+
     AvatarUtils.previewAvatar({
       fileInput: elements.fileInput,
       urlInput: elements.urlInput,
