@@ -1196,12 +1196,15 @@ document.getElementById('confirmRefundBtn')?.addEventListener('click', function(
   .then(response => response.json())
   .then(data => {
     if (data.success) {
+      // Capture values before closeRefundModal() nullifies them
+      const refundType = currentRefundType;
+      const refundId = currentRefundId;
       closeRefundModal();
       ToastUtils.showSuccess('Refund processed successfully!');
       
       // FIX #2: Immediately show refund receipt modal
       setTimeout(() => {
-        showRefundReceipt(currentRefundType, currentRefundId, data);
+        showRefundReceipt(refundType, refundId, data);
       }, 200);
     } else {
       ToastUtils.showError(data.message || 'Failed to process refund');

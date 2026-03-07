@@ -8,6 +8,7 @@ use App\Models\PTPayment;
 use App\Models\PaymentItem;
 use App\Models\ActivityLog;
 use App\Services\RefundService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -313,6 +314,15 @@ class PaymentHistoryController extends Controller
 
             return back()->with('success', $result['message']);
 
+        } catch (ModelNotFoundException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product payment record not found. The page may be outdated — please refresh and try again.',
+                ], 404);
+            }
+
+            return back()->withErrors(['error' => 'Product payment record not found. Please refresh the page.']);
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -350,6 +360,15 @@ class PaymentHistoryController extends Controller
 
             return back()->with('success', $result['message']);
 
+        } catch (ModelNotFoundException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Membership payment record not found. The page may be outdated — please refresh and try again.',
+                ], 404);
+            }
+
+            return back()->withErrors(['error' => 'Membership payment record not found. Please refresh the page.']);
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -488,7 +507,7 @@ class PaymentHistoryController extends Controller
             'id' => $payment->id,
             'receipt_number' => $payment->receipt_number,
             'member_name' => $payment->member_name,
-            'member_contact' => $payment->client->contact ?? 'N/A',
+            'member_contact' => $payment->client?->contact ?? 'N/A',
             'amount' => $payment->amount,
             'plan_type' => $payment->plan_type,
             'duration' => $payment->duration_days,
@@ -534,6 +553,15 @@ class PaymentHistoryController extends Controller
 
             return back()->with('success', $result['message']);
 
+        } catch (ModelNotFoundException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'PT payment record not found. The page may be outdated — please refresh and try again.',
+                ], 404);
+            }
+
+            return back()->withErrors(['error' => 'PT payment record not found. Please refresh the page.']);
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json([

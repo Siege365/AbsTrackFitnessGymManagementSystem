@@ -276,7 +276,10 @@ class RefundService
     {
         return DB::transaction(function () use ($paymentId, $options) {
             // Fetch PT payment
-            $payment = PTPayment::findOrFail($paymentId);
+            $payment = PTPayment::find($paymentId);
+            if (!$payment) {
+                throw new Exception("PT payment record not found (ID: {$paymentId}). The record may have been deleted. Please refresh the page.");
+            }
 
             // Validate refund eligibility
             $this->validatePTRefund($payment, $options);
@@ -295,9 +298,28 @@ class RefundService
             $isFullRefund = $refundAmount >= $payment->amount;
             $refundType = $isFullRefund ? 'full' : 'partial';
 
+            // IMPORTANT: Update payment record BEFORE reversing client changes,
+            // because reversePTExtension may delete the client, and the CASCADE
+            // foreign key on pt_payments.client_id would delete this payment row.
+            // We must also nullify client_id before deletion to prevent cascade.
+            $payment->update([
+                'is_refunded' => $isFullRefund,
+                'refund_status' => $refundType,
+                'refunded_amount' => $payment->refunded_amount + $refundAmount,
+                'refunded_at' => now(),
+                'refund_reason' => $options['reason'] ?? null,
+                'refunded_by' => Auth::user()->name ?? 'Admin',
+                'previous_due_date' => $previousDueDate,
+                'previous_status' => 'Active',
+            ]);
+
             // Reverse client changes
             $clientDeleted = false;
             if ($isFullRefund) {
+                // Detach payment from client before potential client deletion
+                // to prevent ON DELETE CASCADE from removing the payment record
+                $payment->update(['client_id' => null]);
+
                 // Full refund - reverse the entire PT extension (may delete client)
                 $this->reversePTExtension($client, $payment);
                 // Check if client was deleted during reversal
@@ -309,18 +331,6 @@ class RefundService
 
             // Get the new due date safely (client may have been deleted)
             $newDueDate = $clientDeleted ? null : $client->fresh()?->due_date?->toDateString();
-
-            // Update payment record
-            $payment->update([
-                'is_refunded' => $isFullRefund,
-                'refund_status' => $refundType,
-                'refunded_amount' => $payment->refunded_amount + $refundAmount,
-                'refunded_at' => now(),
-                'refund_reason' => $options['reason'] ?? null,
-                'refunded_by' => Auth::user()->name ?? 'Admin',
-                'previous_due_date' => $previousDueDate,
-                'previous_status' => 'Active',
-            ]);
 
             // Create refund log
             $refundLog = RefundLog::create([

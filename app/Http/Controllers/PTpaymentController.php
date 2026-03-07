@@ -224,7 +224,7 @@ class PTpaymentController extends Controller
                 'success'          => true,
                 'receipt_number'   => $payment->receipt_number,
                 'member_name'      => $payment->member_name,
-                'member_contact'   => $payment->client->contact ?? 'N/A',
+                'member_contact'   => $payment->client?->contact ?? 'N/A',
                 'plan_type'        => $payment->plan_type,
                 'payment_type'     => $payment->payment_type,
                 'payment_method'   => $payment->payment_method,
