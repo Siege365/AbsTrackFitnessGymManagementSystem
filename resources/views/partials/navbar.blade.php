@@ -180,7 +180,7 @@
           <div class="profile-dropdown-divider"></div>
           <a href="{{ route('account.settings') }}" class="dropdown-item profile-dropdown-item">
             <div class="profile-dropdown-icon" style="background: rgba(0, 123, 255, 0.15);">
-              <i class="mdi mdi-account-cog" style="color: #4da3ff;"></i>
+              <i class="mdi mdi-account-edit" style="color: #4da3ff;"></i>
             </div>
             <span>Account Settings</span>
           </a>

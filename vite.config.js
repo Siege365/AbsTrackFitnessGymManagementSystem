@@ -59,6 +59,7 @@ export default defineConfig({
                 'resources/js/pages/inventory-logs.js',
                 'resources/js/sessions.js',
                 'resources/js/pages/configuration.js',
+                'resources/js/pages/dashboard.js',
 
                 // Auth JS
                 'resources/js/auth-login.js',
