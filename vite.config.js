@@ -27,6 +27,7 @@ export default defineConfig({
                 'resources/css/reports.css',
                 'resources/css/payment-history.css',
                 'resources/css/configuration.css',
+                'resources/css/account-settings.css',
 
                 // Auth CSS
                 'resources/css/auth-login.css',
@@ -46,9 +47,11 @@ export default defineConfig({
                 'resources/js/pages/clients.js',
                 'resources/js/pages/memberships.js',
                 'resources/js/pages/payments.js',
+                'resources/js/pages/payment-system.js',
                 'resources/js/pages/membership-payment.js',
                 'resources/js/pages/pt-payment.js',
                 'resources/js/pages/product-payment.js',
+                'resources/js/pages/payment-history.js',
                 'resources/js/pages/reports.js',
                 'resources/js/pages/pt-sessions.js',
                 'resources/js/pages/customer-attendance.js',

@@ -24,7 +24,7 @@
           <!-- LEFT: Client Info + Scheduling -->
           <div class="pay-col-member">
               <!-- Renewal: Search existing customer -->
-              <div id="ptClientSearchSection">
+              <div id="ptClientSearchSection" class="client-section-visible">
                   <label class="form-label">Select Customer</label>
                   <div class="pos-relative">
                       <input type="text" class="form-control" id="ptClientSearch" placeholder="Search by name or contact..." autocomplete="off">
@@ -35,7 +35,7 @@
               </div>
 
               <!-- New: Walk-in client form -->
-              <div id="ptNewClientSection" class="hidden">
+              <div id="ptNewClientSection">
                   <div class="member-card">
                       <div class="member-card-header">
                           <div class="member-card-icon"><i class="mdi mdi-account"></i></div>
@@ -158,8 +158,9 @@
               </div>
           </div>
           <div class="checkout-payment">
+              <label class="checkout-payment-label">Payment Method</label>
               <select class="form-select checkout-method" name="pt_payment_method" id="ptPaymentMethod" required>
-                  <option value="" disabled selected>Payment Method</option>
+                  <option value="" disabled selected>Select payment method</option>
                   <option value="Cash">Cash</option>
                   <option value="Gcash">GCash</option>
                   <option value="Card">Card</option>
@@ -175,10 +176,10 @@
           </div>
           <div class="checkout-actions">
               <button type="button" class="btn-checkout-clear" id="ptClearBtn" title="Clear Form">
-                  <i class="mdi mdi-close"></i>
+                  <i class="mdi mdi-eraser"></i> Clear
               </button>
               <button type="submit" class="btn-checkout-pay" id="ptSubmitBtn">
-                  <i class="mdi mdi-check-circle"></i> Book & Pay
+                  <i class="mdi mdi-check-circle"></i> Process Payment
               </button>
           </div>
       </div><!-- /pay-checkout-bar -->

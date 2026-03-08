@@ -130,7 +130,6 @@ class PaymentController extends Controller
             $payment = Payment::create([
                 'receipt_number' => $receipt,
                 'customer_name' => $request->customer_name,
-                'transaction_type' => $request->transaction_type ?? 'PRODUCT',
                 'payment_method' => $request->payment_method,
                 'paid_amount' => $request->paid_amount,
                 'total_amount' => $request->total_amount,
@@ -184,7 +183,6 @@ class PaymentController extends Controller
             'customer_name' => $payment->customer_name,
             'cashier_name' => $payment->cashier_name,
             'payment_method' => $payment->payment_method,
-            'transaction_type' => $payment->transaction_type,
             'total_amount' => $payment->total_amount,
             'paid_amount' => $payment->paid_amount,
             'return_amount' => $payment->return_amount,

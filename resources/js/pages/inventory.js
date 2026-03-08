@@ -141,7 +141,7 @@ const InventoryPage = (function() {
                     const newCategoryName = document.getElementById('editNewCategoryInput').value.trim();
                     if (!newCategoryName) {
                         e.preventDefault();
-                        ToastUtils.showError('Please enter a new category name.', 'Validation Error');
+                        ToastUtils.showError('Please enter a category name', 'Validation Error');
                         document.getElementById('editNewCategoryInput').focus();
                         return;
                     }
@@ -149,13 +149,13 @@ const InventoryPage = (function() {
                     const warning = document.getElementById('editCategorySimilarityWarning');
                     if (warning && warning.querySelector('.similarity-exact')) {
                         e.preventDefault();
-                        ToastUtils.showError('This category already exists. Please use the existing category or choose a different name.', 'Duplicate Category');
+                        ToastUtils.showError('Category already exists', 'Duplicate Category');
                         document.getElementById('editNewCategoryInput').focus();
                         return;
                     }
                     if (warning && warning.querySelector('.similarity-warning')) {
                         e.preventDefault();
-                        ToastUtils.showError('This category is too similar to an existing one. Please use the suggested category or choose a different name.', 'Similar Category');
+                        ToastUtils.showError('Similar category exists', 'Similar Category');
                         document.getElementById('editNewCategoryInput').focus();
                         return;
                     }
@@ -352,7 +352,7 @@ const InventoryPage = (function() {
                 if (stockQty === 0) {
                     e.preventDefault();
                     e.stopPropagation();
-                    ToastUtils.showError('This product is out of stock. Stock out is not allowed.', 'Out of Stock');
+                    ToastUtils.showError('Product is out of stock', 'Out of Stock');
                     return;
                 }
 
@@ -418,7 +418,7 @@ const InventoryPage = (function() {
                     return;
                 } else if (quantity > currentStock) {
                     e.preventDefault();
-                    ToastUtils.showError('Insufficient stock! Cannot remove more than available quantity.', 'Insufficient Stock');
+                    ToastUtils.showError('Insufficient stock available', 'Insufficient Stock');
                     document.getElementById('stockOutQuantity').focus();
                     return;
                 }
@@ -605,21 +605,21 @@ function showAddProductConfirm() {
     }
 
     if (!productName) {
-        ToastUtils.showError('Please enter a product name.', 'Validation Error');
+        ToastUtils.showError('Please enter a product name', 'Validation Error');
         form.querySelector('[name="product_name"]').focus();
         return;
     }
     if (!category) {
-        ToastUtils.showError('Please select a category.', 'Validation Error');
+        ToastUtils.showError('Please select a category', 'Validation Error');
         return;
     }
     if (!unitPrice || parseFloat(unitPrice) < 0) {
-        ToastUtils.showError('Please enter a valid unit price.', 'Validation Error');
+        ToastUtils.showError('Invalid unit price', 'Validation Error');
         form.querySelector('[name="unit_price"]').focus();
         return;
     }
     if (stockQty === '' || parseInt(stockQty) < 0) {
-        ToastUtils.showError('Please enter a valid stock quantity.', 'Validation Error');
+        ToastUtils.showError('Invalid stock quantity', 'Validation Error');
         form.querySelector('[name="stock_qty"]').focus();
         return;
     }

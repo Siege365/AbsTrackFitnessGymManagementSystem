@@ -64,6 +64,16 @@ height: 8px;
 .table thead th,
 .table tbody td {
   color: #ffffff !important;
+  font-size: 0.95rem;
+}
+
+.table thead th {
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.table tbody td {
+  padding: 1rem;
 }
 
 .table-hover tbody tr:hover {
@@ -404,7 +414,7 @@ height: 8px;
 
 .form-label {
   display: block;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #ffffff;
   margin-bottom: 0.5rem;
@@ -1432,15 +1442,27 @@ height: 8px;
 .prod-search-bar {
   display: flex;
   gap: 0.5rem;
-  align-items: center;
+  align-items: stretch;
   position: relative;
   width: 100%;
 }
 
-/* Search input wrapper (flex grow + relative for icon) */
+/* Search input wrapper (extended width, button pushed right) */
 .prod-search-input-wrap {
-  flex: 1;
+  flex: 1 1 auto;
   position: relative;
+  max-width: 100%;
+}
+
+/* Ensure autocomplete doesn't affect layout */
+.prod-search-input-wrap .autocomplete-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  max-height: 250px;
+  overflow-y: auto;
 }
 
 /* Search input with icon padding */
@@ -1451,22 +1473,55 @@ height: 8px;
 /* Search magnify icon */
 .prod-search-icon {
   position: absolute;
-  left: 0.85rem;
+  left: 1rem;
   top: 50%;
   transform: translateY(-50%);
   color: #666;
   font-size: 1.1rem;
+  pointer-events: none;
+  z-index: 1;
 }
 
-/* Add item button (green outline) */
+/* Add item button (green background with scale hover) */
 .btn-add-item {
   cursor: pointer;
-  border-color: #28a745;
-  color: #28a745;
+  background: #28a745;
+  border: 2px solid #28a745;
+  color: #ffffff;
+  flex: 0 0 auto;
+  min-width: 180px;
+  padding: 0.875rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  font-weight: bold;
 }
 
 .btn-add-item:hover {
-  background: rgba(40, 167, 69, 0.1);
+  background: #28a745;
+  border-color: #28a745;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(40, 167, 69, 0.4);
+}
+
+.btn-add-item:active {
+  background: #218838;
+  border-color: #218838;
+  transform: scale(0.98);
+}
+
+.btn-add-item:focus {
+  outline: none;
+  background: #28a745;
+  border-color: #28a745;
+  color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.3);
 }
 
 /* Quantity input in cart */
@@ -1474,19 +1529,54 @@ height: 8px;
   width: 60px;
 }
 
-/* Delete button in cart (ghost danger) */
+/* Delete button in cart (larger, more visible) */
 .btn-delete-item {
   color: #dc3545;
-  background: none;
-  border: none;
-  padding: 0.25rem;
+  background: rgba(220, 53, 69, 0.1);
+  border: 1px solid rgba(220, 53, 69, 0.3);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .btn-delete-item:hover {
-  color: #a71d2a;
+  color: #fff;
+  background: #dc3545;
+  border-color: #dc3545;
+  transform: scale(1.05);
 }
 
 /* Muted text for stock info in search results */
 .text-stock-muted {
   color: #888;
+}
+
+/* Quick Actions button consistency (match core.css pattern) */
+.add-entity-button,
+.create-new-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.375rem;
+  background: transparent;
+  color: #fff;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 1.125rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.add-entity-button:hover,
+.create-new-button:hover {
+  background: linear-gradient(135deg, #FFA726, #FFB84D);
+  border-color: #FFA726;
+  color: #1a1d24;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 167, 38, 0.3);
 }

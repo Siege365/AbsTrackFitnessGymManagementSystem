@@ -12,8 +12,8 @@
             <i class="mdi mdi-magnify prod-search-icon"></i>
             <div id="prodSearchResults" class="autocomplete-results hidden"></div>
           </div>
-          <button type="button" class="pay-type-pill btn-add-item" id="prodAddItemBtn">
-            <i class="mdi mdi-plus"></i> Add
+          <button type="button" class="btn-add-item" id="prodAddItemBtn">
+              + Add to Cart
           </button>
         </div>
       </div>
@@ -58,16 +58,7 @@
                 </div>
               </div>
               <div class="member-form-row">
-                <div class="member-form-col member-form-col-2">
-                  <label class="form-label form-label-sm">Transaction Type</label>
-                  <select class="form-select" id="prodTransactionType" name="transaction_type">
-                    <option>Cash</option>
-                    <option>Credit Card</option>
-                    <option>Online Payment</option>
-                    <option>Mixed</option>
-                  </select>
-                </div>
-                <div class="member-form-col member-form-col-2">
+                <div class="member-form-col">
                   <label class="form-label form-label-sm">Payment Method</label>
                   <select class="form-select" id="prodPaymentMethod" name="payment_method">
                     <option>Cash</option>
@@ -81,7 +72,7 @@
               <div class="member-form-row mb-0">
                 <div class="member-form-col member-form-col-2">
                   <label class="form-label form-label-sm">Paid Amount</label>
-                  <input type="number" class="form-control" id="prodPaidAmount" name="paid_amount" placeholder="₱0.00" step="0.01">
+                  <input type="number" class="form-control" id="prodPaidAmount" name="paid_amount" placeholder="₱0.00" step="0.01" min="0">
                 </div>
                 <div class="member-form-col member-form-col-2">
                   <label class="form-label form-label-sm">Change</label>
@@ -116,7 +107,7 @@
         </div>
         <div class="checkout-actions">
           <button type="button" class="btn-checkout-clear" id="prodClearBtn" title="Clear Cart">
-            <i class="mdi mdi-close"></i>
+            <i class="mdi mdi-eraser"></i> Clear
           </button>
           <button type="button" class="btn-checkout-pay" id="prodProcessPaymentBtn">
             <i class="mdi mdi-check-circle"></i> Process Payment

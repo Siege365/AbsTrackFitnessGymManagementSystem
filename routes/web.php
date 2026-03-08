@@ -16,6 +16,8 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PaymentHistoryController;
 use App\Http\Controllers\RefundController;
 use App\Http\Controllers\PTpaymentController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AccountSettingsController;
 
 
 
@@ -26,15 +28,19 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
 // Dashboard (Protected)
-Route::get('/', function () {
-    return view('pages.dashboard');
-})->middleware('auth')->name('dashboard');
+Route::get('/', [DashboardController::class, 'index'])
+    ->middleware('auth')->name('dashboard');
 
 // Protected Routes (Require Authentication)
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
+
+    // Account Settings
+    Route::get('/account/settings', [AccountSettingsController::class, 'show'])->name('account.settings');
+    Route::put('/account/profile', [AccountSettingsController::class, 'updateProfile'])->name('account.profile.update');
+    Route::put('/account/password', [AccountSettingsController::class, 'updatePassword'])->name('account.password.update');
     // UI Elements
     Route::get('/ui/buttons', function () {
         return view('pages.ui.buttons');
@@ -153,11 +159,12 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->route('payment.system.membership');
     })->name('payments.membership');
     
-    // Payment History Routes
+    // Payment History & Transaction Management Routes
     Route::get('/payments/history', [PaymentHistoryController::class, 'index'])->name('payments.history');
     Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt'])->name('payments.receipt');
-    Route::get('/payments/{payment}/receipt-data', [PaymentController::class, 'receiptData'])->name('payments.receiptData');
-    Route::delete('/payments/{payment}', [PaymentHistoryController::class, 'destroy'])->name('payments.destroy');
+    Route::get('/payments/{id}/receipt-data', [PaymentHistoryController::class, 'getReceiptData'])->name('payments.receipt-data');
+    Route::post('/payments/{id}/refund', [PaymentHistoryController::class, 'refundProduct'])->name('payments.refund');
+    Route::delete('/payments/{id}', [PaymentHistoryController::class, 'destroy'])->name('payments.destroy');
     
     // ==========================================
     // MEMBERSHIP PAYMENT ROUTES (UPDATED)
@@ -191,19 +198,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/memberships/autocomplete', [MembershipController::class, 'autocomplete'])->name('api.memberships.autocomplete');
     Route::get('/api/clients/autocomplete', [ClientController::class, 'autocomplete'])->name('api.clients.autocomplete');
     
-    // Payment History Routes
-    Route::get('/payments/history', [PaymentHistoryController::class, 'index'])->name('payments.history');
-
-    // Product Payment Routes (managed from Payment History page)
-    Route::get('/payments/{id}/receipt-data', [PaymentHistoryController::class, 'getReceiptData'])->name('payments.receipt-data');
-    Route::post('/payments/{id}/refund', [PaymentHistoryController::class, 'refundProduct'])->name('payments.refund');
-    Route::delete('/payments/{id}', [PaymentHistoryController::class, 'destroy'])->name('payments.destroy');
-
     // Membership Payment History Routes
     Route::delete('/membership-payment/bulk-delete', [PaymentHistoryController::class, 'bulkDeleteMembership'])->name('membership.payment.bulkDelete');
     Route::post('/membership-payment/{id}/refund', [PaymentHistoryController::class, 'refundMembership'])->name('membership.payment.refund');
     Route::delete('/membership-payment/{id}', [PaymentHistoryController::class, 'destroyMembership'])->name('membership.payment.destroy');
-    Route::get('/membership-payment/{id}/receipt', [PaymentHistoryController::class, 'getMembershipReceipt'])->name('membership.payment.receipt');
 
     // // Optional: Dedicated Refund Management Routes (if you want a separate refund dashboard)
     // Route::prefix('refunds')->name('refunds.')->group(function () {

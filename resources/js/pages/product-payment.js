@@ -14,7 +14,6 @@ function saveProdState() {
       cartItems: cartItems,
       customer_name: document.getElementById('prodCustomerName')?.value || '',
       customer_id: document.getElementById('prodCustomerId')?.value || '',
-      transaction_type: document.getElementById('prodTransactionType')?.value || '',
       payment_method: document.getElementById('prodPaymentMethod')?.value || '',
       paid_amount: document.getElementById('prodPaidAmount')?.value || '',
       total_amount: document.getElementById('prodTotalAmount')?.value || ''
@@ -51,7 +50,6 @@ function loadProdState() {
           })
           .catch(() => {});
       }
-      if (document.getElementById('prodTransactionType')) document.getElementById('prodTransactionType').value = state.transaction_type || '';
       if (document.getElementById('prodPaymentMethod')) document.getElementById('prodPaymentMethod').value = state.payment_method || '';
       if (document.getElementById('prodPaidAmount')) document.getElementById('prodPaidAmount').value = state.paid_amount || '';
       if (document.getElementById('prodTotalAmount')) document.getElementById('prodTotalAmount').value = state.total_amount || '';
@@ -68,6 +66,11 @@ function clearProdState() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Wait for payment-system.js to load helper functions
+  const checkPageActive = () => {
+    return typeof window.isPageActive === 'function' ? window.isPageActive('product') : true;
+  };
+  
   loadProdState();
   initializeTransactionControls();
 });
@@ -77,56 +80,78 @@ window.addEventListener('beforeunload', function() {
 });
 
 // Search functionality
-document.getElementById('prodSearchItem').addEventListener('input', function(e) {
-  const searchTerm = e.target.value.toLowerCase();
-  const searchResults = document.getElementById('prodSearchResults');
-  
-  if (searchTerm.length < 2) {
-    searchResults.classList.add('hidden');
-    return;
-  }
-  
-  const filtered = inventoryItems.filter(item => 
-    item.product_name.toLowerCase().includes(searchTerm) ||
-    item.product_number.toLowerCase().includes(searchTerm)
-  );
-  
-  if (filtered.length > 0) {
-    searchResults.innerHTML = filtered.map(item => `
-      <div class="autocomplete-item" data-id="${item.id}" data-name="${item.product_name}" 
-           data-price="${item.unit_price}" data-stock="${item.stock_qty}">
-        <strong>${item.product_name}</strong> - ₱${parseFloat(item.unit_price).toFixed(2)} 
-        <span class="text-stock-muted">(Stock: ${item.stock_qty})</span>
-      </div>
-    `).join('');
-    searchResults.classList.remove('hidden');
+const prodSearchItem = document.getElementById('prodSearchItem');
+if (prodSearchItem) {
+  prodSearchItem.addEventListener('input', function(e) {
+    // Guard: Only run if page is active
+    const checkPageActive = () => typeof window.isPageActive === 'function' ? window.isPageActive('product') : true;
+    if (!checkPageActive()) return;
     
-    searchResults.querySelectorAll('.autocomplete-item').forEach(item => {
-      item.addEventListener('click', function() {
-        const stock = parseInt(this.dataset.stock);
-        const name = this.dataset.name;
-        const id = this.dataset.id;
-        const price = parseFloat(this.dataset.price);
+    const searchTerm = e.target.value.toLowerCase();
+    const searchResults = document.getElementById('prodSearchResults');
+    
+    // Null safety check
+    if (!searchResults) {
+      console.warn('Product search results container not found');
+      return;
+    }
+    
+    if (searchTerm.length < 2) {
+      searchResults.classList.add('hidden');
+      return;
+    }
+    
+    // Filter inventory items safely
+    const filtered = inventoryItems.filter(item => 
+      item && item.product_name && item.product_number &&
+      (item.product_name.toLowerCase().includes(searchTerm) ||
+       item.product_number.toLowerCase().includes(searchTerm))
+    );
+    
+    if (filtered.length > 0) {
+      searchResults.innerHTML = filtered.map(item => `
+        <div class="autocomplete-item" 
+             data-id="${item.id || ''}" 
+             data-name="${item.product_name || ''}" 
+             data-price="${item.unit_price || 0}" 
+             data-stock="${item.stock_qty || 0}">
+          <strong>${item.product_name}</strong> - ₱${parseFloat(item.unit_price || 0).toFixed(2)} 
+          <span class="text-stock-muted">(Stock: ${item.stock_qty || 0})</span>
+        </div>
+      `).join('');
+      searchResults.classList.remove('hidden');
+      
+      searchResults.querySelectorAll('.autocomplete-item').forEach(item => {
+        item.addEventListener('click', function() {
+          // Guard: Check page is still active when clicking
+          if (!checkPageActive()) return;
+          
+          const stock = parseInt(this.dataset.stock);
+          const name = this.dataset.name;
+          const id = this.dataset.id;
+          const price = parseFloat(this.dataset.price);
 
-        if (isNaN(stock) || stock <= 0) {
-          alert('This item is out of stock and cannot be selected.');
-          return;
-        }
+          if (isNaN(stock) || stock <= 0) {
+            ToastUtils.showWarning('Item out of stock');
+            return;
+          }
 
-        selectedSearchItem = { id: id, name: name, price: price, stock: stock };
-        document.getElementById('prodSearchItem').value = name;
-        searchResults.classList.add('hidden');
+          selectedSearchItem = { id: id, name: name, price: price, stock: stock };
+          const searchInput = document.getElementById('prodSearchItem');
+          if (searchInput) searchInput.value = name;
+          searchResults.classList.add('hidden');
+        });
       });
-    });
-  } else {
-    searchResults.innerHTML = '<div class="autocomplete-item text-stock-muted">No items found</div>';
-    searchResults.classList.remove('hidden');
-  }
-});
+    } else {
+      searchResults.innerHTML = '<div class="autocomplete-item text-stock-muted">No items found</div>';
+      searchResults.classList.remove('hidden');
+    }
+  });
+}
 
 function addItemToCart(item) {
   if (!item || typeof item.stock === 'undefined' || item.stock <= 0) {
-    alert('Cannot add item — Insufficient stock.');
+    ToastUtils.showWarning('Insufficient stock available');
     return;
   }
 
@@ -136,7 +161,7 @@ function addItemToCart(item) {
     if (existingItem.qty < item.stock) {
       existingItem.qty++;
     } else {
-      alert('Cannot add more. Insufficient stock!');
+      ToastUtils.showWarning('Stock limit reached');
       return;
     }
   } else {
@@ -187,7 +212,7 @@ function updateQty(index, newQty) {
     renderCart();
     calculateTotals();
   } else {
-    alert('Invalid quantity or insufficient stock!');
+    ToastUtils.showWarning('Invalid quantity entered');
     renderCart();
   }
   saveProdState();
@@ -199,6 +224,10 @@ function removeItem(index) {
   calculateTotals();
   saveProdState();
 }
+
+// Expose functions globally for onclick handlers
+window.updateQty = updateQty;
+window.removeItem = removeItem;
 
 function calculateTotals() {
   const total = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -215,129 +244,172 @@ document.getElementById('prodPaidAmount').addEventListener('input', calculateTot
 document.getElementById('prodPaidAmount').addEventListener('input', saveProdState);
 
 // Clear form button
-document.getElementById('prodClearBtn').addEventListener('click', function() {
-  cartItems = [];
-  renderCart();
-  document.getElementById('prodPaymentForm').reset();
-  document.getElementById('prodTotalAmount').value = '';
-  document.getElementById('prodTotalDisplay').value = '0.00';
-  document.getElementById('prodReturnAmount').value = '';
-  document.getElementById('prodItemCount').textContent = '0';
-  selectedSearchItem = null;
-  clearProdState();
-});
+const prodClearBtn = document.getElementById('prodClearBtn');
+if (prodClearBtn) {
+  prodClearBtn.addEventListener('click', function() {
+    const checkPageActive = () => typeof window.isPageActive === 'function' ? window.isPageActive('product') : true;
+    if (!checkPageActive()) return;
+    
+    cartItems = [];
+    renderCart();
+    const form = document.getElementById('prodPaymentForm');
+    if (form) form.reset();
+    const totalAmt = document.getElementById('prodTotalAmount');
+    if (totalAmt) totalAmt.value = '';
+    const totalDisplay = document.getElementById('prodTotalDisplay');
+    if (totalDisplay) totalDisplay.value = '0.00';
+    const returnAmt = document.getElementById('prodReturnAmount');
+    if (returnAmt) returnAmt.value = '';
+    const itemCount = document.getElementById('prodItemCount');
+    if (itemCount) itemCount.textContent = '0';
+    selectedSearchItem = null;
+    clearProdState();
+  });
+}
 
-document.getElementById('prodAddItemBtn').addEventListener('click', function() {
-  if (!selectedSearchItem) {
-    const name = document.getElementById('prodSearchItem').value.trim();
-    if (!name) {
-      alert('Please select an item first from the search results.');
-      return;
+const prodAddItemBtn = document.getElementById('prodAddItemBtn');
+if (prodAddItemBtn) {
+  prodAddItemBtn.addEventListener('click', function() {
+    const checkPageActive = () => typeof window.isPageActive === 'function' ? window.isPageActive('product') : true;
+    if (!checkPageActive()) return;
+    
+    if (!selectedSearchItem) {
+      const searchInput = document.getElementById('prodSearchItem');
+      const name = searchInput ? searchInput.value.trim() : '';
+      if (!name) {
+        ToastUtils.showWarning('Please select an item');
+        return;
+      }
+      const found = inventoryItems.find(i => i && i.product_name && i.product_name.toLowerCase() === name.toLowerCase());
+      if (!found) {
+        ToastUtils.showWarning('Item not found in search results');
+        return;
+      }
+      if (!found.stock_qty || found.stock_qty <= 0) {
+        ToastUtils.showWarning('Item out of stock');
+        return;
+      }
+      selectedSearchItem = { id: found.id, name: found.product_name, price: parseFloat(found.unit_price || 0), stock: found.stock_qty };
     }
-    const found = inventoryItems.find(i => i.product_name.toLowerCase() === name.toLowerCase());
-    if (!found) {
-      alert('Selected item not found. Please choose from the search results.');
-      return;
-    }
-    if (found.stock_qty <= 0) {
-      alert('This item is out of stock and cannot be added.');
-      return;
-    }
-    selectedSearchItem = { id: found.id, name: found.product_name, price: parseFloat(found.unit_price), stock: found.stock_qty };
-  }
 
-  addItemToCart(selectedSearchItem);
-  const searchEl = document.getElementById('prodSearchItem');
-  if (searchEl) {
-    searchEl.value = '';
-    searchEl.focus();
-  }
-  const sr = document.getElementById('prodSearchResults');
-  if (sr) sr.classList.add('hidden');
-  selectedSearchItem = null;
-});
+    addItemToCart(selectedSearchItem);
+    
+    // Clear and reset button state
+    const addBtn = document.getElementById('prodAddItemBtn');
+    if (addBtn) {
+      addBtn.blur(); // Remove focus to clear hover state
+    }
+    
+    const searchEl = document.getElementById('prodSearchItem');
+    if (searchEl) {
+      searchEl.value = '';
+      searchEl.focus();
+    }
+    const sr = document.getElementById('prodSearchResults');
+    if (sr) sr.classList.add('hidden');
+    selectedSearchItem = null;
+  });
+}
 
 // Process Payment Button Handler
-document.getElementById('prodProcessPaymentBtn').addEventListener('click', function(e) {
-  e.preventDefault();
+const prodProcessPaymentBtn = document.getElementById('prodProcessPaymentBtn');
+if (prodProcessPaymentBtn) {
+  prodProcessPaymentBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    const checkPageActive = () => typeof window.isPageActive === 'function' ? window.isPageActive('product') : true;
+    if (!checkPageActive()) return;
 
-  if (cartItems.length === 0) {
-    alert('Please add at least one item to the cart!');
-    return;
-  }
+    if (cartItems.length === 0) {
+      ToastUtils.showWarning('Cart is empty');
+      return;
+    }
 
-  const total = parseFloat(document.getElementById('prodTotalAmount').value) || 0;
-  const paid = parseFloat(document.getElementById('prodPaidAmount').value) || 0;
-  if (paid < total) {
-    alert('Payment incomplete: Paid amount must be equal to or greater than the total amount.');
+    const totalEl = document.getElementById('prodTotalAmount');
     const paidEl = document.getElementById('prodPaidAmount');
-    if (paidEl) paidEl.focus();
-    return;
-  }
+    if (!totalEl || !paidEl) return;
+    
+    const total = parseFloat(totalEl.value) || 0;
+    const paid = parseFloat(paidEl.value) || 0;
+    if (paid < total) {
+      ToastUtils.showError('Insufficient payment amount');
+      if (paidEl) paidEl.focus();
+      return;
+    }
 
-  // Prepare items data
-  document.getElementById('prodItemsData').value = JSON.stringify(cartItems);
+    // Prepare items data
+    const itemsDataEl = document.getElementById('prodItemsData');
+    if (itemsDataEl) {
+      itemsDataEl.value = JSON.stringify(cartItems);
+    }
 
-  // Build confirmation details
-  const itemsHtml = cartItems.map(i => `
-    <div class="confirm-detail-row">
-      <span class="confirm-detail-label">${i.name} x ${i.qty}</span>
-      <span class="confirm-detail-value">₱${(i.price * i.qty).toFixed(2)}</span>
-    </div>
-  `).join('');
+    // Build confirmation details
+    const itemsHtml = cartItems.map(i => `
+      <div class="confirm-detail-row">
+        <span class="confirm-detail-label">${i.name} x ${i.qty}</span>
+        <span class="confirm-detail-value">₱${(i.price * i.qty).toFixed(2)}</span>
+      </div>
+    `).join('');
 
-  const customerName = document.getElementById('prodCustomerName')?.value || 'Walk-in Customer';
-  const payMethod = document.getElementById('prodPaymentMethod')?.value || 'Cash';
+    const customerName = document.getElementById('prodCustomerName')?.value || 'Walk-in Customer';
+    const payMethod = document.getElementById('prodPaymentMethod')?.value || 'Cash';
 
-  const details = `
-    <div class="confirm-detail-row">
-      <span class="confirm-detail-label">Customer:</span>
-      <span class="confirm-detail-value">${customerName}</span>
-    </div>
-    <div class="confirm-detail-row">
-      <span class="confirm-detail-label">Payment Type:</span>
-      <span class="confirm-detail-value">PRODUCT</span>
-    </div>
-    <div class="confirm-detail-row">
-      <span class="confirm-detail-label">Items:</span>
-      <span class="confirm-detail-value">${cartItems.length} item(s)</span>
-    </div>
-    ${itemsHtml}
-    <div class="confirm-detail-row">
-      <span class="confirm-detail-label">Payment Method:</span>
-      <span class="confirm-detail-value">${payMethod}</span>
-    </div>
-    <div class="confirm-detail-row">
-      <span class="confirm-detail-label">Total Amount:</span>
-      <span class="confirm-detail-value">₱${total.toFixed(2)}</span>
-    </div>
-    <div class="confirm-detail-row">
-      <span class="confirm-detail-label">Paid Amount:</span>
-      <span class="confirm-detail-value">₱${paid.toFixed(2)}</span>
-    </div>
-    <div class="confirm-detail-row">
-      <span class="confirm-detail-label">Change:</span>
-      <span class="confirm-detail-value">₱${(paid - total).toFixed(2)}</span>
-    </div>
-  `;
+    const details = `
+      <div class="confirm-detail-row">
+        <span class="confirm-detail-label">Customer:</span>
+        <span class="confirm-detail-value">${customerName}</span>
+      </div>
+      <div class="confirm-detail-row">
+        <span class="confirm-detail-label">Payment Type:</span>
+        <span class="confirm-detail-value">PRODUCT</span>
+      </div>
+      <div class="confirm-detail-row">
+        <span class="confirm-detail-label">Items:</span>
+        <span class="confirm-detail-value">${cartItems.length} item(s)</span>
+      </div>
+      ${itemsHtml}
+      <div class="confirm-detail-row">
+        <span class="confirm-detail-label">Payment Method:</span>
+        <span class="confirm-detail-value">${payMethod}</span>
+      </div>
+      <div class="confirm-detail-row">
+        <span class="confirm-detail-label">Total Amount:</span>
+        <span class="confirm-detail-value">₱${total.toFixed(2)}</span>
+      </div>
+      <div class="confirm-detail-row">
+        <span class="confirm-detail-label">Paid Amount:</span>
+        <span class="confirm-detail-value">₱${paid.toFixed(2)}</span>
+      </div>
+      <div class="confirm-detail-row">
+        <span class="confirm-detail-label">Change:</span>
+        <span class="confirm-detail-value">₱${(paid - total).toFixed(2)}</span>
+      </div>
+    `;
 
-  document.getElementById('prodConfirmationDetails').innerHTML = details;
-  document.getElementById('prodConfirmationModal').classList.add('show');
-});
+    const detailsEl = document.getElementById('prodConfirmationDetails');
+    const modalEl = document.getElementById('prodConfirmationModal');
+    if (detailsEl) detailsEl.innerHTML = details;
+    if (modalEl) modalEl.classList.add('show');
+  });
+}
 
 // Close dropdowns on outside click
 document.addEventListener('click', function(e) {
-  if (!e.target.closest('#prodSearchItem') && !e.target.closest('#prodSearchResults')) {
-    document.getElementById('prodSearchResults').classList.add('hidden');
+  const checkPageActive = () => typeof window.isPageActive === 'function' ? window.isPageActive('product') : true;
+  if (!checkPageActive()) return;
+  
+  const searchResults = document.getElementById('prodSearchResults');
+  if (searchResults && !e.target.closest('#prodSearchItem') && !e.target.closest('#prodSearchResults')) {
+    searchResults.classList.add('hidden');
   }
-  if (!e.target.closest('#prodCustomerName') && !e.target.closest('#prodCustomerResults')) {
-    const cr = document.getElementById('prodCustomerResults');
-    if (cr) cr.classList.add('hidden');
+  const customerResults = document.getElementById('prodCustomerResults');
+  if (customerResults && !e.target.closest('#prodCustomerName') && !e.target.closest('#prodCustomerResults')) {
+    customerResults.classList.add('hidden');
   }
 });
 
 // Customer autocomplete
 (function() {
+  const checkPageActive = () => typeof window.isPageActive === 'function' ? window.isPageActive('product') : true;
   const input = document.getElementById('prodCustomerName');
   const resultsEl = document.getElementById('prodCustomerResults');
   const customerIdEl = document.getElementById('prodCustomerId');
@@ -346,26 +418,37 @@ document.addEventListener('click', function(e) {
   if (!input) return;
 
   input.addEventListener('input', function(e) {
+    if (!checkPageActive()) {
+      clearTimeout(debounceTimer);
+      return;
+    }
+    
     const q = this.value.trim();
-    customerIdEl.value = '';
+    if (customerIdEl) customerIdEl.value = '';
 
     clearTimeout(debounceTimer);
     if (q.length < 1) {
-      resultsEl.classList.add('hidden');
+      if (resultsEl) resultsEl.classList.add('hidden');
       return;
     }
 
     debounceTimer = setTimeout(() => {
+      if (!checkPageActive()) return;
+      
       fetch(MEMBER_SEARCH_URL + '?q=' + encodeURIComponent(q))
         .then(r => r.json())
         .then(data => {
+          if (!checkPageActive()) return;
+          if (!resultsEl) return;
+          
           if (!Array.isArray(data) || data.length === 0) {
             resultsEl.innerHTML = '<div class="autocomplete-item text-stock-muted">No members found</div>';
             resultsEl.classList.remove('hidden');
             return;
           }
 
-          resultsEl.innerHTML = data.map(m => `
+          const validData = data.filter(m => m && m.id && m.name);
+          resultsEl.innerHTML = validData.map(m => `
             <div class="autocomplete-item" data-id="${m.id}" data-name="${m.name}">
               <strong>${m.name}</strong> <span class="text-stock-muted">${m.contact || ''}</span>
             </div>
@@ -374,15 +457,16 @@ document.addEventListener('click', function(e) {
 
           resultsEl.querySelectorAll('.autocomplete-item').forEach(el => {
             el.addEventListener('click', function() {
-              input.value = this.dataset.name;
+              if (!checkPageActive()) return;
+              if (input) input.value = this.dataset.name;
               if (customerIdEl) customerIdEl.value = this.dataset.id;
-              resultsEl.classList.add('hidden');
+              if (resultsEl) resultsEl.classList.add('hidden');
             });
           });
         })
         .catch(err => {
           console.error('Member search error', err);
-          resultsEl.classList.add('hidden');
+          if (resultsEl) resultsEl.classList.add('hidden');
         });
     }, 250);
   });
@@ -428,18 +512,29 @@ function initializeTransactionControls() {
 
   if (bulkDeleteBtn) {
     bulkDeleteBtn.addEventListener('click', function() {
+      const checkPageActive = () => typeof window.isPageActive === 'function' ? window.isPageActive('product') : true;
+      if (!checkPageActive()) return;
+      
       const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
       const ids = Array.from(checkedBoxes).map(cb => cb.value);
-      if (ids.length === 0) { alert('Please select at least one transaction to delete.'); return; }
+      if (ids.length === 0) { ToastUtils.showWarning('No items selected for deletion'); return; }
       if (confirm(`Are you sure you want to delete ${ids.length} transaction(s)? This action cannot be undone.`)) {
-        document.getElementById('bulkDeleteIds').value = JSON.stringify(ids);
-        document.getElementById('bulkDeleteForm').submit();
+        const idsEl = document.getElementById('bulkDeleteIds');
+        const formEl = document.getElementById('bulkDeleteForm');
+        if (idsEl) idsEl.value = JSON.stringify(ids);
+        if (formEl) formEl.submit();
       }
     });
   }
 
   document.querySelectorAll('.delete-form-payment').forEach(form => {
     form.addEventListener('submit', function(e) {
+      const checkPageActive = () => typeof window.isPageActive === 'function' ? window.isPageActive('product') : true;
+      if (!checkPageActive()) {
+        e.preventDefault();
+        return;
+      }
+      
       e.preventDefault();
       if (confirm('Are you sure you want to delete this transaction? This action cannot be undone.')) {
         this.submit();
@@ -477,21 +572,28 @@ function confirmProductPayment() {
       setTimeout(() => { loadProductReceiptModal(data.payment.id); }, 300);
       clearProdFormData();
     } else {
-      alert(data.message || 'Failed to process payment');
+      ToastUtils.showError(data.message || 'Payment processing failed');
       btn.disabled = false;
       btn.innerHTML = originalText;
     }
   })
   .catch(err => {
     console.error('Product payment error', err);
-    alert('Failed to process payment. Please try again.');
+    ToastUtils.showError('Payment processing failed');
     btn.disabled = false;
     btn.innerHTML = originalText;
   });
 }
 
 // Attach confirm handler to button
-document.getElementById('prodConfirmPaymentBtn').addEventListener('click', confirmProductPayment);
+const prodConfirmPaymentBtn = document.getElementById('prodConfirmPaymentBtn');
+if (prodConfirmPaymentBtn) {
+  prodConfirmPaymentBtn.addEventListener('click', function() {
+    const checkPageActive = () => typeof window.isPageActive === 'function' ? window.isPageActive('product') : true;
+    if (!checkPageActive()) return;
+    confirmProductPayment();
+  });
+}
 
 function clearProdFormData() {
   cartItems = [];
@@ -569,10 +671,6 @@ function generateProductReceiptHTML(payment) {
           <strong>Payment Method</strong>
           <span>${payment.payment_method}</span>
         </div>
-        <div class="receipt-info-item">
-          <strong>Transaction Type</strong>
-          <span>${payment.transaction_type}</span>
-        </div>
       </div>
 
       <table class="receipt-table">
@@ -628,6 +726,9 @@ function printProductReceipt() {
 
 // Close modals when clicking outside
 window.addEventListener('click', function(event) {
+  const checkPageActive = () => typeof window.isPageActive === 'function' ? window.isPageActive('product') : true;
+  if (!checkPageActive()) return;
+  
   const confirmModal = document.getElementById('prodConfirmationModal');
   const receiptModal = document.getElementById('productReceiptModal');
   if (event.target === confirmModal) closeProdConfirmation();
@@ -693,12 +794,12 @@ function confirmProductRefund() {
     .then(r => r.json())
     .then(data => {
       if (data.success) {
-        alert(data.message || 'Refund processed');
+        ToastUtils.showSuccess(data.message || 'Refund completed');
         closeProductRefundModal();
         setTimeout(() => window.location.reload(), 500);
       } else {
-        alert(data.message || 'Failed to process refund');
+        ToastUtils.showError(data.message || 'Refund processing failed');
       }
     })
-    .catch(err => { console.error(err); alert('Failed to process refund'); });
+    .catch(err => { console.error(err); ToastUtils.showError('Refund processing failed'); });
 }

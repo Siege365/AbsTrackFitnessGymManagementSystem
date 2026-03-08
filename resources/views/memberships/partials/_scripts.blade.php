@@ -89,7 +89,7 @@
     const checkedBoxes = document.querySelectorAll('.membership-checkbox:checked');
     
     if (checkedBoxes.length === 0) {
-      ToastUtils.showWarning('Please select at least one member to delete.', 'Warning');
+      ToastUtils.showWarning('No members selected for deletion', 'Warning');
       return false;
     }
     

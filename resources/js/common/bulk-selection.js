@@ -112,7 +112,7 @@ const BulkSelection = (function() {
     const checkedBoxes = document.querySelectorAll(`.${checkboxClass}:checked`);
 
     if (checkedBoxes.length === 0) {
-      alert(`Please select at least one ${itemType} to delete.`);
+      ToastUtils.showWarning(`No ${itemType}s selected for deletion`);
       return false;
     }
 

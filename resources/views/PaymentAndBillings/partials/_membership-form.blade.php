@@ -8,7 +8,7 @@
     <div class="pay-row-type">
         <div class="pay-type-pills">
             <button type="button" class="pay-type-pill" data-type="new">
-                <i class="mdi mdi-account-plus"></i> New Client
+                <i class="mdi mdi-account-plus"></i> New Member
             </button>
             <button type="button" class="pay-type-pill active" data-type="renewal">
                 <i class="mdi mdi-autorenew"></i> Renewal
@@ -23,7 +23,7 @@
         <!-- LEFT: Member Selection / New Member Form -->
         <div class="pay-col-member">
             <!-- Renewal: Search existing member -->
-            <div id="memberSelectionSection">
+            <div id="memberSelectionSection" class="member-section-visible">
                 <label class="form-label">Select Member</label>
                 <div class="pos-relative">
                     <input type="text" class="form-control" id="memberSearch" name="member_search" placeholder="Search by name or contact..." autocomplete="off">
@@ -35,11 +35,11 @@
             </div>
 
             <!-- New: Member details form -->
-            <div id="newMemberSection" class="hidden">
+            <div id="newMemberSection">
                 <div class="member-card">
                     <div class="member-card-header">
                         <div class="member-card-icon"><i class="mdi mdi-account"></i></div>
-                        <h4 class="member-card-title">New Client Details</h4>
+                        <h4 class="member-card-title">New Member Details</h4>
                     </div>
                     <div class="member-card-body">
                         <div class="member-form-row">
@@ -174,10 +174,10 @@
                     @if($plan->requires_buddy)<i class="mdi mdi-account-multiple"></i> @endif
                     {{ $plan->plan_name }}
                 </div>
-                <div class="plan-card-meta">{{ $plan->duration_days }}{{ $plan->duration_days === 1 ? 'D' : 'D' }}{{ $plan->requires_buddy ? ' · ' . $plan->buddy_count . 'pax' : '' }}</div>
+                <div class="plan-card-meta">{{ $plan->duration_days }} {{ $plan->duration_days === 1 ? 'Day' : 'Days' }}{{ $plan->requires_buddy ? ' · ' . $plan->buddy_count . 'pax' : '' }}</div>
                 <div class="plan-card-price">
                     @if($plan->requires_buddy && $plan->buddy_count > 1)
-                        ₱{{ number_format($plan->per_person_price, 2) }}<small>/ea</small>
+                        ₱{{ number_format($plan->per_person_price, 2) }}<small>/each</small>
                     @else
                         ₱{{ number_format($plan->price, 2) }}
                     @endif
@@ -222,8 +222,9 @@
             </div>
         </div>
         <div class="checkout-payment">
+            <label class="checkout-payment-label">Payment Method</label>
             <select class="form-select checkout-method" name="payment_method" id="paymentMethod" required>
-                <option value="" disabled selected>Payment Method</option>
+                <option value="" disabled selected>Select payment method</option>
                 <option value="Cash">Cash</option>
                 <option value="Credit Card">Credit Card</option>
                 <option value="Debit Card">Debit Card</option>
@@ -241,7 +242,7 @@
         </div>
         <div class="checkout-actions">
             <button type="button" class="btn-checkout-clear" id="clearFormBtn" title="Clear Form">
-                <i class="mdi mdi-close"></i>
+                <i class="mdi mdi-eraser"></i> Clear
             </button>
             <button type="submit" class="btn-checkout-pay" id="submitPaymentBtn">
                 <i class="mdi mdi-check-circle"></i> Process Payment

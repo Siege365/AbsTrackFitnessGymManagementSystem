@@ -148,7 +148,7 @@
 
 .form-label {
   display: block;
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: 600;
   color: #fff;
   margin-bottom: 0.5rem;
@@ -301,22 +301,22 @@
 
 .pay-type-pill {
   flex: 0 0 auto;
-  padding: 0.45rem 1.25rem;
+  padding: 0.6rem 1.5rem;
   background: #191C24;
   border: 2px solid #444;
-  border-radius: 6px;
+  border-radius: 8px;
   color: #999;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 
 .pay-type-pill i {
-  font-size: 1rem;
+  font-size: 1.15rem;
 }
 
 .pay-type-pill:hover {
@@ -349,12 +349,12 @@
 /* Plan Card Grid */
 .plan-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
   gap: 0.6rem;
 }
 
 .plan-card {
-  padding: 0.65rem 0.75rem;
+  padding: 1rem 1.25rem;
   background: #191C24;
   border: 2px solid #444;
   border-radius: 8px;
@@ -362,6 +362,7 @@
   transition: all 0.2s ease, opacity 0.2s ease;
   position: relative;
   overflow: hidden;
+  min-height: 120px;
 }
 
 .plan-card:hover {
@@ -383,28 +384,28 @@
 }
 
 .plan-card-name {
-  font-size: 0.85rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: #fff;
-  margin-bottom: 0.15rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin-bottom: 0.25rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.3;
 }
 
 .plan-card-name i {
-  font-size: 0.9rem;
-  margin-right: 0.15rem;
+  font-size: 1.1rem;
+  margin-right: 0.25rem;
 }
 
 .plan-card-meta {
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   color: #888;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.3rem;
 }
 
 .plan-card-price {
-  font-size: 1rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #28a745;
 }
@@ -419,11 +420,12 @@
 .pay-checkout-bar {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  background: #1a1d28;
-  border: 1px solid #3a3d4d;
-  border-radius: 10px;
-  padding: 0.75rem 1.25rem;
+  gap: 1.25rem;
+  background: linear-gradient(135deg, #1a1d28 0%, #1e2233 100%);
+  border: 1.5px solid #4a4d5d;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
 .checkout-info {
@@ -451,21 +453,21 @@
 }
 
 .checkout-date-label {
-  font-size: 0.65rem;
-  color: #777;
+  font-size: 0.8rem;
+  color: #999;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
-  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-weight: 700;
 }
 
 .checkout-date-value {
-  font-size: 0.85rem;
+  font-size: 1.05rem;
   font-weight: 600;
-  color: #ccc;
+  color: #ddd;
   background: transparent;
   border: none;
   padding: 0;
-  width: 90px;
+  width: 100px;
   cursor: default;
 }
 
@@ -479,7 +481,7 @@
 
 .checkout-arrow {
   color: #666;
-  font-size: 1rem;
+  font-size: 1.1rem;
   margin-top: 0.8rem;
 }
 
@@ -502,30 +504,46 @@
 
 /* Payment method dropdown */
 .checkout-payment {
+  display: flex;
+  flex-direction: column;
   flex-shrink: 0;
+  gap: 0.15rem;
+}
+
+.checkout-payment-label {
+  font-size: 0.8rem;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
 }
 
 .checkout-method {
-  width: 160px;
-  padding: 0.5rem 0.75rem !important;
-  font-size: 0.85rem !important;
+  width: 190px;
+  padding: 0.7rem 0.9rem !important;
+  font-size: 1rem !important;
+  border-radius: 8px;
 }
 
 /* Total display */
 .checkout-total {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   flex-shrink: 0;
-  min-width: 100px;
+  min-width: 160px;
+  background: rgba(40, 167, 69, 0.08);
+  border: 1px solid rgba(40, 167, 69, 0.2);
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
 }
 
 .checkout-total-label {
-  font-size: 0.65rem;
-  color: #777;
+  font-size: 0.8rem;
+  color: #999;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .checkout-total-amount {
@@ -535,18 +553,18 @@
 }
 
 .checkout-currency {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1.3rem;
+  font-weight: 800;
   color: #28a745;
 }
 
 .checkout-total-amount input {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.75rem;
+  font-weight: 800;
   color: #28a745;
   background: transparent;
   border: none;
-  width: 100px;
+  width: 150px;
   padding: 0;
   cursor: default;
   -moz-appearance: textfield;
@@ -566,48 +584,52 @@
 .checkout-actions {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   flex-shrink: 0;
 }
 
 .btn-checkout-clear {
-  width: 36px;
-  height: 36px;
+  padding: 0.7rem 1.5rem;
   border-radius: 8px;
-  background: rgba(220, 53, 69, 0.12);
-  border: 1px solid rgba(220, 53, 69, 0.3);
+  background: rgba(220, 53, 69, 0.1);
+  border: 1.5px solid rgba(220, 53, 69, 0.35);
   color: #dc3545;
-  font-size: 1.1rem;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.btn-checkout-clear:hover {
-  background: rgba(220, 53, 69, 0.25);
-}
-
-.btn-checkout-pay {
-  padding: 0.55rem 1.25rem;
-  background: linear-gradient(135deg, #28a745, #34c759);
-  border: none;
-  border-radius: 8px;
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.9rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
   gap: 0.4rem;
   transition: all 0.2s ease;
   white-space: nowrap;
 }
 
+.btn-checkout-clear:hover {
+  background: rgba(220, 53, 69, 0.2);
+  border-color: rgba(220, 53, 69, 0.5);
+}
+
+.btn-checkout-pay {
+  padding: 0.75rem 1.75rem;
+  background: linear-gradient(135deg, #28a745, #34c759);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+}
+
 .btn-checkout-pay:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.35);
+  box-shadow: 0 4px 16px rgba(40, 167, 69, 0.4);
 }
 
 .btn-checkout-pay:disabled {
@@ -615,6 +637,28 @@
   cursor: not-allowed;
   transform: none !important;
   box-shadow: none !important;
+}
+
+/* ========================================
+    Member Selection / New Member Form Transitions
+    ======================================== */
+#memberSelectionSection,
+#newMemberSection {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.4s ease 0.1s,
+              margin 0.4s ease;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+#memberSelectionSection.member-section-visible,
+#newMemberSection.member-section-visible {
+  max-height: 1200px;
+  opacity: 1;
+  margin-bottom: 0.75rem;
 }
 
 /* ========================================
@@ -638,6 +682,28 @@
   opacity: 1;
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
+}
+
+/* ========================================
+    PT Client Section Transitions
+    ======================================== */
+#ptClientSearchSection,
+#ptNewClientSection {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.4s ease 0.1s,
+              margin 0.4s ease;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+#ptClientSearchSection.client-section-visible,
+#ptNewClientSection.client-section-visible {
+  max-height: 1200px;
+  opacity: 1;
+  margin-bottom: 0.75rem;
 }
 
 /* ========================================
@@ -2140,7 +2206,9 @@
 /* Checkout summary value - auto width, muted color */
 .checkout-summary-value {
   width: auto;
-  color: #ccc;
+  color: #ddd;
+  font-size: 1.05rem;
+  font-weight: 600;
 }
 
 /* PT empty state styling */

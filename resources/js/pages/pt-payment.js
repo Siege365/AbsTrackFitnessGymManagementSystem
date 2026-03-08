@@ -2,6 +2,12 @@ document.addEventListener('DOMContentLoaded', function() {
   // ========================================
   // PERSONAL TRAINING PAYMENT LOGIC
   // ========================================
+  
+  // Wait for payment-system.js to load helper functions
+  const checkPageActive = () => {
+    return typeof window.isPageActive === 'function' ? window.isPageActive('pt') : true;
+  };
+  
   const ptPills = document.querySelectorAll('.pt-pill');
   const ptPaymentTypeInput = document.getElementById('ptPaymentType');
   const ptClientSearchSection = document.getElementById('ptClientSearchSection');
@@ -17,22 +23,32 @@ document.addEventListener('DOMContentLoaded', function() {
   let isPtSubmitting = false;
 
   // PT Type Pill Toggle
-  if (ptPills.length) {
+  if (ptPills && ptPills.length) {
     ptPills.forEach(pill => {
       pill.addEventListener('click', function() {
+        // Guard: Only run if page is active
+        if (!checkPageActive()) return;
+        
+        // Null safety checks
+        if (!ptPaymentTypeInput || !ptClientSearchSection || !ptNewClientSection || 
+            !ptClientId || !ptClientSource) {
+          console.warn('PT form elements not found');
+          return;
+        }
+        
         const type = this.dataset.type;
         ptPills.forEach(p => p.classList.remove('active'));
         this.classList.add('active');
         ptPaymentTypeInput.value = type;
         if (type === 'new') {
-          ptClientSearchSection.classList.add('hidden');
-          ptNewClientSection.classList.remove('hidden');
+          ptClientSearchSection.classList.remove('client-section-visible');
+          ptNewClientSection.classList.add('client-section-visible');
           ptClientId.value = '';
           ptClientSource.value = 'walkin';
           ptSelectedCustomer = null;
         } else {
-          ptClientSearchSection.classList.remove('hidden');
-          ptNewClientSection.classList.add('hidden');
+          ptClientSearchSection.classList.add('client-section-visible');
+          ptNewClientSection.classList.remove('client-section-visible');
           ptClientSource.value = '';
         }
         updatePtSessionSummary();
@@ -41,9 +57,18 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // PT Plan Card Selection
-  if (ptPlanCards.length) {
+  if (ptPlanCards && ptPlanCards.length) {
     ptPlanCards.forEach(card => {
       card.addEventListener('click', function() {
+        // Guard: Only run if page is active
+        if (!checkPageActive()) return;
+        
+        // Null safety checks
+        if (!ptPlanTypeInput || !ptAmountInput) {
+          console.warn('PT plan input elements not found');
+          return;
+        }
+        
         ptPlanCards.forEach(c => c.classList.remove('active'));
         this.classList.add('active');
         ptPlanTypeInput.value = this.dataset.plan;
@@ -57,44 +82,92 @@ document.addEventListener('DOMContentLoaded', function() {
   let ptSearchTimeout;
   if (ptClientSearch) {
     ptClientSearch.addEventListener('input', function() {
+      // Guard: Only run if page is active
+      if (!checkPageActive()) {
+        clearTimeout(ptSearchTimeout);
+        return;
+      }
+      
       const query = this.value.trim();
       const resultsContainer = document.getElementById('ptClientResults');
+      
+      // Null safety check
+      if (!resultsContainer || !ptClientId || !ptClientSource) {
+        console.warn('PT search elements not found');
+        return;
+      }
+      
       clearTimeout(ptSearchTimeout);
       ptClientId.value = '';
       ptClientSource.value = '';
       ptSelectedCustomer = null;
-      if (query.length < 2) { resultsContainer.classList.add('hidden'); return; }
+      
+      if (query.length < 2) { 
+        resultsContainer.classList.add('hidden'); 
+        return; 
+      }
+      
       ptSearchTimeout = setTimeout(() => {
+        // Double check page is still active before fetch
+        if (!checkPageActive()) return;
+        
         fetch('/sessions/customers/search?q=' + encodeURIComponent(query), {
           credentials: 'same-origin',
           headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
         })
         .then(r => r.json())
         .then(data => {
+          // Guard: Check if page is still active after fetch completes
+          if (!checkPageActive()) return;
+          
+          // Null safety: Ensure data is array
+          if (!Array.isArray(data)) {
+            console.warn('Invalid search response format');
+            return;
+          }
+          
           if (!data.length) {
             resultsContainer.innerHTML = '<div class="autocomplete-item">No customers found</div>';
             resultsContainer.classList.remove('hidden');
             return;
           }
-          resultsContainer.innerHTML = data.map(c => `
-            <div class="autocomplete-item" data-id="${c.id}" data-name="${c.name}" data-source="${c.source}" data-contact="${c.contact || ''}">
-              <strong>${c.name}</strong>
-              <div class="autocomplete-item-meta">${c.source === 'membership' ? 'Member' : 'Client'} · ${c.contact || 'No contact'}</div>
-            </div>
-          `).join('');
+          
+          // Filter out null/undefined entries and map safely
+          resultsContainer.innerHTML = data
+            .filter(c => c && c.id && c.name) // Null safety filter
+            .map(c => `
+              <div class="autocomplete-item" data-id="${c.id || ''}" data-name="${c.name || ''}" data-source="${c.source || ''}" data-contact="${c.contact || ''}">
+                <strong>${c.name}</strong>
+                <div class="autocomplete-item-meta">${c.source === 'membership' ? 'Member' : 'Client'} · ${c.contact || 'No contact'}</div>
+              </div>
+            `).join('');
           resultsContainer.classList.remove('hidden');
+          
           resultsContainer.querySelectorAll('.autocomplete-item').forEach(item => {
             item.addEventListener('click', function() {
-              ptClientSearch.value = this.dataset.name;
-              ptClientId.value = this.dataset.id;
-              ptClientSource.value = this.dataset.source;
-              ptSelectedCustomer = { id: this.dataset.id, name: this.dataset.name, source: this.dataset.source };
+              // Guard: Check page is still active when clicking
+              if (!checkPageActive()) return;
+              
+              // Null safety checks
+              if (!ptClientSearch || !ptClientId || !ptClientSource) return;
+              
+              ptClientSearch.value = this.dataset.name || '';
+              ptClientId.value = this.dataset.id || '';
+              ptClientSource.value = this.dataset.source || '';
+              ptSelectedCustomer = { 
+                id: this.dataset.id || '', 
+                name: this.dataset.name || '', 
+                source: this.dataset.source || '' 
+              };
               resultsContainer.classList.add('hidden');
               updatePtSessionSummary();
             });
           });
         })
-        .catch(() => { resultsContainer.classList.add('hidden'); });
+        .catch(err => { 
+          console.warn('PT search error:', err);
+          if (resultsContainer) resultsContainer.classList.add('hidden'); 
+        });
       }, 300);
     });
 
@@ -148,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!document.getElementById('ptPaymentMethod')?.value) errors.push('Please select a payment method.');
 
       if (errors.length) {
-        ToastUtils.showError(errors.map(e => '• ' + e).join('\n'));
+        ToastUtils.showError('Payment Error:\n' + errors.map(e => '• ' + e).join('\n'));
         return;
       }
 
@@ -225,7 +298,7 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(r => r.json())
       .then(data => {
         if (data.success) {
-          ToastUtils.showSuccess(data.message || 'PT session booked successfully!');
+          ToastUtils.showSuccess(data.message || 'PT session booked');
           ptForm.reset();
           ptClientId.value = '';
           ptClientSource.value = '';
@@ -235,8 +308,8 @@ document.addEventListener('DOMContentLoaded', function() {
           const renewalPill = document.querySelector('.pt-pill[data-type="renewal"]');
           if (renewalPill) renewalPill.classList.add('active');
           ptPaymentTypeInput.value = 'renewal';
-          ptClientSearchSection.classList.remove('hidden');
-          ptNewClientSection.classList.add('hidden');
+          ptClientSearchSection.classList.add('client-section-visible');
+          ptNewClientSection.classList.remove('client-section-visible');
           // Reset plan to first
           ptPlanCards.forEach(c => c.classList.remove('active'));
           if (ptPlanCards[0]) { ptPlanCards[0].classList.add('active'); ptPlanTypeInput.value = ptPlanCards[0].dataset.plan; ptAmountInput.value = parseFloat(ptPlanCards[0].dataset.price).toFixed(2); }
@@ -250,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .catch(err => {
         console.error('PT booking error:', err);
-        ToastUtils.showError('An error occurred while booking.');
+        ToastUtils.showError('Booking failed');
         isPtSubmitting = false;
         if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="mdi mdi-check-circle"></i> Book & Pay'; }
       });
@@ -269,8 +342,8 @@ document.addEventListener('DOMContentLoaded', function() {
       const renewalPill = document.querySelector('.pt-pill[data-type="renewal"]');
       if (renewalPill) renewalPill.classList.add('active');
       ptPaymentTypeInput.value = 'renewal';
-      ptClientSearchSection.classList.remove('hidden');
-      ptNewClientSection.classList.add('hidden');
+      ptClientSearchSection.classList.add('client-section-visible');
+      ptNewClientSection.classList.remove('client-section-visible');
       ptPlanCards.forEach(c => c.classList.remove('active'));
       if (ptPlanCards[0]) { ptPlanCards[0].classList.add('active'); ptPlanTypeInput.value = ptPlanCards[0].dataset.plan; ptAmountInput.value = parseFloat(ptPlanCards[0].dataset.price).toFixed(2); }
       updatePtSessionSummary();

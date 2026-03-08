@@ -407,6 +407,7 @@ class MembershipPaymentController extends Controller
 
             return response()->json([
                 'success' => true,
+                'id' => $payment->id,
                 'receipt_number' => $payment->receipt_number,
                 'member_name' => $payment->member_name,
                 'member_contact' => $payment->membership->contact ?? 'N/A',
@@ -415,6 +416,7 @@ class MembershipPaymentController extends Controller
                 'payment_method' => $payment->payment_method,
                 'amount' => $payment->amount,
                 'duration' => $payment->duration_days,
+                'processed_by' => $payment->processed_by,
                 'previous_due_date' => $payment->previous_due_date 
                     ? Carbon::parse($payment->previous_due_date)->format('F d, Y') 
                     : null,
@@ -423,10 +425,14 @@ class MembershipPaymentController extends Controller
                     : null,
                 'notes' => $payment->notes,
                 'formatted_date' => Carbon::parse($payment->created_at)->setTimezone('Asia/Manila')->format('F d, Y - h:i A'),
+                'is_refunded' => $payment->is_refunded,
+                'refund_status' => $payment->refund_status,
+                'refunded_amount' => $payment->refunded_amount,
                 'refunded_at' => $payment->refunded_at 
                     ? Carbon::parse($payment->refunded_at)->format('F d, Y - h:i A') 
                     : null,
                 'refund_reason' => $payment->refund_reason,
+                'refunded_by' => $payment->refunded_by,
                 'buddy_member_id' => $payment->buddy_member_id,
                 'buddy_name' => $payment->buddy_name,
                 'buddy_contact' => $payment->buddy_contact,

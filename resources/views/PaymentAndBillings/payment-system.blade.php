@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Payment System')
+@section('title', 'Payments & Billing - AbsTrack Fitness Gym')
 
 @push('styles')
 @vite(['resources/css/membership-payment.css'])
@@ -22,7 +22,7 @@
   <!-- PAGE TOGGLE: Membership / PT / Product     -->
   <div class="page-toggle-container">
     <button class="page-toggle-btn active" data-page="membership" id="membershipTabBtn">
-      <i class="mdi mdi-card-account-details-outline"></i>
+      <i class="mdi mdi-account-group"></i>
       <span>Membership Payment</span>
     </button>
     <button class="page-toggle-btn" data-page="pt" id="ptTabBtn">
@@ -76,6 +76,14 @@ if (typeof ToastUtils === 'undefined') {
 </script>
 
 <!-- Config elements for JS data passing -->
+<div id="paymentSystemConfig" class="hidden"
+     data-initial-tab="{{ $paymentType ?? 'membership' }}"
+     data-membership-route="{{ route('payment.system.membership') }}"
+     data-pt-route="{{ route('payment.system.pt') }}"
+     data-product-route="{{ route('payment.system.product') }}"
+     data-flash-success="{{ session('success') ?? '' }}"
+     data-flash-error="{{ session('error') ?? '' }}"
+     data-flash-errors="{{ $errors->any() ? $errors->first() : '' }}"></div>
 <div id="membershipPaymentConfig" class="hidden"
      data-member-search-url="{{ url('/api/members/search') }}"
      data-duplicate-check-url="{{ url('/api/members/check-duplicate') }}"></div>
@@ -84,121 +92,8 @@ if (typeof ToastUtils === 'undefined') {
      data-member-search-url="{{ url('/members/search') }}"></div>
 
 <!-- Load payment-specific JS files -->
+@vite(['resources/js/pages/payment-system.js'])
 @vite(['resources/js/pages/membership-payment.js'])
 @vite(['resources/js/pages/pt-payment.js'])
 @vite(['resources/js/pages/product-payment.js'])
-
-<script>
-// ========================================
-// PAGE TOGGLE (Membership / PT / Product)
-// ========================================
-document.addEventListener('DOMContentLoaded', function() {
-  const pageToggleBtns = document.querySelectorAll('.page-toggle-btn');
-  const pageMap = { 'membership': 'membershipPage', 'pt': 'ptPage', 'product': 'productPage' };
-  const pageOrder = ['membership', 'pt', 'product'];
-
-  pageToggleBtns.forEach(btn => {
-    btn.addEventListener('click', function() {
-      const targetPage = this.dataset.page;
-      const targetPanelId = pageMap[targetPage];
-      
-      // Update button states
-      pageToggleBtns.forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      
-      const currentActive = document.querySelector('.page-panel.active');
-      const targetPanel = document.getElementById(targetPanelId);
-      
-      if (currentActive === targetPanel) return;
-      
-      // Determine slide direction
-      const currentPageKey = Object.keys(pageMap).find(k => pageMap[k] === currentActive.id);
-      const currentIndex = pageOrder.indexOf(currentPageKey);
-      const targetIndex = pageOrder.indexOf(targetPage);
-      const goingRight = targetIndex > currentIndex;
-      
-      // Apply slide animations
-      currentActive.classList.add(goingRight ? 'slide-out-left' : 'slide-out-right');
-      targetPanel.classList.add(goingRight ? 'slide-in-right' : 'slide-in-left');
-      targetPanel.classList.add('active');
-      
-      // Cleanup animations after transition
-      setTimeout(() => {
-        currentActive.classList.remove('active', 'slide-out-left', 'slide-out-right');
-        targetPanel.classList.remove('slide-in-right', 'slide-in-left');
-      }, 400);
-    });
-  });
-
-  // Auto-switch to tab from server-provided payment type
-  const serverPaymentType = '{{ $paymentType ?? "membership" }}';
-  if (serverPaymentType && pageMap[serverPaymentType]) {
-    const targetBtn = document.querySelector(`.page-toggle-btn[data-page="${serverPaymentType}"]`);
-    if (targetBtn) {
-      // Disable animations for initial load
-      pageToggleBtns.forEach(b => b.classList.remove('active'));
-      targetBtn.classList.add('active');
-      document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active'));
-      document.getElementById(pageMap[serverPaymentType]).classList.add('active');
-    }
-  }
-
-  // Update browser URL when switching tabs (SPA navigation)
-  pageToggleBtns.forEach(btn => {
-    const originalClickHandler = btn.onclick;
-    btn.addEventListener('click', function() {
-      const page = this.dataset.page;
-      const routes = {
-        'membership': '{{ route("payment.system.membership") }}',
-        'pt': '{{ route("payment.system.pt") }}',
-        'product': '{{ route("payment.system.product") }}'
-      };
-      if (routes[page]) {
-        // Update URL without page reload
-        window.history.pushState({ paymentType: page }, '', routes[page]);
-      }
-    }, true);
-  });
-
-  // Handle browser back/forward buttons
-  window.addEventListener('popstate', function(event) {
-    if (event.state && event.state.paymentType) {
-      const targetBtn = document.querySelector(`.page-toggle-btn[data-page="${event.state.paymentType}"]`);
-      if (targetBtn) {
-        targetBtn.click();
-      }
-    }
-  });
-});
-
-// Global modal handlers
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    // Close any open modals
-    if (typeof closeModal === 'function') closeModal();
-    if (typeof closeConfirmationModal === 'function') closeConfirmationModal();
-    if (typeof closePtConfirmation === 'function') closePtConfirmation();
-    if (typeof closeProdConfirmation === 'function') closeProdConfirmation();
-    if (typeof closeProductReceiptModal === 'function') closeProductReceiptModal();
-    if (typeof closeProductRefundModal === 'function') closeProductRefundModal();
-  }
-});
-
-document.querySelectorAll('.modal-overlay').forEach(modal => {
-  modal.addEventListener('click', function(e) {
-    if (e.target === this) this.classList.remove('show');
-  });
-});
-
-// Display flash messages
-@if(session('success'))
-  ToastUtils.showSuccess('{{ session('success') }}');
-@endif
-@if(session('error'))
-  ToastUtils.showError('{{ session('error') }}');
-@endif
-@if($errors->any())
-  ToastUtils.showError('{{ $errors->first() }}');
-@endif
-</script>
 @endpush

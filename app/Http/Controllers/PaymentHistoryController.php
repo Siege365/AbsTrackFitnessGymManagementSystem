@@ -174,8 +174,11 @@ class PaymentHistoryController extends Controller
             'receipt_number' => $payment->receipt_number,
             'customer_name' => $payment->customer_name,
             'total_amount' => $payment->total_amount,
+            'paid_amount' => $payment->paid_amount,
+            'return_amount' => $payment->return_amount,
             'payment_method' => $payment->payment_method,
             'cashier_name' => $payment->cashier_name,
+            'formatted_date' => \Carbon\Carbon::parse($payment->created_at)->setTimezone('Asia/Manila')->format('F d, Y - h:i A'),
             'created_at' => $payment->created_at,
             'is_refunded' => $payment->is_refunded,
             'refund_status' => $payment->refund_status,
@@ -188,7 +191,7 @@ class PaymentHistoryController extends Controller
                     'product_name' => $item->product_name,
                     'quantity' => $item->quantity,
                     'unit_price' => $item->unit_price,
-                    'total_price' => $item->total_price,
+                    'subtotal' => $item->subtotal,
                 ];
             })
         ]);

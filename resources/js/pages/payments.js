@@ -40,7 +40,7 @@ const PaymentsPage = (function() {
       customerName: document.getElementById('customerName'),
       customerId: document.getElementById('customerId'),
       customerResults: document.getElementById('customerResults'),
-      transactionType: document.getElementById('transactionType'),
+      transactionType: null,
       paymentMethod: document.getElementById('paymentMethod'),
       paidAmount: document.getElementById('paidAmount'),
       totalAmount: document.getElementById('totalAmount'),
@@ -59,7 +59,6 @@ const PaymentsPage = (function() {
         cartItems: state.cartItems,
         customer_name: elements.customerName?.value || '',
         customer_id: elements.customerId?.value || '',
-        transaction_type: elements.transactionType?.value || '',
         payment_method: elements.paymentMethod?.value || '',
         paid_amount: elements.paidAmount?.value || '',
         total_amount: elements.totalAmount?.value || ''
@@ -84,7 +83,6 @@ const PaymentsPage = (function() {
 
         if (elements.customerName) elements.customerName.value = data.customer_name || '';
         if (elements.customerId) elements.customerId.value = data.customer_id || '';
-        if (elements.transactionType) elements.transactionType.value = data.transaction_type || '';
         if (elements.paymentMethod) elements.paymentMethod.value = data.payment_method || '';
         if (elements.paidAmount) elements.paidAmount.value = data.paid_amount || '';
         if (elements.totalAmount) elements.totalAmount.value = data.total_amount || '';
@@ -114,8 +112,7 @@ const PaymentsPage = (function() {
    */
   function addItemToCart(item) {
     if (!item || typeof item.stock === 'undefined' || item.stock <= 0) {
-      alert('Cannot add item — Insufficient stock.');
-      return;
+        ToastUtils.showWarning('Insufficient stock available');
     }
 
     const existingItem = state.cartItems.find(i => i.id == item.id);
@@ -124,7 +121,7 @@ const PaymentsPage = (function() {
       if (existingItem.qty < item.stock) {
         existingItem.qty++;
       } else {
-        alert('Cannot add more. Insufficient stock!');
+        ToastUtils.showWarning('Stock limit reached');
         return;
       }
     } else {
@@ -183,7 +180,7 @@ const PaymentsPage = (function() {
       renderCart();
       calculateTotals();
     } else {
-      alert('Invalid quantity or insufficient stock!');
+      ToastUtils.showWarning('Invalid quantity or insufficient stock!');
       renderCart();
     }
     saveState();
@@ -262,7 +259,7 @@ const PaymentsPage = (function() {
             const price = parseFloat(this.dataset.price);
 
             if (isNaN(stock) || stock <= 0) {
-              alert('This item is out of stock and cannot be selected.');
+              ToastUtils.showWarning('Item out of stock');
               return;
             }
 
@@ -346,18 +343,18 @@ const PaymentsPage = (function() {
       if (!state.selectedSearchItem) {
         const name = elements.searchItem.value.trim();
         if (!name) {
-          alert('Please select an item first from the search results.');
+          ToastUtils.showWarning('Please select an item');
           return;
         }
         const found = state.inventoryItems.find(i => 
           i.product_name.toLowerCase() === name.toLowerCase()
         );
         if (!found) {
-          alert('Selected item not found. Please choose from the search results.');
+          ToastUtils.showWarning('Item not found in search results');
           return;
         }
         if (found.stock_qty <= 0) {
-          alert('This item is out of stock and cannot be added.');
+          ToastUtils.showWarning('Item out of stock');
           return;
         }
         state.selectedSearchItem = {
@@ -390,7 +387,7 @@ const PaymentsPage = (function() {
     elements.paymentForm.addEventListener('submit', function(e) {
       if (state.cartItems.length === 0) {
         e.preventDefault();
-        alert('Please add at least one item to the cart!');
+        ToastUtils.showError('Cart is empty');
         return;
       }
 
@@ -398,7 +395,7 @@ const PaymentsPage = (function() {
       const paid = parseFloat(elements.paidAmount.value) || 0;
       if (paid < total) {
         e.preventDefault();
-        alert('Payment incomplete: Paid amount must be equal to or greater than the total amount.');
+        ToastUtils.showError('Insufficient payment amount');
         elements.paidAmount.focus();
         return;
       }

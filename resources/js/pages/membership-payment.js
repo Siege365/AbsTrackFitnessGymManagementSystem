@@ -3,6 +3,11 @@ document.addEventListener('DOMContentLoaded', function() {
   // MEMBERSHIP PAYMENT LOGIC
   // ========================================
 
+  // Wait for payment-system.js to load helper functions
+  const checkPageActive = () => {
+    return typeof window.isPageActive === 'function' ? window.isPageActive('membership') : true;
+  };
+
   // Read server-provided URLs from data attributes
   const configEl = document.getElementById('membershipPaymentConfig');
   const MEMBER_SEARCH_URL = configEl ? configEl.dataset.memberSearchUrl : '/api/members/search';
@@ -21,42 +26,74 @@ document.addEventListener('DOMContentLoaded', function() {
   const memberSearch = document.getElementById('memberSearch');
   const memberId = document.getElementById('memberId');
 
-  paymentTypePills.forEach(pill => {
-    pill.addEventListener('click', function() {
-      const type = this.dataset.type;
-      paymentTypePills.forEach(p => p.classList.remove('active'));
-      this.classList.add('active');
-      paymentTypeInput.value = type;
-      if (type === 'new') {
-        memberSelectionSection.classList.add('hidden');
-        newMemberSection.classList.remove('hidden');
-        memberSearch.removeAttribute('required');
-        memberId.removeAttribute('required');
-        document.getElementById('newMemberName').setAttribute('required', 'required');
-        document.getElementById('newMemberContact').setAttribute('required', 'required');
-      } else {
-        memberSelectionSection.classList.remove('hidden');
-        newMemberSection.classList.add('hidden');
-        memberSearch.setAttribute('required', 'required');
-        document.getElementById('newMemberName').removeAttribute('required');
-        document.getElementById('newMemberContact').removeAttribute('required');
-      }
-      document.getElementById('currentDueDate').value = '';
-      document.getElementById('newDueDate').value = '';
-      updatePlanDependentFields();
-      enforcePlanRestrictions();
-      calculateNewDueDate();
+  // Null safety check before adding listeners
+  if (paymentTypePills && paymentTypePills.length) {
+    paymentTypePills.forEach(pill => {
+      pill.addEventListener('click', function() {
+        // Guard: Only run if page is active
+        if (!checkPageActive()) return;
+        
+        // Null safety checks
+        if (!paymentTypeInput || !memberSelectionSection || !newMemberSection || 
+            !memberSearch || !memberId) {
+          console.warn('Membership form elements not found');
+          return;
+        }
+        
+        const type = this.dataset.type;
+        paymentTypePills.forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        paymentTypeInput.value = type;
+        
+        const newMemberName = document.getElementById('newMemberName');
+        const newMemberContact = document.getElementById('newMemberContact');
+        const currentDueDate = document.getElementById('currentDueDate');
+        const newDueDate = document.getElementById('newDueDate');
+        
+        if (type === 'new') {
+          memberSelectionSection.classList.remove('member-section-visible');
+          newMemberSection.classList.add('member-section-visible');
+          memberSearch.removeAttribute('required');
+          memberId.removeAttribute('required');
+          if (newMemberName) newMemberName.setAttribute('required', 'required');
+          if (newMemberContact) newMemberContact.setAttribute('required', 'required');
+        } else {
+          memberSelectionSection.classList.add('member-section-visible');
+          newMemberSection.classList.remove('member-section-visible');
+          memberSearch.setAttribute('required', 'required');
+          if (newMemberName) newMemberName.removeAttribute('required');
+          if (newMemberContact) newMemberContact.removeAttribute('required');
+        }
+        
+        if (currentDueDate) currentDueDate.value = '';
+        if (newDueDate) newDueDate.value = '';
+        updatePlanDependentFields();
+        enforcePlanRestrictions();
+        calculateNewDueDate();
+      });
     });
-  });
+  }
 
-  // Student Toggles
-  document.getElementById('member1IsStudent').addEventListener('change', function() {
-    document.getElementById('member1StudentLabel').textContent = this.checked ? 'Yes' : 'No';
-    if (paymentTypeInput.value === 'new') enforcePlanRestrictions();
-  });
-  document.getElementById('buddyIsStudent').addEventListener('change', function() {
-    document.getElementById('buddyStudentLabel').textContent = this.checked ? 'Yes' : 'No';
-  });
+  // Student Toggles with null safety
+  const member1IsStudent = document.getElementById('member1IsStudent');
+  const member1StudentLabel = document.getElementById('member1StudentLabel');
+  const buddyIsStudent = document.getElementById('buddyIsStudent');
+  const buddyStudentLabel = document.getElementById('buddyStudentLabel');
+  
+  if (member1IsStudent && member1StudentLabel) {
+    member1IsStudent.addEventListener('change', function() {
+      if (!checkPageActive()) return;
+      member1StudentLabel.textContent = this.checked ? 'Yes' : 'No';
+      if (paymentTypeInput && paymentTypeInput.value === 'new') enforcePlanRestrictions();
+    });
+  }
+  
+  if (buddyIsStudent && buddyStudentLabel) {
+    buddyIsStudent.addEventListener('change', function() {
+      if (!checkPageActive()) return;
+      buddyStudentLabel.textContent = this.checked ? 'Yes' : 'No';
+    });
+  }
 
   // Subscription Type Selection
   const planTypeCards = document.querySelectorAll('.plan-card');
@@ -64,43 +101,68 @@ document.addEventListener('DOMContentLoaded', function() {
   const amountInput = document.getElementById('amount');
   const additionalDaysInput = document.getElementById('additionalDays');
 
-  planTypeCards.forEach(card => {
-    card.addEventListener('click', function() {
-      const planType = this.dataset.plan;
-      const requiresStudent = this.dataset.requiresStudent === 'true';
-      const isNewPayment = paymentTypeInput.value === 'new';
-      const hasMemberSelected = !!memberId.value;
-      if (requiresStudent) {
-        if (isNewPayment) {
-          if (!document.getElementById('member1IsStudent').checked) {
-            document.getElementById('studentWarning').classList.remove('hidden');
-            setTimeout(() => { document.getElementById('studentWarning').classList.add('hidden'); }, 4000);
-            ToastUtils.showWarning('Student rate is only available for student members.');
-            return;
-          }
-        } else if (hasMemberSelected && !selectedMemberIsStudent) {
-          document.getElementById('studentWarning').classList.remove('hidden');
-          setTimeout(() => { document.getElementById('studentWarning').classList.add('hidden'); }, 4000);
-          ToastUtils.showWarning('Student rate is only available for student members.');
+  if (planTypeCards && planTypeCards.length) {
+    planTypeCards.forEach(card => {
+      card.addEventListener('click', function() {
+        // Guard: Only run if page is active
+        if (!checkPageActive()) return;
+        
+        // Null safety checks
+        if (!planTypeInput || !amountInput || !additionalDaysInput || !paymentTypeInput || !memberId) {
+          console.warn('Membership plan elements not found');
           return;
         }
-      }
-      if (planType === 'Regular') {
-        if (isNewPayment) {
-          if (document.getElementById('member1IsStudent').checked) { ToastUtils.showWarning('Regular rate is not available for student members.'); return; }
-        } else if (hasMemberSelected && selectedMemberIsStudent) {
-          ToastUtils.showWarning('Regular rate is not available for student members.'); return;
+        
+        const planType = this.dataset.plan;
+        const requiresStudent = this.dataset.requiresStudent === 'true';
+        const isNewPayment = paymentTypeInput.value === 'new';
+        const hasMemberSelected = !!memberId.value;
+        const studentWarning = document.getElementById('studentWarning');
+        
+        if (requiresStudent) {
+          const member1Student = document.getElementById('member1IsStudent');
+          if (isNewPayment) {
+            if (member1Student && !member1Student.checked) {
+              if (studentWarning) {
+                studentWarning.classList.remove('hidden');
+                setTimeout(() => { studentWarning.classList.add('hidden'); }, 4000);
+              }
+              ToastUtils.showWarning('Student rate requires student membership');
+              return;
+            }
+          } else if (hasMemberSelected && !selectedMemberIsStudent) {
+            if (studentWarning) {
+              studentWarning.classList.remove('hidden');
+              setTimeout(() => { studentWarning.classList.add('hidden'); }, 4000);
+            }
+            ToastUtils.showWarning('Student rate requires student membership');
+            return;
+          }
         }
-      }
-      planTypeCards.forEach(c => c.classList.remove('active'));
-      this.classList.add('active');
-      planTypeInput.value = planType;
-      amountInput.value = parseFloat(this.dataset.price).toFixed(2);
-      additionalDaysInput.value = this.dataset.duration;
-      updatePlanDependentFields();
-      calculateNewDueDate();
+        
+        if (planType === 'Regular') {
+          const member1Student = document.getElementById('member1IsStudent');
+          if (isNewPayment) {
+            if (member1Student && member1Student.checked) { 
+              ToastUtils.showWarning('Students must use student rate'); 
+              return; 
+            }
+          } else if (hasMemberSelected && selectedMemberIsStudent) {
+            ToastUtils.showWarning('Students must use student rate'); 
+            return;
+          }
+        }
+        
+        planTypeCards.forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        planTypeInput.value = planType;
+        amountInput.value = parseFloat(this.dataset.price).toFixed(2);
+        additionalDaysInput.value = this.dataset.duration;
+        updatePlanDependentFields();
+        calculateNewDueDate();
+      });
     });
-  });
+  }
 
   function updatePlanDependentFields() {
     const currentPlan = planTypeInput.value;
@@ -157,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
         amountInput.value = parseFloat(studentCard.dataset.price).toFixed(2);
         additionalDaysInput.value = studentCard.dataset.duration;
         calculateNewDueDate();
-        ToastUtils.showInfo('Switched to Student Rate for student member.');
+        ToastUtils.showInfo('Switched to student rate');
       }
     } else {
       studentCard.classList.add('disabled-card');
@@ -169,61 +231,121 @@ document.addEventListener('DOMContentLoaded', function() {
         amountInput.value = parseFloat(regularCard.dataset.price).toFixed(2);
         additionalDaysInput.value = regularCard.dataset.duration;
         calculateNewDueDate();
-        ToastUtils.showInfo('Switched to Regular Rate.');
+        ToastUtils.showInfo('Switched to regular rate');
       }
     }
   }
 
   // Member Autocomplete
   let memberSearchTimeout;
-  memberSearch.addEventListener('input', function() {
-    const query = this.value.trim();
-    const resultsContainer = document.getElementById('memberResults');
-    clearTimeout(memberSearchTimeout);
-    if (query.length < 2) { resultsContainer.classList.add('hidden'); return; }
-    memberSearchTimeout = setTimeout(() => {
-      fetch(MEMBER_SEARCH_URL + '?q=' + encodeURIComponent(query), {
-        credentials: 'same-origin',
-        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.length === 0) {
-          resultsContainer.innerHTML = '<div class="autocomplete-item">No members found</div>';
+  if (memberSearch) {
+    memberSearch.addEventListener('input', function() {
+      // Guard: Only run if page is active
+      if (!checkPageActive()) {
+        clearTimeout(memberSearchTimeout);
+        return;
+      }
+      
+      const query = this.value.trim();
+      const resultsContainer = document.getElementById('memberResults');
+      
+      // Null safety check
+      if (!resultsContainer || !memberId) {
+        console.warn('Member search elements not found');
+        return;
+      }
+      
+      clearTimeout(memberSearchTimeout);
+      if (query.length < 2) { 
+        resultsContainer.classList.add('hidden'); 
+        return; 
+      }
+      
+      memberSearchTimeout = setTimeout(() => {
+        // Double check page is still active before fetch
+        if (!checkPageActive()) return;
+        
+        fetch(MEMBER_SEARCH_URL + '?q=' + encodeURIComponent(query), {
+          credentials: 'same-origin',
+          headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Guard: Check if page is still active after fetch completes
+          if (!checkPageActive()) return;
+          
+          // Null safety: Ensure data is array
+          if (!Array.isArray(data)) {
+            console.warn('Invalid member search response format');
+            return;
+          }
+          
+          if (data.length === 0) {
+            resultsContainer.innerHTML = '<div class="autocomplete-item">No members found</div>';
+            resultsContainer.classList.remove('hidden');
+            return;
+          }
+          
+          // Filter out null/undefined entries and map safely
+          resultsContainer.innerHTML = data
+            .filter(member => member && member.id && member.name) // Null safety filter
+            .map(member => `
+              <div class="autocomplete-item" 
+                   data-id="${member.id || ''}" 
+                   data-name="${member.name || ''}" 
+                   data-due-date="${member.due_date || ''}" 
+                   data-plan="${member.plan_type || ''}" 
+                   data-status="${member.status || ''}" 
+                   data-is-student="${member.is_student ? '1' : '0'}">
+                <strong>${member.name}</strong>
+                ${member.is_student ? '<span class="badge badge-info badge-inline">STUDENT</span>' : ''}
+                <div class="autocomplete-item-meta">
+                  Contact: ${member.contact || 'N/A'} | Plan: ${member.plan_type || 'N/A'} | Status: ${member.status || 'N/A'}
+                  ${member.due_date ? '| Due: ' + new Date(member.due_date).toLocaleDateString() : '| No due date'}
+                </div>
+              </div>
+            `).join('');
           resultsContainer.classList.remove('hidden');
-          return;
-        }
-        resultsContainer.innerHTML = data.map(member => `
-          <div class="autocomplete-item" data-id="${member.id}" data-name="${member.name}" data-due-date="${member.due_date || ''}" data-plan="${member.plan_type}" data-status="${member.status}" data-is-student="${member.is_student ? '1' : '0'}">
-            <strong>${member.name}</strong>
-            ${member.is_student ? '<span class="badge badge-info badge-inline">STUDENT</span>' : ''}
-            <div class="autocomplete-item-meta">
-              Contact: ${member.contact || 'N/A'} | Plan: ${member.plan_type} | Status: ${member.status}
-              ${member.due_date ? '| Due: ' + new Date(member.due_date).toLocaleDateString() : '| No due date'}
-            </div>
-          </div>
-        `).join('');
-        resultsContainer.classList.remove('hidden');
-        resultsContainer.querySelectorAll('.autocomplete-item').forEach(item => {
-          item.addEventListener('click', function() {
-            memberSearch.value = this.dataset.name;
-            memberId.value = this.dataset.id;
-            selectedMemberStatus = this.dataset.status;
-            selectedMemberDueDate = this.dataset.dueDate;
-            selectedMemberIsStudent = this.dataset.isStudent === '1' || this.dataset.plan === 'Student';
-            document.getElementById('memberIsStudent').value = selectedMemberIsStudent ? '1' : '0';
-            const dueDate = this.dataset.dueDate;
-            document.getElementById('currentDueDate').value = dueDate ? new Date(dueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'No due date';
-            resultsContainer.classList.add('hidden');
-            updatePlanDependentFields();
-            enforcePlanRestrictions();
-            calculateNewDueDate();
+          
+          resultsContainer.querySelectorAll('.autocomplete-item').forEach(item => {
+            item.addEventListener('click', function() {
+              // Guard: Check page is still active when clicking
+              if (!checkPageActive()) return;
+              
+              // Null safety checks
+              if (!memberSearch || !memberId) return;
+              
+              memberSearch.value = this.dataset.name || '';
+              memberId.value = this.dataset.id || '';
+              selectedMemberStatus = this.dataset.status || '';
+              selectedMemberDueDate = this.dataset.dueDate || '';
+              selectedMemberIsStudent = this.dataset.isStudent === '1' || this.dataset.plan === 'Student';
+              
+              const memberIsStudentInput = document.getElementById('memberIsStudent');
+              if (memberIsStudentInput) {
+                memberIsStudentInput.value = selectedMemberIsStudent ? '1' : '0';
+              }
+              
+              const dueDate = this.dataset.dueDate;
+              const currentDueDateDisplay = document.getElementById('currentDueDate');
+              if (currentDueDateDisplay) {
+                currentDueDateDisplay.value = dueDate ? new Date(dueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'No due date';
+              }
+              
+              resultsContainer.classList.add('hidden');
+              updatePlanDependentFields();
+              enforcePlanRestrictions();
+              calculateNewDueDate();
+            });
           });
+        })
+        .catch(error => { 
+          console.warn('Member search error:', error); 
+          ToastUtils.showError('Member search failed'); 
         });
-      })
-      .catch(error => { console.error('Error fetching members:', error); ToastUtils.showError('Error searching for members'); });
-    }, 300);
-  });
+      }, 300);
+    });
+  }
 
   // Buddy Autocomplete
   let buddySearchTimeout;
@@ -299,7 +421,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Form Submission
   function showValidationErrors(errors) {
     const errorList = errors.map(e => '• ' + e).join('\n');
-    ToastUtils.showError('Please fix the following:\n' + errorList);
+    ToastUtils.showError('Payment Error:\n' + errorList);
   }
 
   async function checkDuplicateName(name) {
@@ -419,19 +541,19 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        ToastUtils.showSuccess(data.message || 'Payment processed successfully!');
+        ToastUtils.showSuccess(data.message || 'Payment completed');
         form.reset();
         window._reloadAfterReceipt = true;
         setTimeout(() => { viewReceipt(data.payment.id); }, 300);
       } else {
-        ToastUtils.showError(data.message || 'Payment failed.');
+        ToastUtils.showError(data.message || 'Payment processing failed');
         isMembershipSubmitting = false;
         if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="mdi mdi-check-circle"></i> Process Payment'; }
       }
     })
     .catch(error => {
       console.error('Error:', error);
-      ToastUtils.showError('An error occurred.');
+      ToastUtils.showError('Payment processing error');
       isMembershipSubmitting = false;
       if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="mdi mdi-check-circle"></i> Process Payment'; }
     });
@@ -476,7 +598,7 @@ function viewReceipt(transactionId) {
   fetch('/membership-payment/' + transactionId + '/receipt')
     .then(response => response.json())
     .then(data => { receiptBody.innerHTML = generateReceiptHTML(data); })
-    .catch(error => { console.error('Error:', error); ToastUtils.showError('Failed to load receipt.'); receiptBody.innerHTML = '<div class="receipt-error-state"><i class="mdi mdi-alert-circle"></i><p>Failed to load receipt.</p></div>'; });
+    .catch(error => { console.error('Error:', error); ToastUtils.showError('Receipt loading failed'); receiptBody.innerHTML = '<div class="receipt-error-state"><i class="mdi mdi-alert-circle"></i><p>Failed to load receipt.</p></div>'; });
 }
 
 function generateReceiptHTML(data) {

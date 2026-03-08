@@ -101,7 +101,7 @@
     const checkedBoxes = document.querySelectorAll('.client-checkbox:checked');
     
     if (checkedBoxes.length === 0) {
-      ToastUtils.showWarning('Please select at least one client to delete.', 'Warning');
+      ToastUtils.showWarning('No clients selected for deletion', 'Warning');
       return false;
     }
     

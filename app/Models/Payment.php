@@ -12,7 +12,6 @@ class Payment extends Model
     protected $fillable = [
         'receipt_number',
         'customer_name',
-        'transaction_type',
         'payment_method',
         'paid_amount',
         'total_amount',

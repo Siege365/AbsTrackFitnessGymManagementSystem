@@ -759,7 +759,7 @@ const ReportsPage = (function() {
         timer: 3000
       });
     } else {
-      alert(message);
+      ToastUtils.showInfo(message);
     }
   }
 

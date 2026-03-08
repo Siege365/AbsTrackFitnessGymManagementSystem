@@ -1,6 +1,9 @@
-/* Dashboard Page Specific Styles */
+/* ============================================
+   DASHBOARD PAGE STYLES
+   Visual Hierarchy: KPIs → Subsystem Overview → Recent Activity
+   ============================================ */
 
-/* Figma Design System Colors - HIGH PRIORITY */
+/* ─── Base Layout ─── */
 body {
   background: #282A36 !important;
 }
@@ -16,23 +19,32 @@ body {
   padding-right: 0 !important;
 }
 
-/* Row and column spacing */
 .row {
   margin-left: -15px !important;
   margin-right: -15px !important;
 }
 
-.col-12, .col-md-3, .col-md-4, .col-md-6, .col-md-8, .col-sm-6, .col-lg-3, .col-xl-3 {
+.col-12, .col-md-3, .col-md-4, .col-md-6, .col-md-8, .col-sm-6,
+.col-lg-3, .col-xl-3, .col-xl-4, .col-xl-6 {
   padding-left: 15px !important;
   padding-right: 15px !important;
 }
 
-/* KPI Cards - Full width distribution */
-.stats-row {
-  margin-bottom: 15px !important;
+.grid-margin {
+  margin-bottom: 1.5rem;
 }
 
-/* Cards - stretch to edges */
+.stretch-card {
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.stretch-card > .card {
+  width: 100%;
+}
+
+/* ─── Cards Base ─── */
 .card {
   background: #191C24 !important;
   border: none;
@@ -44,27 +56,335 @@ body {
   padding: 24px !important;
 }
 
-.stats-card {
-  background: #191C24 !important;
-  border: none;
-  border-radius: 8px;
-  transition: transform 0.2s, box-shadow 0.2s;
-  cursor: pointer;
-}
-
-.stats-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
-
-/* Card Title */
 .card-title {
   color: #ffffff;
   font-weight: 500;
-  font-size: 1.5rem;
+  font-size: 1.125rem;
 }
 
-/* Text Colors */
+/* ─── Page Header ─── */
+.header-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9375rem;
+}
+
+.header-date i {
+  font-size: 1.125rem;
+}
+
+/* ─── Section Titles (Level 2 & 3 headers) ─── */
+.dashboard-section {
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.section-title i {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================
+   LEVEL 1: TOP KPI CARDS (Most prominent)
+   ============================================ */
+.kpi-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-left: 3px solid transparent !important;
+}
+
+.kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+.kpi-label {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.kpi-value {
+  color: #ffffff;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.kpi-detail {
+  font-size: 0.75rem;
+  margin-top: 4px;
+}
+
+.kpi-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpi-icon i {
+  font-size: 26px;
+}
+
+.kpi-attention {
+  border-left-color: #FFC107 !important;
+}
+
+/* ============================================
+   LEVEL 2: SUBSYSTEM SUMMARY CARDS
+   ============================================ */
+.subsystem-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.subsystem-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.subsystem-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.subsystem-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.subsystem-icon i {
+  font-size: 22px;
+}
+
+.subsystem-title {
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.subsystem-subtitle {
+  font-size: 0.75rem !important;
+}
+
+.subsystem-link {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.8125rem;
+  text-decoration: none;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.subsystem-link:hover {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.subsystem-link i {
+  font-size: 1rem;
+  vertical-align: middle;
+}
+
+/* Subsystem Metrics Grid */
+.subsystem-metrics {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 16px 12px;
+}
+
+.metric-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.metric-value {
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.metric-label {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 4px;
+}
+
+.metric-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+/* ============================================
+   LEVEL 3: RECENT ACTIVITY CARDS
+   ============================================ */
+.activity-card {
+  height: 100%;
+}
+
+.activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.activity-view-all {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.8125rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.activity-view-all:hover {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.activity-icon i {
+  font-size: 18px;
+}
+
+.activity-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-name {
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activity-meta {
+  color: rgba(255, 255, 255, 0.4) !important;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activity-amount {
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.activity-badge .badge {
+  font-size: 0.6875rem;
+  padding: 4px 8px;
+}
+
+.activity-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.activity-empty i {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+}
+
+.activity-empty p {
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* ============================================
+   SOFT BACKGROUND COLOR UTILITIES
+   ============================================ */
+.bg-success-soft {
+  background: rgba(76, 175, 80, 0.12) !important;
+}
+
+.bg-danger-soft {
+  background: rgba(244, 67, 54, 0.12) !important;
+}
+
+.bg-warning-soft {
+  background: rgba(255, 193, 7, 0.12) !important;
+}
+
+.bg-info-soft {
+  background: rgba(33, 150, 243, 0.12) !important;
+}
+
+.bg-primary-soft {
+  background: rgba(106, 90, 205, 0.12) !important;
+}
+
+/* ============================================
+   TEXT COLOR UTILITIES
+   ============================================ */
 .text-muted {
   color: rgba(255, 255, 255, 0.6) !important;
 }
@@ -81,119 +401,38 @@ body {
   color: #FFC107 !important;
 }
 
-/* Icons */
-.icon-box-success {
-  background: rgba(76, 175, 80, 0.15);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
+.text-info {
+  color: #2196F3 !important;
 }
 
-.icon-box-danger {
-  background: rgba(244, 67, 54, 0.15);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
+.text-primary {
+  color: #6A5ACD !important;
 }
 
-.icon-item {
-  font-size: 24px;
-  color: inherit;
-}
-
-/* Charts and Canvas */
-canvas {
-  max-width: 100%;
-}
-
-/* Background variations */
-.bg-gray-dark {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-}
-
-/* Form Controls */
-.form-control {
-  background-color: #282A36;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  padding: 0.75rem 1.25rem;
-  font-size: 1.125rem;
-  min-height: 48px;
-}
-
-.form-control::placeholder {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.form-control:focus {
-  background-color: #282A36;
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  box-shadow: none;
-}
-
-/* Tables */
-.table {
-  color: #ffffff;
+/* ============================================
+   BADGE STYLES
+   ============================================ */
+.badge-outline-success {
+  color: #4CAF50;
+  border: 1px solid rgba(76, 175, 80, 0.4);
   background: transparent;
 }
 
-.table thead th {
-  color: rgba(255, 255, 255, 0.6);
-  font-weight: 700;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 1rem;
-  padding: 20px 18px;
-  text-align: left;
-  vertical-align: middle;
+.badge-outline-info {
+  color: #2196F3;
+  border: 1px solid rgba(33, 150, 243, 0.4);
+  background: transparent;
 }
 
-.table tbody td {
-  color: rgba(255, 255, 255, 0.9);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 20px 18px;
-  font-size: 1.125rem;
-  text-align: left;
-  vertical-align: middle;
+.badge-outline-secondary {
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
 }
 
-.table-hover tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.03);
-}
-
-/* Grid Margin */
-.grid-margin {
-  margin-bottom: 1.5rem;
-}
-
-.stretch-card {
-  display: flex;
-  align-items: stretch;
-  justify-content: stretch;
-}
-
-.stretch-card > .card {
-  width: 100%;
-}
-
-/* Buttons */
-.btn-primary {
-  background-color: #191C24;
-  border-color: #191C24;
-}
-
-.btn-primary:hover {
-  background-color: #0d0f14;
-  border-color: #0d0f14;
-}
-
-/* Custom scrollbars - Exclude sidebar */
+/* ============================================
+   CUSTOM SCROLLBARS
+   ============================================ */
 :not(.sidebar)::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -222,10 +461,21 @@ canvas {
     padding: 18px !important;
   }
 
-  .table thead th,
-  .table tbody td {
-    padding: 16px 14px;
-    font-size: 1rem;
+  .kpi-value {
+    font-size: 1.5rem;
+  }
+
+  .kpi-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .kpi-icon i {
+    font-size: 22px;
+  }
+
+  .metric-value {
+    font-size: 1.125rem;
   }
 }
 
@@ -236,49 +486,95 @@ canvas {
   }
 
   .card-title {
-    font-size: 1.25rem;
+    font-size: 1rem;
   }
 
-  .table thead th {
+  .kpi-value {
+    font-size: 1.375rem;
+  }
+
+  .kpi-label {
+    font-size: 0.75rem;
+  }
+
+  .subsystem-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .subsystem-link {
+    width: 100%;
+    text-align: right;
+  }
+
+  .subsystem-metrics {
+    padding: 12px 8px;
+  }
+
+  .metric-value {
+    font-size: 1rem;
+  }
+
+  .metric-label {
+    font-size: 0.625rem;
+  }
+
+  .section-title {
     font-size: 0.875rem;
-    padding: 12px 10px;
   }
 
-  .table tbody td {
-    font-size: 0.9375rem;
-    padding: 12px 10px;
-  }
-
-  .icon-box-success,
-  .icon-box-danger {
-    width: 40px;
-    height: 40px;
-  }
-
-  .icon-item {
-    font-size: 20px;
+  .header-date {
+    display: none;
   }
 }
 
 /* Mobile portrait (≤576px) */
 @media (max-width: 576px) {
-  .card-body {
-    padding: 12px !important;
+  .kpi-value {
+    font-size: 1.25rem;
   }
 
-  .card-title {
-    font-size: 1.125rem;
+  .kpi-icon {
+    width: 40px;
+    height: 40px;
   }
 
-  .table thead th,
-  .table tbody td {
-    padding: 10px 8px;
-    font-size: 0.875rem;
+  .kpi-icon i {
+    font-size: 20px;
   }
 
-  .form-control {
-    font-size: 1rem;
-    padding: 0.625rem 1rem;
-    min-height: 42px;
+  .subsystem-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .subsystem-icon i {
+    font-size: 18px;
+  }
+
+  .subsystem-metrics {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .metric-divider {
+    display: none;
+  }
+
+  .metric-item {
+    min-width: 60px;
+  }
+
+  .activity-item {
+    padding: 10px 0;
+  }
+
+  .activity-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .activity-icon i {
+    font-size: 16px;
   }
 }
