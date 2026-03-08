@@ -248,7 +248,7 @@
                 <i class="mdi mdi-check-circle"></i> Process Payment
             </button>
         </div>
-    </div><!-- /pay-checkout-bar -->
+    </div>
 
     </form>
   </div>
