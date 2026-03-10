@@ -17,71 +17,71 @@
           </div>
           {{-- Customers Subsystem --}}
           <div class="quick-actions-group-label">Customers</div>
-          <a class="dropdown-item quick-action-item" href="{{ route('memberships.create') }}">
-            <div class="quick-action-icon" style="background: rgba(0, 123, 255, 0.15);">
-              <i class="mdi mdi-account-plus" style="color: #4da3ff;"></i>
+          <a class="dropdown-item quick-action-item" href="{{ route('memberships.index', ['action' => 'add']) }}">
+            <div class="quick-action-icon" style="background: rgba(255, 193, 7, 0.15);">
+              <i class="mdi mdi-account-plus" style="color: #ffc107;"></i>
             </div>
             <div class="quick-action-content">
               <span class="quick-action-title">Add Member</span>
-              <span class="quick-action-desc">Register new membership</span>
+              <span class="quick-action-desc">Register new member</span>
             </div>
           </a>
-          <a class="dropdown-item quick-action-item" href="{{ route('clients.create') }}">
-            <div class="quick-action-icon" style="background: rgba(23, 162, 184, 0.15);">
-              <i class="mdi mdi-account-star" style="color: #3dd5f3;"></i>
+          <a class="dropdown-item quick-action-item" href="{{ route('clients.index', ['action' => 'add']) }}">
+            <div class="quick-action-icon" style="background: rgba(255, 193, 7, 0.15);">
+              <i class="mdi mdi-account-multiple" style="color: #ffc107;"></i>
             </div>
             <div class="quick-action-content">
               <span class="quick-action-title">Add PT Client</span>
-              <span class="quick-action-desc">Register new PT client</span>
+              <span class="quick-action-desc">Register PT client</span>
             </div>
           </a>
           {{-- Sessions Subsystem --}}
           <div class="quick-actions-group-label">Sessions</div>
-          <a class="dropdown-item quick-action-item" href="#" data-toggle="modal" data-target="#addAttendanceModal">
-            <div class="quick-action-icon" style="background: rgba(40, 167, 69, 0.15);">
-              <i class="mdi mdi-account-check" style="color: #5dd879;"></i>
+          <a class="dropdown-item quick-action-item" href="{{ route('sessions.attendance.index', ['action' => 'add']) }}">
+            <div class="quick-action-icon" style="background: rgba(33, 150, 243, 0.15);">
+              <i class="mdi mdi-account-check" style="color: #2196f3;"></i>
             </div>
             <div class="quick-action-content">
               <span class="quick-action-title">Log Attendance</span>
-              <span class="quick-action-desc">Record customer attendance</span>
+              <span class="quick-action-desc">Check in customer</span>
             </div>
           </a>
-          <a class="dropdown-item quick-action-item" href="#" data-toggle="modal" data-target="#addPTScheduleModal">
-            <div class="quick-action-icon" style="background: rgba(255, 167, 38, 0.15);">
-              <i class="mdi mdi-calendar-plus" style="color: #FFB84D;"></i>
+          <a class="dropdown-item quick-action-item" href="{{ route('sessions.pt.index', ['action' => 'add']) }}">
+            <div class="quick-action-icon" style="background: rgba(33, 150, 243, 0.15);">
+              <i class="mdi mdi-calendar-clock" style="color: #2196f3;"></i>
             </div>
             <div class="quick-action-content">
               <span class="quick-action-title">Schedule PT Session</span>
-              <span class="quick-action-desc">Book a training session</span>
+              <span class="quick-action-desc">Book training session</span>
             </div>
           </a>
           {{-- Payments & Billing Subsystem --}}
           <div class="quick-actions-group-label">Payments & Billing</div>
           <a class="dropdown-item quick-action-item" href="{{ route('payment.system.membership') }}">
-            <div class="quick-action-icon" style="background: rgba(111, 66, 193, 0.15);">
-              <i class="mdi mdi-credit-card-plus" style="color: #a78bfa;"></i>
+            <div class="quick-action-icon" style="background: rgba(244, 67, 54, 0.15);">
+              <i class="mdi mdi-credit-card" style="color: #f44336;"></i>
             </div>
             <div class="quick-action-content">
               <span class="quick-action-title">New Payment</span>
-              <span class="quick-action-desc">Process a new payment</span>
+              <span class="quick-action-desc">Process payment</span>
             </div>
           </a>
           {{-- Inventory Supplies Subsystem --}}
           <div class="quick-actions-group-label">Inventory</div>
-          <a class="dropdown-item quick-action-item" href="{{ route('inventory.index') }}">
-            <div class="quick-action-icon" style="background: rgba(220, 53, 69, 0.15);">
-              <i class="mdi mdi-package-variant-closed" style="color: #f87171;"></i>
+          <a class="dropdown-item quick-action-item" href="{{ route('inventory.index', ['action' => 'add']) }}">
+            <div class="quick-action-icon" style="background: rgba(124, 77, 255, 0.15);">
+              <i class="mdi mdi-package-variant-closed" style="color: #7c4dff;"></i>
             </div>
             <div class="quick-action-content">
-              <span class="quick-action-title">Manage Inventory</span>
-              <span class="quick-action-desc">View & manage stock</span>
+              <span class="quick-action-title">Add Product</span>
+              <span class="quick-action-desc">Create new product</span>
             </div>
           </a>
           {{-- Reports & Analytics Subsystem --}}
           <div class="quick-actions-group-label">Reports</div>
           <a class="dropdown-item quick-action-item" href="{{ route('reports.index') }}">
-            <div class="quick-action-icon" style="background: rgba(255, 193, 7, 0.15);">
-              <i class="mdi mdi-chart-bar" style="color: #fbbf24;"></i>
+            <div class="quick-action-icon" style="background: rgba(0, 210, 91, 0.15);">
+              <i class="mdi mdi-chart-bar" style="color: #00d25b;"></i>
             </div>
             <div class="quick-action-content">
               <span class="quick-action-title">View Reports</span>
@@ -97,66 +97,24 @@
           <i class="mdi mdi-bell"></i>
           <span class="count bg-danger"></span>
         </a>
-        <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="notificationDropdown">
-          <h6 class="p-3 mb-0">Notifications</h6>
+        <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list notification-dropdown" aria-labelledby="notificationDropdown">
+          <div class="notification-header">
+            <h6 class="mb-0">Notifications</h6>
+            <a href="#" class="notification-mark-all-read" title="Mark all as read">
+              <i class="mdi mdi-check-all"></i>
+            </a>
+          </div>
           <div class="dropdown-divider"></div>
-          <a class="dropdown-item preview-item">
-            <div class="preview-thumbnail">
-              <div class="preview-icon bg-success">
-                <i class="mdi mdi-account-plus"></i>
-              </div>
+          <div id="notificationList" class="notification-list-container">
+            <div class="notification-empty">
+              <i class="mdi mdi-bell-off-outline"></i>
+              <p>Loading notifications...</p>
             </div>
-            <div class="preview-item-content">
-              <h6 class="preview-subject font-weight-normal mb-1">New Member Registration</h6>
-              <p class="font-weight-light small-text mb-0 text-muted">
-                John Doe registered
-              </p>
-            </div>
-          </a>
+          </div>
           <div class="dropdown-divider"></div>
-          <a class="dropdown-item preview-item">
-            <div class="preview-thumbnail">
-              <div class="preview-icon bg-info">
-                <i class="mdi mdi-clock"></i>
-              </div>
-            </div>
-            <div class="preview-item-content">
-              <h6 class="preview-subject font-weight-normal mb-1">Membership Expiring Soon</h6>
-              <p class="font-weight-light small-text mb-0 text-muted">
-                5 members expiring this week
-              </p>
-            </div>
-          </a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item preview-item">
-            <div class="preview-thumbnail">
-              <div class="preview-icon bg-warning">
-                <i class="mdi mdi-credit-card"></i>
-              </div>
-            </div>
-            <div class="preview-item-content">
-              <h6 class="preview-subject font-weight-normal mb-1">Payment Received</h6>
-              <p class="font-weight-light small-text mb-0 text-muted">
-                $150 from Jane Smith
-              </p>
-            </div>
-          </a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item preview-item">
-            <div class="preview-thumbnail">
-              <div class="preview-icon bg-danger">
-                <i class="mdi mdi-package-variant"></i>
-              </div>
-            </div>
-            <div class="preview-item-content">
-              <h6 class="preview-subject font-weight-normal mb-1">Low Inventory Alert</h6>
-              <p class="font-weight-light small-text mb-0 text-muted">
-                Protein Powder stock is low
-              </p>
-            </div>
-          </a>
-          <div class="dropdown-divider"></div>
-          <p class="p-3 mb-0 text-center">View all notifications</p>
+          <div class="notification-footer">
+            <a href="{{ route('notifications.page') }}">View all notifications</a>
+          </div>
         </div>
       </li>
 

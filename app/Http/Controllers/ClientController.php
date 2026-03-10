@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use App\Services\NotificationService;
 
 class ClientController extends Controller
 {
@@ -206,7 +207,10 @@ class ClientController extends Controller
             // Remove avatar_url from validated data
             unset($validated['avatar_url']);
 
-            Client::create($validated);
+            $client = Client::create($validated);
+
+            // Send notification for new PT client
+            NotificationService::newMembership($validated['name'], $plan->plan_name, 'client');
 
             // Return JSON response for AJAX requests
             if ($request->wantsJson() || $request->ajax()) {

@@ -404,7 +404,7 @@ const ReportsPage = (function() {
    */
   async function loadKPIs() {
     try {
-      const response = await fetch('/reports/kpis');
+      const response = await fetch('/reports-analytics/kpis');
       const result = await response.json();
       
       if (result.success) {
@@ -476,7 +476,7 @@ const ReportsPage = (function() {
    */
   async function fetchRevenueOverTime() {
     try {
-      const response = await fetch('/reports/revenue-over-time?period=' + currentFilters.revenueOverTime);
+      const response = await fetch('/reports-analytics/revenue-over-time?period=' + currentFilters.revenueOverTime);
       const result = await response.json();
       
       if (result.success && charts.revenueOverTime) {
@@ -500,7 +500,7 @@ const ReportsPage = (function() {
    */
   async function fetchTopSelling() {
     try {
-      const response = await fetch('/reports/top-selling?period=' + currentFilters.topSelling);
+      const response = await fetch('/reports-analytics/top-selling?period=' + currentFilters.topSelling);
       const result = await response.json();
       
       if (result.success && charts.topSelling) {
@@ -519,7 +519,7 @@ const ReportsPage = (function() {
    */
   async function fetchRevenueBreakdown() {
     try {
-      const response = await fetch('/reports/revenue-breakdown?period=' + currentFilters.revenueBreakdown);
+      const response = await fetch('/reports-analytics/revenue-breakdown?period=' + currentFilters.revenueBreakdown);
       const result = await response.json();
       
       if (result.success && charts.revenueBreakdown) {
@@ -562,7 +562,7 @@ const ReportsPage = (function() {
    */
   async function fetchTransactionHistory() {
     try {
-      const response = await fetch('/reports/transaction-history?period=' + currentFilters.transactionHistory);
+      const response = await fetch('/reports-analytics/transaction-history?period=' + currentFilters.transactionHistory);
       const result = await response.json();
       
       if (result.success && charts.transactionHistory) {
@@ -605,7 +605,7 @@ const ReportsPage = (function() {
    */
   async function fetchAttendance() {
     try {
-      const response = await fetch('/reports/attendance-trend?period=' + currentFilters.attendance);
+      const response = await fetch('/reports-analytics/attendance-trend?period=' + currentFilters.attendance);
       const result = await response.json();
       
       if (result.success && charts.customerAttendance) {
@@ -682,7 +682,7 @@ const ReportsPage = (function() {
       // Create form and submit for file download
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = '/reports/export';
+      form.action = '/reports-analytics/export';
       form.style.display = 'none';
       
       // Add CSRF token

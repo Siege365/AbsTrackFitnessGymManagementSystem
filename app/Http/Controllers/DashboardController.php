@@ -9,6 +9,7 @@ use App\Models\PTSchedule;
 use App\Models\Payment;
 use App\Models\MembershipPayment;
 use App\Models\InventorySupply;
+use App\Models\InventoryTransaction;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -83,6 +84,26 @@ class DashboardController extends Controller
         $stockValue = InventorySupply::selectRaw('SUM(unit_price * stock_qty) as total')
                         ->value('total') ?? 0;
 
+        // ─── Reports & Analytics Summary (using ReportController KPIs) ───
+        $reportController = new \App\Http\Controllers\ReportController();
+        $reportResponse = $reportController->getKPIs(new \Illuminate\Http\Request());
+        $reportData = $reportResponse->getData();
+        
+        // Extract KPI data from ReportController
+        $totalRevenueThisMonth = $reportData->success ? $reportData->data->monthly_revenue : 0;
+        $retailSalesThisMonth = $reportData->success ? $reportData->data->retail_sales : 0;
+        $membershipRevenueThisMonth = $reportData->success ? $reportData->data->membership_revenue : 0;
+        $ptRevenueThisMonth = $reportData->success ? $reportData->data->pt_revenue : 0;
+        
+        // Additional metrics not in getKPIs (keep separate)
+        $totalTransactionsThisMonth = Payment::where('created_at', '>=', $monthStart)->count()
+                                    + MembershipPayment::where('created_at', '>=', $monthStart)->count();
+        $totalRefundsThisMonth = Payment::where('created_at', '>=', $monthStart)
+                                    ->where('is_refunded', true)->count()
+                                + MembershipPayment::where('created_at', '>=', $monthStart)
+                                    ->whereNotNull('refunded_at')->count();
+        $inventoryMovements = InventoryTransaction::where('created_at', '>=', $monthStart)->count();
+
         // ─── Recent Activity ───
         $recentPayments = Payment::latest()
                             ->take(5)
@@ -114,6 +135,9 @@ class DashboardController extends Controller
             'monthlyRevenue', 'todayRevenue', 'todayTransactions', 'pendingRefunds',
             // Inventory
             'totalProducts', 'lowStockCount', 'outOfStock', 'stockValue',
+            // Reports (now using ReportController KPIs)
+            'totalRevenueThisMonth', 'retailSalesThisMonth', 'membershipRevenueThisMonth', 'ptRevenueThisMonth',
+            'totalTransactionsThisMonth', 'totalRefundsThisMonth', 'inventoryMovements',
             // Recent Activity
             'recentPayments', 'upcomingPTSessions', 'recentAttendance'
         ));

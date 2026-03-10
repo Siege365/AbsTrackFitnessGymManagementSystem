@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use App\Services\NotificationService;
 
 class MembershipPaymentController extends Controller
 {
@@ -340,6 +341,14 @@ class MembershipPaymentController extends Controller
             }
 
             DB::commit();
+
+            // Send payment notification
+            NotificationService::paymentReceived($member->name, $request->amount, 'membership');
+
+            // If new member was created via payment, send membership notification too
+            if ($request->payment_type === 'new') {
+                NotificationService::newMembership($member->name, $planType, 'member');
+            }
 
             $message = 'Payment processed successfully! ';
             if ($request->payment_type === 'new') {

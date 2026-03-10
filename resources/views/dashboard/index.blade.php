@@ -40,11 +40,14 @@
         <div class="col-xl-4 col-md-6 grid-margin stretch-card">
             @include('dashboard.partials._sessions-summary')
         </div>
-        <div class="col-xl-6 col-md-6 grid-margin stretch-card">
+        <div class="col-xl-4 col-md-6 grid-margin stretch-card">
             @include('dashboard.partials._payments-summary')
         </div>
-        <div class="col-xl-6 col-md-6 grid-margin stretch-card">
+        <div class="col-xl-4 col-md-6 grid-margin stretch-card">
             @include('dashboard.partials._inventory-summary')
+        </div>
+        <div class="col-xl-4 col-md-6 grid-margin stretch-card">
+            @include('dashboard.partials._reports-summary')
         </div>
     </div>
 </div>

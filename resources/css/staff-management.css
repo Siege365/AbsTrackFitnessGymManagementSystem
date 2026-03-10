@@ -1,0 +1,316 @@
+/* ==========================================
+   STAFF MANAGEMENT STYLES
+   Shared across Staff Accounts, Trainers, Activity Logs
+   ========================================== */
+
+/* Avatar styles */
+.avatar-circle {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-initial {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+/* Badge styles */
+.badge-active {
+    background-color: rgba(102, 187, 106, 0.15);
+    color: #66BB6A;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.badge-expired {
+    background-color: rgba(239, 83, 80, 0.15);
+    color: #EF5350;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.badge-warning {
+    background-color: rgba(255, 167, 38, 0.15) !important;
+    color: #FFA726 !important;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.badge-info {
+    background-color: rgba(41, 182, 246, 0.15) !important;
+    color: #29B6F6 !important;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+/* Action badge styles for activity logs */
+[class*="badge-action-"] {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.badge-action-login,
+.badge-action-logout {
+    background-color: rgba(41, 182, 246, 0.15);
+    color: #29B6F6;
+}
+
+.badge-action-created_staff,
+.badge-action-created_trainer {
+    background-color: rgba(102, 187, 106, 0.15);
+    color: #66BB6A;
+}
+
+.badge-action-updated_staff,
+.badge-action-updated_trainer {
+    background-color: rgba(255, 167, 38, 0.15);
+    color: #FFA726;
+}
+
+.badge-action-deleted_staff,
+.badge-action-deleted_trainer {
+    background-color: rgba(239, 83, 80, 0.15);
+    color: #EF5350;
+}
+
+.badge-action-toggled_staff_status {
+    background-color: rgba(171, 71, 188, 0.15);
+    color: #AB47BC;
+}
+
+/* Action button */
+.btn-action {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #aaa;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-action:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+/* Search info bar */
+.search-info {
+    background: rgba(41, 182, 246, 0.08);
+    border: 1px solid rgba(41, 182, 246, 0.2);
+    border-radius: 8px;
+    color: #8a8a8a;
+}
+
+/* Avatar upload preview wrapper */
+.avatar-upload-wrapper {
+    position: relative;
+}
+
+.avatar-preview img {
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Modal form styling enhancements */
+.modal-content .form-control {
+    background-color: #191C24;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.modal-content .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+}
+
+.modal-content select.form-control {
+    background-color: #191C24;
+    color: #fff;
+}
+
+.modal-content label {
+    color: #ccc;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+/* Code styling for IP addresses */
+code {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #e0e0e0;
+    font-size: 12px;
+}
+
+/* Cancel button in modals */
+.btn-cancel {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #aaa;
+}
+
+.btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+/* ==========================================
+   FILTER DROPDOWN STYLES
+   ========================================== */
+
+.filter-accordion {
+    min-width: 240px;
+    max-width: 260px;
+    padding: 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.filter-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.filter-clear-all {
+    font-size: 0.875rem;
+    color: rgba(255, 107, 107, 0.9);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.filter-clear-all:hover {
+    color: rgba(255, 107, 107, 1);
+    text-decoration: none;
+}
+
+.filter-section {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.filter-section:last-child {
+    border-bottom: none;
+}
+
+.filter-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.875rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.filter-section-header:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.filter-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+.filter-section-title i {
+    font-size: 1.25rem;
+    opacity: 0.8;
+}
+
+.filter-chevron {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.5);
+    transition: transform 0.3s ease;
+}
+
+.filter-section.active .filter-chevron {
+    transform: rotate(180deg);
+}
+
+.filter-section-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.filter-section.active .filter-section-content,
+.filter-section-content.show {
+    max-height: 500px;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1.25rem 0.625rem 2.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9375rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+}
+
+.filter-option:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+    border-left-color: rgba(255, 255, 255, 0.3);
+    text-decoration: none;
+}
+
+.filter-option i {
+    font-size: 1.125rem;
+    flex-shrink: 0;
+}
+
+/* Search wrapper */
+.search-wrapper {
+    position: relative;
+}
+
+.search-wrapper .form-control {
+    background-color: #191C24;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding-left: 0.75rem;
+}
+
+.search-wrapper .form-control:focus {
+    border-color: rgba(102, 126, 234, 0.5);
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+}

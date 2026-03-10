@@ -28,6 +28,8 @@ export default defineConfig({
                 'resources/css/payment-history.css',
                 'resources/css/configuration.css',
                 'resources/css/account-settings.css',
+                'resources/css/staff-management.css',
+                'resources/css/notifications-page.css',
 
                 // Auth CSS
                 'resources/css/auth-login.css',
@@ -42,6 +44,7 @@ export default defineConfig({
                 'resources/js/common/sidebar.js',
                 'resources/js/common/table-dropdown.js',
                 'resources/js/common/autocomplete-utils.js',
+                'resources/js/common/notification-bell.js',
 
                 // Page-specific JS
                 'resources/js/pages/clients.js',
@@ -59,7 +62,9 @@ export default defineConfig({
                 'resources/js/pages/inventory-logs.js',
                 'resources/js/sessions.js',
                 'resources/js/pages/configuration.js',
-                'resources/js/pages/dashboard.js',
+                'resources/js/pages/staff.js',
+                'resources/js/pages/trainers.js',
+                'resources/js/notifications/page.js',
 
                 // Auth JS
                 'resources/js/auth-login.js',

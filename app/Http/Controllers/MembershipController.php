@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use App\Services\NotificationService;
 
 class MembershipController extends Controller
 {
@@ -283,7 +284,10 @@ class MembershipController extends Controller
             // Remove avatar_url from validated data as it's not in the database
             unset($validated['avatar_url']);
 
-            Membership::create($validated);
+            $membership = Membership::create($validated);
+
+            // Send notification for new membership
+            NotificationService::newMembership($validated['name'], $plan->plan_name, 'member');
 
             // Return JSON response for AJAX requests
             if ($request->wantsJson() || $request->ajax()) {

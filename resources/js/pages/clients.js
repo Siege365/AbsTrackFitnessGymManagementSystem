@@ -527,7 +527,7 @@ const ClientsPage = (function() {
     formData.append('due_date', endDate);
     
     FormUtils.submitFormAjax({
-      url: `/clients/${clientId}/renew`,
+      url: `/customers/clients/${clientId}/renew`,
       formData: formData,
       csrfToken: config.csrfToken,
       submitBtn: submitBtn,
@@ -558,7 +558,7 @@ const ClientsPage = (function() {
   function openDeleteClientModal(clientId, clientName, planType, status) {
     // Store client ID for delete action
     const deleteForm = document.getElementById('deleteClientForm');
-    deleteForm.action = `/clients/${clientId}`;
+    deleteForm.action = `/customers/clients/${clientId}`;
     deleteForm.dataset.clientId = clientId;
     
     // Populate modal
@@ -621,7 +621,7 @@ const ClientsPage = (function() {
    * Fetches fresh data from backend to ensure accuracy
    */
   function updateKPIs() {
-    fetch('/clients/kpis', {
+    fetch('/customers/clients/kpis', {
       method: 'GET',
       headers: {
         'X-Requested-With': 'XMLHttpRequest',

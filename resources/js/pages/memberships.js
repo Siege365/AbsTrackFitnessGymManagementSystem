@@ -489,7 +489,7 @@ const MembershipsPage = (function() {
     formData.append('due_date', endDate);
     
     FormUtils.submitFormAjax({
-      url: `/memberships/${membershipId}/renew`,
+      url: `/customers/memberships/${membershipId}/renew`,
       formData: formData,
       csrfToken: config.csrfToken,
       submitBtn: submitBtn,
@@ -520,7 +520,7 @@ const MembershipsPage = (function() {
   function openDeleteModal(membershipId, memberName, planType, status) {
     // Store membership ID for delete action
     const deleteForm = document.getElementById('deleteForm');
-    deleteForm.action = `/memberships/${membershipId}`;
+    deleteForm.action = `/customers/memberships/${membershipId}`;
     deleteForm.dataset.membershipId = membershipId;
     
     // Populate modal
@@ -586,7 +586,7 @@ const MembershipsPage = (function() {
    * Fetches fresh data from backend to ensure accuracy
    */
   function updateKPIs() {
-    fetch('/memberships/kpis', {
+    fetch('/customers/memberships/kpis', {
       method: 'GET',
       headers: {
         'X-Requested-With': 'XMLHttpRequest',

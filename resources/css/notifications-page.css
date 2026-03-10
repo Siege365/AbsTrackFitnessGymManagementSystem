@@ -1,0 +1,158 @@
+/* ============================================
+   NOTIFICATIONS PAGE STYLES
+   ============================================ */
+
+.notifications-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.notif-stat-card {
+    background: #191C24;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    flex: 1;
+    min-width: 160px;
+}
+
+.notif-stat-card .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.notif-stat-card .stat-label {
+    font-size: 0.8125rem;
+    color: #6c7293;
+    margin-top: 0.25rem;
+}
+
+.notif-stat-card.unread .stat-value {
+    color: #FFA726;
+}
+
+.notifications-card {
+    background: #191C24;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.notifications-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.notifications-toolbar .btn-mark-all {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #6c7293;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.notifications-toolbar .btn-mark-all:hover {
+    border-color: #FFA726;
+    color: #FFA726;
+}
+
+.notifications-empty-page {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.notifications-empty-page i {
+    font-size: 4rem;
+    color: #6c7293;
+    opacity: 0.3;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.notifications-empty-page h5 {
+    color: #6c7293;
+    font-weight: 500;
+}
+
+.notifications-empty-page p {
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 0.875rem;
+}
+
+.pagination-wrapper {
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, #FFA726, #FFB84D);
+    border-color: #FFA726;
+    color: #000;
+}
+
+.pagination .page-link {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #6c7293;
+    border-radius: 6px;
+    margin: 0 2px;
+    font-size: 0.875rem;
+}
+
+.pagination .page-link:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.pagination .page-item.disabled .page-link {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.15);
+}
+
+.type-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.type-badge.type-membership { background: rgba(0, 210, 91, 0.15); color: #00d25b; }
+.type-badge.type-payment { background: rgba(136, 98, 224, 0.15); color: #8862e0; }
+.type-badge.type-stock { background: rgba(255, 193, 7, 0.15); color: #ffc107; }
+.type-badge.type-expiration { background: rgba(252, 66, 74, 0.15); color: #fc424a; }
+.type-badge.type-refund { background: rgba(255, 167, 38, 0.15); color: #FFA726; }
+.type-badge.type-session { background: rgba(0, 152, 219, 0.15); color: #0098db; }
+
+.notification-page-item .btn-mark-read {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-size: 1.1rem;
+}
+
+.notification-page-item .btn-mark-read:hover {
+    color: #FFA726;
+    background: rgba(255, 167, 38, 0.1);
+}

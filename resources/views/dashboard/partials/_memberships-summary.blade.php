@@ -2,8 +2,8 @@
 <div class="card subsystem-card">
     <div class="card-body">
         <div class="subsystem-header">
-            <div class="subsystem-icon bg-primary-soft">
-                <i class="mdi mdi-card-account-details text-primary"></i>
+            <div class="subsystem-icon bg-orange-soft">
+                <i class="mdi mdi-account-plus text-orange"></i>
             </div>
             <div>
                 <h5 class="subsystem-title mb-0">Memberships</h5>

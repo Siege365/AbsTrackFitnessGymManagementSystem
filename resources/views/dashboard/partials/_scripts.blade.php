@@ -1,2 +1,2 @@
 {{-- Dashboard Scripts --}}
-@vite(['resources/js/pages/dashboard.js'])
+{{-- No additional JS needed for dashboard (uses common utilities only) --}}

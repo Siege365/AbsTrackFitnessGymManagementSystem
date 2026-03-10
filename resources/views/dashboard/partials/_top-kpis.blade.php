@@ -53,19 +53,8 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <p class="kpi-label mb-1">Needs Attention</p>
-                        <h2 class="kpi-value mb-0">{{ $attentionItems }}</h2>
-                        @if($attentionItems > 0)
-                            <p class="kpi-detail mb-0">
-                                @if($expiringCount > 0)
-                                    <span class="text-warning">{{ $expiringCount }} expiring</span>
-                                @endif
-                                @if($expiringCount > 0 && $lowStockCount > 0) · @endif
-                                @if($lowStockCount > 0)
-                                    <span class="text-danger">{{ $lowStockCount }} low stock</span>
-                                @endif
-                            </p>
-                        @endif
+                        <p class="kpi-label mb-1">Action Required</p>
+                        <h2 class="kpi-value mb-0 {{ $attentionItems > 0 ? 'text-warning' : 'text-success' }}" data-kpi-value="{{ $attentionItems }}">{{ $attentionItems }}</h2>
                     </div>
                     <div class="kpi-icon {{ $attentionItems > 0 ? 'bg-warning-soft' : 'bg-success-soft' }}">
                         <i class="mdi {{ $attentionItems > 0 ? 'mdi-alert-circle text-warning' : 'mdi-check-circle text-success' }}"></i>

@@ -21,7 +21,7 @@
             <div class="metric-divider"></div>
             <div class="metric-item">
                 <span class="metric-value text-success" data-kpi-value="{{ $completedPTToday }}">{{ $completedPTToday }}</span>
-                <span class="metric-label">Completed</span>
+                <span class="metric-label">Done</span>
             </div>
             <div class="metric-divider"></div>
             <div class="metric-item">
@@ -31,7 +31,7 @@
             <div class="metric-divider"></div>
             <div class="metric-item">
                 <span class="metric-value" data-kpi-value="{{ $walkInsToday }}">{{ $walkInsToday }}</span>
-                <span class="metric-label">Walk-ins</span>
+                <span class="metric-label">Walk-Ins</span>
             </div>
         </div>
     </div>

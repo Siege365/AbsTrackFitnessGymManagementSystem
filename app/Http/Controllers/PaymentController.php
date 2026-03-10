@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Services\RefundService;
+use App\Services\NotificationService;
 
 class PaymentController extends Controller
 {
@@ -159,6 +160,21 @@ class PaymentController extends Controller
 
             return $payment;
         });
+
+        // Send payment notification
+        NotificationService::paymentReceived($request->customer_name, $request->total_amount, 'product');
+
+        // Check for low stock after payment
+        foreach (json_decode($request->items_data, true) as $item) {
+            $inventory = InventorySupply::find($item['id']);
+            if ($inventory && $inventory->stock_qty <= $inventory->low_stock_threshold) {
+                if ($inventory->stock_qty == 0) {
+                    NotificationService::outOfStock($inventory->product_name);
+                } else {
+                    NotificationService::lowStock($inventory->product_name, $inventory->stock_qty, $inventory->low_stock_threshold);
+                }
+            }
+        }
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json(['success' => true, 'message' => 'Payment completed successfully.', 'payment' => $payment]);

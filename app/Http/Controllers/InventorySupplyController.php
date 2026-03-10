@@ -8,6 +8,7 @@ use App\Helpers\CategoryHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Services\NotificationService;
 
 class InventorySupplyController extends Controller
 {
@@ -650,6 +651,15 @@ class InventorySupplyController extends Controller
             ]);
 
             DB::commit();
+
+            // Check for low stock after transaction
+            if ($newStock <= $item->low_stock_threshold) {
+                if ($newStock == 0) {
+                    NotificationService::outOfStock($item->product_name);
+                } else {
+                    NotificationService::lowStock($item->product_name, $newStock, $item->low_stock_threshold);
+                }
+            }
 
             $message = $validated['transaction_type'] === 'stock_in' 
                 ? 'Stock added successfully!' 
