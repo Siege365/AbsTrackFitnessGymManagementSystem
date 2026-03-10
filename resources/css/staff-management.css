@@ -103,16 +103,15 @@
 /* Action button */
 .btn-action {
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #aaa;
-    padding: 4px 8px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
+    border: none;
+    color: #ffffff;
+    padding: 0.5rem 0.75rem;
+    font-size: 1.25rem;
 }
 
 .btn-action:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
 }
 
 /* Table card overflow - allow dropdowns to overflow */

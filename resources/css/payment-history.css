@@ -212,6 +212,20 @@ body {
   color: #ffffff;
 }
 
+/* Action buttons - match Membership/Client tables */
+.btn-action {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  padding: 0.5rem 0.75rem;
+  font-size: 1.25rem;
+}
+
+.btn-action:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
 /* ============================================ */
 /* BADGES - Pill style matching other pages     */
 /* ============================================ */
