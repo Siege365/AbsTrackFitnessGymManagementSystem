@@ -100,6 +100,7 @@
         <span class="menu-title">Reports & Analytics</span>
       </a>
     </li>
+    @if(auth()->check() && auth()->user()->isAdmin())
     <li class="nav-item menu-items">
       <a class="nav-link" data-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">
         <span class="menu-icon">
@@ -110,14 +111,13 @@
       </a>
       <div class="collapse" id="auth">
         <ul class="nav flex-column sub-menu">
-          @if(auth()->user() && auth()->user()->isAdmin())
           <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.UserManagement') }}"> Staff Accounts </a></li>
           <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.TrainerManagement') }}"> Trainers </a></li>
-          @endif
           <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.CashierActivity') }}"> Activity Logs </a></li>
         </ul>
       </div>
     </li>
+    @endif
     <li class="nav-item menu-items">
       <a class="nav-link" href="{{ route('configuration.index') }}">
         <span class="menu-icon">

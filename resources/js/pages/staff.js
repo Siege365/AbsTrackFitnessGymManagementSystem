@@ -38,9 +38,67 @@ const StaffPage = (function() {
         $(this).find('input[type="text"][id*="Password"]').attr('type', 'password');
         $(this).find('.toggle-password i').removeClass('mdi-eye').addClass('mdi-eye-off');
       }
+      if (form && form.id && form.id.startsWith('editStaffForm')) {
+        const staffId = form.id.replace('editStaffForm', '');
+        form.reset();
+        setStaffModalMode(staffId, false);
+      }
       // Hide all overlays
       $(this).find('.confirm-overlay').hide();
     });
+  }
+
+  function setStaffModalMode(staffId, isEditMode) {
+    const form = document.getElementById('editStaffForm' + staffId);
+    if (!form) return;
+
+    form.querySelectorAll('[data-editable-field]').forEach(field => {
+      field.readOnly = !isEditMode;
+      field.disabled = !isEditMode;
+      if (field.tagName === 'TEXTAREA') {
+        field.style.resize = isEditMode ? 'vertical' : 'none';
+      }
+    });
+
+    const passwordRow = document.getElementById('editStaffPasswordRow' + staffId);
+    if (passwordRow) {
+      passwordRow.style.display = isEditMode ? '' : 'none';
+    }
+
+    if (!isEditMode) {
+      const passwordInput = document.getElementById('editStaffPassword' + staffId);
+      const passwordConfirmInput = document.getElementById('editStaffPasswordConfirm' + staffId);
+      if (passwordInput) passwordInput.value = '';
+      if (passwordConfirmInput) passwordConfirmInput.value = '';
+    }
+
+    const modalTitle = document.getElementById('editStaffModalLabel' + staffId);
+    const editBtn = document.getElementById('editStaffToggleBtn' + staffId);
+    const saveBtn = document.getElementById('saveStaffBtn' + staffId);
+
+    if (modalTitle) {
+      modalTitle.textContent = isEditMode ? 'Edit Staff Account' : 'Staff Details';
+    }
+    if (editBtn) {
+      editBtn.style.display = isEditMode ? 'none' : '';
+    }
+    if (saveBtn) {
+      saveBtn.style.display = isEditMode ? '' : 'none';
+    }
+
+    const modalContent = document.querySelector('.js-staff-view-edit-modal[data-staff-id="' + staffId + '"]');
+    if (modalContent) {
+      modalContent.classList.toggle('is-view-mode', !isEditMode);
+    }
+  }
+
+  function openStaffViewModal(staffId) {
+    setStaffModalMode(staffId, false);
+    $('#editStaffModal' + staffId).modal('show');
+  }
+
+  function enterStaffEditMode(staffId) {
+    setStaffModalMode(staffId, true);
   }
 
   // ============================================
@@ -264,6 +322,8 @@ function submitEditStaffForm(staffId) {
     showStaffConfirmModal,
     backToStaffAddForm,
     submitStaffForm,
+    openStaffViewModal,
+    enterStaffEditMode,
     showEditStaffConfirmModal,
     backToEditStaffForm,
     submitEditStaffForm,

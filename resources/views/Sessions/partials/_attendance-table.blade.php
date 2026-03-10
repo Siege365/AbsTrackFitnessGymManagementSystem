@@ -188,8 +188,8 @@
                                     <td>
                                         <div class="dropdown">
                                             <button class="btn btn-sm btn-action" type="button"
-                                                data-toggle="dropdown" data-offset="-100,2" data-flip="false"
-                                                data-boundary="viewport">
+                                                data-toggle="dropdown" data-display="static"
+                                                data-boundary="window" aria-haspopup="true" aria-expanded="false">
                                                 <i class="mdi mdi-dots-vertical"></i>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-right">

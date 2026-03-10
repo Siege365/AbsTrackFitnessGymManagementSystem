@@ -228,11 +228,12 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/trainers/{id}', [TrainerController::class, 'update'])->name('trainers.update');
         Route::delete('/trainers/bulk-delete', [TrainerController::class, 'bulkDelete'])->name('trainers.bulk-delete');
         Route::delete('/trainers/{id}', [TrainerController::class, 'destroy'])->name('trainers.destroy');
+
+        // Activity Logs (Admin Only)
+        Route::get('/UserAndAdmin/CashierActivity', [ActivityLogController::class, 'index'])->name('UserAndAdmin.CashierActivity');
+        Route::delete('/activity-logs/bulk-delete', [ActivityLogController::class, 'bulkDelete'])->name('activity-logs.bulk-delete');
+        Route::delete('/activity-logs/clear-all', [ActivityLogController::class, 'clearAll'])->name('activity-logs.clear-all');
     });
-    
-    Route::get('/UserAndAdmin/CashierActivity', [ActivityLogController::class, 'index'])->name('UserAndAdmin.CashierActivity');
-    Route::delete('/activity-logs/bulk-delete', [ActivityLogController::class, 'bulkDelete'])->name('activity-logs.bulk-delete');
-    Route::delete('/activity-logs/clear-all', [ActivityLogController::class, 'clearAll'])->name('activity-logs.clear-all');
 
     // ==========================================
     // GYM CONFIGURATION ROUTES

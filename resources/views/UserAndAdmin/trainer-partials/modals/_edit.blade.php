@@ -1,12 +1,12 @@
-<!-- Edit Trainer Modal -->
+<!-- View/Edit Trainer Modal -->
 <div class="modal fade" id="editTrainerModal{{ $trainer->id }}" tabindex="-1" role="dialog" aria-labelledby="editTrainerModalLabel{{ $trainer->id }}">
   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-    <div class="modal-content" style="position: relative;">
+    <div class="modal-content js-trainer-view-edit-modal is-view-mode" data-trainer-id="{{ $trainer->id }}" style="position: relative;">
       <form id="editTrainerForm{{ $trainer->id }}" data-action="{{ route('trainers.update', $trainer->id) }}">
         @csrf
         @method('PUT')
         <div class="modal-header">
-          <h5 class="modal-title" id="editTrainerModalLabel{{ $trainer->id }}">Edit Trainer</h5>
+          <h5 class="modal-title" id="editTrainerModalLabel{{ $trainer->id }}">Trainer Details</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -19,12 +19,12 @@
               <input type="text" name="full_name" id="editTrainerName{{ $trainer->id }}" class="form-control" 
                 value="{{ $trainer->full_name }}" required pattern="[A-Za-z\s\-']+" 
                 title="Only letters, spaces, hyphens, and apostrophes are allowed" 
-                oninput="this.value = this.value.replace(/[^A-Za-z\s\-']/g, '')">
+                oninput="this.value = this.value.replace(/[^A-Za-z\s\-']/g, '')" data-editable-field>
             </div>
             <div class="form-group col-md-6">
               <label>Specialization</label>
               <input type="text" name="specialization" id="editTrainerSpecialization{{ $trainer->id }}" class="form-control" 
-                value="{{ $trainer->specialization }}" placeholder="e.g., Weight Training, Yoga, Boxing">
+                value="{{ $trainer->specialization }}" placeholder="e.g., Weight Training, Yoga, Boxing" data-editable-field>
             </div>
           </div>
 
@@ -34,14 +34,14 @@
               <label>Contact Number</label>
               <input type="text" name="contact_number" id="editTrainerContact{{ $trainer->id }}" class="form-control contact-input" 
                 value="{{ $trainer->contact_number }}" maxlength="18" title="Enter format: 09XX-XXX-XXXX" 
-                oninput="formatTrainerPhone(this)">
+                oninput="formatTrainerPhone(this)" data-editable-field>
               <div id="editTrainerContact{{ $trainer->id }}Error" class="invalid-feedback" style="display: none;"></div>
             </div>
             <div class="form-group col-md-6">
               <label>Emergency Contact Number</label>
               <input type="text" name="emergency_contact" id="editTrainerEmergencyContact{{ $trainer->id }}" class="form-control contact-input" 
                 value="{{ $trainer->emergency_contact }}" maxlength="18" title="Enter format: 09XX-XXX-XXXX" 
-                oninput="formatTrainerPhone(this)">
+                oninput="formatTrainerPhone(this)" data-editable-field>
               <div id="editTrainerEmergencyContact{{ $trainer->id }}Error" class="invalid-feedback" style="display: none;"></div>
             </div>
           </div>
@@ -51,14 +51,17 @@
             <div class="form-group col-12">
               <label>Address</label>
               <textarea name="address" id="editTrainerAddress{{ $trainer->id }}" class="form-control" rows="2" 
-                placeholder="Enter full address">{{ $trainer->address }}</textarea>
+                placeholder="Enter full address" data-editable-field>{{ $trainer->address }}</textarea>
             </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-update" onclick="showEditTrainerConfirmModal({{ $trainer->id }})">
-            <i class="mdi mdi-pencil"></i> Update
+          <button type="button" class="btn btn-cancel" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-update" id="editTrainerToggleBtn{{ $trainer->id }}" onclick="enterTrainerEditMode({{ $trainer->id }})">
+            <i class="mdi mdi-pencil"></i> Edit
+          </button>
+          <button type="button" class="btn btn-update" id="saveTrainerBtn{{ $trainer->id }}" onclick="showEditTrainerConfirmModal({{ $trainer->id }})" style="display: none;">
+            <i class="mdi mdi-content-save"></i> Save Changes
           </button>
         </div>
       </form>

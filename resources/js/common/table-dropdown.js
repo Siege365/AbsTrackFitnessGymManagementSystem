@@ -27,21 +27,31 @@ const TableDropdown = {
     
     const tableDropdowns = document.querySelectorAll('.table .dropdown');
     
-    tableDropdowns.forEach((dropdown, index) => {
+    tableDropdowns.forEach((dropdown) => {
       const button = dropdown.querySelector('[data-toggle="dropdown"]');
       const menu = dropdown.querySelector('.dropdown-menu');
       
       if (!button || !menu) return;
 
-      // Position dropdown after it's shown
-      window.$(button).on('shown.bs.dropdown', () => {
+      // Bootstrap emits dropdown events on the .dropdown parent.
+      window.$(dropdown).on('shown.bs.dropdown', () => {
         this.positionDropdown(button, menu);
         this.setupRepositioning(button, menu);
       });
 
       // Cleanup on hide
-      window.$(button).on('hide.bs.dropdown', () => {
+      window.$(dropdown).on('hide.bs.dropdown', () => {
         this.cleanupRepositioning();
+      });
+
+      // Extra fallback: position shortly after direct toggle click.
+      button.addEventListener('click', () => {
+        setTimeout(() => {
+          if (window.$(menu).hasClass('show')) {
+            this.positionDropdown(button, menu);
+            this.setupRepositioning(button, menu);
+          }
+        }, 0);
       });
     });
   },
@@ -85,6 +95,7 @@ const TableDropdown = {
     menu.style.setProperty('right', 'auto', 'important');
     menu.style.setProperty('transform', 'none', 'important');
     menu.style.setProperty('margin', '0', 'important');
+    menu.style.setProperty('z-index', '100000', 'important');
     menu.style.setProperty('will-change', 'transform');
   },
 

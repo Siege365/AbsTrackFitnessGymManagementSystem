@@ -28,10 +28,10 @@
           <div class="form-row">
             <div class="form-group col-md-6">
               <label>Password <span class="text-danger">*</span></label>
-              <div class="input-group">
+              <div class="input-group password-group">
                 <input type="password" name="password" id="newStaffPassword" class="form-control" placeholder="Minimum 8 characters" required minlength="8">
                 <div class="input-group-append">
-                  <button class="btn btn-outline-secondary toggle-password" type="button" onclick="togglePasswordVisibility('newStaffPassword', this)">
+                  <button class="btn password-toggle-btn toggle-password" type="button" onclick="togglePasswordVisibility('newStaffPassword', this)">
                     <i class="mdi mdi-eye-off"></i>
                   </button>
                 </div>
@@ -39,10 +39,10 @@
             </div>
             <div class="form-group col-md-6">
               <label>Confirm Password <span class="text-danger">*</span></label>
-              <div class="input-group">
+              <div class="input-group password-group">
                 <input type="password" name="password_confirmation" id="newStaffPasswordConfirm" class="form-control" placeholder="Re-enter password" required minlength="8">
                 <div class="input-group-append">
-                  <button class="btn btn-outline-secondary toggle-password" type="button" onclick="togglePasswordVisibility('newStaffPasswordConfirm', this)">
+                  <button class="btn password-toggle-btn toggle-password" type="button" onclick="togglePasswordVisibility('newStaffPasswordConfirm', this)">
                     <i class="mdi mdi-eye-off"></i>
                   </button>
                 </div>

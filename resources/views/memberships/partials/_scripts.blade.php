@@ -282,30 +282,4 @@
     }
   }
 
-  // Dropdown toggle
-document.querySelectorAll('[data-toggle="dropdown"]').forEach(btn => {
-  btn.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-      if (menu !== this.nextElementSibling) {
-        menu.classList.remove('show');
-      }
-    });
-    
-    const menu = this.nextElementSibling;
-    if (menu?.classList.contains('dropdown-menu')) {
-      menu.classList.toggle('show');
-    }
-  });
-});
-
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('.dropdown')) {
-    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-      menu.classList.remove('show');
-    });
-  }
-});
 </script>

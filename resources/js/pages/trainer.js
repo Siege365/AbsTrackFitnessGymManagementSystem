@@ -35,9 +35,55 @@ const TrainerPage = (function() {
       if (form && form.id === 'addTrainerForm') {
         form.reset();
       }
+      if (form && form.id && form.id.startsWith('editTrainerForm')) {
+        const trainerId = form.id.replace('editTrainerForm', '');
+        form.reset();
+        setTrainerModalMode(trainerId, false);
+      }
       // Hide all overlays
       $(this).find('.confirm-overlay').hide();
     });
+  }
+
+  function setTrainerModalMode(trainerId, isEditMode) {
+    const form = document.getElementById('editTrainerForm' + trainerId);
+    if (!form) return;
+
+    form.querySelectorAll('[data-editable-field]').forEach(field => {
+      field.readOnly = !isEditMode;
+      field.disabled = !isEditMode;
+      if (field.tagName === 'TEXTAREA') {
+        field.style.resize = isEditMode ? 'vertical' : 'none';
+      }
+    });
+
+    const modalTitle = document.getElementById('editTrainerModalLabel' + trainerId);
+    const editBtn = document.getElementById('editTrainerToggleBtn' + trainerId);
+    const saveBtn = document.getElementById('saveTrainerBtn' + trainerId);
+
+    if (modalTitle) {
+      modalTitle.textContent = isEditMode ? 'Edit Trainer' : 'Trainer Details';
+    }
+    if (editBtn) {
+      editBtn.style.display = isEditMode ? 'none' : '';
+    }
+    if (saveBtn) {
+      saveBtn.style.display = isEditMode ? '' : 'none';
+    }
+
+    const modalContent = document.querySelector('.js-trainer-view-edit-modal[data-trainer-id="' + trainerId + '"]');
+    if (modalContent) {
+      modalContent.classList.toggle('is-view-mode', !isEditMode);
+    }
+  }
+
+  function openTrainerViewModal(trainerId) {
+    setTrainerModalMode(trainerId, false);
+    $('#editTrainerModal' + trainerId).modal('show');
+  }
+
+  function enterTrainerEditMode(trainerId) {
+    setTrainerModalMode(trainerId, true);
   }
 
   // ============================================
@@ -239,6 +285,8 @@ const TrainerPage = (function() {
     showTrainerConfirmModal,
     backToTrainerAddForm,
     submitTrainerForm,
+    openTrainerViewModal,
+    enterTrainerEditMode,
     showEditTrainerConfirmModal,
     backToEditTrainerForm,
     submitEditTrainerForm,

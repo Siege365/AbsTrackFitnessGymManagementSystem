@@ -76,13 +76,13 @@
                 <td>
                   <div class="dropdown">
                     <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" 
-                      data-offset="0,2" data-flip="false" data-boundary="viewport" 
+                      data-display="static" data-boundary="window" 
                       aria-haspopup="true" aria-expanded="false">
                       <i class="mdi mdi-dots-vertical"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">
-                      <button type="button" class="dropdown-item" data-toggle="modal" data-target="#editTrainerModal{{ $trainer->id }}">
-                        <i class="mdi mdi-pencil"></i> Edit Details
+                      <button type="button" class="dropdown-item" onclick="openTrainerViewModal({{ $trainer->id }})">
+                        <i class="mdi mdi-eye"></i> View Details
                       </button>
                       <button type="button" class="dropdown-item text-danger" 
                         onclick="openDeleteTrainerModal({{ $trainer->id }}, '{{ addslashes($trainer->full_name) }}')">

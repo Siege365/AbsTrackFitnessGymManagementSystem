@@ -657,3 +657,19 @@ body.modal-open {
     font-size: 0.8125rem;
   }
 }
+
+/* =====================================================
+   View Mode: Fields display as clean read-only text
+   ===================================================== */
+.js-trainer-view-edit-modal.is-view-mode [data-editable-field],
+.js-trainer-view-edit-modal.is-view-mode [data-editable-field]:disabled,
+.js-trainer-view-edit-modal.is-view-mode [data-editable-field][readonly] {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  color: #c8c8d0 !important;
+  cursor: default !important;
+  pointer-events: none !important;
+  resize: none !important;
+}
