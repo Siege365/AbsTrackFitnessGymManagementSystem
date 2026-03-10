@@ -46,7 +46,7 @@ if (typeof ToastUtils === 'undefined') {
 
 <div id="productPaymentConfig" class="hidden"
      data-inventory-items='@json($inventoryItems ?? [])'
-     data-member-search-url="{{ url('/members/search') }}"></div>
+     data-member-search-url="{{ url('/api/members/search') }}"></div>
 @vite(['resources/js/pages/product-payment.js'])
 
 <script>

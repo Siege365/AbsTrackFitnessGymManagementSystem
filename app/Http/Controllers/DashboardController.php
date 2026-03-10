@@ -85,7 +85,7 @@ class DashboardController extends Controller
                         ->value('total') ?? 0;
 
         // ─── Reports & Analytics Summary (using ReportController KPIs) ───
-        $reportController = new \App\Http\Controllers\ReportController();
+        $reportController = app(\App\Http\Controllers\ReportController::class);
         $reportResponse = $reportController->getKPIs(new \Illuminate\Http\Request());
         $reportData = $reportResponse->getData();
         

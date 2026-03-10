@@ -18,6 +18,7 @@ class Payment extends Model
         'return_amount',
         'total_quantity',
         'cashier_name',
+        'transaction_type',
         // Existing refund fields
         'refunded_at',
         'refund_reason',

@@ -89,7 +89,7 @@
               Showing {{ $categories->firstItem() ?? 0 }} to {{ $categories->lastItem() ?? 0 }} of {{ $categories->total() }} categories
             </div>
             <div>
-              {{ $categories->links() }}
+              {{ $categories->links('vendor.pagination.custom') }}
             </div>
           </div>
           @endif

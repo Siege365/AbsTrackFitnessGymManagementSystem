@@ -43,19 +43,7 @@
   <div class="pages-slider">
     @include('PaymentAndBillings.partials.history._membership-table')
 
-    <!-- ====== PERSONAL TRAINING PAGE ====== -->
-    <div class="page-panel" id="ptPage">
-      <div class="card">
-        <div class="card-body coming-soon-container">
-          <i class="mdi mdi-dumbbell coming-soon-icon"></i>
-          <h2 class="coming-soon-title">Personal Training Payment History</h2>
-          <p class="coming-soon-text">This section is coming soon. Personal training payment history will be available in a future update.</p>
-          <div class="coming-soon-info">
-            <p class="mb-0"><i class="mdi mdi-information"></i> You can manage PT schedules in the <strong>Sessions</strong> module.</p>
-          </div>
-        </div>
-      </div>
-    </div><!-- /ptPage -->
+    @include('PaymentAndBillings.partials.history._pt-table')
 
     @include('PaymentAndBillings.partials.history._product-table')
   </div><!-- /pages-slider -->
@@ -89,11 +77,36 @@
             <button type="button" class="btn btn-sm filter-button dropdown-toggle" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
               <i class="mdi mdi-filter-variant"></i> Filter
             </button>
-            <div class="dropdown-menu dropdown-menu-right">
-              <h6 class="dropdown-header">Type</h6>
-              <a class="dropdown-item {{ request('refund_filter', 'all') === 'all' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'all'])) }}"> <i class="mdi mdi-account-multiple mr-2"></i>All</a>
-              <a class="dropdown-item {{ request('refund_filter') === 'product' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'product'])) }}"> <i class="mdi mdi-basket mr-2"></i>Products Only</a>
-              <a class="dropdown-item {{ request('refund_filter') === 'membership' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'membership'])) }}"> <i class="mdi mdi-account mr-2"></i>Memberships Only</a>
+            <div class="dropdown-menu dropdown-menu-right filter-accordion">
+              <div class="filter-header">
+                <span class="filter-title">Filter By</span>
+                <a href="{{ route('payments.history', request()->except(['refund_filter', 'refunded_page'])) }}" class="filter-clear-all">Clear All</a>
+              </div>
+
+              <!-- Type Filter -->
+              <div class="filter-section">
+                <div class="filter-section-header" onclick="PaymentHistoryPage.toggleFilterSection(this, event)">
+                  <div class="filter-section-title">
+                    <i class="mdi mdi-tag-outline"></i>
+                    <span>Type</span>
+                  </div>
+                  <i class="mdi mdi-chevron-down filter-chevron"></i>
+                </div>
+                <div class="filter-section-content">
+                  <a class="filter-option {{ request('refund_filter', 'all') === 'all' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'all'])) }}">
+                    <i class="mdi mdi-account-multiple"></i> All
+                  </a>
+                  <a class="filter-option {{ request('refund_filter') === 'product' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'product'])) }}">
+                    <i class="mdi mdi-basket"></i> Products Only
+                  </a>
+                  <a class="filter-option {{ request('refund_filter') === 'membership' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'membership'])) }}">
+                    <i class="mdi mdi-account"></i> Memberships Only
+                  </a>
+                  <a class="filter-option {{ request('refund_filter') === 'pt' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'pt'])) }}">
+                    <i class="mdi mdi-dumbbell"></i> PT Only
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -143,7 +156,7 @@
               <td>{{ $cr->refunded_by }}</td>
               <td>
                 <div class="dropdown">
-                  <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
+                  <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-display="static" data-boundary="window" aria-haspopup="true" aria-expanded="false">
                     <i class="mdi mdi-dots-vertical"></i>
                   </button>
                   <div class="dropdown-menu dropdown-menu-right">
@@ -200,9 +213,13 @@ if (typeof ToastUtils === 'undefined') {
      data-csrf-token="{{ csrf_token() }}"
      data-bulk-delete-product-route="{{ route('payments.bulkDelete') }}"
      data-bulk-delete-membership-route="{{ route('membership.payment.bulkDelete') }}"
+     data-bulk-delete-pt-route="{{ route('pt.payment.bulkDelete') }}"
      data-flash-success="{{ session('success') ?? '' }}"
      data-flash-error="{{ session('error') ?? '' }}"
      data-flash-errors="{{ $errors->any() ? $errors->first() : '' }}"></div>
+
+<!-- Hidden bulk-delete forms -->
+<form id="bulkDeletePtForm" method="POST" style="display:none;"></form>
 
 @vite(['resources/js/pages/payment-history.js'])
 @endpush

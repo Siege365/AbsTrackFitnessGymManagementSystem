@@ -38,15 +38,7 @@ class RegisterController extends Controller
         ]);
 
         // Log the activity under the currently logged-in admin
-        ActivityLog::create([
-            'user_id'     => auth()->id(),
-            'user_name'   => auth()->user()->name ?? 'System',
-            'action'      => 'created_staff',
-            'description' => "Registered new staff account: {$user->name}",
-            'subject_type' => User::class,
-            'subject_id'  => $user->id,
-            'ip_address'  => $request->ip(),
-        ]);
+        ActivityLog::log('created', 'staff', "Registered new staff account: {$user->name}", null, $user->name, $user);
 
         // Do NOT auto-login the new user — preserve current admin session
         return redirect()->route('staff.index')->with('success', "Staff account for {$user->name} created successfully!");

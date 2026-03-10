@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const CSRF_TOKEN = config.dataset.csrfToken;
   const bulkDeleteProductRoute = config.dataset.bulkDeleteProductRoute;
   const bulkDeleteMembershipRoute = config.dataset.bulkDeleteMembershipRoute;
+  const bulkDeletePtRoute = config.dataset.bulkDeletePtRoute;
   const flashSuccess = config.dataset.flashSuccess;
   const flashError = config.dataset.flashError;
   const flashErrors = config.dataset.flashErrors;
@@ -154,6 +155,19 @@ document.addEventListener('DOMContentLoaded', function() {
     refundCheckboxes.forEach(cb => {
       cb.addEventListener('change', () => updateDeleteButton('refund'));
     });
+
+    // PT checkboxes
+    const selectAllPt = document.getElementById('selectAllPt');
+    const ptCheckboxes = document.querySelectorAll('.pt-checkbox');
+
+    selectAllPt?.addEventListener('change', function() {
+      ptCheckboxes.forEach(cb => cb.checked = this.checked);
+      updateDeleteButton('pt');
+    });
+
+    ptCheckboxes.forEach(cb => {
+      cb.addEventListener('change', () => updateDeleteButton('pt'));
+    });
   }
 
   function updateDeleteButton(type) {
@@ -223,6 +237,33 @@ document.addEventListener('DOMContentLoaded', function() {
     showDeleteModal(checked.length + ' membership payment(s)');
   };
 
+  window.bulkDeletePts = function() {
+    const checked = document.querySelectorAll('.pt-checkbox:checked');
+    if (checked.length === 0) {
+      ToastUtils.showWarning('Please select at least one payment to delete');
+      return;
+    }
+
+    pendingDeleteAction = function() {
+      const form = document.getElementById('bulkDeletePtForm');
+      form.innerHTML = buildCsrfDeleteInputs();
+
+      checked.forEach(cb => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'ids[]';
+        input.value = cb.value;
+        form.appendChild(input);
+      });
+
+      form.action = bulkDeletePtRoute;
+      form.method = 'POST';
+      form.submit();
+    };
+
+    showDeleteModal(checked.length + ' PT payment(s)');
+  };
+
   window.bulkDeleteRefunds = function() {
     const checked = document.querySelectorAll('.refund-checkbox:checked');
     if (checked.length === 0) {
@@ -233,11 +274,13 @@ document.addEventListener('DOMContentLoaded', function() {
     pendingDeleteAction = function() {
       const products = [];
       const memberships = [];
+      const pts = [];
 
       checked.forEach(cb => {
         const type = cb.dataset.type;
         const id = cb.value;
         if (type === 'product') products.push(id);
+        else if (type === 'pt') pts.push(id);
         else memberships.push(id);
       });
 
@@ -255,6 +298,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         document.body.appendChild(form);
         form.submit();
+        return;
       }
 
       if (memberships.length > 0) {
@@ -263,6 +307,23 @@ document.addEventListener('DOMContentLoaded', function() {
         form.action = bulkDeleteMembershipRoute;
         form.innerHTML = buildCsrfDeleteInputs();
         memberships.forEach(id => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'ids[]';
+          input.value = id;
+          form.appendChild(input);
+        });
+        document.body.appendChild(form);
+        form.submit();
+        return;
+      }
+
+      if (pts.length > 0) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = bulkDeletePtRoute;
+        form.innerHTML = buildCsrfDeleteInputs();
+        pts.forEach(id => {
           const input = document.createElement('input');
           input.type = 'hidden';
           input.name = 'ids[]';
@@ -284,7 +345,9 @@ document.addEventListener('DOMContentLoaded', function() {
     pendingDeleteAction = function() {
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = type === 'product' ? `/payments/${id}` : `/membership-payment/${id}`;
+      if (type === 'product') form.action = `/payments/${id}`;
+      else if (type === 'membership') form.action = `/membership-payment/${id}`;
+      else form.action = `/pt-payment/${id}`;
       form.innerHTML = `<input type="hidden" name="_token" value="${CSRF_TOKEN}"><input type="hidden" name="_method" value="DELETE">`;
       document.body.appendChild(form);
       form.submit();
@@ -345,7 +408,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
       <div class="confirm-row">
         <span class="confirm-label">Type:</span>
-        <span class="confirm-value">${type === 'product' ? 'Product Payment' : 'Membership Payment'}</span>
+        <span class="confirm-value">${type === 'product' ? 'Product Payment' : type === 'pt' ? 'PT Payment' : 'Membership Payment'}</span>
       </div>`;
 
     document.getElementById('refundModal').classList.add('show');
@@ -369,6 +432,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const reason = document.getElementById('refundReason')?.value || '';
     const url = currentRefundType === 'product'
       ? `/payments/${currentRefundId}/refund`
+      : currentRefundType === 'pt'
+      ? `/pt-payment/${currentRefundId}/refund`
       : `/membership-payment/${currentRefundId}/refund`;
 
     this.disabled = true;
@@ -389,12 +454,15 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
+        // Capture before closeRefundModal() nulls them out
+        const refundType = currentRefundType;
+        const refundId = currentRefundId;
         closeRefundModal();
         ToastUtils.showSuccess('Refund completed');
 
         // Immediately show refund receipt modal
         setTimeout(() => {
-          showRefundReceipt(currentRefundType, currentRefundId, data);
+          showRefundReceipt(refundType, refundId, data);
         }, 200);
       } else {
         ToastUtils.showError(data.message || 'Refund processing failed');
@@ -429,7 +497,11 @@ document.addEventListener('DOMContentLoaded', function() {
       console.error('Error generating receipt from refundData:', e);
     }
 
-    const url = type === 'product' ? `/payments/${id}/receipt-data` : `/membership-payment/${id}/receipt`;
+    const url = type === 'product'
+      ? `/payments/${id}/receipt-data`
+      : type === 'pt'
+      ? `/pt-payment/${id}/receipt`
+      : `/membership-payment/${id}/receipt`;
 
     // Try fetching the receipt, retrying a few times in case the server needs a moment to finalize
     const attemptFetch = (attempt = 1) => {
@@ -482,7 +554,7 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
           <div class="receipt-row">
             <span>Refund Type:</span>
-            <span>${type === 'product' ? 'Product Payment' : 'Membership Payment'}</span>
+            <span>${type === 'product' ? 'Product Payment' : type === 'pt' ? 'PT Payment' : 'Membership Payment'}</span>
           </div>
         </div>`;
 
@@ -581,7 +653,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('refundReceiptModal').classList.add('show');
 
-    const url = type === 'product' ? `/payments/${id}/receipt-data` : `/membership-payment/${id}/receipt`;
+    const url = type === 'product'
+      ? `/payments/${id}/receipt-data`
+      : type === 'pt'
+      ? `/pt-payment/${id}/receipt`
+      : `/membership-payment/${id}/receipt`;
 
     fetch(url)
       .then(r => r.json())
@@ -602,7 +678,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('viewReceiptModal').classList.add('show');
 
-    const url = type === 'product' ? `/payments/${id}/receipt-data` : `/membership-payment/${id}/receipt`;
+    const url = type === 'product'
+      ? `/payments/${id}/receipt-data`
+      : type === 'pt'
+      ? `/pt-payment/${id}/receipt`
+      : `/membership-payment/${id}/receipt`;
 
     fetch(url)
       .then(r => r.json())
@@ -617,6 +697,74 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   function generateOriginalReceipt(type, data) {
+    if (type === 'pt') {
+      return `
+        <div class="receipt-container">
+          <div class="receipt-header">
+            <h2>PT PAYMENT RECEIPT</h2>
+            <p><strong>Abstrack Fitness Gym</strong></p>
+            <p>Toril, Davao Del Sur</p>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
+            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Receipt Number</strong>
+              <span style="display: block; font-weight: 600;">#${data.receipt_number}</span>
+            </div>
+            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Date & Time</strong>
+              <span style="display: block; font-weight: 600;">${data.formatted_date || new Date(data.created_at).toLocaleString()}</span>
+            </div>
+            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Client Name</strong>
+              <span style="display: block; font-weight: 600;">${data.member_name || 'N/A'}</span>
+            </div>
+            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Contact</strong>
+              <span style="display: block; font-weight: 600;">${data.member_contact || 'N/A'}</span>
+            </div>
+            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Payment Type</strong>
+              <span style="display: block; font-weight: 600;">${(data.payment_type || '').toUpperCase()}</span>
+            </div>
+            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Payment Method</strong>
+              <span style="display: block; font-weight: 600;">${data.payment_method || 'N/A'}</span>
+            </div>
+          </div>
+          <table class="receipt-table">
+            <thead><tr><th>Description</th><th style="text-align: right;">Amount</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>${data.plan_type || 'PT'} Plan</strong><br><small style="color: #666;">Duration: ${data.duration || 'N/A'} days</small></td>
+                <td style="text-align: right;">₱${parseFloat(data.amount || 0).toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="receipt-total">
+            <div class="receipt-row" style="font-size: 1.3rem;">
+              <span><strong>Total Paid:</strong></span>
+              <span><strong>₱${parseFloat(data.amount || 0).toFixed(2)}</strong></span>
+            </div>
+          </div>
+          <div style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed #ccc;">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+              <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Previous Due Date</strong>
+                <span style="display: block; font-weight: 600;">${data.previous_due_date || 'N/A'}</span>
+              </div>
+              <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">New Due Date</strong>
+                <span style="display: block; font-weight: 600; color: #28a745;">${data.new_due_date || 'N/A'}</span>
+              </div>
+            </div>
+          </div>
+          <div class="receipt-footer">
+            <p><strong>Thank you for choosing our Personal Training!</strong></p>
+          </div>
+        </div>
+      `;
+    }
+
     if (type === 'product') {
       const items = data.items || [];
       const itemsHTML = items.map(item => `
@@ -889,5 +1037,21 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
   });
+
+  // ========================================
+  // FILTER ACCORDION TOGGLE
+  // ========================================
+  function toggleFilterSection(header, event) {
+    if (event) event.stopPropagation();
+    const section = header.closest('.filter-section');
+    if (section) {
+      section.classList.toggle('active');
+    }
+  }
+
+  // Expose as PaymentHistoryPage namespace
+  window.PaymentHistoryPage = {
+    toggleFilterSection: toggleFilterSection
+  };
 
 });

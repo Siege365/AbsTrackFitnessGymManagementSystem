@@ -59,7 +59,7 @@ body {
 }
 
 .content-wrapper .card {
-  overflow: hidden;
+  overflow: visible !important;
 }
 
 .content-wrapper .card-body {
@@ -160,12 +160,22 @@ body {
 
 .table .dropdown {
   position: relative;
+  z-index: 2;
+}
+
+.table .dropdown.show {
+  z-index: 1060;
 }
 
 .table .dropdown-menu {
   position: absolute;
-  z-index: 1050;
+  z-index: 1061;
   margin-top: 0.125rem;
+}
+
+.table-footer {
+  position: relative;
+  z-index: 1;
 }
 
 /* ============================================ */

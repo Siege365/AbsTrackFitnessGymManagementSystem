@@ -41,7 +41,11 @@ class NotificationService
     public static function paymentReceived(string $customerName, float $amount, string $paymentType = 'product'): Notification
     {
         $formattedAmount = '₱' . number_format($amount, 2);
-        $label = $paymentType === 'membership' ? 'Membership payment' : 'Product payment';
+        $label = match ($paymentType) {
+            'membership' => 'Membership payment',
+            'pt'         => 'PT payment',
+            default      => 'Product payment',
+        };
         return self::create(
             'payment_received',
             'Payment Received',

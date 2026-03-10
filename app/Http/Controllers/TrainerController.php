@@ -57,7 +57,7 @@ class TrainerController extends Controller
 
         $trainer = Trainer::create($validated);
 
-        $this->logActivity('created_trainer', "Added new trainer: {$trainer->full_name}", $trainer);
+        $this->logActivity('created', "Added new trainer: {$trainer->full_name}", $trainer, [], 'trainer');
 
         if ($request->ajax()) {
             return response()->json(['success' => true, 'message' => 'Trainer added successfully!']);
@@ -90,7 +90,7 @@ class TrainerController extends Controller
 
         $trainer->update($validated);
 
-        $this->logActivity('updated_trainer', "Updated trainer: {$trainer->full_name}", $trainer);
+        $this->logActivity('updated', "Updated trainer: {$trainer->full_name}", $trainer, [], 'trainer');
 
         if ($request->ajax()) {
             return response()->json(['success' => true, 'message' => 'Trainer updated successfully!']);
@@ -110,7 +110,7 @@ class TrainerController extends Controller
         $trainerName = $trainer->full_name;
         $trainer->delete();
 
-        $this->logActivity('deleted_trainer', "Deleted trainer: {$trainerName}");
+        $this->logActivity('deleted', "Deleted trainer: {$trainerName}", null, [], 'trainer');
 
         if ($request->ajax()) {
             return response()->json(['success' => true, 'message' => 'Trainer deleted successfully!']);

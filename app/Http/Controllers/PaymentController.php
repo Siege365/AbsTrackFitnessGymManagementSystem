@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Services\RefundService;
 use App\Services\NotificationService;
+use App\Models\Trainer;
 
 class PaymentController extends Controller
 {
@@ -139,6 +140,7 @@ class PaymentController extends Controller
                 'return_amount' => $request->paid_amount - $request->total_amount,
                 'total_quantity' => collect($items)->sum('qty'),
                 'cashier_name' => Auth::user()->name ?? 'Admin',
+                'transaction_type' => 'product',
             ]);
 
             foreach ($items as $item) {
@@ -361,15 +363,6 @@ class PaymentController extends Controller
                 $paymentRecord = Payment::findOrFail($payment);
                 $deletedReceipt = $paymentRecord->receipt_number;
                 $deletedCustomer = $paymentRecord->customer_name;
-                $paymentItems = PaymentItem::where('payment_id', $paymentRecord->id)->get();
-                
-                foreach ($paymentItems as $item) {
-                    $inventory = InventorySupply::find($item->inventory_supply_id);
-                    if ($inventory) {
-                        $inventory->increment('stock_qty', $item->quantity);
-                    }
-                }
-                
                 PaymentItem::where('payment_id', $paymentRecord->id)->delete();
                 $paymentRecord->delete();
             });
@@ -392,15 +385,6 @@ class PaymentController extends Controller
 
         try {
             DB::transaction(function () use ($ids) {
-                $paymentItems = PaymentItem::whereIn('payment_id', $ids)->get();
-                
-                foreach ($paymentItems as $item) {
-                    $inventory = InventorySupply::find($item->inventory_supply_id);
-                    if ($inventory) {
-                        $inventory->increment('stock_qty', $item->quantity);
-                    }
-                }
-                
                 PaymentItem::whereIn('payment_id', $ids)->delete();
                 Payment::whereIn('id', $ids)->delete();
             });
@@ -438,13 +422,7 @@ class PaymentController extends Controller
         // Fetch data for PT Payment form  
         $ptPlans = \App\Models\GymPlan::active()->personalTraining()->ordered()->get();
         
-        $trainers = [
-            'David Laid',
-            'Eulo Icon Sexcion',
-            'Justin Troy Rosalada',
-            'Nicolas Deloso Torre III',
-            'Ronnie Coleman',
-        ];
+        $trainers = Trainer::where('status', 'active')->orderBy('full_name')->pluck('full_name')->toArray();
 
         // Fetch data for Product Payment form
         $inventoryItems = InventorySupply::all();

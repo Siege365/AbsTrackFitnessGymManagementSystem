@@ -18,20 +18,36 @@ window.TrainersPage = (function() {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': config.csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json'
                     },
                     body: formData
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         $('#addTrainerModal').modal('hide');
-                        window.location.reload();
+                        ToastUtils.showSuccess(data.message || 'Trainer added successfully!', 'Success');
+                        setTimeout(() => window.location.reload(), 1500);
                     } else {
-                        alert(data.message || 'Failed to add trainer.');
+                        ToastUtils.showError(data.message || 'Failed to add trainer.', 'Error');
                     }
                 })
-                .catch(() => alert('An error occurred. Please try again.'));
+                .catch(err => {
+                    if (err && err.errors) {
+                        const messages = Object.values(err.errors).flat().join('<br>');
+                        ToastUtils.showError(messages, 'Validation Error');
+                    } else if (err && err.message) {
+                        ToastUtils.showError(err.message, 'Error');
+                    } else {
+                        ToastUtils.showError('An error occurred. Please try again.', 'Error');
+                    }
+                });
             });
         }
     }

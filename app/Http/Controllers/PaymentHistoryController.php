@@ -385,7 +385,7 @@ class PaymentHistoryController extends Controller
     }
 
     /**
-     * Delete product payment (with inventory restoration)
+     * Delete product payment (history only, no inventory restoration)
      */
     public function destroy($id)
     {
@@ -396,18 +396,6 @@ class PaymentHistoryController extends Controller
                 $paymentRecord = Payment::findOrFail($id);
                 $deletedReceipt = $paymentRecord->receipt_number;
                 $deletedCustomer = $paymentRecord->customer_name;
-                $paymentItems = PaymentItem::where('payment_id', $paymentRecord->id)->get();
-
-                // Restore inventory if not already refunded
-                if (!$paymentRecord->is_refunded) {
-                    foreach ($paymentItems as $item) {
-                        $inventory = \App\Models\InventorySupply::find($item->inventory_supply_id);
-                        if ($inventory) {
-                            $inventory->increment('stock_qty', $item->quantity);
-                        }
-                    }
-                }
-
                 PaymentItem::where('payment_id', $paymentRecord->id)->delete();
                 $paymentRecord->delete();
             });

@@ -146,7 +146,7 @@
               Showing {{ $membershipPlans->firstItem() ?? 0 }} to {{ $membershipPlans->lastItem() ?? 0 }} of {{ $membershipPlans->total() }} plans
             </div>
             <div>
-              {{ $membershipPlans->links() }}
+              {{ $membershipPlans->links('vendor.pagination.custom') }}
             </div>
           </div>
           @endif
@@ -288,7 +288,7 @@
               Showing {{ $ptPlans->firstItem() ?? 0 }} to {{ $ptPlans->lastItem() ?? 0 }} of {{ $ptPlans->total() }} plans
             </div>
             <div>
-              {{ $ptPlans->links() }}
+              {{ $ptPlans->links('vendor.pagination.custom') }}
             </div>
           </div>
           @endif

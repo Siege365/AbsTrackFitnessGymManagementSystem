@@ -115,6 +115,48 @@
     color: #fff;
 }
 
+/* Table card overflow - allow dropdowns to overflow */
+.content-wrapper .card {
+    overflow: visible !important;
+}
+
+.content-wrapper .card-body {
+    overflow: visible !important;
+}
+
+/* Table responsive overflow */
+.table-responsive {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive::-webkit-scrollbar {
+    height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+}
+
+.table .dropdown {
+    position: relative;
+    z-index: 2;
+}
+
+.table .dropdown.show {
+    z-index: 1060;
+}
+
+.table .dropdown-menu {
+    z-index: 1061;
+}
+
 /* Search info bar */
 .search-info {
     background: rgba(41, 182, 246, 0.08);

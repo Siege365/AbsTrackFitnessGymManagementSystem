@@ -175,10 +175,6 @@ Route::middleware(['auth'])->group(function () {
     // ==========================================
     // LEGACY SEPARATE PAYMENT PAGES (Deprecated - use /payments-billing/* instead)
     // ==========================================
-    Route::get('/pt-payment', function() {
-        return redirect()->route('payment.system.pt');
-    })->name('pt.payment.index');
-
     Route::get('/product-payment', function() {
         return redirect()->route('payment.system.product');
     })->name('product.payment.index');
@@ -197,6 +193,18 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/membership-payment/bulk-delete', [PaymentHistoryController::class, 'bulkDeleteMembership'])->name('membership.payment.bulkDelete');
     Route::post('/membership-payment/{id}/refund', [PaymentHistoryController::class, 'refundMembership'])->name('membership.payment.refund');
     Route::delete('/membership-payment/{id}', [PaymentHistoryController::class, 'destroyMembership'])->name('membership.payment.destroy');
+
+    // ==========================================
+    // PT PAYMENT ROUTES
+    // ==========================================
+    Route::prefix('pt-payment')->name('pt.payment.')->group(function () {
+        Route::post('/', [PTpaymentController::class, 'store'])->name('store');
+        Route::get('/{id}/receipt', [PTpaymentController::class, 'receiptData'])->name('receipt');
+        Route::get('/search-clients', [PTpaymentController::class, 'searchActiveMembers'])->name('search');
+    });
+    Route::delete('/pt-payment/bulk-delete', [PaymentHistoryController::class, 'bulkDeletePT'])->name('pt.payment.bulkDelete');
+    Route::post('/pt-payment/{id}/refund', [PaymentHistoryController::class, 'refundPT'])->name('pt.payment.refund');
+    Route::delete('/pt-payment/{id}', [PaymentHistoryController::class, 'destroyPT'])->name('pt.payment.destroy');
 
     // // Optional: Dedicated Refund Management Routes (if you want a separate refund dashboard)
     // Route::prefix('refunds')->name('refunds.')->group(function () {

@@ -547,6 +547,7 @@ function closeProdConfirmation() {
   const m = document.getElementById('prodConfirmationModal');
   if (m) m.classList.remove('show');
 }
+window.closeProdConfirmation = closeProdConfirmation;
 
 function confirmProductPayment() {
   const btn = document.getElementById('prodConfirmPaymentBtn');
@@ -568,6 +569,7 @@ function confirmProductPayment() {
   .then(r => r.json())
   .then(data => {
     if (data.success) {
+      ToastUtils.showSuccess(data.message || 'Payment completed successfully');
       closeProdConfirmation();
       setTimeout(() => { loadProductReceiptModal(data.payment.id); }, 300);
       clearProdFormData();
@@ -719,10 +721,12 @@ function closeProductReceiptModal() {
   modal.classList.remove('show');
   setTimeout(() => { window.location.reload(); }, 300);
 }
+window.closeProductReceiptModal = closeProductReceiptModal;
 
 function printProductReceipt() {
   window.print();
 }
+window.printProductReceipt = printProductReceipt;
 
 // Close modals when clicking outside
 window.addEventListener('click', function(event) {
@@ -782,6 +786,7 @@ function closeProductRefundModal() {
   const m = document.getElementById('productRefundModal');
   if (m) m.classList.remove('show');
 }
+window.closeProductRefundModal = closeProductRefundModal;
 
 function confirmProductRefund() {
   if (!currentProductRefundId) return;
@@ -789,8 +794,9 @@ function confirmProductRefund() {
   const url = `/payments/${currentProductRefundId}/refund`;
   const fd = new FormData();
   fd.append('reason', reason);
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || document.querySelector('input[name="_token"]')?.value || '';
 
-  fetch(url, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } })
+  fetch(url, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } })
     .then(r => r.json())
     .then(data => {
       if (data.success) {
@@ -803,3 +809,5 @@ function confirmProductRefund() {
     })
     .catch(err => { console.error(err); ToastUtils.showError('Refund processing failed'); });
 }
+window.confirmProductRefund = confirmProductRefund;
+window.openProductRefundModal = openProductRefundModal;

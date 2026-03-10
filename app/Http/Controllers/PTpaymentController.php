@@ -7,6 +7,7 @@ use App\Models\PTPayment;
 use App\Models\Membership;
 use App\Models\GymPlan;
 use App\Models\ActivityLog;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -43,8 +44,7 @@ class PTpaymentController extends Controller
 
         $validPlanTypes = implode(',', array_keys(self::planConfig()));
 
-        // For 'new' payment type (first-time PT enrollment of existing gym member),
-        // member_id refers to their Membership ID, not a Client ID
+        $isWalkin = $request->boolean('is_walkin');
         $isNewPtClient = $request->payment_type === 'new' || $request->boolean('is_new_pt_client');
 
         $rules = [
@@ -55,7 +55,9 @@ class PTpaymentController extends Controller
             'notes'        => 'nullable|string|max:1000',
         ];
 
-        if ($isNewPtClient) {
+        if ($isWalkin) {
+            $rules['customer_name'] = 'required|string|max:255';
+        } elseif ($isNewPtClient) {
             $rules['member_id'] = 'required|exists:memberships,id';
             $rules['member_name'] = 'required|string|max:255';
         } else {
@@ -81,8 +83,40 @@ class PTpaymentController extends Controller
             $planConfig = self::planConfig()[$planType];
             $duration   = $planConfig['duration'];
 
-            // First-time PT enrollment: create a Client (PT) record from the existing membership data
-            if ($isNewPtClient) {
+            // Walk-in new client (no membership record)
+            if ($isWalkin) {
+                $customerName = $request->customer_name;
+                $client = Client::where('name', $customerName)->first();
+
+                if (!$client) {
+                    $customer = null;
+                    if ($request->customer_contact) {
+                        $customer = \App\Models\Customer::where('contact', $request->customer_contact)->first();
+                    }
+                    if (!$customer) {
+                        $customer = \App\Models\Customer::where('name', $customerName)->first();
+                    }
+                    if (!$customer) {
+                        $customer = \App\Models\Customer::create([
+                            'name'    => $customerName,
+                            'contact' => $request->customer_contact,
+                        ]);
+                    }
+
+                    $client = Client::create([
+                        'name'        => $customerName,
+                        'age'         => $request->customer_age,
+                        'sex'         => $request->customer_sex,
+                        'contact'     => $request->customer_contact,
+                        'plan_type'   => $planType,
+                        'start_date'  => now(),
+                        'due_date'    => now()->addDays($duration),
+                        'customer_id' => $customer->id,
+                    ]);
+                }
+
+            // First-time PT enrollment from existing membership
+            } elseif ($isNewPtClient) {
                 $membership = Membership::findOrFail($request->member_id);
 
                 // Check if a PT client record already exists for this gym member
@@ -173,6 +207,8 @@ class PTpaymentController extends Controller
             ]);
 
             DB::commit();
+
+            NotificationService::paymentReceived($client->name, $request->amount, 'pt');
 
             ActivityLog::log('created', 'pt_payment', "Processed PT payment for {$payment->member_name} ({$request->payment_type}) — ₱" . number_format($payment->amount, 2), $payment->receipt_number, $payment->member_name, $payment, ['plan_type' => $payment->plan_type, 'payment_type' => $request->payment_type, 'amount' => $payment->amount, 'duration_days' => $payment->duration_days]);
 

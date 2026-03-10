@@ -89,7 +89,7 @@ if (typeof ToastUtils === 'undefined') {
      data-duplicate-check-url="{{ url('/api/members/check-duplicate') }}"></div>
 <div id="productPaymentConfig" class="hidden"
      data-inventory-items='@json($inventoryItems ?? [])'
-     data-member-search-url="{{ url('/members/search') }}"></div>
+     data-member-search-url="{{ url('/api/members/search') }}"></div>
 
 <!-- Load payment-specific JS files -->
 @vite(['resources/js/pages/payment-system.js'])

@@ -175,7 +175,7 @@
 
                 @if($logs->hasPages())
                 <div class="d-flex justify-content-center mt-4">
-                    {{ $logs->links() }}
+                    {{ $logs->links('vendor.pagination.custom') }}
                 </div>
                 @endif
             </div>
