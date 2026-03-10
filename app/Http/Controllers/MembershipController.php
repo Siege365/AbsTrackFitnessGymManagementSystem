@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use App\Services\NotificationService;
 
 class MembershipController extends Controller
 {
@@ -289,7 +290,8 @@ class MembershipController extends Controller
 
             $membership = Membership::create($validated);
 
-            ActivityLog::log('created', 'membership', "Added new member: {$validated['name']}", 'MEM-' . $membership->id, $validated['name'], $membership, ['plan_type' => $validated['plan_type'], 'start_date' => $validated['start_date'], 'due_date' => $validated['due_date']]);
+            // Send notification for new membership
+            NotificationService::newMembership($validated['name'], $plan->plan_name, 'member');
 
             // Return JSON response for AJAX requests
             if ($request->wantsJson() || $request->ajax()) {

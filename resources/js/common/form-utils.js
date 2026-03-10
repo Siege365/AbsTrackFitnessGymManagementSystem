@@ -203,7 +203,7 @@ const FormUtils = (function() {
         if (onError) {
           onError(errorMessage, data);
         } else {
-          alert('Error: ' + errorMessage);
+          ToastUtils.showError(errorMessage);
         }
       }
     })
@@ -214,7 +214,7 @@ const FormUtils = (function() {
       if (onError) {
         onError(MESSAGES.networkError, error);
       } else {
-        alert(MESSAGES.networkError);
+        ToastUtils.showError(MESSAGES.networkError);
       }
     });
   }

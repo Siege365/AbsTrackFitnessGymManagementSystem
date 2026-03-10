@@ -64,7 +64,7 @@
     const checkedBoxes = document.querySelectorAll('.membership-checkbox:checked');
     
     if (checkedBoxes.length === 0) {
-      ToastUtils.showError('Please select at least 1 row before proceeding.', 'No Selection');
+      ToastUtils.showWarning('No members selected for deletion', 'Warning');
       return false;
     }
     

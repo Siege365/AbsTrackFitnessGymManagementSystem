@@ -16,10 +16,12 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PaymentHistoryController;
 use App\Http\Controllers\RefundController;
 use App\Http\Controllers\PTpaymentController;
-use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AccountSettingsController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\TrainerController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ActivityLogController;
 
 
 
@@ -30,7 +32,8 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
 // Dashboard (Protected)
-Route::get('/', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
+Route::get('/', [DashboardController::class, 'index'])
+    ->middleware('auth')->name('dashboard');
 
 // Protected Routes (Require Authentication)
 Route::middleware(['auth'])->group(function () {
@@ -38,10 +41,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
 
-    // Dashboard API Routes
-    Route::get('/dashboard/attendance-chart', [DashboardController::class, 'getAttendanceChart'])->name('dashboard.attendance-chart');
-    Route::get('/dashboard/revenue-chart', [DashboardController::class, 'getRevenueChart'])->name('dashboard.revenue-chart');
-    Route::get('/dashboard/membership-chart', [DashboardController::class, 'getMembershipChart'])->name('dashboard.membership-chart');
+    // Account Settings
+    Route::get('/account/settings', [AccountSettingsController::class, 'show'])->name('account.settings');
+    Route::put('/account/profile', [AccountSettingsController::class, 'updateProfile'])->name('account.profile.update');
+    Route::put('/account/password', [AccountSettingsController::class, 'updatePassword'])->name('account.password.update');
     // UI Elements
     Route::get('/ui/buttons', function () {
         return view('pages.ui.buttons');
@@ -75,8 +78,8 @@ Route::middleware(['auth'])->group(function () {
         return view('pages.icons.mdi');
     })->name('icons.mdi');
 
-    Route::get('/training-sessions', [SessionController::class, 'ptIndex'])->name('sessions.pt.index');
-    Route::get('/customer-attendance', [SessionController::class, 'attendanceIndex'])->name('sessions.attendance.index');
+    Route::get('/sessions/training-sessions', [SessionController::class, 'ptIndex'])->name('sessions.pt.index');
+    Route::get('/sessions/customer-attendance', [SessionController::class, 'attendanceIndex'])->name('sessions.attendance.index');
     
     // Session Routes - PT Schedules & Attendance
     Route::prefix('sessions')->name('sessions.')->group(function () {
@@ -112,13 +115,8 @@ Route::middleware(['auth'])->group(function () {
     });
     
     //Inventory Supply Routes
-    Route::get('/inventory', [InventorySupplyController::class, 'index'])->name('inventory.index');
-    Route::get('/inventory-logs', [InventorySupplyController::class, 'logsIndex'])->name('inventory.logs');
-    Route::post('/inventory', [InventorySupplyController::class, 'store'])->name('inventory.store');
-    Route::put('/inventory/{id}', [InventorySupplyController::class, 'update'])->name('inventory.update');
-    Route::delete('/inventory/bulk-delete', [InventorySupplyController::class, 'bulkDelete'])->name('inventory.bulk-delete');
-    Route::delete('/inventory/{id}', [InventorySupplyController::class, 'destroy'])->name('inventory.destroy');
-    Route::prefix('inventory')->name('inventory.')->group(function () {
+    Route::get('/inventory/inventory-logs', [InventorySupplyController::class, 'logsIndex'])->name('inventory.logs');
+    Route::prefix('inventory/products')->name('inventory.')->group(function () {
         Route::get('/', [InventorySupplyController::class, 'index'])->name('index');
         Route::post('/', [InventorySupplyController::class, 'store'])->name('store');
         Route::get('/next-product-number', [InventorySupplyController::class, 'getNextProductNumber'])->name('next-product-number');
@@ -140,35 +138,51 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/payments/products', [PaymentController::class, 'store'])->name('payments.store');
     Route::delete('/payments/products/bulk-delete', [PaymentController::class, 'bulkDelete'])->name('payments.bulkDelete');
     
-    // Payment History Routes
-    Route::get('/payments/history', [PaymentHistoryController::class, 'index'])->name('payments.history');
-    Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt'])->name('payments.receipt');
-    Route::get('/payments/{payment}/receipt-data', [PaymentController::class, 'receiptData'])->name('payments.receiptData');
-    Route::get('/payments/membership', [PaymentController::class, 'membership'])->name('payments.membership');
+    // ==========================================
+    // UNIFIED PAYMENT SYSTEM (SPA-STYLE)
+    // ==========================================
+    Route::prefix('payments-billing/payment-system')->name('payment.system.')->group(function () {
+        Route::get('/membership-payment', [PaymentController::class, 'membership'])->defaults('paymentType', 'membership')->name('membership');
+        Route::get('/pt-payment', [PaymentController::class, 'membership'])->defaults('paymentType', 'pt')->name('pt');
+        Route::get('/product-payment', [PaymentController::class, 'membership'])->defaults('paymentType', 'product')->name('product');
+        
+        // Default fallback - redirect to membership
+        Route::get('/', function() {
+            return redirect()->route('payment.system.membership');
+        })->name('index');
+    });
     
+    // Legacy aliases for backward compatibility
+    Route::get('/payments/membership', function() {
+        return redirect()->route('payment.system.membership');
+    })->name('payments.membership');
+    
+    // Payment History & Transaction Management Routes
+    Route::get('/payments-billing/payment-history', [PaymentHistoryController::class, 'index'])->name('payments.history');
+    Route::get('/payments/{payment}/receipt', [PaymentController::class, 'receipt'])->name('payments.receipt');
+    Route::get('/payments/{id}/receipt-data', [PaymentHistoryController::class, 'getReceiptData'])->name('payments.receipt-data');
+    Route::post('/payments/{id}/refund', [PaymentHistoryController::class, 'refundProduct'])->name('payments.refund');
+    Route::delete('/payments/{id}', [PaymentHistoryController::class, 'destroy'])->name('payments.destroy');
+    
+    // ==========================================
     // MEMBERSHIP PAYMENT ROUTES (UPDATED)
     Route::prefix('membership-payment')->name('membership.payment.')->group(function () {
         Route::get('/', [MembershipPaymentController::class, 'index'])->name('index');
         Route::post('/', [MembershipPaymentController::class, 'store'])->name('store');
         Route::get('/{id}/receipt', [MembershipPaymentController::class, 'receiptData'])->name('receipt');
     });
+
+    // ==========================================
+    // LEGACY SEPARATE PAYMENT PAGES (Deprecated - use /payments-billing/* instead)
+    // ==========================================
+    Route::get('/pt-payment', function() {
+        return redirect()->route('payment.system.pt');
+    })->name('pt.payment.index');
+
+    Route::get('/product-payment', function() {
+        return redirect()->route('payment.system.product');
+    })->name('product.payment.index');
     
-    // PT PAYMENT ROUTES
-    Route::prefix('pt-payment')->name('pt.payment.')->group(function () {
-        Route::post('/', [PTpaymentController::class, 'store'])->name('store');
-        Route::get('/{id}/receipt', [PTpaymentController::class, 'receiptData'])->name('receipt');
-    });
-
-    // PT search APIs
-    Route::get('/api/pt/search-members', [PTpaymentController::class, 'searchActiveMembers']);
-    Route::get('/api/pt/search-clients', [PTpaymentController::class, 'searchClients']);
-
-    // PT Payment History Routes
-    Route::delete('/pt-payment/bulk-delete', [PaymentHistoryController::class, 'bulkDeletePT'])->name('pt.payment.bulkDelete');
-    Route::post('/pt-payment/{id}/refund', [PaymentHistoryController::class, 'refundPT'])->name('pt.payment.refund');
-    Route::delete('/pt-payment/{id}', [PaymentHistoryController::class, 'destroyPT'])->name('pt.payment.destroy');
-    Route::get('/pt-payment/{id}/history-receipt', [PaymentHistoryController::class, 'getPTReceipt'])->name('pt.payment.history.receipt');
-
     // Member search API
     Route::get('/api/members/search', [MemberApiController::class, 'search']);
     Route::get('/api/members/check-duplicate', [MemberApiController::class, 'checkDuplicate']);
@@ -178,17 +192,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/customers/autocomplete', [CustomerController::class, 'autocomplete'])->name('api.customers.autocomplete');
     Route::get('/api/memberships/autocomplete', [MembershipController::class, 'autocomplete'])->name('api.memberships.autocomplete');
     Route::get('/api/clients/autocomplete', [ClientController::class, 'autocomplete'])->name('api.clients.autocomplete');
-
-    // Product Payment Routes (managed from Payment History page)
-    Route::get('/payments/{id}/receipt-data', [PaymentHistoryController::class, 'getReceiptData'])->name('payments.receipt-data');
-    Route::post('/payments/{id}/refund', [PaymentHistoryController::class, 'refundProduct'])->name('payments.refund');
-    Route::delete('/payments/{id}', [PaymentHistoryController::class, 'destroy'])->name('payments.destroy');
-
+    
     // Membership Payment History Routes
     Route::delete('/membership-payment/bulk-delete', [PaymentHistoryController::class, 'bulkDeleteMembership'])->name('membership.payment.bulkDelete');
     Route::post('/membership-payment/{id}/refund', [PaymentHistoryController::class, 'refundMembership'])->name('membership.payment.refund');
     Route::delete('/membership-payment/{id}', [PaymentHistoryController::class, 'destroyMembership'])->name('membership.payment.destroy');
-    Route::get('/membership-payment/{id}/receipt', [PaymentHistoryController::class, 'getMembershipReceipt'])->name('membership.payment.receipt');
 
     // // Optional: Dedicated Refund Management Routes (if you want a separate refund dashboard)
     // Route::prefix('refunds')->name('refunds.')->group(function () {
@@ -200,7 +208,7 @@ Route::middleware(['auth'])->group(function () {
     // });
 
     // Reports & Analytics Routes
-    Route::prefix('reports')->name('reports.')->group(function () {
+    Route::prefix('reports-analytics')->name('reports.')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
         Route::get('/kpis', [ReportController::class, 'getKPIs'])->name('kpis');
         Route::get('/revenue-over-time', [ReportController::class, 'getRevenueOverTime'])->name('revenue-over-time');
@@ -212,28 +220,28 @@ Route::middleware(['auth'])->group(function () {
     });
     
     // Legacy route (redirect to new reports route)
-    Route::get('/ReportAndBilling', [ReportController::class, 'index'])->name('ReportAndBilling');
+    Route::get('/ReportAndBilling', function() {
+        return redirect()->route('reports.index');
+    })->name('ReportAndBilling');
 
-    // User and Admin — Staff & Trainer Management (Admin Only)
-    Route::middleware(['admin'])->group(function () {
-        Route::get('/UserAndAdmin/UserManagement', [StaffController::class, 'index'])->name('UserAndAdmin.UserManagement');
-        Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
-        Route::put('/staff/{id}', [StaffController::class, 'update'])->name('staff.update');
-        Route::delete('/staff/bulk-delete', [StaffController::class, 'bulkDelete'])->name('staff.bulk-delete');
-        Route::delete('/staff/{id}', [StaffController::class, 'destroy'])->name('staff.destroy');
-
-        // Trainer Management (Admin Only)
-        Route::get('/UserAndAdmin/TrainerManagement', [TrainerController::class, 'index'])->name('UserAndAdmin.TrainerManagement');
-        Route::post('/trainers', [TrainerController::class, 'store'])->name('trainers.store');
-        Route::put('/trainers/{id}', [TrainerController::class, 'update'])->name('trainers.update');
-        Route::delete('/trainers/bulk-delete', [TrainerController::class, 'bulkDelete'])->name('trainers.bulk-delete');
-        Route::delete('/trainers/{id}', [TrainerController::class, 'destroy'])->name('trainers.destroy');
-
-        // Activity Logs (Admin Only)
-        Route::get('/UserAndAdmin/CashierActivity', [ActivityLogController::class, 'index'])->name('UserAndAdmin.CashierActivity');
-        Route::delete('/activity-logs/bulk-delete', [ActivityLogController::class, 'bulkDelete'])->name('activity-logs.bulk-delete');
-        Route::delete('/activity-logs/clear-all', [ActivityLogController::class, 'clearAll'])->name('activity-logs.clear-all');
+    // ==========================================
+    // STAFF MANAGEMENT ROUTES
+    // ==========================================
+    Route::prefix('staff-management/staff')->name('staff.')->group(function () {
+        Route::get('/', [StaffController::class, 'index'])->name('index');
+        Route::put('/{id}', [StaffController::class, 'update'])->name('update');
+        Route::delete('/{id}', [StaffController::class, 'destroy'])->name('destroy');
+        Route::patch('/{id}/toggle-status', [StaffController::class, 'toggleStatus'])->name('toggleStatus');
     });
+
+    Route::prefix('staff-management/trainers')->name('trainers.')->group(function () {
+        Route::get('/', [TrainerController::class, 'index'])->name('index');
+        Route::post('/', [TrainerController::class, 'store'])->name('store');
+        Route::put('/{id}', [TrainerController::class, 'update'])->name('update');
+        Route::delete('/{id}', [TrainerController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::get('/staff-management/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 
     // ==========================================
     // GYM CONFIGURATION ROUTES
@@ -254,18 +262,30 @@ Route::middleware(['auth'])->group(function () {
     // API: Active plans (for Payment page dynamic loading)
     Route::get('/api/gym-plans/active', [GymConfigurationController::class, 'activePlans'])->name('api.gym-plans.active');
 
-    // Memberships CRUD
-    Route::get('memberships/kpis', [MembershipController::class, 'getKpis'])->name('memberships.kpis');
-    Route::delete('memberships/bulk-delete', [MembershipController::class, 'bulkDelete'])->name('memberships.bulk-delete');
-    Route::post('memberships/{membership}/renew', [MembershipController::class, 'renew'])->name('memberships.renew');
-    Route::resource('memberships', MembershipController::class);
-    Route::get('/members/search', [MembershipController::class, 'search'])->name('members.search');
+    // ==========================================
+    // NOTIFICATION BELL ROUTES
+    // ==========================================
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/page', [NotificationController::class, 'page'])->name('page');
+        Route::get('/', [NotificationController::class, 'index'])->name('index');
+        Route::patch('/{id}/read', [NotificationController::class, 'markAsRead'])->name('read');
+        Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+    });
 
-    // Clients CRUD
-    Route::get('clients/kpis', [ClientController::class, 'getKpis'])->name('clients.kpis');
-    Route::delete('clients/bulk-delete', [ClientController::class, 'bulkDelete'])->name('clients.bulk-delete');
-    Route::post('clients/{client}/renew', [ClientController::class, 'renew'])->name('clients.renew');
-    Route::resource('clients', ClientController::class);
+    // Memberships CRUD (under /customers/memberships)
+    Route::prefix('customers')->group(function () {
+        Route::get('memberships/kpis', [MembershipController::class, 'getKpis'])->name('memberships.kpis');
+        Route::delete('memberships/bulk-delete', [MembershipController::class, 'bulkDelete'])->name('memberships.bulk-delete');
+        Route::post('memberships/{membership}/renew', [MembershipController::class, 'renew'])->name('memberships.renew');
+        Route::resource('memberships', MembershipController::class);
+        Route::get('/members/search', [MembershipController::class, 'search'])->name('members.search');
+
+        // Clients CRUD (under /customers/clients)
+        Route::get('clients/kpis', [ClientController::class, 'getKpis'])->name('clients.kpis');
+        Route::delete('clients/bulk-delete', [ClientController::class, 'bulkDelete'])->name('clients.bulk-delete');
+        Route::post('clients/{client}/renew', [ClientController::class, 'renew'])->name('clients.renew');
+        Route::resource('clients', ClientController::class);
+    });
 });
 
 // Sample Pages

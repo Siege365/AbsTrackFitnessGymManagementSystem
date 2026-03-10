@@ -28,8 +28,9 @@ export default defineConfig({
                 'resources/css/payment-history.css',
                 'resources/css/activity-logs.css',
                 'resources/css/configuration.css',
-                'resources/css/staff.css',
-                'resources/css/trainer.css',
+                'resources/css/account-settings.css',
+                'resources/css/staff-management.css',
+                'resources/css/notifications-page.css',
 
                 // Auth CSS
                 'resources/css/auth-login.css',
@@ -44,12 +45,18 @@ export default defineConfig({
                 'resources/js/common/sidebar.js',
                 'resources/js/common/table-dropdown.js',
                 'resources/js/common/autocomplete-utils.js',
+                'resources/js/common/notification-bell.js',
 
                 // Page-specific JS
                 'resources/js/pages/dashboard.js',
                 'resources/js/pages/clients.js',
                 'resources/js/pages/memberships.js',
                 'resources/js/pages/payments.js',
+                'resources/js/pages/payment-system.js',
+                'resources/js/pages/membership-payment.js',
+                'resources/js/pages/pt-payment.js',
+                'resources/js/pages/product-payment.js',
+                'resources/js/pages/payment-history.js',
                 'resources/js/pages/reports.js',
                 'resources/js/pages/pt-sessions.js',
                 'resources/js/pages/customer-attendance.js',
@@ -58,7 +65,8 @@ export default defineConfig({
                 'resources/js/sessions.js',
                 'resources/js/pages/configuration.js',
                 'resources/js/pages/staff.js',
-                'resources/js/pages/trainer.js',
+                'resources/js/pages/trainers.js',
+                'resources/js/notifications/page.js',
 
                 // Auth JS
                 'resources/js/auth-login.js',

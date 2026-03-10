@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Exception;
 use Carbon\Carbon;
+use App\Services\NotificationService;
 
 class RefundService
 {
@@ -122,6 +123,9 @@ class RefundService
                 'ip_address' => request()->ip(),
             ]);
 
+            // Send refund notification
+            NotificationService::refundProcessed($payment->receipt_number, $refundAmount, 'product');
+
             return [
                 'success' => true,
                 'message' => 'Product payment refunded successfully',
@@ -212,6 +216,9 @@ class RefundService
                 ],
                 'ip_address' => request()->ip(),
             ]);
+
+            // Send refund notification
+            NotificationService::refundProcessed($payment->receipt_number, $refundAmount, 'membership');
 
             return [
                 'success' => true,

@@ -292,11 +292,14 @@ const ReportsPage = (function () {
   /** Fetch KPI data and update the 4 stat cards. */
   async function loadKPIs() {
     try {
-      const res = await fetch('/reports/kpis');
-      const result = await res.json();
-      if (result.success) updateKPIDisplay(result.data);
-    } catch (err) {
-      console.error('Error loading KPIs:', err);
+      const response = await fetch('/reports-analytics/kpis');
+      const result = await response.json();
+      
+      if (result.success) {
+        updateKPIDisplay(result.data);
+      }
+    } catch (error) {
+      console.error('Error loading KPIs:', error);
     }
   }
 
@@ -349,9 +352,9 @@ const ReportsPage = (function () {
    */
   async function fetchRevenueOverTime() {
     try {
-      const res = await fetch('/reports/revenue-over-time?period=' + currentFilters.revenueOverTime);
-      const result = await res.json();
-
+      const response = await fetch('/reports-analytics/revenue-over-time?period=' + currentFilters.revenueOverTime);
+      const result = await response.json();
+      
       if (result.success && charts.revenueOverTime) {
         const d = result.data;
         const lineColors = [
@@ -388,9 +391,9 @@ const ReportsPage = (function () {
    */
   async function fetchTopSelling() {
     try {
-      const res = await fetch('/reports/top-selling?period=' + currentFilters.topSelling);
-      const result = await res.json();
-
+      const response = await fetch('/reports-analytics/top-selling?period=' + currentFilters.topSelling);
+      const result = await response.json();
+      
       if (result.success && charts.topSelling) {
         const d = result.data;
         charts.topSelling.data.labels = d.labels;
@@ -411,9 +414,9 @@ const ReportsPage = (function () {
   /** Revenue Breakdown – update donut slices + custom legend. */
   async function fetchRevenueBreakdown() {
     try {
-      const res = await fetch('/reports/revenue-breakdown?period=' + currentFilters.revenueBreakdown);
-      const result = await res.json();
-
+      const response = await fetch('/reports-analytics/revenue-breakdown?period=' + currentFilters.revenueBreakdown);
+      const result = await response.json();
+      
       if (result.success && charts.revenueBreakdown) {
         const d = result.data;
         charts.revenueBreakdown.data.labels                     = d.labels;
@@ -447,9 +450,9 @@ const ReportsPage = (function () {
   /** Transaction History – update donut slices + custom legend. */
   async function fetchTransactionHistory() {
     try {
-      const res = await fetch('/reports/transaction-history?period=' + currentFilters.transactionHistory);
-      const result = await res.json();
-
+      const response = await fetch('/reports-analytics/transaction-history?period=' + currentFilters.transactionHistory);
+      const result = await response.json();
+      
       if (result.success && charts.transactionHistory) {
         const d = result.data;
         charts.transactionHistory.data.labels                     = d.labels;
@@ -483,9 +486,9 @@ const ReportsPage = (function () {
   /** Customer Attendance – update line chart data. */
   async function fetchAttendance() {
     try {
-      const res = await fetch('/reports/attendance-trend?period=' + currentFilters.attendance);
-      const result = await res.json();
-
+      const response = await fetch('/reports-analytics/attendance-trend?period=' + currentFilters.attendance);
+      const result = await response.json();
+      
       if (result.success && charts.customerAttendance) {
         charts.customerAttendance.data.labels           = result.data.labels;
         charts.customerAttendance.data.datasets[0].data = result.data.values;
@@ -550,7 +553,7 @@ const ReportsPage = (function () {
       // Build hidden form
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = '/reports/export';
+      form.action = '/reports-analytics/export';
       form.style.display = 'none';
 
       const addField = (name, value) => {
@@ -594,7 +597,7 @@ const ReportsPage = (function () {
         title: message, showConfirmButton: false, timer: 3000
       });
     } else {
-      alert(message);
+      ToastUtils.showInfo(message);
     }
   }
 

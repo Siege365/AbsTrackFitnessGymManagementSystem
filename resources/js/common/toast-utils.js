@@ -13,6 +13,9 @@ const ToastUtils = (function() {
   // Auto-dismiss timeout (milliseconds)
   const AUTO_DISMISS_DELAY = 5000; // 5 seconds
   
+  // Maximum number of toasts to display at once
+  const MAX_TOASTS = 3;
+  
   // Toast counter for unique IDs
   let toastCounter = 0;
 
@@ -62,25 +65,30 @@ const ToastUtils = (function() {
     // Get or create container
     const container = ensureToastContainer();
     
+    // Enforce max toast limit - remove oldest if at capacity
+    const existingToasts = container.querySelectorAll('.toast');
+    if (existingToasts.length >= MAX_TOASTS) {
+      const oldestToast = existingToasts[0];
+      $(oldestToast).toast('hide');
+      oldestToast.remove();
+    }
+    
     // Generate unique ID
     const toastId = `toast-${++toastCounter}`;
     
     // Determine icon and colors based on type
     const typeConfig = getTypeConfig(type);
     
-    // Create toast HTML
+    // Convert newlines to <br> tags for HTML display
+    const formattedMessage = message.replace(/\n/g, '<br>');
+    
+    // Create toast HTML - simple filled background design
     const toastHtml = `
-      <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="${delay}" data-autohide="${autohide}" style="margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid ${typeConfig.borderColor}; overflow: hidden;">
-        <div class="toast-header" style="background: linear-gradient(135deg, ${typeConfig.headerBg}, ${typeConfig.headerGradient}); color: ${typeConfig.headerColor}; border-bottom: 2px solid ${typeConfig.borderColor}; padding: 12px 16px; border-radius: 8px 8px 0 0;">
-          <i class="${typeConfig.icon}" style="font-size: 1.25rem; margin-right: 10px;"></i>
-          <strong class="mr-auto" style="font-size: 0.95rem; font-weight: 600;">${title || typeConfig.defaultTitle}</strong>
-          <small class="text-muted" style="font-size: 0.75rem; opacity: 0.7;">just now</small>
-          <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" style="color: ${typeConfig.headerColor}; opacity: 0.9; font-size: 1.2rem;">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="toast-body" style="background-color: ${typeConfig.bodyBg}; color: ${typeConfig.bodyColor}; padding: 14px 16px; font-size: 0.9rem; line-height: 1.5; border-radius: 0 0 8px 8px;">
-          ${message}
+      <div id="${toastId}" class="toast toast-${type}" role="alert" aria-live="assertive" aria-atomic="true" data-delay="${delay}" data-autohide="${autohide}">
+        <div class="toast-content">
+          <i class="${typeConfig.icon} toast-icon"></i>
+          <span class="toast-message">${formattedMessage}</span>
+          <button type="button" class="toast-close" data-dismiss="toast" aria-label="Close">&times;</button>
         </div>
       </div>
     `;
@@ -121,42 +129,22 @@ const ToastUtils = (function() {
       success: {
         icon: 'mdi mdi-check-circle',
         defaultTitle: 'Success',
-        headerBg: '#1e3a1e',
-        headerGradient: '#2d5a2d',
-        headerColor: '#66BB6A',
-        borderColor: '#66BB6A',
-        bodyBg: '#1a1d23',
-        bodyColor: '#e0e0e0'
+        bg: '#28a745'
       },
       error: {
         icon: 'mdi mdi-alert-circle',
         defaultTitle: 'Error',
-        headerBg: '#3a1e1e',
-        headerGradient: '#5a2d2d',
-        headerColor: '#EF5350',
-        borderColor: '#EF5350',
-        bodyBg: '#1a1d23',
-        bodyColor: '#e0e0e0'
+        bg: '#dc3545'
       },
       warning: {
         icon: 'mdi mdi-alert',
         defaultTitle: 'Warning',
-        headerBg: '#3a2f1e',
-        headerGradient: '#5a4a2d',
-        headerColor: '#FFA726',
-        borderColor: '#FFA726',
-        bodyBg: '#1a1d23',
-        bodyColor: '#e0e0e0'
+        bg: '#e6a117'
       },
       info: {
         icon: 'mdi mdi-information',
         defaultTitle: 'Info',
-        headerBg: '#1e2a3a',
-        headerGradient: '#2d4a5a',
-        headerColor: '#42A5F5',
-        borderColor: '#42A5F5',
-        bodyBg: '#1a1d23',
-        bodyColor: '#e0e0e0'
+        bg: '#17a2b8'
       }
     };
     

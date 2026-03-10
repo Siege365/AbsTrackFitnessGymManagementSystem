@@ -45,7 +45,8 @@ class GymPlan extends Model
 
     public function scopeMembership($query)
     {
-        return $query->where('category', 'membership');
+        return $query->where('category', 'membership')
+                     ->whereNotIn('plan_key', ['Session']); // Exclude Session Pass from membership payments
     }
 
     public function scopePersonalTraining($query)

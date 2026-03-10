@@ -86,7 +86,7 @@ const InventoryPage = (function() {
                 document.getElementById('viewProductThreshold').textContent = this.dataset.lowStockThreshold;
                 document.getElementById('viewProductStatus').textContent = this.dataset.status;
                 document.getElementById('viewProductRestocked').textContent = this.dataset.lastRestocked;
-                document.getElementById('viewProductHistoryLink').href = '/inventory/' + this.dataset.id + '/transaction-history';
+                document.getElementById('viewProductHistoryLink').href = '/inventory/products/' + this.dataset.id + '/transaction-history';
                 
                 // Display avatar
                 const viewAvatarPreview = document.getElementById('viewProductAvatarPreview');
@@ -114,7 +114,7 @@ const InventoryPage = (function() {
                 document.getElementById('editProductName').value = this.dataset.productName;
                 document.getElementById('editProductCategory').value = this.dataset.category;
                 document.getElementById('editProductPrice').value = this.dataset.unitPrice;
-                document.getElementById('editProductForm').action = '/inventory/' + itemId;
+                document.getElementById('editProductForm').action = '/inventory/products/' + itemId;
                 
                 // Display existing avatar
                 const editAvatarPreview = document.getElementById('editProductAvatarPreview');
@@ -139,7 +139,7 @@ const InventoryPage = (function() {
                     const newCategoryName = document.getElementById('editNewCategoryInput').value.trim();
                     if (!newCategoryName) {
                         e.preventDefault();
-                        ToastUtils.showError('Please enter a new category name.', 'Validation Error');
+                        ToastUtils.showError('Please enter a category name', 'Validation Error');
                         document.getElementById('editNewCategoryInput').focus();
                         return;
                     }
@@ -147,13 +147,13 @@ const InventoryPage = (function() {
                     const warning = document.getElementById('editCategorySimilarityWarning');
                     if (warning && warning.querySelector('.similarity-exact')) {
                         e.preventDefault();
-                        ToastUtils.showError('This category already exists. Please use the existing category or choose a different name.', 'Duplicate Category');
+                        ToastUtils.showError('Category already exists', 'Duplicate Category');
                         document.getElementById('editNewCategoryInput').focus();
                         return;
                     }
                     if (warning && warning.querySelector('.similarity-warning')) {
                         e.preventDefault();
-                        ToastUtils.showError('This category is too similar to an existing one. Please use the suggested category or choose a different name.', 'Similar Category');
+                        ToastUtils.showError('Similar category exists', 'Similar Category');
                         document.getElementById('editNewCategoryInput').focus();
                         return;
                     }
@@ -200,7 +200,7 @@ const InventoryPage = (function() {
                 const productName = this.dataset.productName;
                 
                 document.getElementById('stockHistoryProductName').textContent = productName;
-                document.getElementById('stockHistoryFullLink').href = '/inventory/' + itemId + '/transaction-history';
+                document.getElementById('stockHistoryFullLink').href = '/inventory/products/' + itemId + '/transaction-history';
                 
                 // Show loading
                 document.getElementById('stockHistoryTimeline').innerHTML = `
@@ -214,7 +214,7 @@ const InventoryPage = (function() {
                 document.getElementById('historyNetChange').textContent = '0';
                 
                 // Fetch stock history via AJAX
-                fetch('/inventory/' + itemId + '/stock-history-json')
+                fetch('/inventory/products/' + itemId + '/stock-history-json')
                     .then(response => response.json())
                     .then(data => {
                         document.getElementById('historyTotalIn').textContent = '+' + data.totalIn;
@@ -289,7 +289,7 @@ const InventoryPage = (function() {
                 document.getElementById('stockInStatus').textContent = status;
                 document.getElementById('stockInStatus').className = 'badge ' + statusClass;
                 
-                document.getElementById('stockInForm').action = `/inventory/${itemId}/stock-transaction`;
+                document.getElementById('stockInForm').action = `/inventory/products/${itemId}/stock-transaction`;
                 document.getElementById('stockInQuantity').value = '';
                 document.getElementById('stockInPreview').style.display = 'none';
             });
@@ -350,7 +350,7 @@ const InventoryPage = (function() {
                 if (stockQty === 0) {
                     e.preventDefault();
                     e.stopPropagation();
-                    ToastUtils.showError('This product is out of stock. Stock out is not allowed.', 'Out of Stock');
+                    ToastUtils.showError('Product is out of stock', 'Out of Stock');
                     return;
                 }
 
@@ -366,7 +366,7 @@ const InventoryPage = (function() {
                 document.getElementById('stockOutStatus').textContent = status;
                 document.getElementById('stockOutStatus').className = 'badge ' + statusClass;
                 
-                document.getElementById('stockOutForm').action = `/inventory/${itemId}/stock-transaction`;
+                document.getElementById('stockOutForm').action = `/inventory/products/${itemId}/stock-transaction`;
                 document.getElementById('stockOutQuantity').max = stockQty;
                 document.getElementById('stockOutQuantity').value = '';
                 document.getElementById('stockOutPreview').style.display = 'none';
@@ -417,7 +417,7 @@ const InventoryPage = (function() {
                     return;
                 } else if (quantity > currentStock) {
                     e.preventDefault();
-                    ToastUtils.showError('Insufficient stock! Current stock: ' + currentStock + '.', 'Insufficient Stock');
+                    ToastUtils.showError('Insufficient stock available', 'Insufficient Stock');
                     document.getElementById('stockOutQuantity').focus();
                     return;
                 }
@@ -448,7 +448,7 @@ const InventoryPage = (function() {
 
         $('#addProductModal').on('show.bs.modal', function () {
             const nextProductNumberUrl = document.querySelector('meta[name="next-product-number-url"]');
-            const url = nextProductNumberUrl ? nextProductNumberUrl.content : '/inventory/next-product-number';
+            const url = nextProductNumberUrl ? nextProductNumberUrl.content : '/inventory/products/next-product-number';
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
@@ -604,21 +604,21 @@ function showAddProductConfirm() {
     }
 
     if (!productName) {
-        ToastUtils.showError('Please enter a product name.', 'Validation Error');
+        ToastUtils.showError('Please enter a product name', 'Validation Error');
         form.querySelector('[name="product_name"]').focus();
         return;
     }
     if (!category) {
-        ToastUtils.showError('Please select a category.', 'Validation Error');
+        ToastUtils.showError('Please select a category', 'Validation Error');
         return;
     }
     if (!unitPrice || parseFloat(unitPrice) < 0) {
-        ToastUtils.showError('Please enter a valid unit price.', 'Validation Error');
+        ToastUtils.showError('Invalid unit price', 'Validation Error');
         form.querySelector('[name="unit_price"]').focus();
         return;
     }
     if (stockQty === '' || parseInt(stockQty) < 0) {
-        ToastUtils.showError('Please enter a valid stock quantity.', 'Validation Error');
+        ToastUtils.showError('Invalid stock quantity', 'Validation Error');
         form.querySelector('[name="stock_qty"]').focus();
         return;
     }
@@ -723,7 +723,7 @@ function confirmDeleteSingle(itemId) {
     pendingDeleteAction = function() {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '/inventory/' + itemId;
+        form.action = '/inventory/products/' + itemId;
         form.innerHTML = '<input type="hidden" name="_token" value="' + csrfToken + '"><input type="hidden" name="_method" value="DELETE">';
         document.body.appendChild(form);
         form.submit();
@@ -877,7 +877,7 @@ function checkCategorySimilarity(value, context) {
 
     // Debounce: wait 400ms after user stops typing
     categorySimilarityTimeout = setTimeout(function() {
-        fetch('/inventory/check-category?name=' + encodeURIComponent(trimmed), {
+        fetch('/inventory/products/check-category?name=' + encodeURIComponent(trimmed), {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -1141,7 +1141,7 @@ function initTransactionHistoryPage() {
         if (editProductName) editProductName.value = this.dataset.productName;
         if (editProductCategory) editProductCategory.value = this.dataset.category;
         if (editProductPrice) editProductPrice.value = this.dataset.unitPrice;
-        if (editForm) editForm.action = '/inventory/' + itemId;
+        if (editForm) editForm.action = '/inventory/products/' + itemId;
 
         // Display existing avatar
         if (editAvatarPreview) {

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use App\Services\NotificationService;
 
 class ClientController extends Controller
 {
@@ -209,7 +210,8 @@ class ClientController extends Controller
 
             $client = Client::create($validated);
 
-            ActivityLog::log('created', 'client', "Added new PT client: {$validated['name']}", 'PT-' . $client->id, $validated['name'], $client, ['plan_type' => $validated['plan_type'], 'start_date' => $validated['start_date'], 'due_date' => $validated['due_date']]);
+            // Send notification for new PT client
+            NotificationService::newMembership($validated['name'], $plan->plan_name, 'client');
 
             // Return JSON response for AJAX requests
             if ($request->wantsJson() || $request->ajax()) {

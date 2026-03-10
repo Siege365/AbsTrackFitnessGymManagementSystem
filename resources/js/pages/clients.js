@@ -208,7 +208,7 @@ const ClientsPage = (function() {
       today.setHours(0, 0, 0, 0);
       
       if (startDate < today) {
-        ToastUtils.showError('Start date cannot be in the past. Please select today or a future date.', 'Invalid Date');
+        ToastUtils.showError('Start date cannot be in the past', 'Invalid Date');
         return;
       }
 
@@ -260,7 +260,7 @@ const ClientsPage = (function() {
           // Success
           document.getElementById('addClientConfirmOverlay').style.display = 'none';
           $('#addClientModal').modal('hide');
-          ToastUtils.showSuccess(data.message || 'Client added successfully!', 'Success');
+          ToastUtils.showSuccess(data.message || 'Client added', 'Success');
           setTimeout(() => location.reload(), 1000);
         } else if (status === 409 && data.requires_confirmation) {
           // Similar name found - show confirmation
@@ -272,7 +272,7 @@ const ClientsPage = (function() {
           }
         } else if (status === 400 && data.type === 'exact') {
           // Exact duplicate - block submission
-          ToastUtils.showError(data.message || 'A client with this exact name already exists.', 'Duplicate Entry');
+          ToastUtils.showError(data.message || 'Client already exists', 'Duplicate Entry');
         } else {
           // Other errors (validation, etc.)
           ToastUtils.showError(data.message || 'Failed to add client', 'Error');
@@ -367,7 +367,7 @@ const ClientsPage = (function() {
 
     // Validate
     if (!name.trim()) {
-      ToastUtils.showError('Please enter a name.', 'Validation Error');
+      ToastUtils.showError('Please enter a name', 'Validation Error');
       return;
     }
 
@@ -455,7 +455,7 @@ const ClientsPage = (function() {
         if (status === 200 || status === 201 || data.success) {
           document.getElementById('editClientConfirmOverlay' + clientId).style.display = 'none';
           $('#viewModal' + clientId).modal('hide');
-          ToastUtils.showSuccess(data.message || 'Client updated successfully!', 'Success');
+          ToastUtils.showSuccess(data.message || 'Client updated', 'Success');
           setTimeout(() => location.reload(), 1000);
         } else {
           ToastUtils.showError(data.message || 'Failed to update client', 'Error');
@@ -544,13 +544,13 @@ const ClientsPage = (function() {
     
     // Validate
     if (!startDate) {
-      ToastUtils.showError('Please select a start date.', 'Validation Error');
+      ToastUtils.showError('Please select a start date', 'Validation Error');
       document.getElementById('renewClientStartDate').focus();
       return;
     }
     
     if (!endDate) {
-      ToastUtils.showError('End date is required. Please select a start date to auto-calculate.', 'Validation Error');
+      ToastUtils.showError('Start date required to calculate end date', 'Validation Error');
       document.getElementById('renewClientStartDate').focus();
       return;
     }
@@ -585,7 +585,7 @@ const ClientsPage = (function() {
     formData.append('due_date', endDate);
     
     FormUtils.submitFormAjax({
-      url: `/clients/${clientId}/renew`,
+      url: `/customers/clients/${clientId}/renew`,
       formData: formData,
       csrfToken: config.csrfToken,
       submitBtn: submitBtn,
@@ -594,14 +594,14 @@ const ClientsPage = (function() {
         $('#renewClientModal').modal('hide');
         
         // Show success toast
-        ToastUtils.showSuccess('Client subscription renewed successfully!', 'Success');
+        ToastUtils.showSuccess('Subscription renewed', 'Success');
         updateKPIs();
         
         // Reload after toast animation
         setTimeout(() => location.reload(), 1000);
       },
       onError: function(error) {
-        ToastUtils.showError('Failed to renew subscription: ' + (error.message || 'Unknown error'), 'Error');
+        ToastUtils.showError('Failed to renew subscription: ' + (error.message || 'Unknown error'), 'Renewal Error');
       }
     });
   }
@@ -616,7 +616,7 @@ const ClientsPage = (function() {
   function openDeleteClientModal(clientId, clientName, planType, status) {
     // Store client ID for delete action
     const deleteForm = document.getElementById('deleteClientForm');
-    deleteForm.action = `/clients/${clientId}`;
+    deleteForm.action = `/customers/clients/${clientId}`;
     deleteForm.dataset.clientId = clientId;
     
     // Populate modal
@@ -659,7 +659,7 @@ const ClientsPage = (function() {
     .then(data => {
       if (data.success) {
         $('#deleteClientConfirmModal').modal('hide');
-        ToastUtils.showSuccess('Client deleted successfully!', 'Success');
+        ToastUtils.showSuccess('Client deleted', 'Success');
         updateKPIs();
         
         // Reload after toast animation
@@ -670,7 +670,7 @@ const ClientsPage = (function() {
     })
     .catch(error => {
       FormUtils.resetButton(submitBtn);
-      ToastUtils.showError('Failed to delete client: ' + error.message, 'Error');
+      ToastUtils.showError('Failed to delete client: ' + error.message, 'Deletion Error');
     });
   }
 
@@ -679,7 +679,7 @@ const ClientsPage = (function() {
    * Fetches fresh data from backend to ensure accuracy
    */
   function updateKPIs() {
-    fetch('/clients/kpis', {
+    fetch('/customers/clients/kpis', {
       method: 'GET',
       headers: {
         'X-Requested-With': 'XMLHttpRequest',

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Services\RefundService;
+use App\Services\NotificationService;
 
 class PaymentController extends Controller
 {
@@ -101,6 +102,13 @@ class PaymentController extends Controller
         return redirect()->route('membership.payment.index', ['tab' => 'product']);
     }
 
+    public function productPaymentIndex()
+    {
+        $inventoryItems = InventorySupply::all();
+
+        return view('PaymentAndBillings.product-payment', compact('inventoryItems'));
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -125,7 +133,6 @@ class PaymentController extends Controller
             $payment = Payment::create([
                 'receipt_number' => $receipt,
                 'customer_name' => $request->customer_name,
-                'transaction_type' => $request->transaction_type ?? 'PRODUCT',
                 'payment_method' => $request->payment_method,
                 'paid_amount' => $request->paid_amount,
                 'total_amount' => $request->total_amount,
@@ -156,7 +163,20 @@ class PaymentController extends Controller
             return $payment;
         });
 
-        ActivityLog::log('created', 'product_payment', "Processed product payment for {$payment->customer_name} — ₱" . number_format($payment->total_amount, 2), $payment->receipt_number, $payment->customer_name, $payment, ['amount' => $payment->total_amount, 'payment_method' => $payment->payment_method, 'items_count' => $payment->total_quantity]);
+        // Send payment notification
+        NotificationService::paymentReceived($request->customer_name, $request->total_amount, 'product');
+
+        // Check for low stock after payment
+        foreach (json_decode($request->items_data, true) as $item) {
+            $inventory = InventorySupply::find($item['id']);
+            if ($inventory && $inventory->stock_qty <= $inventory->low_stock_threshold) {
+                if ($inventory->stock_qty == 0) {
+                    NotificationService::outOfStock($inventory->product_name);
+                } else {
+                    NotificationService::lowStock($inventory->product_name, $inventory->stock_qty, $inventory->low_stock_threshold);
+                }
+            }
+        }
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json(['success' => true, 'message' => 'Payment completed successfully.', 'payment' => $payment]);
@@ -181,7 +201,6 @@ class PaymentController extends Controller
             'customer_name' => $payment->customer_name,
             'cashier_name' => $payment->cashier_name,
             'payment_method' => $payment->payment_method,
-            'transaction_type' => $payment->transaction_type,
             'total_amount' => $payment->total_amount,
             'paid_amount' => $payment->paid_amount,
             'return_amount' => $payment->return_amount,
@@ -393,10 +412,53 @@ class PaymentController extends Controller
             return back()->withErrors(['error' => 'Failed to delete transactions: ' . $e->getMessage()]);
         }
     }
-    public function membership()
+    /**
+     * Display unified Payment System page (SPA-style with all 3 payment forms)
+     * Accepts paymentType via route defaults: 'membership', 'pt', or 'product'
+     */
+    public function membership(Request $request)
     {
-        // You can later preload members, active memberships, etc.
-        return view('PaymentAndBillings.MembershipPayment');
+        // Get payment type from route default (set in route definition)
+        $paymentType = $request->route()->parameter('paymentType') ?? 'membership';
+
+        // Fetch data for Membership Payment form
+        $monthlyRevenue = \App\Models\MembershipPayment::whereNull('refunded_at')
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->sum('amount');
+
+        $todayRevenue = \App\Models\MembershipPayment::whereNull('refunded_at')
+            ->whereDate('created_at', today())
+            ->sum('amount');
+
+        $transactionCount = \App\Models\MembershipPayment::whereDate('created_at', today())->count();
+
+        $membershipPlans = \App\Models\GymPlan::active()->membership()->ordered()->get();
+
+        // Fetch data for PT Payment form  
+        $ptPlans = \App\Models\GymPlan::active()->personalTraining()->ordered()->get();
+        
+        $trainers = [
+            'David Laid',
+            'Eulo Icon Sexcion',
+            'Justin Troy Rosalada',
+            'Nicolas Deloso Torre III',
+            'Ronnie Coleman',
+        ];
+
+        // Fetch data for Product Payment form
+        $inventoryItems = InventorySupply::all();
+
+        return view('PaymentAndBillings.payment-system', compact(
+            'monthlyRevenue',
+            'todayRevenue',
+            'transactionCount',
+            'membershipPlans',
+            'ptPlans',
+            'trainers',
+            'inventoryItems',
+            'paymentType'
+        ));
     }
 
 }

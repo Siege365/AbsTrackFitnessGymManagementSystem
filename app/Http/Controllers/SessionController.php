@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use App\Services\NotificationService;
 
 class SessionController extends Controller
 {
@@ -340,8 +341,13 @@ class SessionController extends Controller
             $ptSchedule = PTSchedule::create($data);
             $ptSchedule->load(['client', 'membership']);
 
-            $displayName = $ptSchedule->display_name;
-            ActivityLog::log('created', 'pt_session', "Created PT session for {$displayName}", 'PT-' . $ptSchedule->id, $displayName, $ptSchedule, ['trainer' => $ptSchedule->trainer_name, 'date' => $ptSchedule->scheduled_date, 'time' => $ptSchedule->scheduled_time]);
+            // Send notification for new PT session
+            $customerName = $data['customer_name'] ?? $ptSchedule->client->name ?? $ptSchedule->membership->name ?? 'Walk-in';
+            NotificationService::newPTSession(
+                $customerName,
+                Carbon::parse($data['scheduled_date'])->format('M d, Y'),
+                $data['scheduled_time']
+            );
 
             return response()->json([
                 'success' => true,

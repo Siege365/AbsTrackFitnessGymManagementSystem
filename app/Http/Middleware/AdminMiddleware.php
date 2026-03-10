@@ -8,21 +8,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminMiddleware
 {
-    /**
-     * Only allow admin users to proceed.
-     */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized. Only admins can perform this action.'
-                ], 403);
+        if (!auth()->check() || auth()->user()->role !== 'admin') {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['error' => 'Unauthorized. Admin access required.'], 403);
             }
-
-            return redirect()->route('dashboard')
-                ->with('error', 'Unauthorized. Only admins can access Staff Accounts management.');
+            abort(403, 'Unauthorized. Admin access required.');
         }
 
         return $next($request);

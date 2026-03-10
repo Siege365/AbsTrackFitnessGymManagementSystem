@@ -4,41 +4,51 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
 class RegisterController extends Controller
 {
-    /**
-     * Show the registration form
-     */
     public function showRegistrationForm()
     {
         return view('auth.register');
     }
 
-    /**
-     * Handle registration request
-     */
     public function register(Request $request)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Password::defaults()],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name'  => ['required', 'string', 'max:255'],
+            'email'      => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password'   => ['required', 'string', 'min:8'],
+            'contact'    => ['nullable', 'string', 'max:255'],
+            'address'    => ['nullable', 'string', 'max:500'],
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'name'     => trim($request->first_name . ' ' . $request->last_name),
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role' => User::count() === 0 ? 'admin' : 'admin',
+            'contact'  => $request->contact,
+            'address'  => $request->address,
+            'role'     => 'cashier',
+            'status'   => 'active',
         ]);
 
-        Auth::login($user);
+        // Log the activity under the currently logged-in admin
+        ActivityLog::create([
+            'user_id'     => auth()->id(),
+            'user_name'   => auth()->user()->name ?? 'System',
+            'action'      => 'created_staff',
+            'description' => "Registered new staff account: {$user->name}",
+            'subject_type' => User::class,
+            'subject_id'  => $user->id,
+            'ip_address'  => $request->ip(),
+        ]);
 
-        return redirect('/');
+        // Do NOT auto-login the new user — preserve current admin session
+        return redirect()->route('staff.index')->with('success', "Staff account for {$user->name} created successfully!");
     }
 }

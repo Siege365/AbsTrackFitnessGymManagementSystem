@@ -22,9 +22,10 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'contact_number',
-        'emergency_contact',
+        'contact',
         'address',
+        'avatar',
+        'status',
     ];
 
     /**
@@ -64,5 +65,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function getDisplayIdAttribute(): string
+    {
+        return str_pad($this->id, 4, '0', STR_PAD_LEFT);
+    }
+
+    public function activityLogs()
+    {
+        return $this->hasMany(ActivityLog::class);
     }
 }

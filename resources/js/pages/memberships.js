@@ -240,7 +240,7 @@ const MembershipsPage = (function() {
       today.setHours(0, 0, 0, 0);
       
       if (startDate < today) {
-        ToastUtils.showError('Start date cannot be in the past. Please select today or a future date.', 'Invalid Date');
+        ToastUtils.showError('Start date cannot be in the past', 'Invalid Date');
         return;
       }
 
@@ -292,7 +292,7 @@ const MembershipsPage = (function() {
           // Success
           document.getElementById('addMemberConfirmOverlay').style.display = 'none';
           $('#addMemberModal').modal('hide');
-          ToastUtils.showSuccess(data.message || 'Member added successfully!', 'Success');
+          ToastUtils.showSuccess(data.message || 'Member added', 'Success');
           setTimeout(() => location.reload(), 1000);
         } else if (status === 409 && data.requires_confirmation) {
           // Similar name found - show confirmation
@@ -304,7 +304,7 @@ const MembershipsPage = (function() {
           }
         } else if (status === 400 && data.type === 'exact') {
           // Exact duplicate - block submission
-          ToastUtils.showError(data.message || 'A member with this exact name already exists.', 'Duplicate Entry');
+          ToastUtils.showError(data.message || 'Member already exists', 'Duplicate Entry');
         } else {
           // Other errors (validation, etc.)
           ToastUtils.showError(data.message || 'Failed to add member', 'Error');
@@ -316,7 +316,7 @@ const MembershipsPage = (function() {
           submitBtn.disabled = false;
           submitBtn.innerHTML = 'Confirm';
         }
-        ToastUtils.showError('An unexpected error occurred', 'Error');
+        ToastUtils.showError('Unexpected error occurred', 'Error');
       });
     } catch (error) {
       console.error('Error:', error);
@@ -417,7 +417,7 @@ const MembershipsPage = (function() {
     
     // Basic validation
     if (!name) {
-      ToastUtils.showError('Please enter a name.', 'Validation Error');
+      ToastUtils.showError('Please enter a name', 'Validation Error');
       return;
     }
 
@@ -482,14 +482,14 @@ const MembershipsPage = (function() {
       document.getElementById('editConfirmOverlay' + membershipId).style.display = 'none';
       $('#viewModal' + membershipId).modal('hide');
       
-      ToastUtils.showSuccess('Member updated successfully!', 'Success');
+      ToastUtils.showSuccess('Member updated', 'Success');
       updateKPIs();
       
       setTimeout(() => location.reload(), 1000);
     })
     .catch(error => {
       FormUtils.resetButton(submitBtn);
-      ToastUtils.showError('Failed to update member: ' + (error.message || 'Unknown error'), 'Error');
+      ToastUtils.showError('Failed to update member: ' + (error.message || 'Unknown error'), 'Update Error');
     });
   }
 
@@ -562,13 +562,13 @@ const MembershipsPage = (function() {
     
     // Validate
     if (!startDate) {
-      ToastUtils.showError('Please select a start date.', 'Validation Error');
+      ToastUtils.showError('Please select a start date', 'Validation Error');
       document.getElementById('renewStartDate').focus();
       return;
     }
     
     if (!endDate) {
-      ToastUtils.showError('End date is required. Please select a start date to auto-calculate.', 'Validation Error');
+      ToastUtils.showError('Start date required to calculate end date', 'Validation Error');
       document.getElementById('renewStartDate').focus();
       return;
     }
@@ -623,7 +623,7 @@ const MembershipsPage = (function() {
     formData.append('due_date', endDate);
     
     FormUtils.submitFormAjax({
-      url: `/memberships/${membershipId}/renew`,
+      url: `/customers/memberships/${membershipId}/renew`,
       formData: formData,
       csrfToken: config.csrfToken,
       submitBtn: submitBtn,
@@ -632,14 +632,14 @@ const MembershipsPage = (function() {
         $('#renewMembershipModal').modal('hide');
         
         // Show success toast
-        ToastUtils.showSuccess('Membership renewed successfully!', 'Success');
+        ToastUtils.showSuccess('Membership renewed', 'Success');
         updateKPIs();
         
         // Reload after toast animation
         setTimeout(() => location.reload(), 1000);
       },
       onError: function(error) {
-        ToastUtils.showError('Failed to renew membership: ' + (error.message || 'Unknown error'), 'Error');
+        ToastUtils.showError('Failed to renew membership: ' + (error.message || 'Unknown error'), 'Renewal Error');
       }
     });
   }
@@ -654,7 +654,7 @@ const MembershipsPage = (function() {
   function openDeleteModal(membershipId, memberName, planType, status) {
     // Store membership ID for delete action
     const deleteForm = document.getElementById('deleteForm');
-    deleteForm.action = `/memberships/${membershipId}`;
+    deleteForm.action = `/customers/memberships/${membershipId}`;
     deleteForm.dataset.membershipId = membershipId;
     
     // Populate modal
@@ -700,7 +700,7 @@ const MembershipsPage = (function() {
     .then(data => {
       if (data.success) {
         $('#deleteConfirmModal').modal('hide');
-        ToastUtils.showSuccess('Member deleted successfully!', 'Success');
+        ToastUtils.showSuccess('Member deleted', 'Success');
         updateKPIs();
         
         // Reload after toast animation
@@ -711,7 +711,7 @@ const MembershipsPage = (function() {
     })
     .catch(error => {
       FormUtils.resetButton(submitBtn);
-      ToastUtils.showError('Failed to delete member: ' + error.message, 'Error');
+      ToastUtils.showError('Failed to delete member: ' + error.message, 'Deletion Error');
     });
   }
 
@@ -720,7 +720,7 @@ const MembershipsPage = (function() {
    * Fetches fresh data from backend to ensure accuracy
    */
   function updateKPIs() {
-    fetch('/memberships/kpis', {
+    fetch('/customers/memberships/kpis', {
       method: 'GET',
       headers: {
         'X-Requested-With': 'XMLHttpRequest',

@@ -9,6 +9,7 @@ use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Services\NotificationService;
 
 class InventorySupplyController extends Controller
 {
@@ -675,8 +676,14 @@ class InventorySupplyController extends Controller
 
             DB::commit();
 
-            $actionLabel = $validated['transaction_type'] === 'stock_in' ? 'Stock In' : 'Stock Out';
-            ActivityLog::log($validated['transaction_type'], 'inventory', "{$actionLabel}: {$validated['quantity']} unit(s) of {$item->product_name}", $item->product_number, null, $item, ['quantity' => $validated['quantity'], 'previous_stock' => $previousStock, 'new_stock' => $newStock]);
+            // Check for low stock after transaction
+            if ($newStock <= $item->low_stock_threshold) {
+                if ($newStock == 0) {
+                    NotificationService::outOfStock($item->product_name);
+                } else {
+                    NotificationService::lowStock($item->product_name, $newStock, $item->low_stock_threshold);
+                }
+            }
 
             $message = $validated['transaction_type'] === 'stock_in' 
                 ? 'Stock added successfully!' 

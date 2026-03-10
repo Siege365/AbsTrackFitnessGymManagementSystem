@@ -54,6 +54,7 @@
     @vite(['resources/js/common/kpi-utils.js'])
     @vite(['resources/js/common/toast-utils.js'])
     @vite(['resources/js/common/sidebar.js'])
+    @vite(['resources/js/common/notification-bell.js'])
     <script src="{{ asset('template/assets/js/misc.js') }}?v={{ time() }}"></script>
     
     <!-- Session Flash Messages as Toasts -->
@@ -99,6 +100,31 @@
     </script>
     @endif
     
+    <!-- Quick Action: auto-open modal when ?action=add -->
+    <script>
+    $(function() {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('action') === 'add') {
+            var modalMap = {
+                '{{ route("memberships.index") }}': '#addMemberModal',
+                '{{ route("clients.index") }}': '#addClientModal',
+                '{{ route("sessions.attendance.index") }}': '#addAttendanceModal',
+                '{{ route("sessions.pt.index") }}': '#addPTScheduleModal',
+                '{{ route("inventory.index") }}': '#addProductModal'
+            };
+            var path = window.location.origin + window.location.pathname;
+            $.each(modalMap, function(route, modalId) {
+                if (path === route && $(modalId).length) {
+                    setTimeout(function() { $(modalId).modal('show'); }, 300);
+                    // Clean URL without reload
+                    history.replaceState(null, '', window.location.pathname);
+                    return false;
+                }
+            });
+        }
+    });
+    </script>
+
     @stack('scripts')
 </body>
 </html>

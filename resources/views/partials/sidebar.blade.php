@@ -54,21 +54,21 @@
         </ul>
       </div>
     </li>
-    <li class="nav-item menu-items">
-      <a class="nav-link" data-toggle="collapse" href="#payments-menu" aria-expanded="false" aria-controls="payments-menu">
+    <li class="nav-item menu-items {{ request()->is('payments-billing/payment-system*') || request()->is('payments-billing/payment-history*') ? 'active' : '' }}">
+      <a class="nav-link" data-toggle="collapse" href="#payments-menu" aria-expanded="{{ request()->is('payments-billing/payment-system*') || request()->is('payments-billing/payment-history*') ? 'true' : 'false' }}" aria-controls="payments-menu">
         <span class="menu-icon">
           <i class="mdi mdi-credit-card"></i>
         </span>
         <span class="menu-title">Payments & Billing</span>
         <i class="menu-arrow mdi mdi-chevron-down"></i>
       </a>
-      <div class="collapse" id="payments-menu">
+      <div class="collapse {{ request()->is('payments-billing/payment-system*') || request()->is('payments-billing/payment-history*') ? 'show' : '' }}" id="payments-menu">
         <ul class="nav flex-column sub-menu">
-          <li class="nav-item">
-            <a class="nav-link" href="{{ route('membership.payment.index') }}">Payment System</a>
+          <li class="nav-item {{ request()->is('payments-billing/payment-system*') ? 'active' : '' }}">
+            <a class="nav-link {{ request()->is('payments-billing/payment-system*') ? 'active' : '' }}" href="{{ route('payment.system.membership') }}">Payment System</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ route('payments.history') }}">Payment History</a>
+          <li class="nav-item {{ request()->is('payments-billing/payment-history*') ? 'active' : '' }}">
+            <a class="nav-link {{ request()->is('payments-billing/payment-history*') ? 'active' : '' }}" href="{{ route('payments.history') }}">Payment History</a>
           </li>
         </ul>
       </div>
@@ -93,7 +93,7 @@
       </div>
     </li>
     <li class="nav-item menu-items">
-      <a class="nav-link" href="{{ route('ReportAndBilling') }}">
+      <a class="nav-link" href="{{ route('reports.index') }}">
         <span class="menu-icon">
           <i class="mdi mdi-chart-bar"></i>
         </span>
@@ -111,9 +111,9 @@
       </a>
       <div class="collapse" id="auth">
         <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.UserManagement') }}"> Staff Accounts </a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.TrainerManagement') }}"> Trainers </a></li>
-          <li class="nav-item"> <a class="nav-link" href="{{ route('UserAndAdmin.CashierActivity') }}"> Activity Logs </a></li>
+          <li class="nav-item"> <a class="nav-link" href="{{ route('staff.index') }}"> Staff Accounts </a></li>
+          <li class="nav-item"> <a class="nav-link" href="{{ route('trainers.index') }}"> Trainers </a></li>
+          <li class="nav-item"> <a class="nav-link" href="{{ route('activity-logs.index') }}"> Activity Logs </a></li>
         </ul>
       </div>
     </li>
