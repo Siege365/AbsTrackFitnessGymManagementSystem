@@ -225,7 +225,7 @@
                                             </button>
                                             @if($user->id !== auth()->id())
                                             <button type="button" class="dropdown-item"
-                                                onclick=\"StaffPage.toggleStatus({{ $user->id }}, '{{ addslashes($user->name) }}', '{{ $user->status }}')\">
+                                                onclick="StaffPage.toggleStatus({{ $user->id }}, '{{ addslashes($user->name) }}', '{{ $user->status }}')">
                                                 <i class="mdi mdi-{{ $user->status === 'active' ? 'close-circle' : 'check-circle' }} mr-2"></i>
                                                 {{ $user->status === 'active' ? 'Deactivate' : 'Activate' }}
                                             </button>
