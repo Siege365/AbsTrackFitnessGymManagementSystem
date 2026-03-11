@@ -27,7 +27,7 @@ use App\Http\Controllers\ActivityLogController;
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:5,1');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
@@ -180,14 +180,16 @@ Route::middleware(['auth'])->group(function () {
     })->name('product.payment.index');
     
     // Member search API
-    Route::get('/api/members/search', [MemberApiController::class, 'search']);
-    Route::get('/api/members/check-duplicate', [MemberApiController::class, 'checkDuplicate']);
-    Route::get('/api/members/{id}', [MemberApiController::class, 'show']);
-    
-    // Autocomplete API for cross-referencing
-    Route::get('/api/customers/autocomplete', [CustomerController::class, 'autocomplete'])->name('api.customers.autocomplete');
-    Route::get('/api/memberships/autocomplete', [MembershipController::class, 'autocomplete'])->name('api.memberships.autocomplete');
-    Route::get('/api/clients/autocomplete', [ClientController::class, 'autocomplete'])->name('api.clients.autocomplete');
+    Route::middleware('throttle:60,1')->group(function () {
+        Route::get('/api/members/search', [MemberApiController::class, 'search']);
+        Route::get('/api/members/check-duplicate', [MemberApiController::class, 'checkDuplicate']);
+        Route::get('/api/members/{id}', [MemberApiController::class, 'show']);
+        
+        // Autocomplete API for cross-referencing
+        Route::get('/api/customers/autocomplete', [CustomerController::class, 'autocomplete'])->name('api.customers.autocomplete');
+        Route::get('/api/memberships/autocomplete', [MembershipController::class, 'autocomplete'])->name('api.memberships.autocomplete');
+        Route::get('/api/clients/autocomplete', [ClientController::class, 'autocomplete'])->name('api.clients.autocomplete');
+    });
     
     // Membership Payment History Routes
     Route::delete('/membership-payment/bulk-delete', [PaymentHistoryController::class, 'bulkDeleteMembership'])->name('membership.payment.bulkDelete');
