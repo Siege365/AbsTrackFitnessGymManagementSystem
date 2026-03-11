@@ -225,7 +225,7 @@
                                             </button>
                                             @if($user->id !== auth()->id())
                                             <button type="button" class="dropdown-item"
-                                                onclick="StaffPage.toggleStatus({{ $user->id }})">
+                                                onclick=\"StaffPage.toggleStatus({{ $user->id }}, '{{ addslashes($user->name) }}', '{{ $user->status }}')\">
                                                 <i class="mdi mdi-{{ $user->status === 'active' ? 'close-circle' : 'check-circle' }} mr-2"></i>
                                                 {{ $user->status === 'active' ? 'Deactivate' : 'Activate' }}
                                             </button>
@@ -351,14 +351,43 @@
     </div>
 </div>
 
+<!-- Toggle Status Confirmation Modal with Captcha -->
+<div class="modal fade" id="toggleStatusModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="toggleStatusTitle">Confirm Status Change</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert" id="toggleStatusAlert" style="background-color: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); color: #FFC107;">
+                    <i class="mdi mdi-alert-circle"></i> <span id="toggleStatusMessage"></span>
+                </div>
+                <div class="form-group">
+                    <label>Please verify you are human to continue:</label>
+                    <div id="toggleStatusTurnstile" class="mt-2"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmToggleStatusBtn" onclick="StaffPage.confirmToggleStatus()" disabled>Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 @vite(['resources/js/common/table-dropdown.js'])
 @vite(['resources/js/pages/staff.js'])
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    StaffPage.init({ csrfToken: '{{ csrf_token() }}' });
+    StaffPage.init({
+        csrfToken: '{{ csrf_token() }}',
+        turnstileSiteKey: '{{ config("services.turnstile.site_key") }}'
+    });
 
     const searchInput = document.getElementById('searchInputStaff');
     const searchForm = document.getElementById('searchFormStaff');

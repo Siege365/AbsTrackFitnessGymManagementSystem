@@ -84,6 +84,10 @@
                                     <span class="toggle-label" id="member1StudentLabel">No</span>
                                 </div>
                             </div>
+                            <div class="member-form-col" id="studentIdSection" style="display: none;">
+                                <label class="form-label">Student ID <span class="required-mark">*</span></label>
+                                <input type="text" class="form-control" name="student_id" id="studentIdInput" placeholder="Enter Student ID">
+                            </div>
                         </div>
                     </div>
                 </div>

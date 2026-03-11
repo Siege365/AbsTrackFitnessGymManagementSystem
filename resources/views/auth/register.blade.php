@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('template/assets/vendors/mdi/css/materialdesignicons.min.css') }}">
     @vite(['resources/css/auth-register.css'])
     <link rel="shortcut icon" href="{{ asset('template/assets/images/favicon.png') }}" />
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
     <div class="auth-container">
@@ -112,6 +113,14 @@
                                placeholder="••••••••••••••">
                     </div>
                     
+                    <!-- Cloudflare Turnstile -->
+                    <div class="turnstile-wrapper">
+                        <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-theme="dark" data-size="flexible"></div>
+                        @error('cf-turnstile-response')
+                            <span class="text-danger" style="font-size: 0.85rem;">{{ $message }}</span>
+                        @enderror
+                    </div>
+
                     <!-- Register Button -->
                     <button type="submit" class="btn-register">Register</button>
                 </form>

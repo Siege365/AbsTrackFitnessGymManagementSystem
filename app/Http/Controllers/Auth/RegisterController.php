@@ -8,6 +8,7 @@ use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use App\Rules\Turnstile;
 
 class RegisterController extends Controller
 {
@@ -25,6 +26,7 @@ class RegisterController extends Controller
             'password'   => ['required', 'string', 'min:8'],
             'contact'    => ['nullable', 'string', 'max:255'],
             'address'    => ['nullable', 'string', 'max:500'],
+            'cf-turnstile-response' => ['required', new Turnstile],
         ]);
 
         $user = User::create([

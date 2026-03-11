@@ -12,9 +12,9 @@ class AdminMiddleware
     {
         if (!auth()->check() || auth()->user()->role !== 'admin') {
             if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['error' => 'Unauthorized. Admin access required.'], 403);
+                return response()->json(['success' => false, 'message' => 'Access denied'], 403);
             }
-            abort(403, 'Unauthorized. Admin access required.');
+            return redirect()->route('dashboard')->with('error', 'Access denied');
         }
 
         return $next($request);

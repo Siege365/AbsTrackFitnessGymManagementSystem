@@ -84,6 +84,12 @@ document.addEventListener('DOMContentLoaded', function() {
     member1IsStudent.addEventListener('change', function() {
       if (!checkPageActive()) return;
       member1StudentLabel.textContent = this.checked ? 'Yes' : 'No';
+      const studentIdSection = document.getElementById('studentIdSection');
+      if (studentIdSection) {
+        studentIdSection.style.display = this.checked ? '' : 'none';
+        const studentIdInput = document.getElementById('studentIdInput');
+        if (studentIdInput && !this.checked) studentIdInput.value = '';
+      }
       if (paymentTypeInput && paymentTypeInput.value === 'new') enforcePlanRestrictions();
     });
   }

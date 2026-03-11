@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Traits\LogsActivity;
+use App\Rules\Turnstile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -106,6 +107,10 @@ class StaffController extends Controller
 
     public function toggleStatus(Request $request, string $id)
     {
+        $request->validate([
+            'cf-turnstile-response' => ['required', new Turnstile],
+        ]);
+
         $user = User::findOrFail($id);
 
         if ($user->id === auth()->id()) {

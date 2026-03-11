@@ -217,7 +217,7 @@ class InventorySupplyController extends Controller
         // Get all categories for dynamic filters
         $categories = CategoryHelper::getAllCategories();
         
-        return view('inventorySupplies.inventory-logs', compact(
+        return view('InventorySupplies.inventory-logs', compact(
             'recentActivity',
             'activityFilter',
             'totalTransactions',
@@ -707,7 +707,7 @@ class InventorySupplyController extends Controller
 
         $categories = CategoryHelper::getAllCategories();
 
-        return view('inventorySupplies.transaction-history', compact('item', 'categories'));
+        return view('InventorySupplies.transaction-history', compact('item', 'categories'));
     }
 
     /**

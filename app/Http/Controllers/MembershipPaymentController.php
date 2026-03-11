@@ -95,8 +95,9 @@ class MembershipPaymentController extends Controller
             $rules['new_member_contact'] = ['required', 'regex:/^(09\d{9}|\+639\d{9})$/'];
             $rules['new_member_avatar'] = 'nullable|image|max:2048';
 
-            // Student plan requires student_id
-            if ($request->plan_type === 'Student') {
+            // Plan that requires student validation needs student_id
+            $planCfg = self::planConfig()[$request->plan_type] ?? null;
+            if ($planCfg && !empty($planCfg['requires_student'])) {
                 $rules['student_id'] = 'required|string|max:100';
             }
 

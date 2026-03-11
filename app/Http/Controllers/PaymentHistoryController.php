@@ -180,22 +180,6 @@ class PaymentHistoryController extends Controller
             ];
         })->all());
 
-        $refPtList = collect($refPt->get()->map(function ($pt) {
-            return (object)[
-                'id' => $pt->id,
-                'receipt_number' => $pt->receipt_number,
-                'name' => $pt->display_name,
-                'refunded_at' => $pt->refunded_at,
-                'amount' => $pt->amount,
-                'refunded_amount' => $pt->refunded_amount,
-                'refund_status' => $pt->refund_status,
-                'refund_reason' => $pt->refund_reason,
-                'refunded_by' => $pt->refunded_by,
-                'type' => 'PT',
-                'type_key' => 'pt',
-            ];
-        })->all());
-
         $refPTList = collect($refPT->get()->map(function($p) {
             return (object)[
                 'id' => $p->id,
@@ -207,7 +191,8 @@ class PaymentHistoryController extends Controller
                 'refund_status' => $p->refund_status,
                 'refund_reason' => $p->refund_reason,
                 'refunded_by' => $p->refunded_by,
-                'type' => 'PT'
+                'type' => 'PT',
+                'type_key' => 'pt',
             ];
         })->all());
 
