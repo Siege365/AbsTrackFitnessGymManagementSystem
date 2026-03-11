@@ -5,7 +5,9 @@ namespace App\Services;
 use App\Models\Payment;
 use App\Models\PaymentItem;
 use App\Models\MembershipPayment;
+use App\Models\PTPayment;
 use App\Models\Membership;
+use App\Models\Client;
 use App\Models\InventorySupply;
 use App\Models\RefundLog;
 use App\Models\InventoryAdjustment;
@@ -266,6 +268,190 @@ class RefundService
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Process a PT payment refund
+     *
+     * @param int $paymentId
+     * @param array $options
+     * @return array
+     * @throws Exception
+     */
+    public function refundPTPayment($paymentId, array $options = [])
+    {
+        return DB::transaction(function () use ($paymentId, $options) {
+            // Fetch PT payment
+            $payment = PTPayment::find($paymentId);
+            if (!$payment) {
+                throw new Exception("PT payment record not found (ID: {$paymentId}). The record may have been deleted. Please refresh the page.");
+            }
+
+            // Validate refund eligibility
+            $this->validatePTRefund($payment, $options);
+
+            // Get client record
+            $client = Client::find($payment->client_id);
+            if (!$client) {
+                throw new Exception('Client record not found');
+            }
+
+            // Store previous state
+            $previousDueDate = $client->due_date;
+
+            // Calculate refund details
+            $refundAmount = $options['refund_amount'] ?? $payment->amount;
+            $isFullRefund = $refundAmount >= $payment->amount;
+            $refundType = $isFullRefund ? 'full' : 'partial';
+
+            // IMPORTANT: Update payment record BEFORE reversing client changes,
+            // because reversePTExtension may delete the client, and the CASCADE
+            // foreign key on pt_payments.client_id would delete this payment row.
+            // We must also nullify client_id before deletion to prevent cascade.
+            $payment->update([
+                'is_refunded' => $isFullRefund,
+                'refund_status' => $refundType,
+                'refunded_amount' => $payment->refunded_amount + $refundAmount,
+                'refunded_at' => now(),
+                'refund_reason' => $options['reason'] ?? null,
+                'refunded_by' => Auth::user()->name ?? 'Admin',
+                'previous_due_date' => $previousDueDate,
+                'previous_status' => 'Active',
+            ]);
+
+            // Reverse client changes
+            $clientDeleted = false;
+            if ($isFullRefund) {
+                // Detach payment from client before potential client deletion
+                // to prevent ON DELETE CASCADE from removing the payment record
+                $payment->update(['client_id' => null]);
+
+                // Full refund - reverse the entire PT extension (may delete client)
+                $this->reversePTExtension($client, $payment);
+                // Check if client was deleted during reversal
+                $clientDeleted = !Client::find($client->id);
+            } else {
+                // Partial refund - proportional adjustment
+                $this->adjustPTPartial($client, $payment, $refundAmount);
+            }
+
+            // Get the new due date safely (client may have been deleted)
+            $newDueDate = $clientDeleted ? null : $client->fresh()?->due_date?->toDateString();
+
+            // Create refund log
+            $refundLog = RefundLog::create([
+                'refundable_type' => PTPayment::class,
+                'refundable_id' => $payment->id,
+                'receipt_number' => $payment->receipt_number,
+                'transaction_type' => 'pt',
+                'original_amount' => $payment->amount,
+                'refund_amount' => $refundAmount,
+                'refund_type' => $refundType,
+                'customer_name' => $payment->member_name,
+                'member_id' => $payment->client_id,
+                'refund_reason' => $options['reason'] ?? null,
+                'processed_by' => Auth::user()->name ?? 'Admin',
+                'status' => 'completed',
+                'inventory_value_restored' => 0,
+                'items_count' => 0,
+                'metadata' => [
+                    'plan_type' => $payment->plan_type,
+                    'duration' => $payment->duration_days,
+                    'payment_type' => $payment->payment_type,
+                    'previous_due_date' => $previousDueDate?->toDateString(),
+                    'new_due_date' => $newDueDate,
+                    'client_deleted' => $clientDeleted,
+                ],
+                'ip_address' => request()->ip(),
+            ]);
+
+            return [
+                'success' => true,
+                'message' => 'PT payment refunded successfully',
+                'refund_log' => $refundLog,
+                'payment' => $payment->fresh(),
+                'client' => $clientDeleted ? null : $client->fresh(),
+            ];
+        });
+    }
+
+    /**
+     * Validate PT refund eligibility
+     *
+     * @param PTPayment $payment
+     * @param array $options
+     * @throws Exception
+     */
+    protected function validatePTRefund(PTPayment $payment, array $options)
+    {
+        if ($payment->is_refunded && $payment->refund_status === 'full') {
+            throw new Exception('This PT payment has already been fully refunded');
+        }
+
+        $refundAmount = $options['refund_amount'] ?? $payment->amount;
+        $maxRefundable = $payment->amount - $payment->refunded_amount;
+
+        if ($refundAmount > $maxRefundable) {
+            throw new Exception("Refund amount (₱{$refundAmount}) exceeds maximum refundable amount (₱{$maxRefundable})");
+        }
+
+        if ($refundAmount <= 0) {
+            throw new Exception('Refund amount must be greater than zero');
+        }
+    }
+
+    /**
+     * Reverse PT extension from a payment
+     *
+     * @param Client $client
+     * @param PTPayment $payment
+     */
+    protected function reversePTExtension(Client $client, PTPayment $payment)
+    {
+        $duration = $payment->duration_days;
+
+        if ($payment->payment_type === 'new') {
+            // For a 'new' enrollment refund, check if this client has any other PT payments
+            $otherPayments = PTPayment::where('client_id', $client->id)
+                ->where('id', '!=', $payment->id)
+                ->where(function ($q) {
+                    $q->where('is_refunded', false)
+                      ->orWhere('refund_status', '!=', 'full');
+                })
+                ->exists();
+
+            if (!$otherPayments) {
+                // No other active payments — delete the client record created by this enrollment
+                $client->delete();
+                return;
+            }
+        }
+
+        if ($client->due_date) {
+            $newDueDate = $client->due_date->copy()->subDays($duration);
+            $client->due_date = $newDueDate;
+            $client->save();
+        }
+    }
+
+    /**
+     * Adjust PT client proportionally for partial refund
+     *
+     * @param Client $client
+     * @param PTPayment $payment
+     * @param float $refundAmount
+     */
+    protected function adjustPTPartial(Client $client, PTPayment $payment, $refundAmount)
+    {
+        $refundPercentage = $refundAmount / $payment->amount;
+        $duration = $payment->duration_days;
+        $daysToRemove = (int) round($duration * $refundPercentage);
+
+        if ($client->due_date && $daysToRemove > 0) {
+            $newDueDate = $client->due_date->copy()->subDays($daysToRemove);
+            $client->due_date = $newDueDate;
+            $client->save();
         }
     }
 

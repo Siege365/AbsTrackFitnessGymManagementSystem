@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let selectedBuddyDueDate = '';
   let isMembershipSubmitting = false;
 
-  const paymentTypePills = document.querySelectorAll('.pay-type-pill');
+  const paymentTypePills = document.querySelectorAll('.membership-pill');
   const paymentTypeInput = document.getElementById('paymentType');
   const memberSelectionSection = document.getElementById('memberSelectionSection');
   const newMemberSection = document.getElementById('newMemberSection');
@@ -236,6 +236,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  // Auto-switch payment type based on member status
+  function syncPaymentTypeWithMemberStatus() {
+    if (!paymentTypeInput || paymentTypeInput.value === 'new') return;
+    const isActive = selectedMemberStatus && selectedMemberStatus.toLowerCase() === 'active';
+    const targetType = isActive ? 'extension' : 'renewal';
+    setPaymentType(targetType);
+  }
+
+  function setPaymentType(type) {
+    paymentTypePills.forEach(p => p.classList.remove('active'));
+    const targetPill = document.querySelector('.membership-pill[data-type="' + type + '"]');
+    if (targetPill) targetPill.classList.add('active');
+    paymentTypeInput.value = type;
+  }
+
   // Member Autocomplete
   let memberSearchTimeout;
   if (memberSearch) {
@@ -333,6 +348,7 @@ document.addEventListener('DOMContentLoaded', function() {
               }
               
               resultsContainer.classList.add('hidden');
+              syncPaymentTypeWithMemberStatus();
               updatePlanDependentFields();
               enforcePlanRestrictions();
               calculateNewDueDate();
@@ -629,6 +645,7 @@ function closeModal() {
   document.getElementById('receiptModal').classList.remove('show');
   if (window._reloadAfterReceipt) { window._reloadAfterReceipt = false; window.location.reload(); }
 }
+window.closeModal = closeModal;
 
 function printReceipt() {
   const content = document.getElementById('receiptBody').innerHTML;
@@ -636,3 +653,4 @@ function printReceipt() {
   pw.document.write('<!DOCTYPE html><html><head><title>Receipt</title><style>body{font-family:"Courier New",monospace}.receipt-container{max-width:600px;margin:0 auto;padding:20px}.receipt-header{text-align:center;margin-bottom:30px;padding-bottom:20px;border-bottom:2px dashed #333}.receipt-table{width:100%;border-collapse:collapse;margin:20px 0}.receipt-table th{background:#333;color:#fff;padding:10px;text-align:left}.receipt-table td{padding:10px;border-bottom:1px solid #ddd}.receipt-row{display:flex;justify-content:space-between;margin-bottom:8px}.receipt-total{margin-top:20px;padding-top:20px;border-top:2px solid #333}.receipt-footer{margin-top:30px;padding-top:20px;border-top:2px dashed #333;text-align:center}.receipt-info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}.receipt-info-cell{padding:10px;background:#f8f9fa;border-radius:4px}.receipt-info-cell.buddy{background:#e8f5e9;border:1px solid #a5d6a7}.receipt-info-label{display:block;font-size:.75rem;color:#666;margin-bottom:5px;font-weight:bold}.receipt-info-cell.buddy .receipt-info-label{color:#2e7d32}.receipt-info-value{display:block;font-weight:600}.receipt-info-value.success{color:#28a745}.receipt-due-section{margin-top:20px;padding-top:20px;border-top:1px dashed #ccc}.receipt-notes-section{margin-top:20px;padding:15px;background:#f5f5f5;border-radius:4px}.receipt-notes-section strong{display:block;margin-bottom:8px;color:#666}.receipt-notes-section p{margin:0;color:#333}.receipt-row.grand{font-size:1.3rem}</style></head><body>' + content + '</body></html>');
   pw.document.close(); pw.print();
 }
+window.printReceipt = printReceipt;

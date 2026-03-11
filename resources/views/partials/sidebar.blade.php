@@ -100,6 +100,7 @@
         <span class="menu-title">Reports & Analytics</span>
       </a>
     </li>
+    @if(auth()->check() && auth()->user()->isAdmin())
     <li class="nav-item menu-items">
       <a class="nav-link" data-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">
         <span class="menu-icon">
@@ -116,6 +117,7 @@
         </ul>
       </div>
     </li>
+    @endif
     <li class="nav-item menu-items">
       <a class="nav-link" href="{{ route('configuration.index') }}">
         <span class="menu-icon">

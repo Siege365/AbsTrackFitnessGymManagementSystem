@@ -87,6 +87,14 @@ class RefundLog extends Model
     }
 
     /**
+     * Scope for personal training refunds
+     */
+    public function scopePt($query)
+    {
+        return $query->where('transaction_type', 'pt');
+    }
+
+    /**
      * Get formatted refund amount
      */
     public function getFormattedRefundAmountAttribute()

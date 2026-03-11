@@ -8,21 +8,37 @@
                     <span>&times;</span>
                 </button>
             </div>
-            <form id="bookNextForm">
+            <form id="bookNextForm" novalidate>
                 @csrf
-                <input type="hidden" name="client_id" id="book_client_id">
+                <input type="hidden" name="source_session_id" id="book_source_session_id">
                 <div class="modal-body">
                     <div class="form-group">
                         <label>Client Name</label>
                         <input type="text" class="form-control" id="book_client_name" readonly>
                     </div>
                     <div class="form-group">
+                        <label>Trainer</label>
+                        <select name="trainer_name" id="book_trainer_name" class="form-control">
+                            <option value="">Select Trainer</option>
+                            @foreach ($trainers ?? [] as $trainer)
+                                <option value="{{ $trainer }}">{{ $trainer }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label>Date</label>
-                        <input type="date" name="scheduled_date" class="form-control" required min="{{ date('Y-m-d') }}">
+                        <input type="date" name="scheduled_date" class="form-control" min="{{ date('Y-m-d') }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Type <span class="text-danger">*</span></label>
+                        <select name="payment_type" id="book_payment_type" class="form-control">
+                            <option value="Cash">Cash</option>
+                            <option value="Gcash">Gcash</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Time</label>
-                        <select name="scheduled_time" class="form-control" required>
+                        <select name="scheduled_time" class="form-control">
                                 <option value="06:00">6:00 AM</option>
                                 <option value="07:00">7:00 AM</option>
                                 <option value="08:00">8:00 AM</option>

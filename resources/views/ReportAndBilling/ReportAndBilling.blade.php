@@ -117,9 +117,11 @@
                             </button>
                             <div class="dropdown-menu dropdown-menu-right filter-dropdown">
                                 <h6 class="dropdown-header">Time Period</h6>
-                                <a class="dropdown-item filter-option active" href="#" data-chart="revenueOverTime" data-period="this_year">This Year</a>
-                                <a class="dropdown-item filter-option" href="#" data-chart="revenueOverTime" data-period="last_3_months">Last 3 Months</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="revenueOverTime" data-period="today">Today</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="revenueOverTime" data-period="this_week">This Week</a>
                                 <a class="dropdown-item filter-option" href="#" data-chart="revenueOverTime" data-period="this_month">This Month</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="revenueOverTime" data-period="last_3_months">Last 3 Months</a>
+                                <a class="dropdown-item filter-option active" href="#" data-chart="revenueOverTime" data-period="this_year">This Year</a>
                             </div>
                         </div>
                     </div>
@@ -143,9 +145,11 @@
                             </button>
                             <div class="dropdown-menu dropdown-menu-right filter-dropdown">
                                 <h6 class="dropdown-header">Time Period</h6>
+                                <a class="dropdown-item filter-option" href="#" data-chart="topSelling" data-period="today">Today</a>
                                 <a class="dropdown-item filter-option active" href="#" data-chart="topSelling" data-period="this_week">This Week</a>
                                 <a class="dropdown-item filter-option" href="#" data-chart="topSelling" data-period="this_month">This Month</a>
-                                <a class="dropdown-item filter-option" href="#" data-chart="topSelling" data-period="last_month">Last Month</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="topSelling" data-period="last_3_months">Last 3 Months</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="topSelling" data-period="this_year">This Year</a>
                             </div>
                         </div>
                     </div>
@@ -166,8 +170,10 @@
                             </button>
                             <div class="dropdown-menu dropdown-menu-right filter-dropdown">
                                 <h6 class="dropdown-header">Time Period</h6>
+                                <a class="dropdown-item filter-option" href="#" data-chart="revenueBreakdown" data-period="today">Today</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="revenueBreakdown" data-period="this_week">This Week</a>
                                 <a class="dropdown-item filter-option active" href="#" data-chart="revenueBreakdown" data-period="this_month">This Month</a>
-                                <a class="dropdown-item filter-option" href="#" data-chart="revenueBreakdown" data-period="last_month">Last Month</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="revenueBreakdown" data-period="last_3_months">Last 3 Months</a>
                                 <a class="dropdown-item filter-option" href="#" data-chart="revenueBreakdown" data-period="this_year">This Year</a>
                             </div>
                         </div>
@@ -199,8 +205,10 @@
                             </button>
                             <div class="dropdown-menu dropdown-menu-right filter-dropdown">
                                 <h6 class="dropdown-header">Time Period</h6>
+                                <a class="dropdown-item filter-option" href="#" data-chart="transactionHistory" data-period="today">Today</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="transactionHistory" data-period="this_week">This Week</a>
                                 <a class="dropdown-item filter-option active" href="#" data-chart="transactionHistory" data-period="this_month">This Month</a>
-                                <a class="dropdown-item filter-option" href="#" data-chart="transactionHistory" data-period="last_month">Last Month</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="transactionHistory" data-period="last_3_months">Last 3 Months</a>
                                 <a class="dropdown-item filter-option" href="#" data-chart="transactionHistory" data-period="this_year">This Year</a>
                             </div>
                         </div>
@@ -231,6 +239,9 @@
                                 <h6 class="dropdown-header">Time Period</h6>
                                 <a class="dropdown-item filter-option active" href="#" data-chart="attendance" data-period="today">Today</a>
                                 <a class="dropdown-item filter-option" href="#" data-chart="attendance" data-period="this_week">This Week</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="attendance" data-period="this_month">This Month</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="attendance" data-period="last_3_months">Last 3 Months</a>
+                                <a class="dropdown-item filter-option" href="#" data-chart="attendance" data-period="this_year">This Year</a>
                             </div>
                         </div>
                     </div>
@@ -265,10 +276,6 @@
                             <label class="format-option">
                                 <input type="radio" name="export_format" value="csv">
                                 <span class="format-label">CSV</span>
-                            </label>
-                            <label class="format-option">
-                                <input type="radio" name="export_format" value="png">
-                                <span class="format-label">PNG</span>
                             </label>
                         </div>
                     </div>

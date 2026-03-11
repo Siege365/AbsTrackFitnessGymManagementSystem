@@ -30,6 +30,27 @@ body {
   padding-right: 15px !important;
 }
 
+/* Page Header */
+.page-header-card {
+  margin-bottom: 20px !important;
+}
+
+.page-header-title {
+  color: #ffffff;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.page-header-subtitle {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.95rem;
+}
+
+.header-date .badge {
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
 .grid-margin {
   margin-bottom: 1.5rem;
 }
@@ -444,19 +465,23 @@ body {
    TEXT COLOR UTILITIES
    ============================================ */
 .text-muted {
-  color: rgba(255, 255, 255, 0.6) !important;
+  color: rgba(255, 255, 255, 0.55) !important;
 }
 
 .text-success {
-  color: #4CAF50 !important;
+  color: #66BB6A !important;
 }
 
 .text-danger {
-  color: #F44336 !important;
+  color: #EF5350 !important;
 }
 
 .text-warning {
-  color: #FFC107 !important;
+  color: #FFA726 !important;
+}
+
+.text-info {
+  color: #42A5F5 !important;
 }
 
 .text-info {
@@ -634,5 +659,15 @@ body {
 
   .activity-icon i {
     font-size: 16px;
+  }
+
+  .doughnut-legend h5,
+  .doughnut-legend h6 {
+    font-size: 0.85rem;
+  }
+
+  .activity-timeline {
+    max-height: 300px;
+    overflow-y: auto;
   }
 }

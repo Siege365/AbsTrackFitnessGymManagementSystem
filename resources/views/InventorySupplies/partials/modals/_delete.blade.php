@@ -21,10 +21,13 @@
         <div class="selected-products-list" id="selectedProductsList">
           <!-- Selected products will be listed here -->
         </div>
+        <p class="mt-3 mb-1">Type <strong>"delete"</strong> to confirm:</p>
+        <input type="text" class="form-control" id="deleteInventoryConfirmInput" placeholder="Type delete to confirm" autocomplete="off">
+        <small class="text-danger d-none" id="deleteInventoryConfirmError">Text doesn't match. Please type "delete".</small>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" onclick="executeDelete()">Delete</button>
+        <button type="button" class="btn btn-danger" id="deleteInventoryConfirmBtn" disabled onclick="executeDelete()">Delete</button>
       </div>
     </div>
   </div>

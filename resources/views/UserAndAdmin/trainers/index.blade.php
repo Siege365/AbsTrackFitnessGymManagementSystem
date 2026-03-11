@@ -181,7 +181,7 @@
                                 </td>
                                 <td>
                                     <div class="dropdown">
-                                        <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-boundary="viewport">
+                                        <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-display="static" data-boundary="window" aria-haspopup="true" aria-expanded="false">
                                             <i class="mdi mdi-dots-vertical"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-right">
@@ -211,7 +211,7 @@
 
                 @if($trainers->hasPages())
                 <div class="d-flex justify-content-center mt-4">
-                    {{ $trainers->links() }}
+                    {{ $trainers->links('vendor.pagination.custom') }}
                 </div>
                 @endif
             </div>
@@ -375,6 +375,7 @@
 @endsection
 
 @push('scripts')
+@vite(['resources/js/common/table-dropdown.js'])
 @vite(['resources/js/pages/trainers.js'])
 <script>
 document.addEventListener('DOMContentLoaded', function() {

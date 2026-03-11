@@ -649,7 +649,7 @@ const SessionsPage = {
         $('#edit_pt_contact').val(isWalkIn ? (data.customer_contact || '') : (customerData?.contact || ''));
         $('#edit_pt_plan').val(isWalkIn ? 'Walk-in' : (customerData?.plan_type || ''));
         $('#edit_trainer').val(data.trainer_name);
-        $('#edit_date').val(data.scheduled_date);
+        $('#edit_date').val(data.scheduled_date ? data.scheduled_date.substring(0, 10) : '');
         $('#edit_time').val(data.scheduled_time?.substring(0, 5));
         $('#edit_payment').val(data.payment_type);
         $('#edit_pt_status').val(data.status?.charAt(0).toUpperCase() + data.status?.slice(1).replace('_', ' '));
@@ -1062,6 +1062,9 @@ const SessionsPage = {
     $('#deleteType').val('pt');
     $('#deleteId').val(id);
     $('#deleteConfirmText').html('Are you sure you want to delete the PT Schedule for <strong>' + name + '</strong>?');
+    $('#deleteSessionConfirmInput').val('');
+    $('#deleteSessionConfirmBtn').prop('disabled', true);
+    $('#deleteSessionConfirmError').addClass('d-none');
     $('#deleteConfirmModal').modal('show');
   },
 
@@ -1075,11 +1078,20 @@ const SessionsPage = {
     $('#deleteType').val('attendance');
     $('#deleteId').val(id);
     $('#deleteConfirmText').html('Are you sure you want to delete the attendance record for <strong>' + name + '</strong>?');
+    $('#deleteSessionConfirmInput').val('');
+    $('#deleteSessionConfirmBtn').prop('disabled', true);
+    $('#deleteSessionConfirmError').addClass('d-none');
     $('#deleteConfirmModal').modal('show');
   },
 
   // Execute delete (first confirmation)
   executeDelete: function() {
+    const confirmInput = document.getElementById('deleteSessionConfirmInput');
+    const confirmError = document.getElementById('deleteSessionConfirmError');
+    if (!confirmInput || confirmInput.value.trim().toLowerCase() !== 'delete') {
+      if (confirmError) confirmError.classList.remove('d-none');
+      return;
+    }
     $('#deleteConfirmModal').modal('hide');
     
     // Show double confirmation
@@ -1324,3 +1336,22 @@ $(document).ready(function() {
 
 // Make globally accessible for inline scripts
 window.SessionsPage = SessionsPage;
+
+// Wire up sessions single-delete confirm input
+document.addEventListener('DOMContentLoaded', function() {
+  const confirmInput = document.getElementById('deleteSessionConfirmInput');
+  const confirmBtn = document.getElementById('deleteSessionConfirmBtn');
+  if (confirmInput && confirmBtn) {
+    confirmInput.addEventListener('input', function() {
+      confirmBtn.disabled = this.value.trim().toLowerCase() !== 'delete';
+    });
+  }
+  $('#deleteConfirmModal').on('hidden.bs.modal', function() {
+    const inp = document.getElementById('deleteSessionConfirmInput');
+    const btn = document.getElementById('deleteSessionConfirmBtn');
+    const err = document.getElementById('deleteSessionConfirmError');
+    if (inp) inp.value = '';
+    if (btn) btn.disabled = true;
+    if (err) err.classList.add('d-none');
+  });
+});

@@ -68,7 +68,7 @@ class StaffController extends Controller
 
         $user->update($validated);
 
-        $this->logActivity('updated_staff', "Updated staff account: {$user->name}", $user);
+        $this->logActivity('updated', "Updated staff account: {$user->name}", $user, [], 'staff');
 
         if ($request->ajax()) {
             return response()->json(['success' => true, 'message' => 'Staff account updated successfully!']);
@@ -95,7 +95,7 @@ class StaffController extends Controller
         $userName = $user->name;
         $user->delete();
 
-        $this->logActivity('deleted_staff', "Deleted staff account: {$userName}");
+        $this->logActivity('deleted', "Deleted staff account: {$userName}", null, [], 'staff');
 
         if ($request->ajax()) {
             return response()->json(['success' => true, 'message' => 'Staff account deleted successfully!']);
@@ -115,7 +115,7 @@ class StaffController extends Controller
         $user->status = $user->status === 'active' ? 'inactive' : 'active';
         $user->save();
 
-        $this->logActivity('toggled_staff_status', "Changed status of {$user->name} to {$user->status}", $user);
+        $this->logActivity('updated', "Changed status of {$user->name} to {$user->status}", $user, [], 'staff');
 
         return response()->json(['success' => true, 'message' => "Staff status changed to {$user->status}."]);
     }

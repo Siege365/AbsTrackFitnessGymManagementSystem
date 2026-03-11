@@ -103,16 +103,57 @@
 /* Action button */
 .btn-action {
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #aaa;
-    padding: 4px 8px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
+    border: none;
+    color: #ffffff;
+    padding: 0.5rem 0.75rem;
+    font-size: 1.25rem;
 }
 
 .btn-action:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+/* Table card overflow - allow dropdowns to overflow */
+.content-wrapper .card {
+    overflow: visible !important;
+}
+
+.content-wrapper .card-body {
+    overflow: visible !important;
+}
+
+/* Table responsive overflow */
+.table-responsive {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive::-webkit-scrollbar {
+    height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.05);
-    color: #fff;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+}
+
+.table .dropdown {
+    position: relative;
+    z-index: 2;
+}
+
+.table .dropdown.show {
+    z-index: 1060;
+}
+
+.table .dropdown-menu {
+    z-index: 1061;
 }
 
 /* Search info bar */

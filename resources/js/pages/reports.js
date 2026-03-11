@@ -1,275 +1,194 @@
 /**
  * Reports Page Module
  * Page-specific JavaScript for ReportAndBilling/ReportAndBilling.blade.php
- * Handles Chart.js configurations for analytics/reporting with API integration
+ * Handles Chart.js configurations for analytics/reporting with API integration.
+ *
+ * Architecture:
+ *  - Chart creation functions build initial placeholder charts
+ *  - API fetch functions pull real data and update charts dynamically
+ *  - Filter listeners trigger re-fetches per chart
+ *  - Export function creates a hidden form POST for file download
  */
 
-const ReportsPage = (function() {
+const ReportsPage = (function () {
   'use strict';
 
-  // Chart instances (for later reference/updates)
+  // ───────────────────────────── State ─────────────────────────────
+
+  /** @type {Object.<string, Chart>} Active Chart.js instances */
   let charts = {};
 
-  // Current filter states
+  /** Current filter period per chart */
   let currentFilters = {
-    revenueOverTime: 'this_year',
-    topSelling: 'this_week',
-    revenueBreakdown: 'this_month',
+    revenueOverTime:    'this_year',
+    topSelling:         'this_week',
+    revenueBreakdown:   'this_month',
     transactionHistory: 'this_month',
-    attendance: 'today'
+    attendance:         'today'
   };
 
-  // Common chart configuration
+  // ───────────────────────────── Config ────────────────────────────
+
   const COMMON_CONFIG = {
     colors: {
-      text: '#8b92a7',
+      text:     '#8b92a7',
       gridLine: 'rgba(255, 255, 255, 0.05)',
-      border: 'rgba(255, 255, 255, 0.1)',
+      border:   'rgba(255, 255, 255, 0.1)',
       tooltip: {
         background: 'rgba(42, 48, 56, 0.95)',
-        title: '#fff',
-        body: '#8b92a7',
-        border: '#3a4048'
+        title:      '#fff',
+        body:       '#8b92a7',
+        border:     '#3a4048'
       }
     },
     brandColors: {
       orange: '#FFA726',
-      green: '#66BB6A',
-      blue: '#42A5F5',
+      green:  '#66BB6A',
+      blue:   '#42A5F5',
       purple: '#AB47BC',
-      cyan: '#26C6DA'
+      cyan:   '#26C6DA'
     }
   };
 
-  /**
-   * Get common tooltip configuration
-   * @returns {Object} Tooltip config
-   */
+  // ──────────────────── Shared Chart Helpers ───────────────────────
+
+  /** Common tooltip appearance */
   function getTooltipConfig() {
     return {
       backgroundColor: COMMON_CONFIG.colors.tooltip.background,
-      padding: 12,
-      titleColor: COMMON_CONFIG.colors.tooltip.title,
-      bodyColor: COMMON_CONFIG.colors.tooltip.body,
+      padding:     12,
+      titleColor:  COMMON_CONFIG.colors.tooltip.title,
+      bodyColor:   COMMON_CONFIG.colors.tooltip.body,
       borderColor: COMMON_CONFIG.colors.tooltip.border,
       borderWidth: 1
     };
   }
 
-  /**
-   * Get common legend configuration
-   * @param {string} position - Legend position
-   * @returns {Object} Legend config
-   */
+  /** Common legend appearance */
   function getLegendConfig(position = 'bottom') {
     return {
       display: true,
       position: position,
-      labels: {
-        color: '#fff',
-        usePointStyle: true,
-        padding: 15,
-        font: {
-          size: 12
-        }
-      }
+      labels: { color: '#fff', usePointStyle: true, padding: 15, font: { size: 12 } }
     };
   }
 
-  /**
-   * Get common Y-axis configuration
-   * @returns {Object} Y-axis config
-   */
+  /** Common Y-axis */
   function getYAxisConfig() {
     return {
       beginAtZero: true,
-      grid: {
-        color: COMMON_CONFIG.colors.gridLine,
-        drawBorder: false
-      },
-      ticks: {
-        color: COMMON_CONFIG.colors.text,
-        font: {
-          size: 11
-        }
-      }
+      grid:  { color: COMMON_CONFIG.colors.gridLine, drawBorder: false },
+      ticks: { color: COMMON_CONFIG.colors.text, font: { size: 11 } }
     };
   }
 
-  /**
-   * Get common X-axis configuration
-   * @param {boolean} showGrid - Whether to show grid lines
-   * @returns {Object} X-axis config
-   */
+  /** Common X-axis */
   function getXAxisConfig(showGrid = true) {
     return {
-      grid: showGrid ? {
-        color: COMMON_CONFIG.colors.gridLine,
-        drawBorder: false
-      } : {
-        display: false
-      },
-      ticks: {
-        color: COMMON_CONFIG.colors.text,
-        font: {
-          size: 11
-        }
-      }
+      grid: showGrid
+        ? { color: COMMON_CONFIG.colors.gridLine, drawBorder: false }
+        : { display: false },
+      ticks: { color: COMMON_CONFIG.colors.text, font: { size: 11 } }
     };
   }
 
-  /**
-   * Apply global Chart.js defaults
-   */
+  /** Apply global Chart.js defaults */
   function applyChartDefaults() {
-    if (typeof Chart === 'undefined') {
-      console.error('Chart.js is not loaded');
-      return;
-    }
-    
-    Chart.defaults.color = COMMON_CONFIG.colors.text;
+    if (typeof Chart === 'undefined') { console.error('Chart.js is not loaded'); return; }
+    Chart.defaults.color       = COMMON_CONFIG.colors.text;
     Chart.defaults.borderColor = COMMON_CONFIG.colors.border;
   }
 
+  // ────────────────────── Chart Creators ───────────────────────────
+
   /**
-   * Create Revenue Over Time chart
-   * @param {string} canvasId - Canvas element ID
-   * @param {Object} data - Chart data (optional, uses sample if not provided)
+   * Revenue Over Time – multi-line chart (Retail / Membership / PT).
+   * Supports both monthly and daily labels dynamically.
    */
-  function createRevenueOverTimeChart(canvasId, data = null) {
+  function createRevenueOverTimeChart(canvasId, data) {
     const ctx = document.getElementById(canvasId)?.getContext('2d');
     if (!ctx) return null;
 
+    const lineColors = [
+      { border: COMMON_CONFIG.brandColors.orange, bg: 'rgba(255, 167, 38, 0.1)' },
+      { border: COMMON_CONFIG.brandColors.green,  bg: 'rgba(102, 187, 106, 0.1)' },
+      { border: COMMON_CONFIG.brandColors.blue,   bg: 'rgba(66, 165, 245, 0.1)' }
+    ];
+
     const chartData = data || {
-      labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
       datasets: [
-        {
-          label: 'Retail',
-          data: [65, 75, 90, 85, 95, 110],
-          borderColor: COMMON_CONFIG.brandColors.orange,
-          backgroundColor: 'rgba(255, 167, 38, 0.1)',
-          tension: 0.4,
-          borderWidth: 2
-        },
-        {
-          label: 'Membership',
-          data: [85, 95, 105, 100, 90, 115],
-          borderColor: COMMON_CONFIG.brandColors.green,
-          backgroundColor: 'rgba(102, 187, 106, 0.1)',
-          tension: 0.4,
-          borderWidth: 2
-        },
-        {
-          label: 'Revenue Pending',
-          data: [55, 65, 75, 70, 60, 80],
-          borderColor: COMMON_CONFIG.brandColors.blue,
-          backgroundColor: 'rgba(66, 165, 245, 0.1)',
-          tension: 0.4,
-          borderWidth: 2
-        }
+        { label: 'Retail',            data: [0,0,0,0,0,0] },
+        { label: 'Membership',        data: [0,0,0,0,0,0] },
+        { label: 'Personal Training', data: [0,0,0,0,0,0] }
       ]
     };
+
+    // Apply styling to each dataset
+    chartData.datasets.forEach((ds, i) => {
+      const c = lineColors[i] || lineColors[0];
+      ds.borderColor     = ds.borderColor || c.border;
+      ds.backgroundColor = ds.backgroundColor || c.bg;
+      ds.tension     = ds.tension ?? 0.4;
+      ds.borderWidth = ds.borderWidth ?? 2;
+    });
 
     charts.revenueOverTime = new Chart(ctx, {
       type: 'line',
       data: chartData,
       options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: getLegendConfig('bottom'),
-          tooltip: getTooltipConfig()
-        },
-        scales: {
-          y: getYAxisConfig(),
-          x: getXAxisConfig()
-        }
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: getLegendConfig('bottom'), tooltip: getTooltipConfig() },
+        scales:  { y: getYAxisConfig(), x: getXAxisConfig() }
       }
     });
-
     return charts.revenueOverTime;
   }
 
   /**
-   * Create Top Selling Products chart
-   * @param {string} canvasId - Canvas element ID
-   * @param {Object} data - Chart data (optional)
+   * Top Selling Products – grouped bar chart.
+   * Datasets are rebuilt entirely from API data (variable product count).
    */
-  function createTopSellingChart(canvasId, data = null) {
+  function createTopSellingChart(canvasId, data) {
     const ctx = document.getElementById(canvasId)?.getContext('2d');
     if (!ctx) return null;
 
     const chartData = data || {
-      labels: ['Product A', 'Product B', 'Product C', 'Product D', 'Product E', 'Product F'],
-      datasets: [
-        {
-          label: 'Membership',
-          data: [45, 65, 75, 55, 85, 95],
-          backgroundColor: COMMON_CONFIG.brandColors.orange,
-          borderRadius: 4
-        },
-        {
-          label: 'Retail (Day/Week)',
-          data: [55, 75, 85, 65, 95, 70],
-          backgroundColor: COMMON_CONFIG.brandColors.blue,
-          borderRadius: 4
-        },
-        {
-          label: 'Retail (6mo/1year)',
-          data: [35, 55, 65, 45, 75, 85],
-          backgroundColor: COMMON_CONFIG.brandColors.green,
-          borderRadius: 4
-        },
-        {
-          label: 'Membership (6MTH)',
-          data: [65, 85, 95, 75, 65, 80],
-          backgroundColor: COMMON_CONFIG.brandColors.purple,
-          borderRadius: 4
-        }
-      ]
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      datasets: []
     };
+
+    // Ensure borderRadius on each dataset
+    chartData.datasets.forEach(ds => { ds.borderRadius = ds.borderRadius ?? 4; });
 
     charts.topSelling = new Chart(ctx, {
       type: 'bar',
       data: chartData,
       options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: getLegendConfig('bottom'),
-          tooltip: getTooltipConfig()
-        },
-        scales: {
-          y: getYAxisConfig(),
-          x: getXAxisConfig(false)
-        }
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: getLegendConfig('bottom'), tooltip: getTooltipConfig() },
+        scales:  { y: getYAxisConfig(), x: getXAxisConfig(false) }
       }
     });
-
     return charts.topSelling;
   }
 
   /**
-   * Create Revenue Breakdown chart (doughnut)
-   * @param {string} canvasId - Canvas element ID
-   * @param {Object} data - Chart data (optional)
+   * Revenue Breakdown – doughnut chart.
    */
-  function createRevenueBreakdownChart(canvasId, data = null) {
+  function createRevenueBreakdownChart(canvasId, data) {
     const ctx = document.getElementById(canvasId)?.getContext('2d');
     if (!ctx) return null;
 
     const chartData = data || {
-      labels: ['Retail Sales', 'Membership', 'Personal Training', 'Walk-ins'],
+      labels: ['Retail Sales', 'Membership', 'Personal Training'],
       datasets: [{
-        data: [35, 30, 20, 15],
+        data: [0, 0, 0],
         backgroundColor: [
-          COMMON_CONFIG.brandColors.blue,
-          COMMON_CONFIG.brandColors.green,
-          COMMON_CONFIG.brandColors.orange,
-          COMMON_CONFIG.brandColors.cyan
+          COMMON_CONFIG.brandColors.blue, COMMON_CONFIG.brandColors.green,
+          COMMON_CONFIG.brandColors.orange
         ],
-        borderWidth: 0,
-        hoverOffset: 4
+        borderWidth: 0, hoverOffset: 4
       }]
     };
 
@@ -277,38 +196,26 @@ const ReportsPage = (function() {
       type: 'doughnut',
       data: chartData,
       options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: getLegendConfig('right'),
-          tooltip: getTooltipConfig()
-        }
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: getLegendConfig('right'), tooltip: getTooltipConfig() }
       }
     });
-
     return charts.revenueBreakdown;
   }
 
   /**
-   * Create Transaction History chart (doughnut)
-   * @param {string} canvasId - Canvas element ID
-   * @param {Object} data - Chart data (optional)
+   * Transaction History – doughnut (pie-style) chart.
    */
-  function createTransactionHistoryChart(canvasId, data = null) {
+  function createTransactionHistoryChart(canvasId, data) {
     const ctx = document.getElementById(canvasId)?.getContext('2d');
     if (!ctx) return null;
 
     const chartData = data || {
-      labels: ['Mpesa', 'Cash', 'PesaPal'],
+      labels: ['Cash', 'GCash'],
       datasets: [{
-        data: [50, 30, 20],
-        backgroundColor: [
-          COMMON_CONFIG.brandColors.blue,
-          COMMON_CONFIG.brandColors.green,
-          COMMON_CONFIG.brandColors.orange
-        ],
-        borderWidth: 0,
-        hoverOffset: 4
+        data: [0, 0],
+        backgroundColor: [COMMON_CONFIG.brandColors.blue, COMMON_CONFIG.brandColors.green],
+        borderWidth: 0, hoverOffset: 4
       }]
     };
 
@@ -316,42 +223,29 @@ const ReportsPage = (function() {
       type: 'doughnut',
       data: chartData,
       options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: getLegendConfig('right'),
-          tooltip: getTooltipConfig()
-        }
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: getLegendConfig('right'), tooltip: getTooltipConfig() }
       }
     });
-
     return charts.transactionHistory;
   }
 
   /**
-   * Create Customer Attendance chart
-   * @param {string} canvasId - Canvas element ID
-   * @param {Object} data - Chart data (optional)
+   * Customer Attendance – area line chart.
    */
-  function createCustomerAttendanceChart(canvasId, data = null) {
+  function createCustomerAttendanceChart(canvasId, data) {
     const ctx = document.getElementById(canvasId)?.getContext('2d');
     if (!ctx) return null;
 
     const chartData = data || {
-      labels: ['9:00 AM', '12:00 PM', '3:00 PM', '6:00 PM', '9:00 PM'],
+      labels: ['6:00 AM', '9:00 AM', '12:00 PM', '3:00 PM', '6:00 PM', '9:00 PM'],
       datasets: [{
-        label: 'Check-ins',
-        data: [45, 52, 60, 65, 48],
+        label: 'Check-ins', data: [0, 0, 0, 0, 0, 0],
         borderColor: COMMON_CONFIG.brandColors.blue,
         backgroundColor: 'rgba(66, 165, 245, 0.1)',
-        tension: 0.4,
-        fill: true,
-        borderWidth: 2,
-        pointRadius: 4,
-        pointBackgroundColor: COMMON_CONFIG.brandColors.blue,
-        pointBorderColor: '#fff',
-        pointBorderWidth: 2,
-        pointHoverRadius: 6
+        tension: 0.4, fill: true, borderWidth: 2,
+        pointRadius: 4, pointBackgroundColor: COMMON_CONFIG.brandColors.blue,
+        pointBorderColor: '#fff', pointBorderWidth: 2, pointHoverRadius: 6
       }]
     };
 
@@ -359,49 +253,43 @@ const ReportsPage = (function() {
       type: 'line',
       data: chartData,
       options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: getLegendConfig('bottom'),
-          tooltip: getTooltipConfig()
-        },
-        scales: {
-          y: getYAxisConfig(),
-          x: getXAxisConfig()
-        }
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: getLegendConfig('bottom'), tooltip: getTooltipConfig() },
+        scales:  { y: getYAxisConfig(), x: getXAxisConfig() }
       }
     });
-
     return charts.customerAttendance;
   }
 
+  // ──────────────────────── Init ──────────────────────────────────
+
   /**
-   * Initialize all charts on the page
-   * @param {Object} options - Configuration options with optional data
+   * Initialize all charts and kick off API data fetches.
+   * @param {Object} options - Optional pre-loaded data per chart
    */
   function init(options = {}) {
     applyChartDefaults();
-    
+
     // Load KPIs
     loadKPIs();
 
-    // Create charts with sample data first, then fetch real data
-    createRevenueOverTimeChart('revenueOverTimeChart', options.revenueData);
-    createTopSellingChart('topSellingProductsChart', options.topSellingData);
-    createRevenueBreakdownChart('revenueBreakdownChart', options.breakdownData);
-    createTransactionHistoryChart('transactionHistoryChart', options.transactionData);
-    createCustomerAttendanceChart('customerAttendanceChart', options.attendanceData);
+    // Create charts with placeholder data first
+    createRevenueOverTimeChart('revenueOverTimeChart', options.revenueData || null);
+    createTopSellingChart('topSellingProductsChart', options.topSellingData || null);
+    createRevenueBreakdownChart('revenueBreakdownChart', options.breakdownData || null);
+    createTransactionHistoryChart('transactionHistoryChart', options.transactionData || null);
+    createCustomerAttendanceChart('customerAttendanceChart', options.attendanceData || null);
 
-    // Fetch real data from API
+    // Fetch real data from API (all in parallel)
     fetchAllChartData();
 
-    // Setup filter event listeners
+    // Bind filter dropdowns
     setupFilterListeners();
   }
 
-  /**
-   * Load KPI data from API
-   */
+  // ────────────────────── KPI Loading ─────────────────────────────
+
+  /** Fetch KPI data and update the 4 stat cards. */
   async function loadKPIs() {
     try {
       const response = await fetch('/reports-analytics/kpis');
@@ -415,10 +303,7 @@ const ReportsPage = (function() {
     }
   }
 
-  /**
-   * Update KPI display with data
-   * @param {Object} data - KPI data from API
-   */
+  /** Update KPI DOM elements with values. */
   function updateKPIDisplay(data) {
     // Update values with abbreviated formatting
     document.getElementById('kpi_monthly_revenue').textContent = formatKPICurrency(data.monthly_revenue);
@@ -430,37 +315,27 @@ const ReportsPage = (function() {
     updateKPIBadge('kpi_revenue_badge', 'kpi_revenue_icon', data.revenue_change);
     updateKPIBadge('kpi_retail_badge', 'kpi_retail_icon', data.retail_change);
     updateKPIBadge('kpi_membership_badge', 'kpi_membership_icon', data.membership_change);
-    updateKPIBadge('kpi_pt_badge', 'kpi_pt_icon', data.pt_change);
+    updateKPIBadge('kpi_pt_badge',         'kpi_pt_icon',         data.pt_change);
   }
 
-  /**
-   * Update KPI badge styling based on value
-   * @param {string} badgeId - Badge element ID
-   * @param {string} iconId - Icon element ID
-   * @param {number} value - Percentage change value
-   */
+  /** Style a KPI badge as positive/negative. */
   function updateKPIBadge(badgeId, iconId, value) {
     const badge = document.getElementById(badgeId);
-    const icon = document.getElementById(iconId);
-    
+    const icon  = document.getElementById(iconId);
     if (!badge || !icon) return;
-    
-    const isPositive = value >= 0;
-    const sign = isPositive ? '+' : '';
-    
-    badge.textContent = sign + value.toFixed(1) + '%';
-    badge.className = 'badge badge-' + (isPositive ? 'success' : 'danger');
-    
-    const iconSpan = icon.querySelector('span');
-    if (iconSpan) {
-      iconSpan.className = 'mdi mdi-arrow-' + (isPositive ? 'top-right' : 'bottom-right');
-    }
-    icon.className = 'icon-box ' + (isPositive ? 'text-success' : 'text-danger');
+
+    const positive = value >= 0;
+    badge.textContent = (positive ? '+' : '') + value.toFixed(1) + '%';
+    badge.className   = 'badge badge-' + (positive ? 'success' : 'danger');
+
+    const span = icon.querySelector('span');
+    if (span) span.className = 'mdi mdi-arrow-' + (positive ? 'top-right' : 'bottom-right');
+    icon.className = 'icon-box ' + (positive ? 'text-success' : 'text-danger');
   }
 
-  /**
-   * Fetch all chart data from API
-   */
+  // ────────────────────── Data Fetchers ───────────────────────────
+
+  /** Fetch all chart data in parallel. */
   async function fetchAllChartData() {
     await Promise.all([
       fetchRevenueOverTime(),
@@ -472,7 +347,8 @@ const ReportsPage = (function() {
   }
 
   /**
-   * Fetch revenue over time data
+   * Revenue Over Time – rebuild datasets dynamically so the
+   * chart works whether labels are months or days.
    */
   async function fetchRevenueOverTime() {
     try {
@@ -480,23 +356,38 @@ const ReportsPage = (function() {
       const result = await response.json();
       
       if (result.success && charts.revenueOverTime) {
-        const data = result.data;
-        charts.revenueOverTime.data.labels = data.labels;
-        charts.revenueOverTime.data.datasets[0].data = data.datasets[0].data;
-        charts.revenueOverTime.data.datasets[0].label = data.datasets[0].label;
-        charts.revenueOverTime.data.datasets[1].data = data.datasets[1].data;
-        charts.revenueOverTime.data.datasets[1].label = data.datasets[1].label;
-        charts.revenueOverTime.data.datasets[2].data = data.datasets[2].data;
-        charts.revenueOverTime.data.datasets[2].label = data.datasets[2].label;
+        const d = result.data;
+        const lineColors = [
+          { border: COMMON_CONFIG.brandColors.orange, bg: 'rgba(255, 167, 38, 0.1)' },
+          { border: COMMON_CONFIG.brandColors.green,  bg: 'rgba(102, 187, 106, 0.1)' },
+          { border: COMMON_CONFIG.brandColors.blue,   bg: 'rgba(66, 165, 245, 0.1)' }
+        ];
+
+        charts.revenueOverTime.data.labels = d.labels;
+
+        // Rebuild datasets array to match API response length
+        charts.revenueOverTime.data.datasets = d.datasets.map((ds, i) => {
+          const c = lineColors[i] || lineColors[0];
+          return {
+            label:           ds.label,
+            data:            ds.data,
+            borderColor:     c.border,
+            backgroundColor: c.bg,
+            tension:     0.4,
+            borderWidth: 2
+          };
+        });
+
         charts.revenueOverTime.update();
       }
-    } catch (error) {
-      console.error('Error fetching revenue over time:', error);
+    } catch (err) {
+      console.error('Error fetching revenue over time:', err);
     }
   }
 
   /**
-   * Fetch top selling products data
+   * Top Selling Products – fully replace datasets since the
+   * number of products may change between filter periods.
    */
   async function fetchTopSelling() {
     try {
@@ -504,287 +395,222 @@ const ReportsPage = (function() {
       const result = await response.json();
       
       if (result.success && charts.topSelling) {
-        const data = result.data;
-        charts.topSelling.data.labels = data.labels;
-        charts.topSelling.data.datasets = data.datasets;
+        const d = result.data;
+        charts.topSelling.data.labels = d.labels;
+
+        // Apply borderRadius to each dataset coming from the API
+        charts.topSelling.data.datasets = (d.datasets || []).map(ds => ({
+          ...ds,
+          borderRadius: ds.borderRadius ?? 4
+        }));
+
         charts.topSelling.update();
       }
-    } catch (error) {
-      console.error('Error fetching top selling:', error);
+    } catch (err) {
+      console.error('Error fetching top selling:', err);
     }
   }
 
-  /**
-   * Fetch revenue breakdown data
-   */
+  /** Revenue Breakdown – update donut slices + custom legend. */
   async function fetchRevenueBreakdown() {
     try {
       const response = await fetch('/reports-analytics/revenue-breakdown?period=' + currentFilters.revenueBreakdown);
       const result = await response.json();
       
       if (result.success && charts.revenueBreakdown) {
-        const data = result.data;
-        charts.revenueBreakdown.data.labels = data.labels;
-        charts.revenueBreakdown.data.datasets[0].data = data.values;
-        charts.revenueBreakdown.data.datasets[0].backgroundColor = data.colors;
+        const d = result.data;
+        charts.revenueBreakdown.data.labels                     = d.labels;
+        charts.revenueBreakdown.data.datasets[0].data            = d.values;
+        charts.revenueBreakdown.data.datasets[0].backgroundColor = d.colors;
         charts.revenueBreakdown.update();
-        
-        // Update custom legend
-        updateRevenueBreakdownLegend(data);
+
+        updateRevenueBreakdownLegend(d);
       }
-    } catch (error) {
-      console.error('Error fetching revenue breakdown:', error);
+    } catch (err) {
+      console.error('Error fetching revenue breakdown:', err);
     }
   }
 
-  /**
-   * Update revenue breakdown legend
-   * @param {Object} data - Revenue breakdown data
-   */
+  /** Build HTML for the breakdown side-legend. */
   function updateRevenueBreakdownLegend(data) {
-    const legendEl = document.getElementById('revenueBreakdownLegend');
-    if (!legendEl) return;
-    
-    let html = '';
-    data.labels.forEach((label, index) => {
-      html += '<div class="legend-item mb-2">';
-      html += '<span class="legend-color" style="background: ' + data.colors[index] + '"></span>';
-      html += '<span class="legend-label">' + label + '</span>';
-      html += '<span class="legend-value">₱' + parseFloat(data.values[index]).toLocaleString('en-PH', {minimumFractionDigits: 2}) + '</span>';
-      html += '</div>';
-    });
-    
-    legendEl.innerHTML = html;
+    const el = document.getElementById('revenueBreakdownLegend');
+    if (!el) return;
+
+    const fmt = (v) => '\u20b1' + parseFloat(v).toLocaleString('en-PH', { minimumFractionDigits: 2 });
+
+    el.innerHTML = data.labels.map((label, i) =>
+      '<div class="legend-item mb-2">' +
+        '<span class="legend-color" style="background:' + data.colors[i] + '"></span>' +
+        '<span class="legend-label">' + label + '</span>' +
+        '<span class="legend-value">' + fmt(data.values[i]) + '</span>' +
+      '</div>'
+    ).join('');
   }
 
-  /**
-   * Fetch transaction history data
-   */
+  /** Transaction History – update donut slices + custom legend. */
   async function fetchTransactionHistory() {
     try {
       const response = await fetch('/reports-analytics/transaction-history?period=' + currentFilters.transactionHistory);
       const result = await response.json();
       
       if (result.success && charts.transactionHistory) {
-        const data = result.data;
-        charts.transactionHistory.data.labels = data.labels;
-        charts.transactionHistory.data.datasets[0].data = data.values;
-        charts.transactionHistory.data.datasets[0].backgroundColor = data.colors;
+        const d = result.data;
+        charts.transactionHistory.data.labels                     = d.labels;
+        charts.transactionHistory.data.datasets[0].data            = d.values;
+        charts.transactionHistory.data.datasets[0].backgroundColor = d.colors;
         charts.transactionHistory.update();
-        
-        // Update custom legend
-        updateTransactionLegend(data);
+
+        updateTransactionLegend(d);
       }
-    } catch (error) {
-      console.error('Error fetching transaction history:', error);
+    } catch (err) {
+      console.error('Error fetching transaction history:', err);
     }
   }
 
-  /**
-   * Update transaction history legend
-   * @param {Object} data - Transaction data
-   */
+  /** Build HTML for the transaction side-legend. */
   function updateTransactionLegend(data) {
-    const legendEl = document.getElementById('transactionHistoryLegend');
-    if (!legendEl) return;
-    
-    let html = '';
-    data.labels.forEach((label, index) => {
-      html += '<div class="legend-item mb-2">';
-      html += '<span class="legend-color" style="background: ' + data.colors[index] + '"></span>';
-      html += '<span class="legend-label">' + label + '</span>';
-      html += '<span class="legend-value">₱' + parseFloat(data.values[index]).toLocaleString('en-PH', {minimumFractionDigits: 2}) + '</span>';
-      html += '</div>';
-    });
-    
-    legendEl.innerHTML = html;
+    const el = document.getElementById('transactionHistoryLegend');
+    if (!el) return;
+
+    const fmt = (v) => '\u20b1' + parseFloat(v).toLocaleString('en-PH', { minimumFractionDigits: 2 });
+
+    el.innerHTML = data.labels.map((label, i) =>
+      '<div class="legend-item mb-2">' +
+        '<span class="legend-color" style="background:' + data.colors[i] + '"></span>' +
+        '<span class="legend-label">' + label + '</span>' +
+        '<span class="legend-value">' + fmt(data.values[i]) + '</span>' +
+      '</div>'
+    ).join('');
   }
 
-  /**
-   * Fetch attendance data
-   */
+  /** Customer Attendance – update line chart data. */
   async function fetchAttendance() {
     try {
       const response = await fetch('/reports-analytics/attendance-trend?period=' + currentFilters.attendance);
       const result = await response.json();
       
       if (result.success && charts.customerAttendance) {
-        const data = result.data;
-        charts.customerAttendance.data.labels = data.labels;
-        charts.customerAttendance.data.datasets[0].data = data.values;
+        charts.customerAttendance.data.labels           = result.data.labels;
+        charts.customerAttendance.data.datasets[0].data = result.data.values;
         charts.customerAttendance.update();
       }
-    } catch (error) {
-      console.error('Error fetching attendance:', error);
+    } catch (err) {
+      console.error('Error fetching attendance:', err);
     }
   }
 
-  /**
-   * Setup filter dropdown event listeners
-   */
+  // ────────────────────── Filter Listeners ─────────────────────────
+
+  /** Bind click handlers to .filter-option dropdown items. */
   function setupFilterListeners() {
     document.querySelectorAll('.filter-option').forEach(option => {
-      option.addEventListener('click', function(e) {
+      option.addEventListener('click', function (e) {
         e.preventDefault();
-        
-        const chart = this.dataset.chart;
+
+        const chart  = this.dataset.chart;
         const period = this.dataset.period;
-        
-        // Update active state
-        this.closest('.filter-dropdown').querySelectorAll('.filter-option').forEach(opt => {
-          opt.classList.remove('active');
-        });
+
+        // Toggle active class within the same dropdown
+        this.closest('.filter-dropdown')
+          .querySelectorAll('.filter-option')
+          .forEach(o => o.classList.remove('active'));
         this.classList.add('active');
-        
-        // Update filter state and fetch data
+
+        // Update state and re-fetch
         currentFilters[chart] = period;
-        
-        switch(chart) {
-          case 'revenueOverTime':
-            fetchRevenueOverTime();
-            break;
-          case 'topSelling':
-            fetchTopSelling();
-            break;
-          case 'revenueBreakdown':
-            fetchRevenueBreakdown();
-            break;
-          case 'transactionHistory':
-            fetchTransactionHistory();
-            break;
-          case 'attendance':
-            fetchAttendance();
-            break;
-        }
+
+        const fetchMap = {
+          revenueOverTime:    fetchRevenueOverTime,
+          topSelling:         fetchTopSelling,
+          revenueBreakdown:   fetchRevenueBreakdown,
+          transactionHistory: fetchTransactionHistory,
+          attendance:         fetchAttendance
+        };
+
+        if (fetchMap[chart]) fetchMap[chart]();
       });
     });
   }
 
+  // ────────────────────── Export ───────────────────────────────────
+
   /**
-   * Export report
+   * Trigger a report export via hidden form POST.
+   * Supported formats: PDF, CSV, Excel.  PNG is rejected server-side.
    */
   async function exportReport() {
-    const format = document.querySelector('input[name="export_format"]:checked')?.value || 'pdf';
+    const format    = document.querySelector('input[name="export_format"]:checked')?.value || 'pdf';
     const dateRange = document.querySelector('select[name="export_date_range"]')?.value || 'this_month';
-    const scope = document.querySelector('select[name="export_scope"]')?.value || 'all';
-    
-    // Find the export button
-    const btn = document.querySelector('.modal-footer .btn-warning') || document.querySelector('[onclick*="exportReport"]');
+    const scope     = document.querySelector('select[name="export_scope"]')?.value || 'all';
+
+    const btn = document.querySelector('.modal-footer .btn-warning');
     const originalText = btn ? btn.innerHTML : 'Export';
-    
+
     try {
-      // Show loading state
-      if (btn) {
-        btn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Exporting...';
-        btn.disabled = true;
-      }
-      
-      // Create form and submit for file download
+      // Loading state
+      if (btn) { btn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Exporting...'; btn.disabled = true; }
+
+      // Build hidden form
       const form = document.createElement('form');
       form.method = 'POST';
       form.action = '/reports-analytics/export';
       form.style.display = 'none';
-      
-      // Add CSRF token
-      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
-      const csrfInput = document.createElement('input');
-      csrfInput.type = 'hidden';
-      csrfInput.name = '_token';
-      csrfInput.value = csrfToken;
-      form.appendChild(csrfInput);
-      
-      // Add format
-      const formatInput = document.createElement('input');
-      formatInput.type = 'hidden';
-      formatInput.name = 'format';
-      formatInput.value = format;
-      form.appendChild(formatInput);
-      
-      // Add date range
-      const dateRangeInput = document.createElement('input');
-      dateRangeInput.type = 'hidden';
-      dateRangeInput.name = 'date_range';
-      dateRangeInput.value = dateRange;
-      form.appendChild(dateRangeInput);
-      
-      // Add scope
-      const scopeInput = document.createElement('input');
-      scopeInput.type = 'hidden';
-      scopeInput.name = 'scope';
-      scopeInput.value = scope;
-      form.appendChild(scopeInput);
-      
-      // Submit form
+
+      const addField = (name, value) => {
+        const input = document.createElement('input');
+        input.type = 'hidden'; input.name = name; input.value = value;
+        form.appendChild(input);
+      };
+
+      addField('_token', document.querySelector('meta[name="csrf-token"]')?.content || '');
+      addField('format', format);
+      addField('date_range', dateRange);
+      addField('scope', scope);
+
       document.body.appendChild(form);
       form.submit();
       document.body.removeChild(form);
-      
-      // Show success message
+
+      // Reset UI after short delay (file download is async)
       setTimeout(() => {
         showToast('Report export started. Download will begin shortly.', 'success');
-        $('#exportReportModal').modal('hide');
-        
-        if (btn) {
-          btn.innerHTML = originalText;
-          btn.disabled = false;
-        }
+        if (typeof $ !== 'undefined') $('#exportReportModal').modal('hide');
+        if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
       }, 500);
-      
-    } catch (error) {
-      console.error('Export error:', error);
+    } catch (err) {
+      console.error('Export error:', err);
       showToast('Export failed. Please try again.', 'error');
-      
-      // Reset button
-      if (btn) {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-      }
+      if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
     }
   }
 
+  // ────────────────────── Utilities ───────────────────────────────
+
   /**
-   * Show toast notification
-   * @param {string} message - Toast message
-   * @param {string} type - Toast type (success, error, warning, info)
+   * Show a toast notification (SweetAlert2 if available, else alert).
    */
   function showToast(message, type = 'info') {
-    // Use existing toast system if available
     if (typeof Swal !== 'undefined') {
       Swal.fire({
-        toast: true,
-        position: 'top-end',
+        toast: true, position: 'top-end',
         icon: type === 'error' ? 'error' : type === 'success' ? 'success' : 'info',
-        title: message,
-        showConfirmButton: false,
-        timer: 3000
+        title: message, showConfirmButton: false, timer: 3000
       });
     } else {
       ToastUtils.showInfo(message);
     }
   }
 
-  /**
-   * Get chart instance by name
-   * @param {string} name - Chart name
-   * @returns {Object} Chart instance
-   */
-  function getChart(name) {
-    return charts[name];
-  }
+  /** Get a chart instance by key name. */
+  function getChart(name) { return charts[name]; }
 
-  /**
-   * Update chart data
-   * @param {string} name - Chart name
-   * @param {Object} data - New data
-   */
+  /** Replace a chart's data and re-render. */
   function updateChartData(name, data) {
-    if (charts[name]) {
-      charts[name].data = data;
-      charts[name].update();
-    }
+    if (charts[name]) { charts[name].data = data; charts[name].update(); }
   }
 
-  // Public API
+  // ────────────────────── Public API ──────────────────────────────
+
   return {
     init,
     COMMON_CONFIG,
@@ -802,10 +628,10 @@ const ReportsPage = (function() {
   };
 })();
 
-// Export for use in other modules
+// CommonJS export (if bundled)
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ReportsPage;
 }
 
-// Make globally accessible for inline scripts
+// Global access for inline <script> calls
 window.ReportsPage = ReportsPage;

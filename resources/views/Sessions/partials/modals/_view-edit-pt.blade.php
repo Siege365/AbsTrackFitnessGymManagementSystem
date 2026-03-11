@@ -8,10 +8,11 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="editPTScheduleForm">
+            <form id="editPTScheduleForm" novalidate>
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="pt_id" id="edit_pt_id">
+                <input type="hidden" id="edit_last_updated_at" name="last_updated_at">
                 <div class="modal-body">
                     <!-- Centered Avatar -->
                     <div class="text-center mb-4">
@@ -29,7 +30,7 @@
                             <input type="text" class="form-control" id="edit_pt_name" readonly>
                         </div>
                         <div class="form-group col-md-6">
-                            <label>Trainer</label>
+                            <label>Trainer <span id="editableTag"  class="badge badge-sm" style="font-size:10px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);font-weight:400;"><i class="mdi mdi-pencil"></i></span></label>
                             <select name="trainer_name" id="edit_trainer" class="form-control edit-field"
                                 disabled>
                                 @foreach ($trainers ?? [] as $trainer)
@@ -44,7 +45,7 @@
                             <input type="text" class="form-control" id="edit_pt_age" readonly>
                         </div>
                         <div class="form-group col-md-6">
-                            <label>Scheduled Date</label>
+                            <label>Scheduled Date <span id="editableTag"  class="badge badge-sm" style="font-size:10px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);font-weight:400;"><i class="mdi mdi-pencil"></i></span></label>
                             <input type="date" name="scheduled_date" id="edit_date" value=""
                                 class="form-control edit-field" disabled>
                         </div>
@@ -55,7 +56,7 @@
                             <input type="text" class="form-control" id="edit_pt_sex" readonly>
                         </div>
                         <div class="form-group col-md-6">
-                            <label>Time</label>
+                            <label>Time <span id="editableTag"  class="badge badge-sm" style="font-size:10px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);font-weight:400;"><i class="mdi mdi-pencil"></i></span></label>
                             <select name="scheduled_time" id="edit_time" class="form-control edit-field"
                                 disabled>
                                 <option value="06:00">6:00 AM</option>
@@ -83,9 +84,10 @@
                             <input type="text" class="form-control" id="edit_pt_contact" readonly>
                         </div>
                         <div class="form-group col-md-6">
-                            <label>Payment Type</label>
+                            <label>Payment Type <span id="editableTag"  class="badge badge-sm" style="font-size:10px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);font-weight:400;"><i class="mdi mdi-pencil"></i></span></label>
                             <select name="payment_type" id="edit_payment" class="form-control edit-field"
                                 disabled>
+                                <option value="">Select Payment Type</option>
                                 <option value="Cash">Cash</option>
                                 <option value="Gcash">Gcash</option>
                             </select>

@@ -185,8 +185,8 @@
                                     <td>
                                         <div class="dropdown">
                                             <button class="btn btn-sm btn-action" type="button"
-                                                data-toggle="dropdown" data-offset="-100,2" data-flip="false"
-                                                data-boundary="viewport">
+                                                data-toggle="dropdown" data-display="static"
+                                                data-boundary="window" aria-haspopup="true" aria-expanded="false">
                                                 <i class="mdi mdi-dots-vertical"></i>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-right">
@@ -195,7 +195,7 @@
                                                     <i class="mdi mdi-eye mr-2"></i> View
                                                 </a>
                                                 <a class="dropdown-item text-info" href="javascript:void(0)"
-                                                    onclick="SessionsPage.openBookNextModal({{ $schedule->client_id ?? 'null' }}, '{{ addslashes($schedule->display_name) }}')">
+                                                    onclick="SessionsPage.openBookNextModal({{ $schedule->id }}, '{{ addslashes($schedule->display_name) }}', '{{ addslashes($schedule->trainer_name) }}', '{{ addslashes($schedule->payment_type ?? 'Cash') }}')">
                                                     <i class="mdi mdi-calendar-plus mr-2"></i> Book Next Session
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -204,17 +204,17 @@
                                                 @endphp
                                                 <a class="dropdown-item text-success {{ $isFinalized ? 'disabled' : '' }}" 
                                                     href="javascript:void(0)"
-                                                    onclick="{{ $isFinalized ? 'return false;' : 'SessionsPage.updateStatus(' . $schedule->id . ', \'done\')' }}">
+                                                    onclick="{{ $isFinalized ? 'return false;' : 'SessionsPage.updateStatus(' . $schedule->id . ', \'done\', ' . $schedule->updated_at->timestamp . ')' }}">
                                                     <i class="mdi mdi-check mr-2"></i> Mark as Done
                                                 </a>
                                                 <a class="dropdown-item text-primary {{ $isFinalized ? 'disabled' : '' }}" 
                                                     href="javascript:void(0)"
-                                                    onclick="{{ $isFinalized ? 'return false;' : 'SessionsPage.updateStatus(' . $schedule->id . ', \'in_progress\')' }}">
+                                                    onclick="{{ $isFinalized ? 'return false;' : 'SessionsPage.updateStatus(' . $schedule->id . ', \'in_progress\', ' . $schedule->updated_at->timestamp . ')' }}">
                                                     <i class="mdi mdi-progress-clock mr-2"></i> Mark as In Progress
                                                 </a>
                                                 <a class="dropdown-item text-warning {{ $isFinalized ? 'disabled' : '' }}" 
                                                     href="javascript:void(0)"
-                                                    onclick="{{ $isFinalized ? 'return false;' : 'SessionsPage.confirmCancelPT(' . $schedule->id . ', ' . ($schedule->client_id ?? 'null') . ', \'' . addslashes($schedule->display_name) . '\')' }}">
+                                                    onclick="{{ $isFinalized ? 'return false;' : 'SessionsPage.confirmCancelPT(' . $schedule->id . ', ' . ($schedule->client_id ?? 'null') . ', \'' . addslashes($schedule->display_name) . '\', \'' . addslashes($schedule->trainer_name) . '\', \'' . addslashes($schedule->payment_type ?? 'Cash') . '\', ' . $schedule->updated_at->timestamp . ')' }}">
                                                     <i class="mdi mdi-close mr-2"></i> Mark as Cancelled
                                                 </a>
                                                 <div class="dropdown-divider"></div>

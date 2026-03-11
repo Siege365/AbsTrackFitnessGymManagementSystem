@@ -8,23 +8,6 @@
 
 @section('content')
 
-    <!-- Attendance Flash Messages -->
-    @if(session('success'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                AttendancePage.showToast('success', '{{ session('success') }}');
-            });
-        </script>
-    @endif
-
-    @if(session('error'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                AttendancePage.showToast('error', '{{ session('error') }}');
-            });
-        </script>
-    @endif
-
     <!-- Page Header -->
     <div class="card page-header-card">
         <div class="card-body">
@@ -49,8 +32,6 @@
     @include('Sessions.partials.modals._view-attendance')
 
     @include('Sessions.partials.modals._delete')
-
-    @include('Sessions.partials.modals._double-confirm')
 
     @include('Sessions.partials.modals._bulk-delete-confirm')
 

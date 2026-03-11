@@ -24,22 +24,21 @@
             </div>
           </form>
           <div class="dropdown d-inline-block mr-2">
-            <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="productHistoryFilterDropdown" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="btn btn-sm filter-button dropdown-toggle" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
               <i class="mdi mdi-filter-variant"></i> Filter
             </button>
-            <div class="dropdown-menu dropdown-menu-right filter-accordion" aria-labelledby="productHistoryFilterDropdown">
+            <div class="dropdown-menu dropdown-menu-right filter-accordion">
               <div class="filter-header">
                 <span class="filter-title">Filter By</span>
-                <a href="{{ route('payments.history', request()->except(['product_sort', 'product_page'])) }}" class="filter-clear-all">
-                  Clear All
-                </a>
+                <a href="{{ route('payments.history', request()->except(['product_sort', 'product_page'])) }}" class="filter-clear-all">Clear All</a>
               </div>
 
-              <div class="filter-section active">
-                <div class="filter-section-header" data-filter-section>
+              <!-- Sort Filter -->
+              <div class="filter-section">
+                <div class="filter-section-header" onclick="PaymentHistoryPage.toggleFilterSection(this, event)">
                   <div class="filter-section-title">
                     <i class="mdi mdi-sort"></i>
-                    <span>Sort Order</span>
+                    <span>Sort</span>
                   </div>
                   <i class="mdi mdi-chevron-down filter-chevron"></i>
                 </div>
@@ -107,7 +106,7 @@
               </td>
               <td>
                 <div class="dropdown">
-                  <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+                  <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-display="static" data-boundary="window" aria-haspopup="true" aria-expanded="false">
                     <i class="mdi mdi-dots-vertical"></i>
                   </button>
                   <div class="dropdown-menu dropdown-menu-right">

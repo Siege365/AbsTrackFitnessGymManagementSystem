@@ -69,9 +69,7 @@ const InventoryPage = (function() {
     function updateBulkActionButton() {
         const checkedCount = document.querySelectorAll('.item-checkbox:checked').length;
         const selectedCount = document.getElementById('selectedCount');
-        const bulkActionBtn = document.getElementById('bulkActionBtn');
         if (selectedCount) selectedCount.textContent = checkedCount;
-        if (bulkActionBtn) bulkActionBtn.disabled = checkedCount === 0;
     }
 
     // ============================================
@@ -389,6 +387,7 @@ const InventoryPage = (function() {
                     if (quantity > currentStock) {
                         document.getElementById('stockOutPreview').style.display = 'none';
                         document.getElementById('confirmStockOut').disabled = true;
+                        ToastUtils.showError('Insufficient stock! Current stock: ' + currentStock + '.', 'Insufficient Stock');
                     } else {
                         document.getElementById('previewCurrentOut').textContent = currentStock;
                         document.getElementById('previewRemoveQuantity').textContent = '-' + quantity;
@@ -666,6 +665,14 @@ function showDeleteModal(itemDescription) {
     var countEl = document.getElementById('deleteItemCount');
     if (countEl) countEl.textContent = itemDescription;
 
+    // Reset confirm input
+    var confirmInput = document.getElementById('deleteInventoryConfirmInput');
+    var confirmBtn = document.getElementById('deleteInventoryConfirmBtn');
+    var confirmError = document.getElementById('deleteInventoryConfirmError');
+    if (confirmInput) confirmInput.value = '';
+    if (confirmBtn) confirmBtn.disabled = true;
+    if (confirmError) confirmError.classList.add('d-none');
+
     var $modal = (window.jQuery || window.$);
     if ($modal) {
         $modal('#deleteConfirmModal').modal('show');
@@ -681,6 +688,12 @@ function closeDeleteModal() {
 }
 
 function executeDelete() {
+    const confirmInput = document.getElementById('deleteInventoryConfirmInput');
+    if (!confirmInput || confirmInput.value.trim().toLowerCase() !== 'delete') {
+        const err = document.getElementById('deleteInventoryConfirmError');
+        if (err) err.classList.remove('d-none');
+        return;
+    }
     if (pendingDeleteAction) {
         pendingDeleteAction();
         pendingDeleteAction = null;
@@ -720,7 +733,12 @@ function confirmDeleteSingle(itemId) {
 
 function bulkDeleteInventory() {
     const checked = document.querySelectorAll('.item-checkbox:checked');
-    if (checked.length === 0) return;
+    if (checked.length === 0) {
+        if (typeof ToastUtils !== 'undefined') {
+            ToastUtils.showError('Please select at least 1 row before proceeding.', 'No Selection');
+        }
+        return;
+    }
 
     let productsList = '';
     checked.forEach(cb => {
@@ -1161,4 +1179,26 @@ window.useSuggestedCategory = useSuggestedCategory;
 // Initialize transaction history page on DOM ready
 document.addEventListener('DOMContentLoaded', function() {
     initTransactionHistoryPage();
+
+    // Wire up type-to-confirm for delete modal
+    const confirmInput = document.getElementById('deleteInventoryConfirmInput');
+    const confirmBtn = document.getElementById('deleteInventoryConfirmBtn');
+    if (confirmInput && confirmBtn) {
+        confirmInput.addEventListener('input', function() {
+            confirmBtn.disabled = this.value.trim().toLowerCase() !== 'delete';
+        });
+    }
+
+    // Reset confirm input when modal is closed
+    var $ = window.jQuery || window.$;
+    if ($) {
+        $('#deleteConfirmModal').on('hidden.bs.modal', function() {
+            var inp = document.getElementById('deleteInventoryConfirmInput');
+            var btn = document.getElementById('deleteInventoryConfirmBtn');
+            var err = document.getElementById('deleteInventoryConfirmError');
+            if (inp) inp.value = '';
+            if (btn) btn.disabled = true;
+            if (err) err.classList.add('d-none');
+        });
+    }
 });

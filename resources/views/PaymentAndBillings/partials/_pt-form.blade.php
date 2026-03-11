@@ -14,6 +14,9 @@
               <button type="button" class="pay-type-pill pt-pill active" data-type="renewal">
                   <i class="mdi mdi-autorenew"></i> Renewal
               </button>
+              <button type="button" class="pay-type-pill pt-pill" data-type="extension">
+                  <i class="mdi mdi-calendar-plus"></i> Extension
+              </button>
           </div>
           <input type="hidden" name="pt_payment_type" id="ptPaymentType" value="renewal">
       </div>
@@ -21,16 +24,17 @@
       <!-- ═══ ROW 2: Two-Column — Client + Plans ═══ -->
       <div class="pay-row-main">
 
-          <!-- LEFT: Client Info + Scheduling -->
+          <!-- LEFT: Client Info -->
           <div class="pay-col-member">
-              <!-- Renewal: Search existing customer -->
+              <!-- Renewal/Extension: Search existing PT clients + active members -->
               <div id="ptClientSearchSection" class="client-section-visible">
-                  <label class="form-label">Select Customer</label>
+                  <label class="form-label">Select Client</label>
                   <div class="pos-relative">
                       <input type="text" class="form-control" id="ptClientSearch" placeholder="Search by name or contact..." autocomplete="off">
                       <div id="ptClientResults" class="autocomplete-results hidden"></div>
                       <input type="hidden" name="pt_client_id" id="ptClientId">
                       <input type="hidden" id="ptClientSource" value="">
+                      <input type="hidden" id="ptHasPtClient" value="">
                   </div>
               </div>
 
@@ -45,7 +49,10 @@
                           <div class="member-form-row">
                               <div class="member-form-col member-form-col-2">
                                   <label class="form-label">Full Name <span class="required-mark">*</span></label>
-                                  <input type="text" class="form-control" name="pt_customer_name" id="ptCustomerName" placeholder="Enter full name">
+                                  <div class="pos-relative">
+                                      <input type="text" class="form-control" name="pt_customer_name" id="ptCustomerName" placeholder="Search or enter full name" autocomplete="off">
+                                      <div id="ptNewClientResults" class="autocomplete-results hidden"></div>
+                                  </div>
                               </div>
                               <div class="member-form-col member-form-col-2">
                                   <label class="form-label">Contact</label>
@@ -65,59 +72,6 @@
                                       <option value="Female">Female</option>
                                   </select>
                               </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-
-              <!-- Trainer + Schedule -->
-              <div class="member-card mt-card">
-                  <div class="member-card-header">
-                      <div class="member-card-icon"><i class="mdi mdi-calendar-clock"></i></div>
-                      <h4 class="member-card-title">Schedule</h4>
-                  </div>
-                  <div class="member-card-body">
-                      <div class="member-form-row">
-                          <div class="member-form-col member-form-col-2">
-                              <label class="form-label">Trainer <span class="required-mark">*</span></label>
-                              <select class="form-select" name="trainer_name" id="ptTrainerSelect" required>
-                                  <option value="" disabled selected>Select Trainer</option>
-                                  @foreach($trainers ?? [] as $trainer)
-                                      <option value="{{ $trainer }}">{{ $trainer }}</option>
-                                  @endforeach
-                              </select>
-                          </div>
-                          <div class="member-form-col member-form-col-2">
-                              <label class="form-label">Date <span class="required-mark">*</span></label>
-                              <input type="date" class="form-control" name="scheduled_date" id="ptScheduleDate" required min="{{ date('Y-m-d') }}">
-                          </div>
-                      </div>
-                      <div class="member-form-row">
-                          <div class="member-form-col member-form-col-2">
-                              <label class="form-label">Time <span class="required-mark">*</span></label>
-                              <select class="form-select" name="scheduled_time" id="ptScheduleTime" required>
-                                  <option value="" disabled selected>Select Time</option>
-                                  <option value="06:00">6:00 AM</option>
-                                  <option value="07:00">7:00 AM</option>
-                                  <option value="08:00">8:00 AM</option>
-                                  <option value="09:00">9:00 AM</option>
-                                  <option value="10:00">10:00 AM</option>
-                                  <option value="11:00">11:00 AM</option>
-                                  <option value="12:00">12:00 PM</option>
-                                  <option value="13:00">1:00 PM</option>
-                                  <option value="14:00">2:00 PM</option>
-                                  <option value="15:00">3:00 PM</option>
-                                  <option value="16:00">4:00 PM</option>
-                                  <option value="17:00">5:00 PM</option>
-                                  <option value="18:00">6:00 PM</option>
-                                  <option value="19:00">7:00 PM</option>
-                                  <option value="20:00">8:00 PM</option>
-                                  <option value="21:00">9:00 PM</option>
-                              </select>
-                          </div>
-                          <div class="member-form-col member-form-col-2">
-                              <label class="form-label">Notes</label>
-                              <input type="text" class="form-control" name="pt_notes" id="ptNotes" placeholder="Optional notes...">
                           </div>
                       </div>
                   </div>
@@ -152,8 +106,17 @@
           <div class="checkout-info">
               <div class="checkout-dates">
                   <div class="checkout-date-item">
-                      <span class="checkout-date-label">Session</span>
-                      <span class="checkout-date-value checkout-summary-value" id="ptSessionSummary">—</span>
+                      <span class="checkout-date-label">Current Due</span>
+                      <input type="text" class="checkout-date-value" id="ptCurrentDueDate" readonly placeholder="—">
+                  </div>
+                  <i class="mdi mdi-arrow-right checkout-arrow"></i>
+                  <div class="checkout-date-item">
+                      <span class="checkout-date-label">New Due</span>
+                      <input type="text" class="checkout-date-value checkout-date-new" id="ptNewDueDate" readonly placeholder="—">
+                  </div>
+                  <div class="checkout-date-item checkout-days">
+                      <span class="checkout-date-label">Days</span>
+                      <input type="number" class="checkout-date-value" id="ptAdditionalDays" readonly value="{{ $ptPlans->first()?->duration_days ?? 0 }}">
                   </div>
               </div>
           </div>
@@ -162,8 +125,10 @@
               <select class="form-select checkout-method" name="pt_payment_method" id="ptPaymentMethod" required>
                   <option value="" disabled selected>Select payment method</option>
                   <option value="Cash">Cash</option>
-                  <option value="Gcash">GCash</option>
-                  <option value="Card">Card</option>
+                  <option value="Credit Card">Credit Card</option>
+                  <option value="Debit Card">Debit Card</option>
+                  <option value="GCash">GCash</option>
+                  <option value="PayMaya">PayMaya</option>
                   <option value="Bank Transfer">Bank Transfer</option>
               </select>
           </div>

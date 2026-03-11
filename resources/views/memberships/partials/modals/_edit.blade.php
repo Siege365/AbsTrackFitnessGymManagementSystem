@@ -79,7 +79,7 @@
             </div>
             <div class="form-group col-md-6">
               <label>Avatar</label>
-              <input type="file" name="avatar" id="avatarInput{{ $membership->id }}" class="form-control mb-2" accept="image/*" onchange="previewAvatar({{ $membership->id }})">
+              <input type="file" name="avatar" id="avatarInput{{ $membership->id }}" class="form-control mb-2" accept=".jpeg,.jpg,.png,.gif" onchange="previewAvatar({{ $membership->id }})">
               <input type="text" name="avatar_url" id="avatarUrl{{ $membership->id }}" class="form-control mb-2" placeholder="https://example.com/avatar.jpg" style="display: none;" oninput="previewAvatarUrl({{ $membership->id }})">
               <div class="btn-group btn-group-toggle btn-group-sm d-flex" data-toggle="buttons">
                 <label class="btn btn-outline-secondary active flex-fill">

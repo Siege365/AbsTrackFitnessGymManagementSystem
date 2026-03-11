@@ -1304,7 +1304,6 @@ height: 8px;
 .product-items-table tbody td {
   padding: 0.85rem 1rem;
   color: #fff;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   vertical-align: middle;
 }
 

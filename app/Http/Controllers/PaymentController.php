@@ -6,12 +6,14 @@ use App\Models\Payment;
 use App\Models\PaymentItem;
 use App\Models\InventorySupply;
 use App\Models\MembershipPayment;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Services\RefundService;
 use App\Services\NotificationService;
+use App\Models\Trainer;
 
 class PaymentController extends Controller
 {
@@ -126,7 +128,8 @@ class PaymentController extends Controller
 
         $payment = DB::transaction(function () use ($request, $items) {
             $last = Payment::latest()->first();
-            $receipt = $last ? str_pad($last->id + 1, 4, '0', STR_PAD_LEFT) : '0001';
+            $nextId = $last ? $last->id + 1 : 1;
+            $receipt = 'PROD-' . date('Ymd') . '-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
             $payment = Payment::create([
                 'receipt_number' => $receipt,
@@ -137,6 +140,7 @@ class PaymentController extends Controller
                 'return_amount' => $request->paid_amount - $request->total_amount,
                 'total_quantity' => collect($items)->sum('qty'),
                 'cashier_name' => Auth::user()->name ?? 'Admin',
+                'transaction_type' => 'product',
             ]);
 
             foreach ($items as $item) {
@@ -327,6 +331,11 @@ class PaymentController extends Controller
                 'reason' => $validated['reason'] ?? null,
             ]);
 
+            if ($result['success']) {
+                $p = $result['payment'];
+                ActivityLog::log('refunded', 'product_payment', "Refunded product payment for {$p->customer_name} — ₱" . number_format($p->refunded_amount, 2), $p->receipt_number, $p->customer_name, $p, ['amount' => $p->refunded_amount, 'reason' => $validated['reason'] ?? null]);
+            }
+
             if ($request->expectsJson()) {
                 return response()->json($result);
             }
@@ -348,20 +357,17 @@ class PaymentController extends Controller
     public function destroy($payment)
     {
         try {
-            DB::transaction(function () use ($payment) {
+            $deletedReceipt = null;
+            $deletedCustomer = null;
+            DB::transaction(function () use ($payment, &$deletedReceipt, &$deletedCustomer) {
                 $paymentRecord = Payment::findOrFail($payment);
-                $paymentItems = PaymentItem::where('payment_id', $paymentRecord->id)->get();
-                
-                foreach ($paymentItems as $item) {
-                    $inventory = InventorySupply::find($item->inventory_supply_id);
-                    if ($inventory) {
-                        $inventory->increment('stock_qty', $item->quantity);
-                    }
-                }
-                
+                $deletedReceipt = $paymentRecord->receipt_number;
+                $deletedCustomer = $paymentRecord->customer_name;
                 PaymentItem::where('payment_id', $paymentRecord->id)->delete();
                 $paymentRecord->delete();
             });
+
+            ActivityLog::log('deleted', 'product_payment', "Deleted product payment for {$deletedCustomer}", $deletedReceipt, $deletedCustomer);
 
             return back()->with('success', 'Transaction deleted successfully.');
         } catch (\Exception $e) {
@@ -379,18 +385,11 @@ class PaymentController extends Controller
 
         try {
             DB::transaction(function () use ($ids) {
-                $paymentItems = PaymentItem::whereIn('payment_id', $ids)->get();
-                
-                foreach ($paymentItems as $item) {
-                    $inventory = InventorySupply::find($item->inventory_supply_id);
-                    if ($inventory) {
-                        $inventory->increment('stock_qty', $item->quantity);
-                    }
-                }
-                
                 PaymentItem::whereIn('payment_id', $ids)->delete();
                 Payment::whereIn('id', $ids)->delete();
             });
+
+            ActivityLog::log('bulk_deleted', 'product_payment', 'Bulk deleted ' . count($ids) . ' product payment(s)', null, null, null, ['count' => count($ids)]);
 
             return back()->with('success', count($ids) . ' transaction(s) deleted successfully.');
         } catch (\Exception $e) {
@@ -423,13 +422,7 @@ class PaymentController extends Controller
         // Fetch data for PT Payment form  
         $ptPlans = \App\Models\GymPlan::active()->personalTraining()->ordered()->get();
         
-        $trainers = [
-            'David Laid',
-            'Eulo Icon Sexcion',
-            'Justin Troy Rosalada',
-            'Nicolas Deloso Torre III',
-            'Ronnie Coleman',
-        ];
+        $trainers = Trainer::where('status', 'active')->orderBy('full_name')->pluck('full_name')->toArray();
 
         // Fetch data for Product Payment form
         $inventoryItems = InventorySupply::all();

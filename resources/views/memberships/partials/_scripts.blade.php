@@ -33,31 +33,6 @@
   }
 
   function showConfirmModal() {
-    // Validate contact number before showing confirmation
-    const contactInput = document.getElementById('newMemberContact');
-    const contactValue = contactInput.value.trim();
-    const digitsOnly = contactValue.replace(/\D/g, '');
-    
-    // Check if contact is valid
-    if (contactValue.startsWith('+63')) {
-      if (digitsOnly.length !== 12) {
-        ToastUtils.showError('Phone number with +63 must have exactly 12 digits', 'Invalid Contact');
-        contactInput.focus();
-        return;
-      }
-    } else {
-      if (digitsOnly.length !== 11) {
-        ToastUtils.showError('Phone number must have exactly 11 digits', 'Invalid Contact');
-        contactInput.focus();
-        return;
-      }
-      if (!digitsOnly.startsWith('09')) {
-        ToastUtils.showError('Phone number must start with 09', 'Invalid Contact');
-        contactInput.focus();
-        return;
-      }
-    }
-    
     MembershipsPage.showConfirmModal();
   }
 
@@ -96,15 +71,62 @@
     // Update count in modal
     document.getElementById('bulkDeleteCount').textContent = checkedBoxes.length;
     
+    // Reset confirm input
+    const confirmInput = document.getElementById('bulkDeleteConfirmInput');
+    const confirmBtn = document.getElementById('bulkDeleteConfirmBtn');
+    const confirmError = document.getElementById('bulkDeleteConfirmError');
+    if (confirmInput) confirmInput.value = '';
+    if (confirmBtn) confirmBtn.disabled = true;
+    if (confirmError) confirmError.classList.add('d-none');
+    
     // Show confirmation modal
     $('#bulkDeleteConfirmModal').modal('show');
   }
+
+  // Wire up type-to-confirm for bulk delete and single delete
+  document.addEventListener('DOMContentLoaded', function() {
+    const bulkInput = document.getElementById('bulkDeleteConfirmInput');
+    const bulkBtn = document.getElementById('bulkDeleteConfirmBtn');
+    if (bulkInput && bulkBtn) {
+      bulkInput.addEventListener('input', function() {
+        bulkBtn.disabled = this.value.trim().toLowerCase() !== 'delete';
+      });
+    }
+
+    const deleteInput = document.getElementById('deleteMemberConfirmInput');
+    const deleteBtn = document.getElementById('deleteMemberConfirmBtn');
+    if (deleteInput && deleteBtn) {
+      deleteInput.addEventListener('input', function() {
+        deleteBtn.disabled = this.value.trim().toLowerCase() !== 'delete';
+      });
+    }
+
+    $('#deleteConfirmModal').on('show.bs.modal', function() {
+      const inp = document.getElementById('deleteMemberConfirmInput');
+      const btn = document.getElementById('deleteMemberConfirmBtn');
+      if (inp) inp.value = '';
+      if (btn) btn.disabled = true;
+    });
+
+    $('#bulkDeleteConfirmModal').on('hidden.bs.modal', function() {
+      const inp = document.getElementById('bulkDeleteConfirmInput');
+      const btn = document.getElementById('bulkDeleteConfirmBtn');
+      if (inp) inp.value = '';
+      if (btn) btn.disabled = true;
+    });
+  });
   
   /**
    * Confirm and execute bulk delete
    */
   function confirmBulkDelete() {
     const submitBtn = event.target;
+    const confirmInput = document.getElementById('bulkDeleteConfirmInput');
+    if (!confirmInput || confirmInput.value.trim().toLowerCase() !== 'delete') {
+      const err = document.getElementById('bulkDeleteConfirmError');
+      if (err) err.classList.remove('d-none');
+      return;
+    }
     const form = document.getElementById('bulkDeleteForm');
     const checkedBoxes = document.querySelectorAll('.membership-checkbox:checked');
     
@@ -260,30 +282,4 @@
     }
   }
 
-  // Dropdown toggle
-document.querySelectorAll('[data-toggle="dropdown"]').forEach(btn => {
-  btn.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-      if (menu !== this.nextElementSibling) {
-        menu.classList.remove('show');
-      }
-    });
-    
-    const menu = this.nextElementSibling;
-    if (menu?.classList.contains('dropdown-menu')) {
-      menu.classList.toggle('show');
-    }
-  });
-});
-
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('.dropdown')) {
-    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-      menu.classList.remove('show');
-    });
-  }
-});
 </script>

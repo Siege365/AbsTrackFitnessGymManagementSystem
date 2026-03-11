@@ -12,8 +12,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const CSRF_TOKEN = config.dataset.csrfToken;
   const bulkDeleteProductRoute = config.dataset.bulkDeleteProductRoute;
   const bulkDeleteMembershipRoute = config.dataset.bulkDeleteMembershipRoute;
-  const bulkDeletePtRoute = config.dataset.bulkDeletePtRoute;
-  const showRefundedDefault = config.dataset.showRefundedDefault === 'true';
   const flashSuccess = config.dataset.flashSuccess;
   const flashError = config.dataset.flashError;
   const flashErrors = config.dataset.flashErrors;
@@ -649,6 +647,19 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       });
     });
+
+    // PT checkboxes
+    const selectAllPt = document.getElementById('selectAllPt');
+    const ptCheckboxes = document.querySelectorAll('.pt-checkbox');
+
+    selectAllPt?.addEventListener('change', function() {
+      ptCheckboxes.forEach(cb => cb.checked = this.checked);
+      updateDeleteButton('pt');
+    });
+
+    ptCheckboxes.forEach(cb => {
+      cb.addEventListener('change', () => updateDeleteButton('pt'));
+    });
   }
 
   function updateDeleteButton(type) {
@@ -732,6 +743,33 @@ document.addEventListener('DOMContentLoaded', function () {
     );
   };
 
+  window.bulkDeletePts = function() {
+    const checked = document.querySelectorAll('.pt-checkbox:checked');
+    if (checked.length === 0) {
+      ToastUtils.showWarning('Please select at least one payment to delete');
+      return;
+    }
+
+    pendingDeleteAction = function() {
+      const form = document.getElementById('bulkDeletePtForm');
+      form.innerHTML = buildCsrfDeleteInputs();
+
+      checked.forEach(cb => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'ids[]';
+        input.value = cb.value;
+        form.appendChild(input);
+      });
+
+      form.action = bulkDeletePtRoute;
+      form.method = 'POST';
+      form.submit();
+    };
+
+    showDeleteModal(checked.length + ' PT payment(s)');
+  };
+
   window.bulkDeletePTs = function () {
     const checked = document.querySelectorAll('.pt-checkbox:checked');
     if (!checked.length) {
@@ -739,53 +777,48 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    pendingDeleteAction = function () {
-      const form = document.getElementById('bulkDeletePTForm');
-      form.innerHTML = buildCsrfDeleteInputs();
-      checked.forEach(function (checkbox) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'ids[]';
-        input.value = checkbox.value;
-        form.appendChild(input);
-      });
-      form.submit();
-    };
+    pendingDeleteAction = function() {
+      const products = [];
+      const memberships = [];
 
-    showDeleteModal(
-      'Confirm Bulk Delete',
-      `Are you sure you want to delete ${checked.length} selected PT payment${checked.length === 1 ? '' : 's'}? This action cannot be undone.`
-    );
-  };
-
-  window.bulkDeleteRefunds = function () {
-    const checked = document.querySelectorAll('.refund-checkbox:checked');
-    if (!checked.length) {
-      ToastUtils.showWarning('No refunds selected for deletion');
-      return;
-    }
-
-    pendingDeleteAction = function () {
-      const groupedIds = { product: [], membership: [], pt: [] };
-      checked.forEach(function (checkbox) {
-        if (groupedIds[checkbox.dataset.type]) {
-          groupedIds[checkbox.dataset.type].push(checkbox.value);
-        }
+      checked.forEach(cb => {
+        const type = cb.dataset.type;
+        const id = cb.value;
+        if (type === 'product') products.push(id);
+        else memberships.push(id);
       });
 
-      const requests = [];
-      if (groupedIds.product.length) requests.push(submitBulkDeleteRequest(bulkDeleteProductRoute, groupedIds.product));
-      if (groupedIds.membership.length) requests.push(submitBulkDeleteRequest(bulkDeleteMembershipRoute, groupedIds.membership));
-      if (groupedIds.pt.length) requests.push(submitBulkDeleteRequest(bulkDeletePtRoute, groupedIds.pt));
-
-      Promise.all(requests)
-        .then(function () {
-          window.location.reload();
-        })
-        .catch(function (error) {
-          console.error(error);
-          ToastUtils.showError('Failed to delete selected refund records');
+      if (products.length > 0) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = bulkDeleteProductRoute;
+        form.innerHTML = buildCsrfDeleteInputs();
+        products.forEach(id => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'ids[]';
+          input.value = id;
+          form.appendChild(input);
         });
+        document.body.appendChild(form);
+        form.submit();
+      }
+
+      if (memberships.length > 0) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = bulkDeleteMembershipRoute;
+        form.innerHTML = buildCsrfDeleteInputs();
+        memberships.forEach(id => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'ids[]';
+          input.value = id;
+          form.appendChild(input);
+        });
+        document.body.appendChild(form);
+        form.submit();
+      }
     };
 
     showDeleteModal(
@@ -804,8 +837,8 @@ document.addEventListener('DOMContentLoaded', function () {
     pendingDeleteAction = function () {
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = route;
-      form.innerHTML = buildCsrfDeleteInputs();
+      form.action = type === 'product' ? `/payments/${id}` : `/membership-payment/${id}`;
+      form.innerHTML = `<input type="hidden" name="_token" value="${CSRF_TOKEN}"><input type="hidden" name="_method" value="DELETE">`;
       document.body.appendChild(form);
       form.submit();
     };
@@ -848,25 +881,23 @@ document.addEventListener('DOMContentLoaded', function () {
     currentRefundId = id;
 
     const details = document.getElementById('refundDetails');
-    if (details) {
-      details.innerHTML = `
-        <div class="confirm-row">
-          <span class="confirm-label">Receipt</span>
-          <span class="confirm-value">#${escapeHtml(receipt || '—')}</span>
-        </div>
-        <div class="confirm-row">
-          <span class="confirm-label">Customer</span>
-          <span class="confirm-value">${escapeHtml(name || '—')}</span>
-        </div>
-        <div class="confirm-row">
-          <span class="confirm-label">Amount</span>
-          <span class="confirm-value confirm-value-danger">${escapeHtml(formatCurrency(amount))}</span>
-        </div>
-        <div class="confirm-row">
-          <span class="confirm-label">Type</span>
-          <span class="confirm-value">${escapeHtml(getPaymentTypeLabel(type))} Payment</span>
-        </div>`;
-    }
+    details.innerHTML = `
+      <div class="confirm-row">
+        <span class="confirm-label">Receipt:</span>
+        <span class="confirm-value">#${receipt}</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-label">Name:</span>
+        <span class="confirm-value">${name}</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-label">Amount:</span>
+        <span class="confirm-value" style="color:#dc3545;">₱${parseFloat(amount).toFixed(2)}</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-label">Type:</span>
+        <span class="confirm-value">${type === 'product' ? 'Product Payment' : 'Membership Payment'}</span>
+      </div>`;
 
     document.getElementById('refundModal')?.classList.add('show');
   };
@@ -898,6 +929,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const refundType = currentRefundType;
     const refundId = currentRefundId;
     const reason = document.getElementById('refundReason')?.value || '';
+    const url = currentRefundType === 'product'
+      ? `/payments/${currentRefundId}/refund`
+      : `/membership-payment/${currentRefundId}/refund`;
 
     this.disabled = true;
     this.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i><span>Processing...</span>';
@@ -914,26 +948,28 @@ document.addEventListener('DOMContentLoaded', function () {
         'Accept': 'application/json',
       },
     })
-      .then(function (response) {
-        return response.json();
-      })
-      .then(function (data) {
-        if (!data.success) {
-          throw new Error(data.message || 'Refund processing failed');
-        }
-
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
         closeRefundModal();
         ToastUtils.showSuccess('Refund completed');
 
-        window.setTimeout(function () {
-          showRefundReceipt(refundType, refundId, data);
-        }, 180);
-      })
-      .catch(function (error) {
-        console.error(error);
-        ToastUtils.showError(error.message || 'Refund processing failed');
-        resetRefundButton();
-      });
+        // Immediately show refund receipt modal
+        setTimeout(() => {
+          showRefundReceipt(currentRefundType, currentRefundId, data);
+        }, 200);
+      } else {
+        ToastUtils.showError(data.message || 'Refund processing failed');
+        this.disabled = false;
+        this.innerHTML = '<i class="mdi mdi-cash-refund"></i> Process Refund';
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      ToastUtils.showError('Refund processing failed');
+      this.disabled = false;
+      this.innerHTML = '<i class="mdi mdi-cash-refund"></i> Process Refund';
+    });
   });
 
   function showRefundReceipt(type, id, refundData) {
@@ -945,25 +981,24 @@ document.addEventListener('DOMContentLoaded', function () {
     content.innerHTML = renderLoadingState();
     document.getElementById('refundReceiptModal')?.classList.add('show');
 
-    if (refundData?.payment) {
-      content.innerHTML = generateRefundReceipt(type, refundData.payment, refundData);
-      return;
+    // If the refund response already contains payment details, use it immediately
+    try {
+      if (refundData && refundData.payment) {
+        content.innerHTML = generateRefundReceipt(type, refundData.payment, refundData);
+        return;
+      }
+    } catch (e) {
+      console.error('Error generating receipt from refundData:', e);
     }
 
-    const route = getReceiptRoute(type, id);
-    if (!route) {
-      ToastUtils.showError('Unable to determine receipt route');
-      content.innerHTML = '<div class="receipt-empty-state">Failed to resolve the receipt route.</div>';
-      return;
-    }
+    const url = type === 'product' ? `/payments/${id}/receipt-data` : `/membership-payment/${id}/receipt`;
 
-    const attemptFetch = function (attempt) {
-      fetch(route)
-        .then(function (response) {
-          if (!response.ok) {
-            throw new Error(`Network response not ok: ${response.status}`);
-          }
-          return response.json();
+    // Try fetching the receipt, retrying a few times in case the server needs a moment to finalize
+    const attemptFetch = (attempt = 1) => {
+      fetch(url)
+        .then(r => {
+          if (!r.ok) throw new Error('Network response not ok: ' + r.status);
+          return r.json();
         })
         .then(function (data) {
           content.innerHTML = generateRefundReceipt(type, data, refundData);
@@ -985,11 +1020,95 @@ document.addEventListener('DOMContentLoaded', function () {
     attemptFetch(1);
   }
 
-  window.closeRefundReceiptModal = function () {
-    document.getElementById('refundReceiptModal')?.classList.remove('show');
-    window.setTimeout(function () {
-      window.location.reload();
-    }, 400);
+  function generateRefundReceipt(type, paymentData, refundData) {
+    const payment = refundData.payment || paymentData;
+    const now = new Date();
+
+    let html = `
+      <div class="receipt-container">
+        <div class="receipt-header">
+          <h2>REFUND RECEIPT</h2>
+          <div class="receipt-refund-badge">REFUNDED</div>
+          <p>Date: ${now.toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+        </div>
+
+        <div class="receipt-info">
+          <div class="receipt-row">
+            <span>Receipt #:</span>
+            <span><strong>${payment.receipt_number}</strong></span>
+          </div>
+          <div class="receipt-row">
+            <span>Customer:</span>
+            <span>${payment.customer_name || payment.member_name}</span>
+          </div>
+          <div class="receipt-row">
+            <span>Original Date:</span>
+            <span>${new Date(payment.created_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+          </div>
+          <div class="receipt-row">
+            <span>Refund Type:</span>
+            <span>${type === 'product' ? 'Product Payment' : 'Membership Payment'}</span>
+          </div>
+        </div>`;
+
+    if (type === 'product' && payment.items) {
+      html += '<div class="receipt-items"><h4>Items:</h4>';
+      payment.items.forEach(item => {
+        html += `
+          <div class="receipt-item">
+            <div class="receipt-row">
+              <span>${item.product_name}</span>
+              <span>₱${parseFloat(item.unit_price).toFixed(2)}</span>
+            </div>
+            <div class="receipt-row" style="font-size:0.9rem;color:#666;">
+              <span>Qty: ${item.quantity}</span>
+              <span>₱${parseFloat(item.subtotal || item.total_price || (item.unit_price * item.quantity)).toFixed(2)}</span>
+            </div>
+          </div>`;
+      });
+      html += '</div>';
+    }
+
+    html += `
+        <div class="receipt-total">
+          <div class="receipt-row">
+            <span>Original Amount:</span>
+            <span>₱${parseFloat(payment.total_amount || payment.amount).toFixed(2)}</span>
+          </div>
+          <div class="receipt-row" style="color:#dc3545;">
+            <span>Refunded Amount:</span>
+            <span>₱${parseFloat(payment.refunded_amount || payment.total_amount || payment.amount).toFixed(2)}</span>
+          </div>
+        </div>
+
+        <div class="receipt-info" style="margin-top:20px;">
+          <div class="receipt-row">
+            <span>Refund Status:</span>
+            <span><strong>${payment.refund_status ? payment.refund_status.toUpperCase() : 'FULL'}</strong></span>
+          </div>
+          ${payment.refund_reason ? `
+          <div class="receipt-row">
+            <span>Reason:</span>
+            <span>${payment.refund_reason}</span>
+          </div>` : ''}
+          <div class="receipt-row">
+            <span>Processed By:</span>
+            <span>${payment.refunded_by || 'Admin'}</span>
+          </div>
+        </div>
+
+        <div class="receipt-footer">
+          <p>This is a computer-generated refund receipt.</p>
+          <p>Thank you!</p>
+        </div>
+      </div>`;
+
+    return html;
+  }
+
+  window.closeRefundReceiptModal = function() {
+    document.getElementById('refundReceiptModal').classList.remove('show');
+    setTimeout(() => window.location.reload(), 500);
   };
 
   window.printRefundReceipt = function () {
@@ -1027,15 +1146,12 @@ document.addEventListener('DOMContentLoaded', function () {
     content.innerHTML = renderLoadingState();
     document.getElementById('refundReceiptModal')?.classList.add('show');
 
-    fetch(route)
-      .then(function (response) {
-        if (!response.ok) {
-          throw new Error(`Network response not ok: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(function (data) {
-        content.innerHTML = generateRefundReceipt(type, data, { payment: data });
+    const url = type === 'product' ? `/payments/${id}/receipt-data` : `/membership-payment/${id}/receipt`;
+
+    fetch(url)
+      .then(r => r.json())
+      .then(data => {
+        content.innerHTML = generateRefundReceipt(type, data, {payment: data});
       })
       .catch(function (error) {
         console.error(error);
@@ -1059,14 +1175,11 @@ document.addEventListener('DOMContentLoaded', function () {
     content.innerHTML = renderLoadingState();
     document.getElementById('viewReceiptModal')?.classList.add('show');
 
-    fetch(route)
-      .then(function (response) {
-        if (!response.ok) {
-          throw new Error(`Network response not ok: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(function (data) {
+    const url = type === 'product' ? `/payments/${id}/receipt-data` : `/membership-payment/${id}/receipt`;
+
+    fetch(url)
+      .then(r => r.json())
+      .then(data => {
         content.innerHTML = generateOriginalReceipt(type, data);
       })
       .catch(function (error) {
@@ -1076,16 +1189,204 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   };
 
-  window.closeViewReceiptModal = function () {
-    document.getElementById('viewReceiptModal')?.classList.remove('show');
-  };
+  function generateOriginalReceipt(type, data) {
+    if (type === 'product') {
+      const items = data.items || [];
+      const itemsHTML = items.map(item => `
+        <tr>
+          <td>${item.product_name}</td>
+          <td style="text-align: center;">${item.quantity}</td>
+          <td style="text-align: right;">₱${parseFloat(item.unit_price).toFixed(2)}</td>
+          <td style="text-align: right;">₱${parseFloat(item.subtotal || item.total_price || (item.unit_price * item.quantity)).toFixed(2)}</td>
+        </tr>
+      `).join('');
 
-  window.printViewReceipt = function () {
-    const content = document.getElementById('viewReceiptContent')?.innerHTML;
-    if (!content) {
-      return;
+      return `
+        <div class="receipt-container">
+          <div class="receipt-header">
+            <h2>RECEIPT</h2>
+            <p><strong>Abstrack Fitness Gym</strong></p>
+            <p>Toril, Davao Del Sur</p>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Receipt Number</strong>
+              <span style="display: block; font-weight: 600;">#${data.receipt_number}</span>
+            </div>
+            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Date & Time</strong>
+              <span style="display: block; font-weight: 600;">${data.formatted_date || new Date(data.created_at).toLocaleString()}</span>
+            </div>
+            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Customer Name</strong>
+              <span style="display: block; font-weight: 600;">${data.customer_name || 'N/A'}</span>
+            </div>
+            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Cashier</strong>
+              <span style="display: block; font-weight: 600;">${data.cashier_name || ''}</span>
+            </div>
+            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Payment Method</strong>
+              <span style="display: block; font-weight: 600;">${data.payment_method || 'N/A'}</span>
+            </div>
+          </div>
+
+          <table class="receipt-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th style="text-align: center;">Quantity</th>
+                <th style="text-align: right;">Unit Price</th>
+                <th style="text-align: right;">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHTML}
+            </tbody>
+          </table>
+
+          <div class="receipt-total">
+            <div class="receipt-row" style="font-size: 1.3rem;">
+              <span><strong>Total:</strong></span>
+              <span><strong>₱${parseFloat(data.total_amount || 0).toFixed(2)}</strong></span>
+            </div>
+            <div class="receipt-row" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+              <span>Paid Amount:</span>
+              <span>₱${parseFloat(data.paid_amount || data.paid || 0).toFixed(2)}</span>
+            </div>
+            <div class="receipt-row">
+              <span>Change:</span>
+              <span>₱${parseFloat(data.return_amount || data.change || 0).toFixed(2)}</span>
+            </div>
+          </div>
+
+          <div class="receipt-footer">
+            <p><strong>Thank you for your purchase!</strong></p>
+          </div>
+        </div>
+      `;
     }
 
+    return `
+      <div class="receipt-container">
+        <div class="receipt-header">
+          <h2>MEMBERSHIP PAYMENT RECEIPT</h2>
+          <p><strong>Abstrack Fitness Gym</strong></p>
+          <p>Toril, Davao Del Sur</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Receipt Number</strong>
+            <span style="display: block; font-weight: 600;">#${data.receipt_number}</span>
+          </div>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Date & Time</strong>
+            <span style="display: block; font-weight: 600;">${data.formatted_date || new Date(data.created_at).toLocaleString()}</span>
+          </div>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Member Name</strong>
+            <span style="display: block; font-weight: 600;">${data.member_name || 'N/A'}</span>
+          </div>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Contact</strong>
+            <span style="display: block; font-weight: 600;">${data.member_contact || data.contact || ''}</span>
+          </div>
+          ${data.buddy_name ? `
+          <div style="padding: 10px; background: #e8f5e9; border-radius: 4px; border: 1px solid #a5d6a7;">
+            <strong style="display: block; font-size: 0.75rem; color: #2e7d32; margin-bottom: 5px;">Gym Buddy</strong>
+            <span style="display: block; font-weight: 600;">${data.buddy_name}</span>
+          </div>
+          <div style="padding: 10px; background: #e8f5e9; border-radius: 4px; border: 1px solid #a5d6a7;">
+            <strong style="display: block; font-size: 0.75rem; color: #2e7d32; margin-bottom: 5px;">Contact</strong>
+            <span style="display: block; font-weight: 600;">${data.buddy_contact || 'N/A'}</span>
+          </div>
+          ` : ''}
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Payment Type</strong>
+            <span style="display: block; font-weight: 600;">${(data.payment_type || '').toUpperCase()}</span>
+          </div>
+          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Payment Method</strong>
+            <span style="display: block; font-weight: 600;">${data.payment_method || 'N/A'}</span>
+          </div>
+        </div>
+
+        <table class="receipt-table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th style="text-align: right;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.plan_type === 'GymBuddy' ? `
+            <tr>
+              <td>
+                <strong>Gym Buddy Rate</strong><br>
+                <small style="color: #666;">Duration: ${data.duration || 'N/A'} days | 2 Persons</small><br>
+                <small style="color: #0d6efd;">Member 1: ${data.member_name}</small><br>
+                <small style="color: #0d6efd;">Member 2: ${data.buddy_name || 'N/A'}</small>
+              </td>
+              <td style="text-align: right;">
+                <span style="display: block;">₱${parseFloat(data.amount || 0).toFixed(2)}/person</span>
+                <strong style="display: block; margin-top: 4px;">Total: ₱${(parseFloat(data.amount || 0) * 2).toFixed(2)}</strong>
+              </td>
+            </tr>
+            ` : `
+            <tr>
+              <td>
+                <strong>${data.plan_type || 'Membership'} Plan</strong><br>
+                <small style="color: #666;">Duration: ${data.duration || 'N/A'} days</small>
+              </td>
+              <td style="text-align: right;">₱${parseFloat(data.amount || 0).toFixed(2)}</td>
+            </tr>
+            `}
+          </tbody>
+        </table>
+
+        <div class="receipt-total">
+          <div class="receipt-row" style="font-size: 1.3rem;">
+            <span><strong>Total Paid:</strong></span>
+            <span><strong>₱${data.plan_type === 'GymBuddy' ? (parseFloat(data.amount || 0) * 2).toFixed(2) : parseFloat(data.amount || 0).toFixed(2)}</strong></span>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed #ccc;">
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Previous Due Date</strong>
+              <span style="display: block; font-weight: 600;">${data.previous_due_date || 'N/A'}</span>
+            </div>
+            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
+              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">New Due Date</strong>
+              <span style="display: block; font-weight: 600; color: #28a745;">${data.new_due_date || 'N/A'}</span>
+            </div>
+          </div>
+        </div>
+
+        ${data.notes ? `
+          <div style="margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 4px;">
+            <strong style="display: block; margin-bottom: 8px; color: #666;">Notes:</strong>
+            <p style="margin: 0; color: #333;">${data.notes}</p>
+          </div>
+        ` : ''}
+
+        <div class="receipt-footer">
+          <p><strong>Thank you for your membership!</strong></p>
+          <p style="font-size: 0.875rem;">Please keep this receipt for your records.</p>
+        </div>
+      </div>
+    `;
+  }
+
+  window.closeViewReceiptModal = function() {
+    document.getElementById('viewReceiptModal').classList.remove('show');
+  };
+
+  window.printViewReceipt = function() {
+    const content = document.getElementById('viewReceiptContent').innerHTML;
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -1146,4 +1447,5 @@ document.addEventListener('DOMContentLoaded', function () {
       menu.classList.remove('show');
     });
   });
+
 });

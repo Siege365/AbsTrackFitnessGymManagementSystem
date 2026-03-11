@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\InventorySupply;
 use App\Models\InventoryTransaction;
 use App\Helpers\CategoryHelper;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -462,6 +463,8 @@ class InventorySupplyController extends Controller
                 ]);
             }
 
+            ActivityLog::log('created', 'inventory', "Added product: {$item->product_name}", $item->product_number, null, $item, ['category' => $item->category, 'unit_price' => $item->unit_price, 'initial_stock' => $validated['stock_qty']]);
+
             return redirect()->route('inventory.index')
                             ->with('success', 'Product added successfully!');
                             
@@ -569,6 +572,8 @@ class InventorySupplyController extends Controller
 
             $item->update($validated);
 
+            ActivityLog::log('updated', 'inventory', "Updated product: {$item->product_name}", $item->product_number, null, $item, ['category' => $item->category, 'unit_price' => $item->unit_price]);
+
             return redirect()->back()
                             ->with('success', 'Product updated successfully!');
                             
@@ -581,8 +586,18 @@ class InventorySupplyController extends Controller
 
     public function destroy($id)
     {
-        $item = InventorySupply::findOrFail($id);
+        $item = InventorySupply::find($id);
+
+        if (!$item) {
+            return redirect()->route('inventory.index')
+                            ->with('error', 'Product not found.');
+        }
+
+        $productName = $item->product_name;
+        $productNumber = $item->product_number;
         $item->delete();
+
+        ActivityLog::log('deleted', 'inventory', "Deleted product: {$productName}", $productNumber);
 
         return redirect()->route('inventory.index')
                         ->with('success', 'Product deleted successfully!');
@@ -592,10 +607,19 @@ class InventorySupplyController extends Controller
     {
         $request->validate([
             'ids' => 'required|array',
-            'ids.*' => 'exists:inventory_supplies,id'
+            'ids.*' => 'integer',
         ]);
 
-        $deletedCount = InventorySupply::whereIn('id', $request->ids)->delete();
+        $existingIds = InventorySupply::whereIn('id', $request->ids)->pluck('id')->toArray();
+
+        if (empty($existingIds)) {
+            return redirect()->route('inventory.index')
+                            ->with('error', 'Product not found.');
+        }
+
+        $deletedCount = InventorySupply::whereIn('id', $existingIds)->delete();
+
+        ActivityLog::log('bulk_deleted', 'inventory', "Bulk deleted {$deletedCount} product(s)", null, null, null, ['count' => $deletedCount]);
 
         return redirect()->route('inventory.index')
                         ->with('success', "$deletedCount product(s) deleted successfully!");

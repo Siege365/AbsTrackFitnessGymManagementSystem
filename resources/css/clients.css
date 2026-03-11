@@ -42,11 +42,11 @@ body {
 
 /* Table card - scoped to content-wrapper */
 .content-wrapper .card {
-  overflow: hidden;
+  overflow: visible !important;
 }
 
 .content-wrapper .card-body {
-  overflow: visible;
+  overflow: visible !important;
 }
 
 .stats-card {
@@ -110,6 +110,7 @@ body {
 /* Table horizontal scroll on small screens */
 .table-responsive {
   overflow-x: auto !important;
+  overflow-y: visible !important;
   -webkit-overflow-scrolling: touch;
 }
 

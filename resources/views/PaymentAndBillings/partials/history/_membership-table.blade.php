@@ -24,29 +24,25 @@
             </div>
           </form>
           <div class="dropdown d-inline-block mr-2">
-            <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="membershipHistoryFilterDropdown" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="btn btn-sm filter-button dropdown-toggle" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
               <i class="mdi mdi-filter-variant"></i> Filter
             </button>
-            <div class="dropdown-menu dropdown-menu-right filter-accordion" aria-labelledby="membershipHistoryFilterDropdown">
+            <div class="dropdown-menu dropdown-menu-right filter-accordion">
               <div class="filter-header">
                 <span class="filter-title">Filter By</span>
-                <a href="{{ route('payments.history', request()->except(['membership_type_filter', 'membership_plan_filter', 'membership_page'])) }}" class="filter-clear-all">
-                  Clear All
-                </a>
+                <a href="{{ route('payments.history', request()->except(['membership_type_filter', 'membership_plan_filter', 'membership_page'])) }}" class="filter-clear-all">Clear All</a>
               </div>
 
-              <div class="filter-section active">
-                <div class="filter-section-header" data-filter-section>
+              <!-- Payment Type Filter -->
+              <div class="filter-section">
+                <div class="filter-section-header" onclick="PaymentHistoryPage.toggleFilterSection(this, event)">
                   <div class="filter-section-title">
-                    <i class="mdi mdi-cash-multiple"></i>
+                    <i class="mdi mdi-cash"></i>
                     <span>Payment Type</span>
                   </div>
                   <i class="mdi mdi-chevron-down filter-chevron"></i>
                 </div>
                 <div class="filter-section-content">
-                  <a class="filter-option {{ !request('membership_type_filter') ? 'active' : '' }}" href="{{ route('payments.history', request()->except(['membership_type_filter', 'membership_page'])) }}">
-                    <i class="mdi mdi-filter-remove"></i> All Types
-                  </a>
                   <a class="filter-option {{ request('membership_type_filter') === 'new' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'new'])) }}">
                     <i class="mdi mdi-account-plus"></i> New
                   </a>
@@ -59,18 +55,16 @@
                 </div>
               </div>
 
+              <!-- Plan Type Filter -->
               <div class="filter-section">
-                <div class="filter-section-header" data-filter-section>
+                <div class="filter-section-header" onclick="PaymentHistoryPage.toggleFilterSection(this, event)">
                   <div class="filter-section-title">
-                    <i class="mdi mdi-card-account-details-outline"></i>
+                    <i class="mdi mdi-label-outline"></i>
                     <span>Subscription Type</span>
                   </div>
                   <i class="mdi mdi-chevron-down filter-chevron"></i>
                 </div>
                 <div class="filter-section-content">
-                  <a class="filter-option {{ !request('membership_plan_filter') ? 'active' : '' }}" href="{{ route('payments.history', request()->except(['membership_plan_filter', 'membership_page'])) }}">
-                    <i class="mdi mdi-filter-remove"></i> All Plans
-                  </a>
                   <a class="filter-option {{ request('membership_plan_filter') === 'Regular' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Regular'])) }}">
                     <i class="mdi mdi-dumbbell"></i> Regular
                   </a>
@@ -166,7 +160,7 @@
               </td>
               <td>
                 <div class="dropdown">
-                  <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+                  <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-display="static" data-boundary="window" aria-haspopup="true" aria-expanded="false">
                     <i class="mdi mdi-dots-vertical"></i>
                   </button>
                   <div class="dropdown-menu dropdown-menu-right">

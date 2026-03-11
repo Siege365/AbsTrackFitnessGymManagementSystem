@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Rules\Turnstile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -17,6 +18,10 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
+        $request->validate([
+            'cf-turnstile-response' => ['required', new Turnstile],
+        ]);
+
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
@@ -29,6 +34,7 @@ class LoginController extends Controller
                 'user_id'     => Auth::id(),
                 'user_name'   => Auth::user()->name,
                 'action'      => 'login',
+                'module'      => 'auth',
                 'description' => Auth::user()->name . ' logged in',
                 'ip_address'  => $request->ip(),
             ]);
@@ -50,6 +56,7 @@ class LoginController extends Controller
                 'user_id'     => $user->id,
                 'user_name'   => $user->name,
                 'action'      => 'logout',
+                'module'      => 'auth',
                 'description' => $user->name . ' logged out',
                 'ip_address'  => $request->ip(),
             ]);

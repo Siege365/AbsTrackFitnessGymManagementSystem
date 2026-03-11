@@ -89,8 +89,8 @@
                   </td>
                   <td>
                     <div class="dropdown">
-                      <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown"
-                              data-offset="0,2" data-flip="false" data-boundary="viewport"
+                            <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown"
+                              data-display="static" data-boundary="window"
                               aria-haspopup="true" aria-expanded="false">
                         <i class="mdi mdi-dots-vertical"></i>
                       </button>
@@ -146,7 +146,7 @@
               Showing {{ $membershipPlans->firstItem() ?? 0 }} to {{ $membershipPlans->lastItem() ?? 0 }} of {{ $membershipPlans->total() }} plans
             </div>
             <div>
-              {{ $membershipPlans->links() }}
+              {{ $membershipPlans->links('vendor.pagination.custom') }}
             </div>
           </div>
           @endif
@@ -231,8 +231,8 @@
                   </td>
                   <td>
                     <div class="dropdown">
-                      <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown"
-                              data-offset="0,2" data-flip="false" data-boundary="viewport"
+                            <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown"
+                              data-display="static" data-boundary="window"
                               aria-haspopup="true" aria-expanded="false">
                         <i class="mdi mdi-dots-vertical"></i>
                       </button>
@@ -288,7 +288,7 @@
               Showing {{ $ptPlans->firstItem() ?? 0 }} to {{ $ptPlans->lastItem() ?? 0 }} of {{ $ptPlans->total() }} plans
             </div>
             <div>
-              {{ $ptPlans->links() }}
+              {{ $ptPlans->links('vendor.pagination.custom') }}
             </div>
           </div>
           @endif

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Membership;
 use App\Models\Customer;
 use App\Models\GymPlan;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -195,7 +196,7 @@ class MembershipController extends Controller
                 'name' => 'required|string|max:255',
                 'age' => 'nullable|integer|min:1|max:120',
                 'sex' => 'nullable|in:Male,Female',
-                'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
+                'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2047',
                 'avatar_url' => 'nullable|url',
                 'plan_type' => 'required|exists:gym_plans,plan_key',
                 'start_date' => 'required|date|after_or_equal:today',
@@ -204,6 +205,9 @@ class MembershipController extends Controller
                 'confirm_similar' => 'nullable|boolean',
             ], [
                 'start_date.after_or_equal' => 'Start date cannot be in the past. Please select today or a future date.',
+                'avatar.max' => 'Avatar file size must be less than 2MB.',
+                'avatar.mimes' => 'Avatar must be a JPEG, JPG, PNG, or GIF file.',
+                'avatar.image' => 'Avatar must be a valid image file (JPEG, JPG, PNG, or GIF).',
             ]);
 
             // Server-side due_date calculation (never trust client)
@@ -391,12 +395,16 @@ class MembershipController extends Controller
                     'name' => 'required|string|max:255',
                     'age' => 'nullable|integer|min:1|max:120',
                     'sex' => 'nullable|in:Male,Female',
-                    'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
+                    'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2047',
                     'avatar_url' => 'nullable|url',
                     'plan_type' => 'required|exists:gym_plans,plan_key',
                     'start_date' => 'required|date',
                     'due_date' => 'nullable|date',
                     'contact' => ['required', 'string', 'max:255', 'regex:/^[+]?[0-9()\- ]+$/'],
+                ], [
+                    'avatar.max' => 'Avatar file size must be less than 2MB.',
+                    'avatar.mimes' => 'Avatar must be a JPEG, JPG, PNG, or GIF file.',
+                    'avatar.image' => 'Avatar must be a valid image file (JPEG, JPG, PNG, or GIF).',
                 ]);
 
             // Server-side due_date calculation (never trust client)
@@ -473,6 +481,8 @@ class MembershipController extends Controller
 
             $membership->update($validated);
 
+            ActivityLog::log('updated', 'membership', "Updated member: {$membership->name}", 'MEM-' . $membership->id, $membership->name, $membership, ['plan_type' => $validated['plan_type']]);
+
             return redirect()->route('memberships.index')
                 ->with('success', 'Membership updated successfully!');
             });
@@ -500,6 +510,8 @@ class MembershipController extends Controller
         try {
             return DB::transaction(function () use ($request, $id) {
                 $membership = Membership::lockForUpdate()->findOrFail($id);
+                $memberName = $membership->name;
+                $memberId = $membership->id;
                 
                 // Delete avatar if exists
                 if ($membership->avatar) {
@@ -514,6 +526,8 @@ class MembershipController extends Controller
                 }
                 
                 $membership->delete();
+
+                ActivityLog::log('deleted', 'membership', "Deleted member: {$memberName}", 'MEM-' . $memberId, $memberName);
 
                 // Return JSON response for AJAX
                 if ($request->expectsJson() || $request->ajax()) {
@@ -581,6 +595,8 @@ class MembershipController extends Controller
             }
 
             if ($deletedCount > 0) {
+                ActivityLog::log('bulk_deleted', 'membership', "Bulk deleted {$deletedCount} membership(s)", null, null, null, ['count' => $deletedCount]);
+
                 $message = "Successfully deleted {$deletedCount} membership(s).";
                 if (!empty($errors)) {
                     $message .= " However, " . count($errors) . " deletion(s) failed.";
@@ -611,7 +627,9 @@ class MembershipController extends Controller
                 // Validate input
                 $validated = $request->validate([
                     'start_date' => 'required|date',
-                    'due_date' => 'required|date|after_or_equal:start_date'
+                    'due_date' => 'required|date|after:start_date'
+                ], [
+                    'due_date.after' => 'Due date must be after the start date.',
                 ]);
                 
                 // Parse dates
@@ -633,6 +651,8 @@ class MembershipController extends Controller
                     'start_date' => $newStartDate,
                     'due_date' => $newDueDate
                 ]);
+
+                ActivityLog::log('renewed', 'membership', "Renewed membership for {$membership->name} — new due date: " . $newDueDate->format('M d, Y'), null, $membership->name, $membership, ['new_due_date' => $newDueDate->toDateString()]);
                 
                 // Return JSON response for AJAX
                 if ($request->expectsJson() || $request->ajax()) {
@@ -663,14 +683,24 @@ class MembershipController extends Controller
         } catch (\Exception $e) {
             Log::error('Error renewing membership: ' . $e->getMessage());
             
+            $errorMessage = $e->getMessage();
+            // Return specific messages for known validation errors
+            $knownErrors = [
+                'Due date must be after start date',
+                'Start date cannot be more than 30 days in the past',
+            ];
+            if (!in_array($errorMessage, $knownErrors)) {
+                $errorMessage = 'An error occurred while renewing the membership';
+            }
+            
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'An error occurred while renewing the membership'
-                ], 500);
+                    'message' => $errorMessage
+                ], 422);
             }
             
-            return back()->with('error', 'An error occurred while renewing the membership');
+            return back()->with('error', $errorMessage);
         }
     }
 

@@ -32,6 +32,9 @@
                     id="autoProductNumber"
                     value="{{ old('product_number') }}" 
                     readonly>
+              @error('product_number')
+              <div class="invalid-feedback d-block">{{ $message }}</div>
+              @enderror
             </div>
             <div class="form-group col-md-6">
               <label>Product Name <span class="text-danger">*</span></label>

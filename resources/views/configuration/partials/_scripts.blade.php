@@ -1,5 +1,5 @@
 {{-- Configuration Page Scripts --}}
-@vite(['resources/js/common/form-utils.js', 'resources/js/common/toast-utils.js'])
+@vite(['resources/js/common/table-dropdown.js', 'resources/js/common/form-utils.js', 'resources/js/common/toast-utils.js'])
 
 <script>
 window.configRoutes = {

@@ -41,13 +41,6 @@ class PTSchedule extends Model
 
     protected $casts = [
         'scheduled_date' => 'date',
-        'scheduled_time' => 'datetime:H:i',
-        'amount' => 'decimal:2',
-        'paid_amount' => 'decimal:2',
-        'return_amount' => 'decimal:2',
-        'is_refunded' => 'boolean',
-        'refunded_amount' => 'decimal:2',
-        'refunded_at' => 'datetime',
     ];
 
     /**

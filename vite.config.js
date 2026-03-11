@@ -26,6 +26,7 @@ export default defineConfig({
                 'resources/css/membership-payment.css',
                 'resources/css/reports.css',
                 'resources/css/payment-history.css',
+                'resources/css/activity-logs.css',
                 'resources/css/configuration.css',
                 'resources/css/account-settings.css',
                 'resources/css/staff-management.css',
@@ -47,6 +48,7 @@ export default defineConfig({
                 'resources/js/common/notification-bell.js',
 
                 // Page-specific JS
+                'resources/js/pages/dashboard.js',
                 'resources/js/pages/clients.js',
                 'resources/js/pages/memberships.js',
                 'resources/js/pages/payments.js',

@@ -27,7 +27,7 @@ use App\Http\Controllers\ActivityLogController;
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:5,1');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
@@ -170,7 +170,6 @@ Route::middleware(['auth'])->group(function () {
     
     // ==========================================
     // MEMBERSHIP PAYMENT ROUTES (UPDATED)
-    // ==========================================
     Route::prefix('membership-payment')->name('membership.payment.')->group(function () {
         Route::get('/', [MembershipPaymentController::class, 'index'])->name('index');
         Route::post('/', [MembershipPaymentController::class, 'store'])->name('store');
@@ -180,28 +179,38 @@ Route::middleware(['auth'])->group(function () {
     // ==========================================
     // LEGACY SEPARATE PAYMENT PAGES (Deprecated - use /payments-billing/* instead)
     // ==========================================
-    Route::get('/pt-payment', function() {
-        return redirect()->route('payment.system.pt');
-    })->name('pt.payment.index');
-
     Route::get('/product-payment', function() {
         return redirect()->route('payment.system.product');
     })->name('product.payment.index');
     
     // Member search API
-    Route::get('/api/members/search', [MemberApiController::class, 'search']);
-    Route::get('/api/members/check-duplicate', [MemberApiController::class, 'checkDuplicate']);
-    Route::get('/api/members/{id}', [MemberApiController::class, 'show']);
-    
-    // Autocomplete API for cross-referencing
-    Route::get('/api/customers/autocomplete', [CustomerController::class, 'autocomplete'])->name('api.customers.autocomplete');
-    Route::get('/api/memberships/autocomplete', [MembershipController::class, 'autocomplete'])->name('api.memberships.autocomplete');
-    Route::get('/api/clients/autocomplete', [ClientController::class, 'autocomplete'])->name('api.clients.autocomplete');
+    Route::middleware('throttle:60,1')->group(function () {
+        Route::get('/api/members/search', [MemberApiController::class, 'search']);
+        Route::get('/api/members/check-duplicate', [MemberApiController::class, 'checkDuplicate']);
+        Route::get('/api/members/{id}', [MemberApiController::class, 'show']);
+        
+        // Autocomplete API for cross-referencing
+        Route::get('/api/customers/autocomplete', [CustomerController::class, 'autocomplete'])->name('api.customers.autocomplete');
+        Route::get('/api/memberships/autocomplete', [MembershipController::class, 'autocomplete'])->name('api.memberships.autocomplete');
+        Route::get('/api/clients/autocomplete', [ClientController::class, 'autocomplete'])->name('api.clients.autocomplete');
+    });
     
     // Membership Payment History Routes
     Route::delete('/membership-payment/bulk-delete', [PaymentHistoryController::class, 'bulkDeleteMembership'])->name('membership.payment.bulkDelete');
     Route::post('/membership-payment/{id}/refund', [PaymentHistoryController::class, 'refundMembership'])->name('membership.payment.refund');
     Route::delete('/membership-payment/{id}', [PaymentHistoryController::class, 'destroyMembership'])->name('membership.payment.destroy');
+
+    // ==========================================
+    // PT PAYMENT ROUTES
+    // ==========================================
+    Route::prefix('pt-payment')->name('pt.payment.')->group(function () {
+        Route::post('/', [PTpaymentController::class, 'store'])->name('store');
+        Route::get('/{id}/receipt', [PTpaymentController::class, 'receiptData'])->name('receipt');
+        Route::get('/search-clients', [PTpaymentController::class, 'searchActiveMembers'])->name('search');
+    });
+    Route::delete('/pt-payment/bulk-delete', [PaymentHistoryController::class, 'bulkDeletePT'])->name('pt.payment.bulkDelete');
+    Route::post('/pt-payment/{id}/refund', [PaymentHistoryController::class, 'refundPT'])->name('pt.payment.refund');
+    Route::delete('/pt-payment/{id}', [PaymentHistoryController::class, 'destroyPT'])->name('pt.payment.destroy');
 
     // // Optional: Dedicated Refund Management Routes (if you want a separate refund dashboard)
     // Route::prefix('refunds')->name('refunds.')->group(function () {

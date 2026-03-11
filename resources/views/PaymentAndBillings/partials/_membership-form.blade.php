@@ -7,11 +7,14 @@
     <!-- ═══ ROW 1: Payment Type Toggle ═══ -->
     <div class="pay-row-type">
         <div class="pay-type-pills">
-            <button type="button" class="pay-type-pill" data-type="new">
+            <button type="button" class="pay-type-pill membership-pill" data-type="new">
                 <i class="mdi mdi-account-plus"></i> New Member
             </button>
-            <button type="button" class="pay-type-pill active" data-type="renewal">
+            <button type="button" class="pay-type-pill membership-pill active" data-type="renewal">
                 <i class="mdi mdi-autorenew"></i> Renewal
+            </button>
+            <button type="button" class="pay-type-pill membership-pill" data-type="extension">
+                <i class="mdi mdi-calendar-plus"></i> Extension
             </button>
         </div>
         <input type="hidden" name="payment_type" id="paymentType" value="renewal">
