@@ -21,6 +21,20 @@ class PTSchedule extends Model
         'scheduled_date',
         'scheduled_time',
         'payment_type',
+        'receipt_number',
+        'plan_key',
+        'plan_name',
+        'plan_duration_days',
+        'amount',
+        'paid_amount',
+        'return_amount',
+        'processed_by',
+        'is_refunded',
+        'refund_status',
+        'refunded_amount',
+        'refund_reason',
+        'refunded_by',
+        'refunded_at',
         'status',
         'notes',
     ];
@@ -151,6 +165,22 @@ class PTSchedule extends Model
             return $this->client->name;
         }
         return $this->customer_name ?? 'N/A';
+    }
+
+    /**
+     * Get the resolved customer contact.
+     */
+    public function getResolvedContactAttribute(): ?string
+    {
+        if ($this->customer_source === 'membership' && $this->membership) {
+            return $this->membership->contact;
+        }
+
+        if ($this->customer_source === 'client' && $this->client) {
+            return $this->client->contact;
+        }
+
+        return $this->customer_contact;
     }
 
     /**

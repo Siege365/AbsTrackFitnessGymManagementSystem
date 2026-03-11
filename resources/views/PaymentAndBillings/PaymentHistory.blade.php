@@ -8,14 +8,27 @@
 
 @section('content')
   <!-- Page Header -->
-  <div class="card page-header-card">
-      <div class="card-body">
-          <div>
-              <h2 class="page-header-title">Payment History</h2>
-              <p class="page-header-subtitle">View and manage all payment transaction records.</p>
+    <div class="card page-header-card">
+      <div class="card-body page-header-body">
+        <div>
+          <h2 class="page-header-title">Payment History</h2>
+          <p class="page-header-subtitle">View and manage all payment transaction records.</p>
+        </div>
+        <div class="refund-toggle-group">
+          <span class="refund-toggle-label">Refunded Payments</span>
+          <div class="history-segmented-toggle" role="tablist" aria-label="Refunded payments visibility">
+            <button type="button" class="history-segment-btn active" data-refund-visibility="hide" aria-pressed="true">
+              <i class="mdi mdi-eye-off-outline"></i>
+              <span>Hide</span>
+            </button>
+            <button type="button" class="history-segment-btn" data-refund-visibility="show" aria-pressed="false">
+              <i class="mdi mdi-eye-outline"></i>
+              <span>Show</span>
+            </button>
           </div>
+        </div>
       </div>
-  </div>
+    </div>
 
   @include('PaymentAndBillings.partials.history._stats-cards')
 
@@ -25,15 +38,15 @@
   <div class="page-toggle-container">
     <button class="page-toggle-btn active" data-page="membership">
       <i class="mdi mdi-account-group"></i>
-      <span>Membership</span>
+      <span>Membership Payments</span>
     </button>
     <button class="page-toggle-btn" data-page="pt">
       <i class="mdi mdi-dumbbell"></i>
-      <span>Personal Training</span>
+      <span>Personal Training Payments</span>
     </button>
     <button class="page-toggle-btn" data-page="product">
     <i class="mdi mdi-cart-outline"></i>
-      <span>Product</span>
+      <span>Product Payments</span>
     </button>
   </div>
 

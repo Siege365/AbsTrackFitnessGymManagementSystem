@@ -58,6 +58,70 @@ body {
   color: #ffffff;
 }
 
+.page-header-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.refund-toggle-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-shrink: 0;
+}
+
+.refund-toggle-label {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.history-segmented-toggle {
+  display: flex;
+  gap: 0.45rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0.375rem;
+}
+
+.history-segment-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 106px;
+  padding: 0.75rem 1.2rem;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #999;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.history-segment-btn i {
+  font-size: 1.05rem;
+}
+
+.history-segment-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.history-segment-btn.active {
+  background: linear-gradient(135deg, #FFA726, #FFB84D);
+  color: #1a1d24;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255, 167, 38, 0.3);
+}
+
 .content-wrapper .card {
   overflow: visible !important;
 }
@@ -379,6 +443,15 @@ input[type="checkbox"]:hover {
   color: #666;
 }
 
+.table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  flex-wrap: wrap;
+}
+
 /* ============================================ */
 /* PAGE TOGGLE (Membership / PT / Product)      */
 /* ============================================ */
@@ -441,6 +514,228 @@ input[type="checkbox"]:hover {
 
 .page-panel.active {
   display: block;
+}
+
+.refunded-payments-card {
+  transition: opacity 0.25s ease, transform 0.25s ease, max-height 0.25s ease, margin-top 0.25s ease;
+  transform-origin: top center;
+}
+
+.refunded-payments-card.is-hidden {
+  display: none;
+}
+
+.refunded-payments-card.is-visible {
+  display: block;
+}
+
+.filter-accordion {
+  min-width: 260px;
+  max-width: 280px;
+  padding: 0;
+  border-radius: 10px;
+  background: #191c24;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.42);
+  overflow: hidden;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.filter-title {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.filter-clear-all {
+  color: rgba(255, 107, 107, 0.9);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.filter-clear-all:hover {
+  color: rgba(255, 107, 107, 0.9);
+  text-decoration: underline;
+}
+
+.filter-section {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.filter-section:last-child {
+  border-bottom: none;
+}
+
+.filter-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.25rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease;
+}
+
+.filter-section-header:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.filter-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 0.94rem;
+  font-weight: 500;
+}
+
+.filter-section-title i {
+  font-size: 1.15rem;
+  opacity: 0.85;
+}
+
+.filter-chevron {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 1.2rem;
+  transition: transform 0.25s ease;
+}
+
+.filter-section.active .filter-chevron {
+  transform: rotate(180deg);
+}
+
+.filter-section-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease;
+}
+
+.filter-section.active .filter-section-content {
+  max-height: 500px;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1.25rem 0.625rem 2.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.94rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.filter-option:hover {
+  color: #ffbf66;
+  background: rgba(255, 167, 38, 0.08);
+  border-left-color: rgba(255, 167, 38, 0.55);
+  text-decoration: none;
+}
+
+.filter-option.active {
+  color: #ffbf66;
+  background: rgba(255, 167, 38, 0.12);
+  border-left-color: #ffa726;
+}
+
+.filter-option:hover i,
+.filter-option.active i {
+  color: #ffbf66;
+}
+
+.filter-option.active:hover {
+  color: #ffd08a;
+  background: rgba(255, 167, 38, 0.16);
+}
+
+.filter-option.active:hover i {
+  color: #ffd08a;
+}
+
+.filter-option i {
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+
+.btn-action {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  padding: 0.4rem 0.55rem;
+  font-size: 1.45rem;
+  line-height: 1;
+  box-shadow: none;
+}
+
+.btn-action:hover,
+.btn-action:focus {
+  background: transparent;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.table .dropdown-menu {
+  z-index: 9999 !important;
+  margin: 0;
+}
+
+.table .dropdown-menu .dropdown-item {
+  color: rgba(255, 255, 255, 0.82);
+  background: transparent;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.table .dropdown-menu .dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.table .dropdown-menu .dropdown-item.disabled,
+.table .dropdown-menu .dropdown-item:disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.table .dropdown-menu .dropdown-item.text-warning:hover {
+  background: rgba(255, 193, 7, 0.12);
+  color: #ffc107 !important;
+}
+
+.table .dropdown-menu .dropdown-item.text-danger:hover {
+  background: rgba(244, 67, 54, 0.12);
+  color: #f44336 !important;
+}
+
+@media (max-width: 991.98px) {
+  .page-header-body {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .refund-toggle-group {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .history-segmented-toggle {
+    width: 100%;
+  }
+
+  .history-segment-btn {
+    flex: 1;
+  }
 }
 
 @keyframes slideOutLeft {
@@ -527,13 +822,14 @@ input[type="checkbox"]:hover {
 }
 
 .modal-content {
-  background: white;
+  background: #191c24;
   border-radius: 8px;
   width: 100%;
   max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  border: none;
   position: relative;
   margin: auto;
 }
@@ -543,12 +839,12 @@ input[type="checkbox"]:hover {
 }
 
 .modal-header {
-  padding: 20px;
+  padding: 1.5rem 2rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #191C24;
+  background: #191c24;
   color: white;
   border-radius: 8px 8px 0 0;
 }
@@ -563,35 +859,34 @@ input[type="checkbox"]:hover {
 .modal-close {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 2rem;
   cursor: pointer;
   color: white;
   padding: 0;
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
 }
 
 .modal-close:hover {
-  background: rgba(255, 255, 255, 0.1);
   color: #dc3545;
+  transform: rotate(90deg);
 }
 
 .modal-body {
-  padding: 20px;
+  padding: 2rem;
 }
 
 .modal-footer {
-  padding: 20px;
-  border-top: 1px solid #e0e0e0;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  background: #f8f9fa;
+  gap: 1rem;
+  background: transparent;
   border-radius: 0 0 8px 8px;
 }
 
@@ -599,10 +894,10 @@ input[type="checkbox"]:hover {
 /* CONFIRM OVERLAY                              */
 /* ============================================ */
 .confirm-overlay-content {
-  background: #191C24;
+  background: #191c24;
   border-radius: 12px;
   width: 90%;
-  max-width: 400px;
+  max-width: 520px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   animation: confirmSlideIn 0.2s ease;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -622,20 +917,14 @@ input[type="checkbox"]:hover {
 .confirm-overlay-header {
   display: flex;
   align-items: center;
-  padding: 1rem 1.25rem;
+  padding: 1.25rem 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   color: #ffffff;
 }
 
-.confirm-overlay-header i {
-  font-size: 1.5rem;
-  color: #FFA726;
-  margin-right: 0.75rem;
-}
-
 .confirm-overlay-header h5 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: #ffffff;
 }
@@ -645,36 +934,40 @@ input[type="checkbox"]:hover {
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.8);
   cursor: pointer;
+  width: 32px;
+  height: 32px;
 }
 
 .confirm-overlay-header .close:hover {
-  color: #ffffff;
+  color: #dc3545;
 }
 
 .confirm-overlay-body {
-  padding: 1.25rem;
+  padding: 2rem;
   color: rgba(255, 255, 255, 0.8);
 }
 
 .confirm-overlay-body p {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.95rem;
+  color: #ffffff;
+  font-size: 1.05rem;
+  line-height: 1.5;
 }
 
 .confirm-details {
-  background: #282A36;
+  background: #282a36;
   border-radius: 8px;
   padding: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .confirm-row {
   display: flex;
   justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .confirm-row:last-child {
@@ -689,184 +982,363 @@ input[type="checkbox"]:hover {
 .confirm-value {
   font-weight: 600;
   color: #ffffff;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  text-align: right;
+}
+
+.confirm-value-danger {
+  color: #ff8b8b;
 }
 
 .confirm-overlay-footer {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
-  padding: 1rem 1.25rem;
+  padding: 1.25rem 1.5rem 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .confirm-overlay-footer .btn-cancel {
-  background: transparent;
-  color: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1.75rem;
+  border-radius: 4px;
   cursor: pointer;
 }
 
 .confirm-overlay-footer .btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.2);
   color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .confirm-overlay-footer .btn-update {
-  background: linear-gradient(135deg, #FFA726, #FFB84D);
-  color: #fff;
+  background: #ffa500;
+  color: #ffffff;
   border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(255, 167, 38, 0.3);
+  padding: 0.75rem 1.75rem;
+  border-radius: 4px;
   cursor: pointer;
+  font-weight: 600;
 }
 
 .confirm-overlay-footer .btn-update:hover {
-  background: linear-gradient(135deg, #FF9800, #FFA726);
-  box-shadow: 0 4px 12px rgba(255, 167, 38, 0.4);
+  background: #ff8c00;
+  color: #ffffff;
 }
 
 .confirm-overlay-footer .btn-delete {
-  background: linear-gradient(135deg, #dc3545, #e25563);
+  background: #dc3545;
   color: #fff;
   border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+  padding: 0.75rem 1.75rem;
+  border-radius: 4px;
   cursor: pointer;
+  font-weight: 600;
 }
 
 .confirm-overlay-footer .btn-delete:hover {
-  background: linear-gradient(135deg, #c82333, #dc3545);
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+  background: #c82333;
 }
 
 .confirm-overlay-footer .btn-refund {
-  background: linear-gradient(135deg, #FFC107, #FFD54F);
+  background: #ffc107;
   color: #212529;
   border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+  padding: 0.75rem 1.75rem;
+  border-radius: 4px;
   cursor: pointer;
+  font-weight: 600;
 }
 
 .confirm-overlay-footer .btn-refund:hover {
-  background: linear-gradient(135deg, #e0a800, #FFC107);
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+  background: #e0a800;
 }
 
-/* ============================================ */
-/* RECEIPT STYLES                               */
-/* ============================================ */
-.receipt-container {
-  max-width: 600px;
-  margin: 0 auto;
-  background: white;
-  color: #000;
-  padding: 30px;
-  font-family: 'Courier New', monospace;
+.confirm-overlay-footer .btn-refund span,
+.confirm-overlay-footer .btn-delete span,
+.confirm-overlay-footer .btn-update span {
+  display: inline-flex;
+  align-items: center;
 }
 
-.receipt-header {
-  text-align: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px dashed #333;
+.confirm-overlay-footer .btn i,
+.modal-footer .btn i {
+  margin-right: 0.45rem;
 }
 
-.receipt-header h2 {
-  margin: 0 0 10px 0;
-  font-size: 1.5rem;
-  color: #000;
+.refund-confirm-message,
+.delete-confirm-text {
+  margin-bottom: 1rem;
 }
 
-.receipt-refund-badge {
-  display: inline-block;
-  background: #dc3545;
-  color: white;
-  padding: 5px 15px;
+.refund-warning {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  padding: 1rem;
   border-radius: 4px;
-  font-weight: bold;
-  margin-top: 10px;
+  margin-bottom: 1.5rem;
+  color: #856404;
 }
 
-.receipt-info {
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px dashed #666;
+.refund-warning i {
+  margin-right: 0.5rem;
 }
 
-.receipt-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  color: #000;
+.history-textarea,
+.confirm-overlay-body .form-control {
+  background: #282a36;
+  color: #ffffff;
+  border: 1px solid #444;
+  resize: vertical;
 }
 
-.receipt-items {
-  margin-bottom: 20px;
+.confirm-overlay-body label,
+.history-field-group label {
+  color: rgba(255, 255, 255, 0.86);
+  font-weight: 600;
+  margin-bottom: 0.55rem;
+  display: block;
 }
 
-.receipt-item {
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 1px dotted #ccc;
+.history-textarea {
+  min-height: 132px;
+  border-radius: 4px;
+  padding: 0.95rem 1rem;
 }
 
-.receipt-total {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 2px solid #333;
-}
-
-.receipt-total .receipt-row {
-  font-size: 1.1rem;
-  font-weight: bold;
-}
-
-.receipt-footer {
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 2px dashed #333;
-  text-align: center;
-  font-size: 0.9rem;
-  color: #666;
+.history-textarea:focus {
+  background: #282a36;
+  color: #ffffff;
+  border-color: #0d6efd;
+  box-shadow: none;
 }
 
 .receipt-table {
   width: 100%;
-  border-collapse: collapse;
   margin: 20px 0;
+  border-collapse: collapse;
 }
 
 .receipt-table th {
-  background: #333;
+  background: #191c24;
   color: white;
-  padding: 10px;
+  padding: 1rem;
   text-align: left;
+  font-weight: 600;
 }
 
 .receipt-table td {
-  padding: 10px;
+  padding: 1rem;
   border-bottom: 1px solid #ddd;
-  color: #000;
+  color: #333;
+}
+
+.receipt-table tbody tr:last-child td {
+  border-bottom: 2px solid #191c24;
+}
+
+.receipt-container {
+  background: white;
+  color: #333;
+  border: 3px solid #191c24;
+  box-shadow: 0 0 0 1px rgba(25, 28, 36, 0.08);
+}
+
+.receipt-header {
+  text-align: center;
+  border-bottom: 3px solid #191c24;
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.receipt-header h2 {
+  font-size: 2rem;
+  color: #191c24;
+  margin-bottom: 0.5rem;
+}
+
+.receipt-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.receipt-secondary-grid {
+  margin-top: 1rem;
+}
+
+.receipt-info-cell {
+  padding: 1rem;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.receipt-info-cell.buddy {
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+}
+
+.receipt-info-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #666;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+  font-weight: 700;
+}
+
+.receipt-info-value {
+  display: block;
+  font-size: 1rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.receipt-info-cell.success .receipt-info-value {
+  color: #28a745;
+}
+
+.receipt-total {
+  text-align: right;
+  padding-top: 1rem;
+  border-top: 3px solid #191c24;
+}
+
+.receipt-total-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+  font-size: 1.05rem;
+}
+
+.receipt-total-row strong {
+  width: 200px;
+  text-align: right;
+}
+
+.receipt-total-row span {
+  width: 150px;
+  text-align: right;
+  font-weight: 700;
+}
+
+.receipt-total-row.grand-total {
+  font-size: 1.3rem;
+  color: #191c24;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid #333;
+}
+
+.receipt-total-row.refund-total strong,
+.receipt-total-row.refund-total span {
+  color: #dc3545;
+}
+
+.receipt-notes-section {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.receipt-notes-section strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #666;
+}
+
+.receipt-notes-section p {
+  margin: 0;
+  color: #333;
+}
+
+.receipt-refund-stamp {
+  text-align: center;
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #fff3cd;
+  border: 3px dashed #ffc107;
+  border-radius: 8px;
+}
+
+.receipt-refund-stamp h3 {
+  color: #856404;
+  font-size: 1.5rem;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.receipt-footer {
+  text-align: center;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 2px dashed #999;
+  color: #666;
+}
+
+.receipt-footer p {
+  font-size: 1rem;
+  margin: 0.35rem 0;
+}
+
+.receipt-footer p strong {
+  font-size: 1.125rem;
+}
+
+.modal-footer .btn {
+  font-size: 1.125rem !important;
+  padding: 0.875rem 2rem;
+  min-width: 130px;
+  font-weight: 600;
+}
+
+.modal-footer .btn-primary {
+  background: #FFA726;
+  border-color: #FFB84D;
+  color: #000000;
+}
+
+.modal-footer .btn-primary:hover {
+   background: linear-gradient(135deg, #FF9800, #FFA726);
+  box-shadow: 0 4px 12px rgba(255, 167, 38, 0.4);
+}
+
+.receipt-empty-state {
+  padding: 1.15rem;
+  border-radius: 8px;
+  border: 1px dashed #999;
+  color: #666;
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
 }
 
 /* ============================================ */
 /* LOADING SPINNER                              */
 /* ============================================ */
 .loading-spinner {
+  min-height: 240px;
   text-align: center;
   padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-spinner p {
+  color: rgba(255, 255, 255, 0.72);
+  margin: 0;
 }
 
 .spinner {
   border: 3px solid #f3f3f3;
-  border-top: 3px solid #3498db;
+  border-top: 3px solid #ffa726;
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -915,6 +1387,20 @@ input[type="checkbox"]:hover {
 
   .receipt-container {
     padding: 20px;
+  }
+
+  .receipt-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-overlay {
+    padding: 16px;
+  }
+
+  .modal-content,
+  .confirm-overlay-content {
+    width: 100%;
+    max-height: calc(100vh - 32px);
   }
 }
 

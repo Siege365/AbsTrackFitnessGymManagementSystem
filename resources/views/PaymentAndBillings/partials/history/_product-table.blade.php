@@ -69,14 +69,14 @@
               </th>
               <th class="text-left">Receipt #</th>
               <th class="text-left">Customer</th>
-              <th class="text-left">Date</th>
+              <th class="text-left">Date & Time</th>
               <th class="text-left">Amount</th>
               <th class="text-left">Cashier</th>
               <th class="text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
-            @forelse($productPayments ?? [] as $p)
+            @forelse($productPayments as $p)
             <tr>
               <td>
                 <div class="form-check">
@@ -86,10 +86,24 @@
                 </div>
               </td>
               <td>{{ $p->receipt_number }}</td>
-              <td>{{ $p->customer_name }}</td>
+              <td>
+                <div class="d-flex align-items-center history-name-cell">
+                  <div class="avatar-initial mr-2">
+                    {{ strtoupper(substr($p->customer_name, 0, 1)) }}
+                  </div>
+                  <span>{{ $p->customer_name }}</span>
+                </div>
+              </td>
               <td>{{ $p->created_at->format('M d, Y - h:i A') }}</td>
               <td>₱{{ number_format($p->total_amount,2) }}</td>
-              <td>{{ $p->cashier_name }}</td>
+              <td>
+                <div class="d-flex align-items-center history-meta-cell">
+                  <div class="avatar-initial avatar-initial-sm mr-2">
+                    {{ strtoupper(substr($p->cashier_name, 0, 1)) }}
+                  </div>
+                  <span>{{ $p->cashier_name }}</span>
+                </div>
+              </td>
               <td>
                 <div class="dropdown">
                   <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-display="static" data-boundary="window" aria-haspopup="true" aria-expanded="false">
@@ -102,7 +116,7 @@
                     <button type="button" class="dropdown-item text-warning" onclick="openRefundModal('product', {{ $p->id }}, '{{ $p->receipt_number }}', {{ $p->total_amount }}, '{{ addslashes($p->customer_name) }}')">
                       <i class="mdi mdi-cash-refund mr-2"></i> Refund
                     </button>
-                    <button type="button" class="dropdown-item text-danger" onclick="confirmDeleteSingle('product', {{ $p->id }})">
+                    <button type="button" class="dropdown-item text-danger" onclick="confirmDeleteSingle('product', {{ $p->id }}, '{{ addslashes($p->customer_name) }}')">
                       <i class="mdi mdi-delete mr-2"></i> Delete
                     </button>
                   </div>

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Personal Training Payment')
+@section('title', 'Payments & Billing - AbsTrack Fitness Gym')
 
 @push('styles')
 @vite(['resources/css/membership-payment.css'])

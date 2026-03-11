@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PTSchedule;
 use App\Models\Attendance;
 use App\Models\Client;
+use App\Models\GymPlan;
 use App\Models\Membership;
 use App\Models\Trainer;
 use App\Models\ActivityLog;
@@ -280,6 +281,7 @@ class SessionController extends Controller
                 'scheduled_date' => 'required|date|after_or_equal:today',
                 'scheduled_time' => 'required',
                 'payment_type' => 'required|string|in:Cash,Gcash,Card,Bank Transfer',
+                'plan_key' => 'required|string|exists:gym_plans,plan_key',
                 'notes' => 'nullable|string|max:500',
             ];
 
@@ -289,6 +291,8 @@ class SessionController extends Controller
                 'scheduled_date.after_or_equal' => 'Date cannot be in the past.',
                 'scheduled_time.required' => 'Please select a time.',
                 'payment_type.required' => 'Please select a payment type.',
+                'plan_key.required' => 'Please select a PT plan.',
+                'plan_key.exists' => 'Selected PT plan is not available.',
             ];
 
             if ($isWalkIn) {
@@ -317,11 +321,32 @@ class SessionController extends Controller
                 ], 422);
             }
 
+            $plan = GymPlan::active()
+                ->personalTraining()
+                ->where('plan_key', $request->plan_key)
+                ->first();
+
+            if (!$plan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Selected PT plan is not available.'
+                ], 422);
+            }
+
             $data = [
                 'trainer_name' => $request->trainer_name,
                 'scheduled_date' => $request->scheduled_date,
                 'scheduled_time' => $request->scheduled_time,
                 'payment_type' => $request->payment_type,
+                'receipt_number' => $this->generatePTReceiptNumber(),
+                'plan_key' => $plan->plan_key,
+                'plan_name' => $plan->plan_name,
+                'plan_duration_days' => $plan->duration_days,
+                'amount' => $plan->price,
+                'paid_amount' => $plan->price,
+                'return_amount' => 0,
+                'processed_by' => Auth::user()->name ?? 'Admin',
+                'is_refunded' => false,
                 'status' => 'upcoming',
                 'notes' => $request->notes,
                 'customer_source' => $customerSource,
@@ -348,10 +373,11 @@ class SessionController extends Controller
                 Carbon::parse($data['scheduled_date'])->format('M d, Y'),
                 $data['scheduled_time']
             );
+            NotificationService::paymentReceived($customerName, $plan->price, 'pt');
 
             return response()->json([
                 'success' => true,
-                'message' => 'PT Schedule created successfully!',
+                'message' => 'PT payment processed and session booked successfully!',
                 'data' => $ptSchedule
             ]);
         } catch (\Throwable $e) {
@@ -569,6 +595,17 @@ class SessionController extends Controller
                 'message' => 'Failed to book session: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Generate the next PT receipt number.
+     */
+    private function generatePTReceiptNumber(): string
+    {
+        $lastSchedule = PTSchedule::latest('id')->first();
+        $nextId = $lastSchedule ? $lastSchedule->id + 1 : 1;
+
+        return 'PT-' . date('Ymd') . '-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
     }
 
     /**

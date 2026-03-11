@@ -99,17 +99,17 @@
                 </div>
               </th>
               <th class="text-left">Receipt #</th>
-              <th class="text-left">Member</th>
+              <th class="text-left">Customer  </th>
               <th class="text-left">Subscription Type</th>
               <th class="text-left">Payment Type</th>
-              <th class="text-left">Date</th>
+              <th class="text-left">Date & Time</th>
               <th class="text-left">Amount</th>
               <th class="text-left">Cashier</th>
               <th class="text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
-            @forelse($membershipPayments ?? [] as $m)
+            @forelse($membershipPayments as $m)
             <tr>
               <td>
                 <div class="form-check">
@@ -119,7 +119,18 @@
                 </div>
               </td>
               <td>{{ $m->receipt_number }}</td>
-              <td>{{ $m->member_name }}</td>
+              <td>
+                <div class="d-flex align-items-center history-name-cell">
+                  @if(optional($m->membership)->avatar)
+                    <img src="{{ asset('storage/' . $m->membership->avatar) }}" class="avatar-circle mr-2" alt="{{ $m->member_name }}">
+                  @else
+                    <div class="avatar-initial mr-2">
+                      {{ strtoupper(substr($m->member_name, 0, 1)) }}
+                    </div>
+                  @endif
+                  <span>{{ $m->member_name }}</span>
+                </div>
+              </td>
               <td>
                 @php
                   $planLabels = [
@@ -129,17 +140,8 @@
                     'ThreeMonths' => '3 Months',
                     'Session' => 'Session',
                   ];
-                  $planBadgeColors = [
-                    'Regular' => 'primary',
-                    'Student' => 'info',
-                    'GymBuddy' => 'success',
-                    'ThreeMonths' => 'warning',
-                    'Session' => 'light',
-                  ];
                 @endphp
-                <span class="badge badge-{{ $planBadgeColors[$m->plan_type] ?? 'secondary' }}">
-                  {{ $planLabels[$m->plan_type] ?? $m->plan_type }}
-                </span>
+                <span class="subscription-type-text">{{ $planLabels[$m->plan_type] ?? $m->plan_type }}</span>
               </td>
               <td>
                 <span class="badge badge-{{ $m->payment_type === 'new' ? 'success' : ($m->payment_type === 'renewal' ? 'primary' : 'info') }}">
@@ -148,7 +150,14 @@
               </td>
               <td>{{ $m->created_at->format('M d, Y - h:i A') }}</td>
               <td>₱{{ number_format($m->amount,2) }}</td>
-              <td>{{ $m->processed_by }}</td>
+              <td>
+                <div class="d-flex align-items-center history-meta-cell">
+                  <div class="avatar-initial avatar-initial-sm mr-2">
+                    {{ strtoupper(substr($m->processed_by, 0, 1)) }}
+                  </div>
+                  <span>{{ $m->processed_by }}</span>
+                </div>
+              </td>
               <td>
                 <div class="dropdown">
                   <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-display="static" data-boundary="window" aria-haspopup="true" aria-expanded="false">
@@ -161,7 +170,7 @@
                     <button type="button" class="dropdown-item text-warning" onclick="openRefundModal('membership', {{ $m->id }}, '{{ $m->receipt_number }}', {{ $m->amount }}, '{{ addslashes($m->member_name) }}')">
                       <i class="mdi mdi-cash-refund mr-2"></i> Refund
                     </button>
-                    <button type="button" class="dropdown-item text-danger" onclick="confirmDeleteSingle('membership', {{ $m->id }})">
+                    <button type="button" class="dropdown-item text-danger" onclick="confirmDeleteSingle('membership', {{ $m->id }}, '{{ addslashes($m->member_name) }}')">
                       <i class="mdi mdi-delete mr-2"></i> Delete
                     </button>
                   </div>

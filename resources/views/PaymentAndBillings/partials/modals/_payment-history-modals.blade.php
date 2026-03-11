@@ -2,24 +2,27 @@
 <div id="refundModal" class="modal-overlay">
   <div class="confirm-overlay-content">
     <div class="confirm-overlay-header">
-      <i class="mdi mdi-alert-circle-outline" style="color: #FFC107;"></i>
-      <h5>Process Refund</h5>
+      <h5 class="modal-title">Process Refund</h5>
       <button type="button" class="close" onclick="closeRefundModal()">
         <span aria-hidden="true">&times;</span>
       </button>
     </div>
     <div class="confirm-overlay-body">
-      <p class="mb-3" style="color: #FFC107;"><strong>Warning:</strong> This action will mark this transaction as refunded and restore inventory (for products).</p>
+      <p class="mb-3 refund-confirm-message">Are you sure you want to refund this payment? This will move the record to the refunded payments table.</p>
+      <div class="refund-warning">
+        <i class="mdi mdi-alert-circle-outline"></i>
+        Product refunds will also restore stock automatically.
+      </div>
       <div class="confirm-details" id="refundDetails"></div>
       <div class="form-group mt-3">
-        <label for="refundReason" style="color: #ccc; font-weight: 600; margin-bottom: 6px; display: block;">Reason for Refund</label>
-        <textarea id="refundReason" class="form-control" rows="3" placeholder="Enter reason for refund (optional)" style="background: #282A36; color: #fff; border: 1px solid #444; resize: vertical;"></textarea>
+        <label for="refundReason">Reason for Refund</label>
+        <textarea id="refundReason" class="form-control history-textarea" rows="4" placeholder="Add a short note for the refund receipt (optional)"></textarea>
       </div>
     </div>
     <div class="confirm-overlay-footer">
       <button type="button" class="btn btn-cancel" onclick="closeRefundModal()">Cancel</button>
       <button type="button" class="btn btn-refund" id="confirmRefundBtn">
-        <i class="mdi mdi-cash-refund"></i> Process Refund
+        <i class="mdi mdi-cash-refund"></i><span>Process Refund</span>
       </button>
     </div>
   </div>
@@ -35,7 +38,7 @@
     <div class="modal-body" id="refundReceiptContent">
       <!-- Receipt content will be loaded here -->
     </div>
-    <div class="modal-footer" style="font-size: 1.125rem;">
+    <div class="modal-footer">
       <button type="button" class="btn btn-secondary" onclick="closeRefundReceiptModal()">Close</button>
       <button type="button" class="btn btn-primary" onclick="printRefundReceipt()">
         <i class="mdi mdi-printer"></i> Print
@@ -74,24 +77,22 @@
   @method('DELETE')
 </form>
 
+<form id="bulkDeletePTForm" action="{{ route('pt.history.bulkDelete') }}" method="POST" style="display: none;">
+  @csrf
+  @method('DELETE')
+</form>
+
 <!-- Delete Confirmation Modal -->
 <div id="deleteConfirmModal" class="modal-overlay">
   <div class="confirm-overlay-content">
     <div class="confirm-overlay-header">
-      <i class="mdi mdi-alert-circle-outline" style="color: #dc3545;"></i>
-      <h5>Confirm Delete</h5>
+      <h5 class="modal-title" id="deleteModalTitle">Confirm Delete</h5>
       <button type="button" class="close" onclick="closeDeleteModal()">
         <span aria-hidden="true">&times;</span>
       </button>
     </div>
     <div class="confirm-overlay-body">
-      <p class="mb-3" style="color: #dc3545;"><strong>Warning:</strong> This action cannot be undone. The selected record(s) will be permanently deleted.</p>
-      <div class="confirm-details">
-        <div class="confirm-row">
-          <span class="confirm-label">Items to delete:</span>
-          <span class="confirm-value" id="deleteItemCount">1</span>
-        </div>
-      </div>
+      <p id="deleteConfirmText" class="delete-confirm-text">Are you sure you want to delete this payment record?</p>
     </div>
     <div class="confirm-overlay-footer">
       <button type="button" class="btn btn-cancel" onclick="closeDeleteModal()">Cancel</button>
