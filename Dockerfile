@@ -39,15 +39,16 @@ RUN composer install --no-dev --optimize-autoloader
 # Install npm dependencies and build Vite assets (Tailwind CSS + JS)
 RUN npm install && npm run build
 
-# Copy .env.example to .env if no .env is present, then generate app key
-RUN cp -n .env.example .env && php artisan key:generate --force
+# Copy .env.example to .env if no .env is present
+# (APP_KEY will be generated at startup if not set via Render env vars)
+RUN cp -n .env.example .env
 
-# Create SQLite database file if using SQLite
+# Create SQLite database file if using SQLite (fallback)
 RUN mkdir -p /var/www/html/database \
     && touch /var/www/html/database/database.sqlite
 
-# Create storage symlink and run migrations
-RUN php artisan storage:link --force
+# Create storage symlink
+RUN php artisan storage:link --force --env=production 2>/dev/null || php artisan storage:link --force
 
 # Create uploads directory and set permissions
 RUN mkdir -p /var/www/html/storage/app/public/uploads \
@@ -64,5 +65,9 @@ RUN chown -R www-data:www-data \
 # Expose Render required port
 EXPOSE 10000
 
-# Start Apache
-CMD ["apache2-foreground"]
+# Copy startup script and make it executable
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Run migrations and start Apache
+CMD ["/start.sh"]
