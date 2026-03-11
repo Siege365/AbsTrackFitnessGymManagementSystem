@@ -21,29 +21,7 @@
       <!-- ═══ ROW 2: Two-Column — Cart + Customer/Payment ═══ -->
       <div class="pay-row-main">
 
-        <!-- LEFT: Cart Items Table -->
-        <div class="pay-col-member">
-          <label class="form-label">Cart Items</label>
-          <div class="product-cart-table">
-            <table class="table" id="prodItemsTable" style="margin-bottom: 0;">
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th style="width: 70px;">Qty</th>
-                  <th style="width: 100px;">Price</th>
-                  <th style="width: 100px;">Subtotal</th>
-                  <th style="width: 50px;"></th>
-                </tr>
-              </thead>
-              <tbody id="prodItemsTableBody">
-                <tr><td colspan="5" class="text-center text-muted" style="padding: 2rem; color: #666;">No items added</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- RIGHT: Customer + Payment Info -->
-        <div class="pay-col-plans">
+         <div class="pay-col-plans">
           <label class="form-label">Customer & Payment</label>
           <div class="member-card">
             <div class="member-card-body compact">
@@ -80,6 +58,26 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div class="pay-col-member">
+          <label class="form-label">Cart Items</label>
+          <div class="product-cart-table">
+            <table class="table" id="prodItemsTable" style="margin-bottom: 0;">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th style="width: 70px;">Qty</th>
+                  <th style="width: 100px;">Price</th>
+                  <th style="width: 100px;">Subtotal</th>
+                  <th style="width: 50px;"></th>
+                </tr>
+              </thead>
+              <tbody id="prodItemsTableBody">
+                <tr><td colspan="5" class="text-center text-muted" style="padding: 2rem; color: #666;">No items added</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 

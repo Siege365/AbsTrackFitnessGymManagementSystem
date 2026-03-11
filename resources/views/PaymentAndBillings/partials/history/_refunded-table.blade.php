@@ -1,5 +1,5 @@
-<!-- Refunded Payments Table (always visible below tabs) -->
-<div class="card mt-4">
+<!-- Refunded Payments Table -->
+<div class="card mt-4 refunded-payments-card is-hidden" id="refundedPaymentsCard">
   <div class="card-body">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h4>Refunded Payments</h4>
@@ -23,14 +23,40 @@
           </div>
         </form>
         <div class="dropdown d-inline-block mr-2">
-          <button type="button" class="btn btn-sm filter-button dropdown-toggle" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+          <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="refundedHistoryFilterDropdown" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
             <i class="mdi mdi-filter-variant"></i> Filter
           </button>
-          <div class="dropdown-menu dropdown-menu-right">
-            <h6 class="dropdown-header">Type</h6>
-            <a class="dropdown-item {{ request('refund_filter', 'all') === 'all' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'all'])) }}"> <i class="mdi mdi-account-multiple mr-2"></i>All</a>
-            <a class="dropdown-item {{ request('refund_filter') === 'product' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'product'])) }}"> <i class="mdi mdi-basket mr-2"></i>Products Only</a>
-            <a class="dropdown-item {{ request('refund_filter') === 'membership' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'membership'])) }}"> <i class="mdi mdi-account mr-2"></i>Memberships Only</a>
+          <div class="dropdown-menu dropdown-menu-right filter-accordion" aria-labelledby="refundedHistoryFilterDropdown">
+            <div class="filter-header">
+              <span class="filter-title">Filter By</span>
+              <a href="{{ route('payments.history', request()->except(['refund_filter', 'refunded_page'])) }}" class="filter-clear-all">
+                Clear All
+              </a>
+            </div>
+
+            <div class="filter-section active">
+              <div class="filter-section-header" data-filter-section>
+                <div class="filter-section-title">
+                  <i class="mdi mdi-cash-refund"></i>
+                  <span>Refund Type</span>
+                </div>
+                <i class="mdi mdi-chevron-down filter-chevron"></i>
+              </div>
+              <div class="filter-section-content">
+                <a class="filter-option {{ request('refund_filter', 'all') === 'all' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'all'])) }}">
+                  <i class="mdi mdi-account-multiple"></i> All
+                </a>
+                <a class="filter-option {{ request('refund_filter') === 'product' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'product'])) }}">
+                  <i class="mdi mdi-basket"></i> Products Only
+                </a>
+                <a class="filter-option {{ request('refund_filter') === 'membership' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'membership'])) }}">
+                  <i class="mdi mdi-account"></i> Memberships Only
+                </a>
+                <a class="filter-option {{ request('refund_filter') === 'pt' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['refund_filter', 'refunded_page']), ['refund_filter' => 'pt'])) }}">
+                  <i class="mdi mdi-dumbbell"></i> PT Only
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -48,7 +74,7 @@
               </div>
             </th>
             <th class="text-left">Receipt #</th>
-            <th class="text-left">Name</th>
+            <th class="text-left">Customer</th>
             <th class="text-center">Type</th>
             <th class="text-left">Refunded At</th>
             <th class="text-left">Amount</th>
@@ -58,17 +84,24 @@
           </tr>
         </thead>
         <tbody>
-          @forelse($combinedRefunds ?? [] as $cr)
+          @forelse($combinedRefunds as $cr)
           <tr>
             <td>
               <div class="form-check">
                 <label class="form-check-label">
-                  <input type="checkbox" class="form-check-input refund-checkbox" value="{{ $cr->id }}" data-type="{{ strtolower($cr->type) }}">
+                  <input type="checkbox" class="form-check-input refund-checkbox" value="{{ $cr->id }}" data-type="{{ $cr->type_key ?? strtolower($cr->type) }}">
                 </label>
               </div>
             </td>
             <td>{{ $cr->receipt_number }}</td>
-            <td>{{ $cr->name }}</td>
+            <td>
+              <div class="d-flex align-items-center history-name-cell">
+                <div class="avatar-initial mr-2">
+                  {{ strtoupper(substr($cr->name, 0, 1)) }}
+                </div>
+                <span>{{ $cr->name }}</span>
+              </div>
+            </td>
             <td>
               <span class="badge badge-{{ $cr->type == 'Product' ? 'primary' : 'info' }}">
                 {{ $cr->type }}
@@ -77,17 +110,24 @@
             <td>{{ optional($cr->refunded_at)->format('M d, Y - h:i A') }}</td>
             <td>₱{{ number_format($cr->amount,2) }}</td>
             <td>₱{{ number_format($cr->refunded_amount,2) }}</td>
-            <td>{{ $cr->refunded_by }}</td>
+            <td>
+              <div class="d-flex align-items-center history-meta-cell">
+                <div class="avatar-initial avatar-initial-sm mr-2">
+                  {{ strtoupper(substr($cr->refunded_by ?? 'A', 0, 1)) }}
+                </div>
+                <span>{{ $cr->refunded_by }}</span>
+              </div>
+            </td>
             <td>
               <div class="dropdown">
-                <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
+                <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                   <i class="mdi mdi-dots-vertical"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-right">
-                  <button type="button" class="dropdown-item" onclick="viewRefundReceipt('{{ strtolower($cr->type) }}', {{ $cr->id }})">
+                  <button type="button" class="dropdown-item" onclick="viewRefundReceipt('{{ $cr->type_key ?? strtolower($cr->type) }}', {{ $cr->id }})">
                     <i class="mdi mdi-receipt mr-2"></i> View Refund Receipt
                   </button>
-                  <button type="button" class="dropdown-item text-danger" onclick="confirmDeleteSingle('{{ strtolower($cr->type) }}', {{ $cr->id }})">
+                  <button type="button" class="dropdown-item text-danger" onclick="confirmDeleteSingle('{{ $cr->type_key ?? strtolower($cr->type) }}', {{ $cr->id }}, '{{ addslashes($cr->name) }}')">
                     <i class="mdi mdi-delete mr-2"></i> Delete
                   </button>
                 </div>

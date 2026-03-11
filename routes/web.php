@@ -163,6 +163,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/payments/{id}/receipt-data', [PaymentHistoryController::class, 'getReceiptData'])->name('payments.receipt-data');
     Route::post('/payments/{id}/refund', [PaymentHistoryController::class, 'refundProduct'])->name('payments.refund');
     Route::delete('/payments/{id}', [PaymentHistoryController::class, 'destroy'])->name('payments.destroy');
+    Route::delete('/pt-payments/bulk-delete', [PaymentHistoryController::class, 'bulkDeletePT'])->name('pt.history.bulkDelete');
+    Route::get('/pt-payments/{id}/receipt', [PaymentHistoryController::class, 'getPTReceipt'])->name('pt.history.receipt');
+    Route::post('/pt-payments/{id}/refund', [PaymentHistoryController::class, 'refundPT'])->name('pt.history.refund');
+    Route::delete('/pt-payments/{id}', [PaymentHistoryController::class, 'destroyPT'])->name('pt.history.destroy');
     
     // ==========================================
     // MEMBERSHIP PAYMENT ROUTES (UPDATED)

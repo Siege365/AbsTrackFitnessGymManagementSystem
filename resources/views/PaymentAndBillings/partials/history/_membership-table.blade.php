@@ -24,23 +24,70 @@
             </div>
           </form>
           <div class="dropdown d-inline-block mr-2">
-            <button type="button" class="btn btn-sm filter-button dropdown-toggle" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
-              <i class="mdi mdi-sort-variant"></i> Filter
+            <button type="button" class="btn btn-sm filter-button dropdown-toggle" id="membershipHistoryFilterDropdown" data-toggle="dropdown" data-offset="0,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
+              <i class="mdi mdi-filter-variant"></i> Filter
             </button>
-            <div class="dropdown-menu dropdown-menu-right">
-              <h6 class="dropdown-header">Payment Type</h6>
-              <a class="dropdown-item {{ request('membership_type_filter') === 'new' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'new'])) }}"> <i class="mdi mdi-account-plus mr-2"></i>New</a>
-              <a class="dropdown-item {{ request('membership_type_filter') === 'renewal' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'renewal'])) }}"> <i class="mdi mdi-autorenew mr-2"></i>Renewal</a>
-              <a class="dropdown-item {{ request('membership_type_filter') === 'extension' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'extension'])) }}"> <i class="mdi mdi-calendar-plus mr-2"></i>Extension</a>
-              <div class="dropdown-divider"></div>
-              <h6 class="dropdown-header">Subscription Type</h6>
-              <a class="dropdown-item {{ !request('membership_plan_filter') ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), [])) }}"> <i class="mdi mdi-filter-remove mr-2"></i>All Plans</a>
-              <h6 class="dropdown-header">Plan Type</h6>
-              <a class="dropdown-item {{ request('membership_plan_filter') === 'Regular' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Regular'])) }}"> <i class="mdi mdi-dumbbell mr-2"></i>Regular</a>
-              <a class="dropdown-item {{ request('membership_plan_filter') === 'Student' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Student'])) }}"> <i class="mdi mdi-school mr-2"></i>Student</a>
-              <a class="dropdown-item {{ request('membership_plan_filter') === 'GymBuddy' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'GymBuddy'])) }}"> <i class="mdi mdi-account-multiple mr-2"></i>Gym Buddy</a>
-              <a class="dropdown-item {{ request('membership_plan_filter') === 'ThreeMonths' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'ThreeMonths'])) }}"> <i class="mdi mdi-calendar-range mr-2"></i>3 Months</a>
-              <a class="dropdown-item {{ request('membership_plan_filter') === 'Session' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Session'])) }}"> <i class="mdi mdi-clock-outline mr-2"></i>Session</a>
+            <div class="dropdown-menu dropdown-menu-right filter-accordion" aria-labelledby="membershipHistoryFilterDropdown">
+              <div class="filter-header">
+                <span class="filter-title">Filter By</span>
+                <a href="{{ route('payments.history', request()->except(['membership_type_filter', 'membership_plan_filter', 'membership_page'])) }}" class="filter-clear-all">
+                  Clear All
+                </a>
+              </div>
+
+              <div class="filter-section active">
+                <div class="filter-section-header" data-filter-section>
+                  <div class="filter-section-title">
+                    <i class="mdi mdi-cash-multiple"></i>
+                    <span>Payment Type</span>
+                  </div>
+                  <i class="mdi mdi-chevron-down filter-chevron"></i>
+                </div>
+                <div class="filter-section-content">
+                  <a class="filter-option {{ !request('membership_type_filter') ? 'active' : '' }}" href="{{ route('payments.history', request()->except(['membership_type_filter', 'membership_page'])) }}">
+                    <i class="mdi mdi-filter-remove"></i> All Types
+                  </a>
+                  <a class="filter-option {{ request('membership_type_filter') === 'new' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'new'])) }}">
+                    <i class="mdi mdi-account-plus"></i> New
+                  </a>
+                  <a class="filter-option {{ request('membership_type_filter') === 'renewal' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'renewal'])) }}">
+                    <i class="mdi mdi-autorenew"></i> Renewal
+                  </a>
+                  <a class="filter-option {{ request('membership_type_filter') === 'extension' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_type_filter', 'membership_page']), ['membership_type_filter' => 'extension'])) }}">
+                    <i class="mdi mdi-calendar-plus"></i> Extension
+                  </a>
+                </div>
+              </div>
+
+              <div class="filter-section">
+                <div class="filter-section-header" data-filter-section>
+                  <div class="filter-section-title">
+                    <i class="mdi mdi-card-account-details-outline"></i>
+                    <span>Subscription Type</span>
+                  </div>
+                  <i class="mdi mdi-chevron-down filter-chevron"></i>
+                </div>
+                <div class="filter-section-content">
+                  <a class="filter-option {{ !request('membership_plan_filter') ? 'active' : '' }}" href="{{ route('payments.history', request()->except(['membership_plan_filter', 'membership_page'])) }}">
+                    <i class="mdi mdi-filter-remove"></i> All Plans
+                  </a>
+                  <a class="filter-option {{ request('membership_plan_filter') === 'Regular' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Regular'])) }}">
+                    <i class="mdi mdi-dumbbell"></i> Regular
+                  </a>
+                  <a class="filter-option {{ request('membership_plan_filter') === 'Student' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Student'])) }}">
+                    <i class="mdi mdi-school"></i> Student
+                  </a>
+                  <a class="filter-option {{ request('membership_plan_filter') === 'GymBuddy' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'GymBuddy'])) }}">
+                    <i class="mdi mdi-account-multiple"></i> Gym Buddy
+                  </a>
+                  <a class="filter-option {{ request('membership_plan_filter') === 'ThreeMonths' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'ThreeMonths'])) }}">
+                    <i class="mdi mdi-calendar-range"></i> 3 Months
+                  </a>
+                  <a class="filter-option {{ request('membership_plan_filter') === 'Session' ? 'active' : '' }}" href="{{ route('payments.history', array_merge(request()->except(['membership_plan_filter', 'membership_page']), ['membership_plan_filter' => 'Session'])) }}">
+                    <i class="mdi mdi-clock-outline"></i> Session
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -58,17 +105,17 @@
                 </div>
               </th>
               <th class="text-left">Receipt #</th>
-              <th class="text-left">Member</th>
+              <th class="text-left">Customer  </th>
               <th class="text-left">Subscription Type</th>
               <th class="text-left">Payment Type</th>
-              <th class="text-left">Date</th>
+              <th class="text-left">Date & Time</th>
               <th class="text-left">Amount</th>
               <th class="text-left">Cashier</th>
               <th class="text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
-            @forelse($membershipPayments ?? [] as $m)
+            @forelse($membershipPayments as $m)
             <tr>
               <td>
                 <div class="form-check">
@@ -78,7 +125,18 @@
                 </div>
               </td>
               <td>{{ $m->receipt_number }}</td>
-              <td>{{ $m->member_name }}</td>
+              <td>
+                <div class="d-flex align-items-center history-name-cell">
+                  @if(optional($m->membership)->avatar)
+                    <img src="{{ asset('storage/' . $m->membership->avatar) }}" class="avatar-circle mr-2" alt="{{ $m->member_name }}">
+                  @else
+                    <div class="avatar-initial mr-2">
+                      {{ strtoupper(substr($m->member_name, 0, 1)) }}
+                    </div>
+                  @endif
+                  <span>{{ $m->member_name }}</span>
+                </div>
+              </td>
               <td>
                 @php
                   $planLabels = [
@@ -88,17 +146,8 @@
                     'ThreeMonths' => '3 Months',
                     'Session' => 'Session',
                   ];
-                  $planBadgeColors = [
-                    'Regular' => 'primary',
-                    'Student' => 'info',
-                    'GymBuddy' => 'success',
-                    'ThreeMonths' => 'warning',
-                    'Session' => 'light',
-                  ];
                 @endphp
-                <span class="badge badge-{{ $planBadgeColors[$m->plan_type] ?? 'secondary' }}">
-                  {{ $planLabels[$m->plan_type] ?? $m->plan_type }}
-                </span>
+                <span class="subscription-type-text">{{ $planLabels[$m->plan_type] ?? $m->plan_type }}</span>
               </td>
               <td>
                 <span class="badge badge-{{ $m->payment_type === 'new' ? 'success' : ($m->payment_type === 'renewal' ? 'primary' : 'info') }}">
@@ -107,10 +156,17 @@
               </td>
               <td>{{ $m->created_at->format('M d, Y - h:i A') }}</td>
               <td>₱{{ number_format($m->amount,2) }}</td>
-              <td>{{ $m->processed_by }}</td>
+              <td>
+                <div class="d-flex align-items-center history-meta-cell">
+                  <div class="avatar-initial avatar-initial-sm mr-2">
+                    {{ strtoupper(substr($m->processed_by, 0, 1)) }}
+                  </div>
+                  <span>{{ $m->processed_by }}</span>
+                </div>
+              </td>
               <td>
                 <div class="dropdown">
-                  <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static">
+                  <button class="btn btn-sm btn-action" type="button" data-toggle="dropdown" data-offset="-100,2" data-flip="false" data-display="static" aria-haspopup="true" aria-expanded="false">
                     <i class="mdi mdi-dots-vertical"></i>
                   </button>
                   <div class="dropdown-menu dropdown-menu-right">
@@ -120,7 +176,7 @@
                     <button type="button" class="dropdown-item text-warning" onclick="openRefundModal('membership', {{ $m->id }}, '{{ $m->receipt_number }}', {{ $m->amount }}, '{{ addslashes($m->member_name) }}')">
                       <i class="mdi mdi-cash-refund mr-2"></i> Refund
                     </button>
-                    <button type="button" class="dropdown-item text-danger" onclick="confirmDeleteSingle('membership', {{ $m->id }})">
+                    <button type="button" class="dropdown-item text-danger" onclick="confirmDeleteSingle('membership', {{ $m->id }}, '{{ addslashes($m->member_name) }}')">
                       <i class="mdi mdi-delete mr-2"></i> Delete
                     </button>
                   </div>

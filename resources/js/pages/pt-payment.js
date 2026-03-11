@@ -238,7 +238,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const timeLabel = time.options[time.selectedIndex]?.text || time.value;
     const method = document.getElementById('ptPaymentMethod').value;
     const amount = ptAmountInput.value;
-    const plan = ptPlanTypeInput.value;
+    const selectedPlanCard = document.querySelector('.pt-plan-card.active');
+    const plan = selectedPlanCard?.querySelector('.plan-card-name')?.textContent?.trim() || ptPlanTypeInput.value;
 
     document.getElementById('ptConfirmationDetails').innerHTML = `
       <div class="confirm-row"><span class="confirm-label">Customer:</span><span class="confirm-value">${customerName}</span></div>
@@ -276,6 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
         scheduled_date: document.getElementById('ptScheduleDate').value,
         scheduled_time: document.getElementById('ptScheduleTime').value,
         payment_type: document.getElementById('ptPaymentMethod').value,
+        plan_key: ptPlanTypeInput.value,
         notes: document.getElementById('ptNotes')?.value || '',
       };
 

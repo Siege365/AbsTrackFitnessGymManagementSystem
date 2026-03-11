@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use App\Models\MembershipPayment;
 use App\Models\PaymentItem;
+use App\Models\PTSchedule;
 use App\Services\RefundService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -25,18 +27,24 @@ class PaymentHistoryController extends Controller
         // Sort direction per table (default: newest)
         $productSort = $request->get('product_sort', 'newest');
         $membershipSort = $request->get('membership_sort', 'newest');
+        $ptSort = $request->get('pt_sort', 'newest');
 
         // Build base queries — exclude refunded (they appear in the refunded table)
         $productQuery = Payment::with('items')
             ->where('is_refunded', false)
             ->orderBy('created_at', $productSort === 'oldest' ? 'asc' : 'desc');
 
-        $membershipQuery = MembershipPayment::where('is_refunded', false)
+        $membershipQuery = MembershipPayment::with('membership')->where('is_refunded', false)
             ->orderBy('created_at', $membershipSort === 'oldest' ? 'asc' : 'desc');
+
+        $ptQuery = PTSchedule::with(['client', 'membership'])
+            ->where('is_refunded', false)
+            ->orderBy('created_at', $ptSort === 'oldest' ? 'asc' : 'desc');
 
         // Per-table search inputs
         $productSearch = $request->get('product_search', null);
         $membershipSearch = $request->get('membership_search', null);
+        $ptSearch = $request->get('pt_search', null);
         $refundSearch = $request->get('refund_search', null);
 
         // Refund table type filter
@@ -58,6 +66,22 @@ class PaymentHistoryController extends Controller
             });
         }
 
+        // Apply PT search
+        if (!empty($ptSearch)) {
+            $ptQuery->where(function ($q) use ($ptSearch) {
+                $q->where('receipt_number', 'LIKE', "%{$ptSearch}%")
+                    ->orWhere('trainer_name', 'LIKE', "%{$ptSearch}%")
+                    ->orWhere('plan_name', 'LIKE', "%{$ptSearch}%")
+                    ->orWhere('customer_name', 'LIKE', "%{$ptSearch}%")
+                    ->orWhereHas('client', function ($clientQuery) use ($ptSearch) {
+                        $clientQuery->where('name', 'LIKE', "%{$ptSearch}%");
+                    })
+                    ->orWhereHas('membership', function ($membershipQuery) use ($ptSearch) {
+                        $membershipQuery->where('name', 'LIKE', "%{$ptSearch}%");
+                    });
+            });
+        }
+
         // Apply membership plan type filter
         $membershipPlanFilter = $request->get('membership_plan_filter', null);
         if (!empty($membershipPlanFilter)) {
@@ -70,15 +94,29 @@ class PaymentHistoryController extends Controller
             $membershipQuery->where('payment_type', $membershipTypeFilter);
         }
 
-        // Paginate lists — 6 rows per page
-        $productPayments = $productQuery->paginate(6, ['*'], 'product_page')
+        // Apply PT filters
+        $ptMethodFilter = $request->get('pt_method_filter', null);
+        if (!empty($ptMethodFilter) && $ptMethodFilter !== 'all') {
+            $ptQuery->where('payment_type', $ptMethodFilter);
+        }
+
+        $ptStatusFilter = $request->get('pt_status_filter', null);
+        if (!empty($ptStatusFilter) && $ptStatusFilter !== 'all') {
+            $ptQuery->where('status', $ptStatusFilter);
+        }
+
+        // Paginate lists — 10 rows per page
+        $productPayments = $productQuery->paginate(10, ['*'], 'product_page')
             ->appends($request->except('product_page'));
-        $membershipPayments = $membershipQuery->paginate(6, ['*'], 'membership_page')
+        $membershipPayments = $membershipQuery->paginate(10, ['*'], 'membership_page')
             ->appends($request->except('membership_page'));
+        $ptPayments = $ptQuery->paginate(10, ['*'], 'pt_page')
+            ->appends($request->except('pt_page'));
 
         // Build combined refunded list
         $refProd = Payment::whereNotNull('refunded_at')->where('is_refunded', true);
         $refMem = MembershipPayment::whereNotNull('refunded_at')->where('is_refunded', true);
+        $refPt = PTSchedule::with(['client', 'membership'])->whereNotNull('refunded_at')->where('is_refunded', true);
 
         if (!empty($refundSearch)) {
             $refProd->where(function($q) use ($refundSearch) {
@@ -89,12 +127,29 @@ class PaymentHistoryController extends Controller
                 $q->where('receipt_number', 'LIKE', "%{$refundSearch}%")
                   ->orWhere('member_name', 'LIKE', "%{$refundSearch}%");
             });
+            $refPt->where(function ($q) use ($refundSearch) {
+                $q->where('receipt_number', 'LIKE', "%{$refundSearch}%")
+                    ->orWhere('trainer_name', 'LIKE', "%{$refundSearch}%")
+                    ->orWhere('plan_name', 'LIKE', "%{$refundSearch}%")
+                    ->orWhere('customer_name', 'LIKE', "%{$refundSearch}%")
+                    ->orWhereHas('client', function ($clientQuery) use ($refundSearch) {
+                        $clientQuery->where('name', 'LIKE', "%{$refundSearch}%");
+                    })
+                    ->orWhereHas('membership', function ($membershipQuery) use ($refundSearch) {
+                        $membershipQuery->where('name', 'LIKE', "%{$refundSearch}%");
+                    });
+            });
         }
 
         if ($refundFilter === 'product') {
             $refMem = MembershipPayment::whereRaw('1=0');
+            $refPt = PTSchedule::whereRaw('1=0');
         } elseif ($refundFilter === 'membership') {
             $refProd = Payment::whereRaw('1=0');
+            $refPt = PTSchedule::whereRaw('1=0');
+        } elseif ($refundFilter === 'pt') {
+            $refProd = Payment::whereRaw('1=0');
+            $refMem = MembershipPayment::whereRaw('1=0');
         }
 
         $refProdList = collect($refProd->get()->map(function($p) {
@@ -108,7 +163,8 @@ class PaymentHistoryController extends Controller
                 'refund_status' => $p->refund_status,
                 'refund_reason' => $p->refund_reason,
                 'refunded_by' => $p->refunded_by,
-                'type' => 'Product'
+                'type' => 'Product',
+                'type_key' => 'product',
             ];
         })->all());
 
@@ -123,15 +179,36 @@ class PaymentHistoryController extends Controller
                 'refund_status' => $m->refund_status,
                 'refund_reason' => $m->refund_reason,
                 'refunded_by' => $m->refunded_by,
-                'type' => 'Membership'
+                'type' => 'Membership',
+                'type_key' => 'membership',
             ];
         })->all());
 
-        $combined = $refProdList->merge($refMemList)->sortByDesc('refunded_at')->values();
+        $refPtList = collect($refPt->get()->map(function ($pt) {
+            return (object)[
+                'id' => $pt->id,
+                'receipt_number' => $pt->receipt_number,
+                'name' => $pt->display_name,
+                'refunded_at' => $pt->refunded_at,
+                'amount' => $pt->amount,
+                'refunded_amount' => $pt->refunded_amount,
+                'refund_status' => $pt->refund_status,
+                'refund_reason' => $pt->refund_reason,
+                'refunded_by' => $pt->refunded_by,
+                'type' => 'PT',
+                'type_key' => 'pt',
+            ];
+        })->all());
 
-        // Paginate combined refunds — 6 per page
+        $combined = $refProdList
+            ->merge($refMemList)
+            ->merge($refPtList)
+            ->sortByDesc('refunded_at')
+            ->values();
+
+        // Paginate combined refunds — 10 per page
         $page = $request->get('refunded_page', 1);
-        $perPage = 6;
+        $perPage = 10;
         $offset = ($page - 1) * $perPage;
         $itemsForCurrentPage = $combined->slice($offset, $perPage)->all();
 
@@ -148,12 +225,14 @@ class PaymentHistoryController extends Controller
         $membershipIncome = MembershipPayment::where('is_refunded', false)->sum('amount');
         $productIncome    = Payment::where('is_refunded', false)->sum('total_amount');
         $refundedTotal    = Payment::where('is_refunded', true)->sum('refunded_amount')
-                          + MembershipPayment::where('is_refunded', true)->sum('refunded_amount');
-        $ptIncome         = 0; // PT payments not yet implemented
+                          + MembershipPayment::where('is_refunded', true)->sum('refunded_amount')
+                          + PTSchedule::where('is_refunded', true)->sum('refunded_amount');
+        $ptIncome         = PTSchedule::where('is_refunded', false)->sum('amount');
 
         return view('PaymentAndBillings.PaymentHistory', compact(
             'productPayments',
             'membershipPayments',
+            'ptPayments',
             'combinedRefunds',
             'membershipIncome',
             'productIncome',
@@ -236,6 +315,62 @@ class PaymentHistoryController extends Controller
     }
 
     /**
+     * Get receipt data for PT payment (AJAX)
+     */
+    public function getPTReceipt($id)
+    {
+        $payment = PTSchedule::with(['client', 'membership'])->findOrFail($id);
+
+        return response()->json($this->formatPTReceiptData($payment));
+    }
+
+    /**
+     * Transform a PT payment into the receipt payload used by the Payment History UI.
+     */
+    private function formatPTReceiptData(PTSchedule $payment): array
+    {
+        $payment->loadMissing(['client', 'membership']);
+
+        $scheduledDate = $payment->scheduled_date?->format('F d, Y');
+        $scheduledTime = $payment->scheduled_time
+            ? Carbon::parse($payment->scheduled_time)->format('h:i A')
+            : null;
+        $sessionSchedule = trim(implode(' - ', array_filter([$scheduledDate, $scheduledTime])));
+
+        return [
+            'id' => $payment->id,
+            'receipt_number' => $payment->receipt_number,
+            'customer_name' => $payment->display_name,
+            'customer_contact' => $payment->resolved_contact,
+            'customer_source' => $payment->customer_source,
+            'plan_name' => $payment->plan_name ?: 'Personal Training',
+            'plan_key' => $payment->plan_key,
+            'plan_duration_days' => $payment->plan_duration_days,
+            'trainer_name' => $payment->trainer_name,
+            'scheduled_date' => $scheduledDate,
+            'scheduled_time' => $scheduledTime,
+            'session_schedule' => $sessionSchedule !== '' ? $sessionSchedule : null,
+            'amount' => $payment->amount,
+            'paid_amount' => $payment->paid_amount,
+            'return_amount' => $payment->return_amount,
+            'payment_method' => $payment->payment_type,
+            'processed_by' => $payment->processed_by,
+            'status' => $payment->status,
+            'notes' => $payment->notes,
+            'formatted_date' => $payment->created_at
+                ? $payment->created_at->copy()->setTimezone('Asia/Manila')->format('F d, Y - h:i A')
+                : null,
+            'created_at' => $payment->created_at,
+            'is_refunded' => $payment->is_refunded,
+            'refund_status' => $payment->refund_status,
+            'refunded_amount' => $payment->refunded_amount,
+            'refunded_at' => $payment->refunded_at,
+            'refund_reason' => $payment->refund_reason,
+            'refunded_by' => $payment->refunded_by,
+        ];
+    }
+
+    /**
      * Process product refund using RefundService
      */
     public function refundProduct(Request $request, $id)
@@ -300,6 +435,65 @@ class PaymentHistoryController extends Controller
     }
 
     /**
+     * Process PT refund.
+     */
+    public function refundPT(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            $payment = DB::transaction(function () use ($id, $validated) {
+                $payment = PTSchedule::with(['client', 'membership'])->findOrFail($id);
+
+                if ($payment->is_refunded) {
+                    throw new \RuntimeException('This PT payment has already been refunded.');
+                }
+
+                if (is_null($payment->amount)) {
+                    throw new \RuntimeException('This PT payment does not have an amount recorded and cannot be refunded.');
+                }
+
+                $payment->update([
+                    'is_refunded' => true,
+                    'refund_status' => 'full',
+                    'refunded_amount' => $payment->amount,
+                    'refund_reason' => $validated['reason'] ?? null,
+                    'refunded_by' => Auth::user()->name ?? 'Admin',
+                    'refunded_at' => now(),
+                    'status' => in_array($payment->status, ['upcoming', 'in_progress'], true) ? 'cancelled' : $payment->status,
+                ]);
+
+                $payment->refresh();
+
+                return $payment->load(['client', 'membership']);
+            });
+
+            $result = [
+                'success' => true,
+                'message' => 'PT payment refunded successfully.',
+                'payment' => $this->formatPTReceiptData($payment),
+            ];
+
+            if ($request->expectsJson()) {
+                return response()->json($result);
+            }
+
+            return back()->with('success', $result['message']);
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
      * Delete product payment (with inventory restoration)
      */
     public function destroy($id)
@@ -346,12 +540,11 @@ class PaymentHistoryController extends Controller
                     $payment = MembershipPayment::find($id);
                     if (!$payment) continue;
 
-                    // If refunded, restore the member's previous state
+                    // Restore only persisted fields. Membership status is computed from due_date.
                     if ($payment->is_refunded && $payment->previous_due_date) {
                         $member = \App\Models\Membership::find($payment->membership_id);
                         if ($member) {
                             $member->due_date = $payment->previous_due_date;
-                            $member->status = $payment->previous_status ?? 'Active';
                             $member->save();
                         }
                     }
@@ -367,6 +560,26 @@ class PaymentHistoryController extends Controller
     }
 
     /**
+     * Bulk delete PT payments.
+     */
+    public function bulkDeletePT(Request $request)
+    {
+        $ids = $request->input('ids', []);
+
+        if (!is_array($ids) || empty($ids)) {
+            return back()->withErrors(['error' => 'No PT payments selected.']);
+        }
+
+        try {
+            $count = PTSchedule::whereIn('id', $ids)->delete();
+
+            return back()->with('success', $count . ' PT payment(s) deleted successfully.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Failed to delete PT payments: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
      * Delete membership payment
      */
     public function destroyMembership($id)
@@ -375,14 +588,12 @@ class PaymentHistoryController extends Controller
             DB::transaction(function () use ($id) {
                 $payment = MembershipPayment::findOrFail($id);
                 
-                // If refunded, we should restore the member's previous state
+                // Restore only persisted fields. Membership status is computed from due_date.
                 if ($payment->is_refunded && $payment->previous_due_date) {
                     // Use Membership model (not Member) — Membership stores member records
                     $member = \App\Models\Membership::find($payment->membership_id ?? $payment->membership_id);
                     if ($member) {
                         $member->due_date = $payment->previous_due_date;
-                        // previous_status may not exist; default to 'Active'
-                        $member->status = $payment->previous_status ?? 'Active';
                         $member->save();
                     }
                 }
@@ -393,6 +604,21 @@ class PaymentHistoryController extends Controller
             return back()->with('success', 'Membership payment deleted successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to delete payment: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Delete PT payment.
+     */
+    public function destroyPT($id)
+    {
+        try {
+            $payment = PTSchedule::findOrFail($id);
+            $payment->delete();
+
+            return back()->with('success', 'PT payment deleted successfully.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Failed to delete PT payment: ' . $e->getMessage()]);
         }
     }
 }
