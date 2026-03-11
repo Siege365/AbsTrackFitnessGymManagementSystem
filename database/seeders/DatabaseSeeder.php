@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Admin User',
                 'password' => bcrypt('password'),
+                'role' => 'admin',
             ]
         );
 
@@ -26,6 +27,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Gym Manager',
                 'password' => bcrypt('password'),
+                'role' => 'admin',
             ]
         );
 
