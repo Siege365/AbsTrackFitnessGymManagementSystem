@@ -104,6 +104,7 @@
                         <div class="form-group col-md-6">
                             <label>Subscription Type</label>
                             <input type="text" class="form-control" id="pt_plan" readonly>
+                            <input type="hidden" name="plan_key" id="pt_plan_key">
                         </div>
                     </div>
                 </div>

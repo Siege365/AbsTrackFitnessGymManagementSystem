@@ -201,13 +201,17 @@ const PTSessionsPage = {
         $('#pt_sex').val(item.sex || '').prop('disabled', true);
         $('#pt_contact').val(item.contact || '').prop('readonly', true);
         
-        let ptPlan = 'Session';
+        let ptPlan = 'Per Session';
+        let ptPlanKey = 'PTSession';
         if (item.source === 'client') {
-          ptPlan = item.formatted_plan_type || item.plan_type || 'Session';
+          ptPlan = item.formatted_plan_type || item.plan_type || 'Per Session';
+          ptPlanKey = item.plan_key || item.plan_type || 'PTSession';
         } else if (item.source === 'membership' && item.client_formatted_plan_type) {
           ptPlan = item.client_formatted_plan_type;
+          ptPlanKey = item.client_plan_key || 'PTSession';
         }
         $('#pt_plan').val(ptPlan);
+        $('#pt_plan_key').val(ptPlanKey);
 
         if (item.avatar) {
           $('#pt_avatar_preview').html('<img src="/storage/' + item.avatar + '" alt="Avatar">');
@@ -242,7 +246,8 @@ const PTSessionsPage = {
         $('#pt_age').val('').prop('readonly', false);
         $('#pt_sex').val('').prop('disabled', false);
         $('#pt_contact').val('').prop('readonly', false);
-        $('#pt_plan').val('Session');
+        $('#pt_plan').val('Per Session');
+        $('#pt_plan_key').val('PTSession');
 
         var initial = (enteredText || '?').charAt(0).toUpperCase();
         $('#pt_avatar_preview').html('<div class="avatar-initial" style="width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;">' + initial + '</div>');
@@ -275,6 +280,7 @@ const PTSessionsPage = {
     $('#pt_sex').val('').prop('disabled', true);
     $('#pt_contact').val('').prop('readonly', true);
     $('#pt_plan').val('');
+    $('#pt_plan_key').val('');
     $('#pt_avatar_preview').html('<i class="mdi mdi-account"></i>');
     $('#pt_avatar_label').text('No customer selected').removeClass('text-white').addClass('text-muted');
   },
@@ -512,7 +518,8 @@ const PTSessionsPage = {
       trainer_name: $('#pt_trainer').val(),
       scheduled_date: $('[name="scheduled_date"]', '#addPTScheduleForm').val(),
       scheduled_time: $('[name="scheduled_time"]', '#addPTScheduleForm').val(),
-      payment_type: $('[name="payment_type"]', '#addPTScheduleForm').val()
+      payment_type: $('[name="payment_type"]', '#addPTScheduleForm').val(),
+      plan_key: $('#pt_plan_key').val()
     };
 
     if (this._ptIsWalkIn) {
