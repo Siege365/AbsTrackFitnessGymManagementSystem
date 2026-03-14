@@ -5,6 +5,7 @@
 @push('styles')
 @vite(['resources/css/membership-payment.css'])
 @vite(['resources/css/product-payment.css'])
+@vite(['resources/css/unified-receipt.css'])
 @endpush
 
 @section('content')

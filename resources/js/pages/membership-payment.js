@@ -1,3 +1,12 @@
+import {
+  buildUnifiedReceiptHTML,
+  fitReceiptToViewport,
+  formatCurrency,
+  formatDateTime,
+  humanize,
+  printUnifiedReceipt,
+} from '../common/unified-receipt';
+
 document.addEventListener('DOMContentLoaded', function() {
   // ========================================
   // MEMBERSHIP PAYMENT LOGIC
@@ -84,12 +93,6 @@ document.addEventListener('DOMContentLoaded', function() {
     member1IsStudent.addEventListener('change', function() {
       if (!checkPageActive()) return;
       member1StudentLabel.textContent = this.checked ? 'Yes' : 'No';
-      const studentIdSection = document.getElementById('studentIdSection');
-      if (studentIdSection) {
-        studentIdSection.style.display = this.checked ? '' : 'none';
-        const studentIdInput = document.getElementById('studentIdInput');
-        if (studentIdInput && !this.checked) studentIdInput.value = '';
-      }
       if (paymentTypeInput && paymentTypeInput.value === 'new') enforcePlanRestrictions();
     });
   }
@@ -269,6 +272,16 @@ document.addEventListener('DOMContentLoaded', function() {
       
       const query = this.value.trim();
       const resultsContainer = document.getElementById('memberResults');
+
+      // Reset selected member state while typing so plan restrictions do not stay stale.
+      if (memberId) memberId.value = '';
+      selectedMemberStatus = '';
+      selectedMemberDueDate = '';
+      selectedMemberIsStudent = false;
+      const memberIsStudentInput = document.getElementById('memberIsStudent');
+      if (memberIsStudentInput) memberIsStudentInput.value = '0';
+      enforcePlanRestrictions();
+      calculateNewDueDate();
       
       // Null safety check
       if (!resultsContainer || !memberId) {
@@ -340,7 +353,7 @@ document.addEventListener('DOMContentLoaded', function() {
               memberId.value = this.dataset.id || '';
               selectedMemberStatus = this.dataset.status || '';
               selectedMemberDueDate = this.dataset.dueDate || '';
-              selectedMemberIsStudent = this.dataset.isStudent === '1' || this.dataset.plan === 'Student';
+              selectedMemberIsStudent = this.dataset.isStudent === '1';
               
               const memberIsStudentInput = document.getElementById('memberIsStudent');
               if (memberIsStudentInput) {
@@ -619,32 +632,66 @@ function viewReceipt(transactionId) {
   receiptBody.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
   fetch('/membership-payment/' + transactionId + '/receipt')
     .then(response => response.json())
-    .then(data => { receiptBody.innerHTML = generateReceiptHTML(data); })
+    .then(data => {
+      receiptBody.innerHTML = generateReceiptHTML(data);
+      fitReceiptToViewport(receiptBody);
+    })
     .catch(error => { console.error('Error:', error); ToastUtils.showError('Receipt loading failed'); receiptBody.innerHTML = '<div class="receipt-error-state"><i class="mdi mdi-alert-circle"></i><p>Failed to load receipt.</p></div>'; });
 }
 
 function generateReceiptHTML(data) {
-  const planLabels = { 'Regular': 'Regular Gym Rate', 'Student': 'Student Rate', 'GymBuddy': 'Gym Buddy Rate', 'ThreeMonths': '3 Months Membership', 'Session': 'Session Pass', 'Monthly': 'Monthly Plan' };
-  return '<div class="receipt-container"><div class="receipt-header"><h2>MEMBERSHIP PAYMENT RECEIPT</h2><p><strong>Abstrack Fitness Gym</strong></p><p>Toril, Davao Del Sur</p></div>' +
-    '<div class="receipt-info-grid">' +
-    '<div class="receipt-info-cell"><span class="receipt-info-label">Receipt Number</span><span class="receipt-info-value">#' + data.receipt_number + '</span></div>' +
-    '<div class="receipt-info-cell"><span class="receipt-info-label">Date & Time</span><span class="receipt-info-value">' + (data.formatted_date || new Date(data.created_at).toLocaleString()) + '</span></div>' +
-    '<div class="receipt-info-cell"><span class="receipt-info-label">Member Name</span><span class="receipt-info-value">' + (data.member_name || 'N/A') + '</span></div>' +
-    '<div class="receipt-info-cell"><span class="receipt-info-label">Contact</span><span class="receipt-info-value">' + (data.member_contact || data.contact || '') + '</span></div>' +
-    (data.buddy_name ? '<div class="receipt-info-cell buddy"><span class="receipt-info-label">Gym Buddy</span><span class="receipt-info-value">' + data.buddy_name + '</span></div><div class="receipt-info-cell buddy"><span class="receipt-info-label">Buddy Contact</span><span class="receipt-info-value">' + (data.buddy_contact || 'N/A') + '</span></div>' : '') +
-    '<div class="receipt-info-cell"><span class="receipt-info-label">Payment Type</span><span class="receipt-info-value">' + (data.payment_type || '').toUpperCase() + '</span></div>' +
-    '<div class="receipt-info-cell"><span class="receipt-info-label">Payment Method</span><span class="receipt-info-value">' + (data.payment_method || 'N/A') + '</span></div></div>' +
-    '<table class="receipt-table"><thead><tr><th>Description</th><th style="text-align: right;">Amount</th></tr></thead><tbody>' +
-    (data.plan_type === 'GymBuddy' ?
-      '<tr><td><strong>Gym Buddy Rate</strong><br><small style="color: #666;">Duration: ' + (data.duration || 'N/A') + ' days | 2 Persons</small><br><small style="color: #0d6efd;">Member 1: ' + data.member_name + '</small><br><small style="color: #0d6efd;">Member 2: ' + (data.buddy_name || 'N/A') + '</small></td><td style="text-align: right;"><span style="display: block;">₱' + parseFloat(data.amount || 0).toFixed(2) + '/person</span><strong style="display: block; margin-top: 4px;">Total: ₱' + (parseFloat(data.amount || 0) * 2).toFixed(2) + '</strong></td></tr>' :
-      '<tr><td><strong>' + (planLabels[data.plan_type] || data.plan_type || 'Membership') + ' Plan</strong><br><small style="color: #666;">Duration: ' + (data.duration || 'N/A') + ' days</small></td><td style="text-align: right;">₱' + parseFloat(data.amount || 0).toFixed(2) + '</td></tr>') +
-    '</tbody></table>' +
-    '<div class="receipt-total"><div class="receipt-row grand"><span><strong>Total Paid:</strong></span><span><strong>₱' + (data.plan_type === 'GymBuddy' ? (parseFloat(data.amount || 0) * 2).toFixed(2) : parseFloat(data.amount || 0).toFixed(2)) + '</strong></span></div></div>' +
-    '<div class="receipt-due-section"><div class="receipt-info-grid">' +
-    '<div class="receipt-info-cell"><span class="receipt-info-label">Previous Due Date</span><span class="receipt-info-value">' + (data.previous_due_date || 'N/A') + '</span></div>' +
-    '<div class="receipt-info-cell"><span class="receipt-info-label">New Due Date</span><span class="receipt-info-value success">' + (data.new_due_date || 'N/A') + '</span></div></div></div>' +
-    (data.notes ? '<div class="receipt-notes-section"><strong>Notes:</strong><p>' + data.notes + '</p></div>' : '') +
-    '<div class="receipt-footer"><p><strong>Thank you for your membership!</strong></p><p>Please keep this receipt for your records.</p></div></div>';
+  const planLabels = {
+    Regular: 'Regular Gym Rate',
+    Student: 'Student Rate',
+    GymBuddy: 'Gym Buddy Rate',
+    ThreeMonths: '3 Months Membership',
+    Session: 'Session Pass',
+    Monthly: 'Monthly Plan',
+  };
+
+  const amount = Number(data.amount || 0);
+  const totalAmount = data.plan_type === 'GymBuddy' ? amount * 2 : amount;
+
+  return buildUnifiedReceiptHTML({
+    title: 'Membership Payment Receipt',
+    transactionRows: [
+      { label: 'Receipt Number', value: data.receipt_number ? `#${data.receipt_number}` : 'N/A' },
+      { label: 'Date and Time', value: data.formatted_date || formatDateTime(data.created_at) },
+      { label: 'Payment Type', value: humanize(data.payment_type) },
+      { label: 'Payment Method', value: data.payment_method || 'N/A' },
+      { label: 'Cashier', value: data.processed_by || 'Admin' },
+    ],
+    partyTitle: 'Member Information',
+    partyRows: [
+      { label: 'Member Name', value: data.member_name || 'N/A' },
+      { label: 'Contact', value: data.member_contact || data.contact || 'N/A' },
+      data.buddy_name ? { label: 'Gym Buddy', value: data.buddy_name, highlight: true } : null,
+      data.buddy_name ? { label: 'Buddy Contact', value: data.buddy_contact || 'N/A', highlight: true } : null,
+    ].filter(Boolean),
+    paymentRows: [
+      { label: 'Plan Type', value: planLabels[data.plan_type] || data.plan_type || 'Membership' },
+      { label: 'Duration', value: `${data.duration || 'N/A'} day(s)` },
+      { label: 'Previous Due Date', value: data.previous_due_date || 'N/A' },
+      { label: 'New Due Date', value: data.new_due_date || 'N/A', highlight: true },
+    ],
+    lineItems: [
+      {
+        description: `${planLabels[data.plan_type] || data.plan_type || 'Membership'} Plan`,
+        meta: data.plan_type === 'GymBuddy'
+          ? `Member 1: ${data.member_name || 'N/A'} | Member 2: ${data.buddy_name || 'N/A'}`
+          : `Membership for ${data.duration || 'N/A'} day(s)`,
+        qty: data.plan_type === 'GymBuddy' ? '2' : '1',
+        rate: formatCurrency(amount),
+        amount: formatCurrency(totalAmount),
+      },
+    ],
+    totals: [
+      { label: 'Total Paid', value: formatCurrency(totalAmount), emphasis: true },
+    ],
+    notes: data.notes ? [{ label: 'Notes', value: data.notes }] : [],
+    footerPrimary: 'Thank you for your membership!',
+    footerSecondary: 'Please keep this receipt for your records.',
+  });
 }
 
 function closeModal() {
@@ -655,8 +702,6 @@ window.closeModal = closeModal;
 
 function printReceipt() {
   const content = document.getElementById('receiptBody').innerHTML;
-  const pw = window.open('', '_blank');
-  pw.document.write('<!DOCTYPE html><html><head><title>Receipt</title><style>body{font-family:"Courier New",monospace}.receipt-container{max-width:600px;margin:0 auto;padding:20px}.receipt-header{text-align:center;margin-bottom:30px;padding-bottom:20px;border-bottom:2px dashed #333}.receipt-table{width:100%;border-collapse:collapse;margin:20px 0}.receipt-table th{background:#333;color:#fff;padding:10px;text-align:left}.receipt-table td{padding:10px;border-bottom:1px solid #ddd}.receipt-row{display:flex;justify-content:space-between;margin-bottom:8px}.receipt-total{margin-top:20px;padding-top:20px;border-top:2px solid #333}.receipt-footer{margin-top:30px;padding-top:20px;border-top:2px dashed #333;text-align:center}.receipt-info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}.receipt-info-cell{padding:10px;background:#f8f9fa;border-radius:4px}.receipt-info-cell.buddy{background:#e8f5e9;border:1px solid #a5d6a7}.receipt-info-label{display:block;font-size:.75rem;color:#666;margin-bottom:5px;font-weight:bold}.receipt-info-cell.buddy .receipt-info-label{color:#2e7d32}.receipt-info-value{display:block;font-weight:600}.receipt-info-value.success{color:#28a745}.receipt-due-section{margin-top:20px;padding-top:20px;border-top:1px dashed #ccc}.receipt-notes-section{margin-top:20px;padding:15px;background:#f5f5f5;border-radius:4px}.receipt-notes-section strong{display:block;margin-bottom:8px;color:#666}.receipt-notes-section p{margin:0;color:#333}.receipt-row.grand{font-size:1.3rem}</style></head><body>' + content + '</body></html>');
-  pw.document.close(); pw.print();
+  printUnifiedReceipt(content, 'Membership Receipt');
 }
 window.printReceipt = printReceipt;

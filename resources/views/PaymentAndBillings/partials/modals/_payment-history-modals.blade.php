@@ -29,13 +29,13 @@
 </div>
 
 <!-- Refund Receipt Modal -->
-<div id="refundReceiptModal" class="modal-overlay">
-  <div class="modal-content">
+<div id="refundReceiptModal" class="modal-overlay receipt-overlay">
+  <div class="modal-content receipt-modal-shell">
     <div class="modal-header">
       <h3 class="modal-title">Refund Receipt</h3>
       <button class="modal-close" onclick="closeRefundReceiptModal()">&times;</button>
     </div>
-    <div class="modal-body" id="refundReceiptContent">
+    <div class="modal-body receipt-modal-body" id="refundReceiptContent">
       <!-- Receipt content will be loaded here -->
     </div>
     <div class="modal-footer">
@@ -48,13 +48,13 @@
 </div>
 
 <!-- View Receipt Modal -->
-<div id="viewReceiptModal" class="modal-overlay">
-  <div class="modal-content">
+<div id="viewReceiptModal" class="modal-overlay receipt-overlay">
+  <div class="modal-content receipt-modal-shell">
     <div class="modal-header">
       <h3 class="modal-title">Receipt Details</h3>
       <button class="modal-close" onclick="closeViewReceiptModal()">&times;</button>
     </div>
-    <div class="modal-body" id="viewReceiptContent">
+    <div class="modal-body receipt-modal-body" id="viewReceiptContent">
       <!-- Receipt content will be loaded here -->
     </div>
     <div class="modal-footer">

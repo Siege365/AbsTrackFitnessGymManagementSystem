@@ -1,3 +1,9 @@
+import {
+  buildUnifiedReceiptHTML,
+  fitReceiptToViewport,
+  printUnifiedReceipt,
+} from '../common/unified-receipt';
+
 // ========================================
 // PAYMENT HISTORY - Page Controller
 // ========================================
@@ -929,9 +935,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const refundType = currentRefundType;
     const refundId = currentRefundId;
     const reason = document.getElementById('refundReason')?.value || '';
-    const url = currentRefundType === 'product'
-      ? `/payments/${currentRefundId}/refund`
-      : `/membership-payment/${currentRefundId}/refund`;
 
     this.disabled = true;
     this.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i><span>Processing...</span>';
@@ -956,7 +959,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Immediately show refund receipt modal
         setTimeout(() => {
-          showRefundReceipt(currentRefundType, currentRefundId, data);
+          showRefundReceipt(refundType, refundId, data);
         }, 200);
       } else {
         ToastUtils.showError(data.message || 'Refund processing failed');
@@ -978,6 +981,12 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
+    const route = getReceiptRoute(type, id);
+    if (!route) {
+      ToastUtils.showError('Unable to determine receipt route');
+      return;
+    }
+
     content.innerHTML = renderLoadingState();
     document.getElementById('refundReceiptModal')?.classList.add('show');
 
@@ -985,13 +994,14 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       if (refundData && refundData.payment) {
         content.innerHTML = generateRefundReceipt(type, refundData.payment, refundData);
+        fitReceiptToViewport(content);
         return;
       }
     } catch (e) {
       console.error('Error generating receipt from refundData:', e);
     }
 
-    const url = type === 'product' ? `/payments/${id}/receipt-data` : `/membership-payment/${id}/receipt`;
+    const url = route;
 
     // Try fetching the receipt, retrying a few times in case the server needs a moment to finalize
     const attemptFetch = (attempt = 1) => {
@@ -1002,6 +1012,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(function (data) {
           content.innerHTML = generateRefundReceipt(type, data, refundData);
+          fitReceiptToViewport(content);
         })
         .catch(function (error) {
           console.error('Receipt fetch attempt failed', attempt, error);
@@ -1021,89 +1032,75 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function generateRefundReceipt(type, paymentData, refundData) {
-    const payment = refundData.payment || paymentData;
-    const now = new Date();
+    const payment = (refundData && refundData.payment) || paymentData || {};
+    const lineItems = [];
 
-    let html = `
-      <div class="receipt-container">
-        <div class="receipt-header">
-          <h2>REFUND RECEIPT</h2>
-          <div class="receipt-refund-badge">REFUNDED</div>
-          <p>Date: ${now.toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</p>
-        </div>
-
-        <div class="receipt-info">
-          <div class="receipt-row">
-            <span>Receipt #:</span>
-            <span><strong>${payment.receipt_number}</strong></span>
-          </div>
-          <div class="receipt-row">
-            <span>Customer:</span>
-            <span>${payment.customer_name || payment.member_name}</span>
-          </div>
-          <div class="receipt-row">
-            <span>Original Date:</span>
-            <span>${new Date(payment.created_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</span>
-          </div>
-          <div class="receipt-row">
-            <span>Refund Type:</span>
-            <span>${type === 'product' ? 'Product Payment' : 'Membership Payment'}</span>
-          </div>
-        </div>`;
-
-    if (type === 'product' && payment.items) {
-      html += '<div class="receipt-items"><h4>Items:</h4>';
-      payment.items.forEach(item => {
-        html += `
-          <div class="receipt-item">
-            <div class="receipt-row">
-              <span>${item.product_name}</span>
-              <span>₱${parseFloat(item.unit_price).toFixed(2)}</span>
-            </div>
-            <div class="receipt-row" style="font-size:0.9rem;color:#666;">
-              <span>Qty: ${item.quantity}</span>
-              <span>₱${parseFloat(item.subtotal || item.total_price || (item.unit_price * item.quantity)).toFixed(2)}</span>
-            </div>
-          </div>`;
+    if (type === 'product') {
+      const items = Array.isArray(payment.items) ? payment.items : [];
+      items.forEach(function (item) {
+        const quantity = Number(item.quantity || 0);
+        const unitPrice = Number(item.unit_price || 0);
+        const subtotal = item.subtotal ?? item.total_price ?? (unitPrice * quantity);
+        lineItems.push({
+          description: item.product_name || 'Product',
+          qty: String(quantity || 0),
+          rate: formatCurrency(unitPrice),
+          amount: formatCurrency(subtotal),
+        });
       });
-      html += '</div>';
+    } else if (type === 'membership') {
+      const amount = Number(payment.amount || 0);
+      const total = payment.plan_type === 'GymBuddy' ? amount * 2 : amount;
+      lineItems.push({
+        description: `${payment.plan_type || 'Membership'} Plan`,
+        meta: payment.plan_type === 'GymBuddy'
+          ? `Member 1: ${payment.member_name || 'N/A'} | Member 2: ${payment.buddy_name || 'N/A'}`
+          : `Duration: ${payment.duration || 'N/A'} day(s)`,
+        qty: payment.plan_type === 'GymBuddy' ? '2' : '1',
+        rate: formatCurrency(amount),
+        amount: formatCurrency(total),
+      });
+    } else {
+      const amount = Number(payment.amount || 0);
+      lineItems.push({
+        description: `${payment.plan_name || payment.plan_type || 'PT'} Plan`,
+        meta: payment.plan_duration_days ? `Duration: ${payment.plan_duration_days} session(s)` : '',
+        qty: '1',
+        rate: formatCurrency(amount),
+        amount: formatCurrency(amount),
+      });
     }
 
-    html += `
-        <div class="receipt-total">
-          <div class="receipt-row">
-            <span>Original Amount:</span>
-            <span>₱${parseFloat(payment.total_amount || payment.amount).toFixed(2)}</span>
-          </div>
-          <div class="receipt-row" style="color:#dc3545;">
-            <span>Refunded Amount:</span>
-            <span>₱${parseFloat(payment.refunded_amount || payment.total_amount || payment.amount).toFixed(2)}</span>
-          </div>
-        </div>
+    const originalAmount = Number(payment.total_amount ?? payment.amount ?? 0);
+    const refundedAmount = Number(payment.refunded_amount ?? originalAmount);
 
-        <div class="receipt-info" style="margin-top:20px;">
-          <div class="receipt-row">
-            <span>Refund Status:</span>
-            <span><strong>${payment.refund_status ? payment.refund_status.toUpperCase() : 'FULL'}</strong></span>
-          </div>
-          ${payment.refund_reason ? `
-          <div class="receipt-row">
-            <span>Reason:</span>
-            <span>${payment.refund_reason}</span>
-          </div>` : ''}
-          <div class="receipt-row">
-            <span>Processed By:</span>
-            <span>${payment.refunded_by || 'Admin'}</span>
-          </div>
-        </div>
-
-        <div class="receipt-footer">
-          <p>This is a computer-generated refund receipt.</p>
-          <p>Thank you!</p>
-        </div>
-      </div>`;
-
-    return html;
+    return buildUnifiedReceiptHTML({
+      title: 'Refund Receipt',
+      badge: 'REFUNDED',
+      transactionRows: [
+        { label: 'Receipt Number', value: payment.receipt_number ? `#${payment.receipt_number}` : 'N/A' },
+        { label: 'Original Payment Date', value: payment.formatted_date || formatDateTime(payment.created_at) },
+        { label: 'Refunded At', value: formatDateTime(payment.refunded_at) },
+        { label: 'Payment Type', value: `${getPaymentTypeLabel(type)} Payment` },
+      ],
+      partyTitle: 'Client Information',
+      partyRows: [
+        { label: 'Customer Name', value: payment.customer_name || payment.member_name || 'N/A' },
+        { label: 'Processed By', value: payment.refunded_by || 'Admin' },
+      ],
+      paymentRows: [
+        { label: 'Refund Status', value: humanize(payment.refund_status, 'Full') },
+        { label: 'Refund Method', value: 'Cash Reversal' },
+      ],
+      lineItems: lineItems,
+      totals: [
+        { label: 'Original Amount', value: formatCurrency(originalAmount) },
+        { label: 'Refunded Amount', value: formatCurrency(refundedAmount), emphasis: true, danger: true },
+      ],
+      notes: payment.refund_reason ? [{ label: 'Refund Reason', value: payment.refund_reason }] : [],
+      footerPrimary: 'This is a system-generated refund receipt.',
+      footerSecondary: 'Keep this copy for auditing and support.',
+    });
   }
 
   window.closeRefundReceiptModal = function() {
@@ -1117,18 +1114,7 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Refund Receipt</title>
-        <style>${getReceiptPrintStyles()}</style>
-      </head>
-      <body>${content}</body>
-      </html>`);
-    printWindow.document.close();
-    printWindow.print();
+    printUnifiedReceipt(content, 'Refund Receipt');
   };
 
   window.viewRefundReceipt = function (type, id) {
@@ -1146,12 +1132,13 @@ document.addEventListener('DOMContentLoaded', function () {
     content.innerHTML = renderLoadingState();
     document.getElementById('refundReceiptModal')?.classList.add('show');
 
-    const url = type === 'product' ? `/payments/${id}/receipt-data` : `/membership-payment/${id}/receipt`;
+    const url = route;
 
     fetch(url)
       .then(r => r.json())
       .then(data => {
         content.innerHTML = generateRefundReceipt(type, data, {payment: data});
+        fitReceiptToViewport(content);
       })
       .catch(function (error) {
         console.error(error);
@@ -1175,12 +1162,13 @@ document.addEventListener('DOMContentLoaded', function () {
     content.innerHTML = renderLoadingState();
     document.getElementById('viewReceiptModal')?.classList.add('show');
 
-    const url = type === 'product' ? `/payments/${id}/receipt-data` : `/membership-payment/${id}/receipt`;
+    const url = route;
 
     fetch(url)
       .then(r => r.json())
       .then(data => {
         content.innerHTML = generateOriginalReceipt(type, data);
+        fitReceiptToViewport(content);
       })
       .catch(function (error) {
         console.error(error);
@@ -1191,194 +1179,131 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function generateOriginalReceipt(type, data) {
     if (type === 'product') {
-      const items = data.items || [];
-      const itemsHTML = items.map(item => `
-        <tr>
-          <td>${item.product_name}</td>
-          <td style="text-align: center;">${item.quantity}</td>
-          <td style="text-align: right;">₱${parseFloat(item.unit_price).toFixed(2)}</td>
-          <td style="text-align: right;">₱${parseFloat(item.subtotal || item.total_price || (item.unit_price * item.quantity)).toFixed(2)}</td>
-        </tr>
-      `).join('');
-
-      return `
-        <div class="receipt-container">
-          <div class="receipt-header">
-            <h2>RECEIPT</h2>
-            <p><strong>Abstrack Fitness Gym</strong></p>
-            <p>Toril, Davao Del Sur</p>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
-              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Receipt Number</strong>
-              <span style="display: block; font-weight: 600;">#${data.receipt_number}</span>
-            </div>
-            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
-              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Date & Time</strong>
-              <span style="display: block; font-weight: 600;">${data.formatted_date || new Date(data.created_at).toLocaleString()}</span>
-            </div>
-            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
-              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Customer Name</strong>
-              <span style="display: block; font-weight: 600;">${data.customer_name || 'N/A'}</span>
-            </div>
-            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
-              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Cashier</strong>
-              <span style="display: block; font-weight: 600;">${data.cashier_name || ''}</span>
-            </div>
-            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
-              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Payment Method</strong>
-              <span style="display: block; font-weight: 600;">${data.payment_method || 'N/A'}</span>
-            </div>
-          </div>
-
-          <table class="receipt-table">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th style="text-align: center;">Quantity</th>
-                <th style="text-align: right;">Unit Price</th>
-                <th style="text-align: right;">Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemsHTML}
-            </tbody>
-          </table>
-
-          <div class="receipt-total">
-            <div class="receipt-row" style="font-size: 1.3rem;">
-              <span><strong>Total:</strong></span>
-              <span><strong>₱${parseFloat(data.total_amount || 0).toFixed(2)}</strong></span>
-            </div>
-            <div class="receipt-row" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
-              <span>Paid Amount:</span>
-              <span>₱${parseFloat(data.paid_amount || data.paid || 0).toFixed(2)}</span>
-            </div>
-            <div class="receipt-row">
-              <span>Change:</span>
-              <span>₱${parseFloat(data.return_amount || data.change || 0).toFixed(2)}</span>
-            </div>
-          </div>
-
-          <div class="receipt-footer">
-            <p><strong>Thank you for your purchase!</strong></p>
-          </div>
-        </div>
-      `;
+      const items = Array.isArray(data.items) ? data.items : [];
+      return buildUnifiedReceiptHTML({
+        title: 'Product Payment Receipt',
+        transactionRows: [
+          { label: 'Receipt Number', value: data.receipt_number ? `#${data.receipt_number}` : 'N/A' },
+          { label: 'Date and Time', value: data.formatted_date || formatDateTime(data.created_at) },
+          { label: 'Payment Method', value: data.payment_method || 'N/A' },
+          { label: 'Cashier', value: data.cashier_name || data.processed_by || 'Admin' },
+        ],
+        partyTitle: 'Customer Information',
+        partyRows: [
+          { label: 'Customer Name', value: data.customer_name || 'N/A' },
+          { label: 'Customer ID', value: data.customer_id || data.member_id || 'N/A' },
+        ],
+        paymentRows: [
+          { label: 'Item Count', value: String(items.length) },
+          { label: 'Paid Amount', value: formatCurrency(data.paid_amount || data.paid) },
+          { label: 'Change', value: formatCurrency(data.return_amount || data.change) },
+        ],
+        lineItems: items.map(function (item) {
+          const quantity = Number(item.quantity || 0);
+          const unitPrice = Number(item.unit_price || 0);
+          const subtotal = item.subtotal ?? item.total_price ?? (unitPrice * quantity);
+          return {
+            description: item.product_name || 'Product',
+            qty: String(quantity || 0),
+            rate: formatCurrency(unitPrice),
+            amount: formatCurrency(subtotal),
+          };
+        }),
+        totals: [
+          { label: 'Subtotal', value: formatCurrency(data.total_amount) },
+          { label: 'Total', value: formatCurrency(data.total_amount), emphasis: true },
+          { label: 'Paid Amount', value: formatCurrency(data.paid_amount || data.paid) },
+          { label: 'Change', value: formatCurrency(data.return_amount || data.change) },
+        ],
+        footerPrimary: 'Thank you for your purchase!',
+        footerSecondary: 'Please keep this receipt for your records.',
+      });
     }
 
-    return `
-      <div class="receipt-container">
-        <div class="receipt-header">
-          <h2>MEMBERSHIP PAYMENT RECEIPT</h2>
-          <p><strong>Abstrack Fitness Gym</strong></p>
-          <p>Toril, Davao Del Sur</p>
-        </div>
+    if (type === 'pt') {
+      const amount = Number(data.amount || 0);
+      return buildUnifiedReceiptHTML({
+        title: 'Personal Training Receipt',
+        transactionRows: [
+          { label: 'Receipt Number', value: data.receipt_number ? `#${data.receipt_number}` : 'N/A' },
+          { label: 'Date and Time', value: data.formatted_date || formatDateTime(data.created_at) },
+          { label: 'Payment Type', value: humanize(data.payment_type) },
+          { label: 'Payment Method', value: data.payment_method || 'N/A' },
+        ],
+        partyTitle: 'Client Information',
+        partyRows: [
+          { label: 'Client Name', value: data.customer_name || data.member_name || 'N/A' },
+          { label: 'Contact', value: data.customer_contact || data.member_contact || 'N/A' },
+          { label: 'Trainer', value: data.trainer_name || 'N/A' },
+          { label: 'Schedule', value: data.session_schedule || 'N/A' },
+        ],
+        paymentRows: [
+          { label: 'Plan', value: data.plan_name || data.plan_type || 'PT Plan' },
+          { label: 'Duration', value: `${data.plan_duration_days || data.duration || 'N/A'} session(s)` },
+          { label: 'Status', value: humanize(data.status) },
+        ],
+        lineItems: [
+          {
+            description: data.plan_name || data.plan_type || 'PT Plan',
+            meta: data.plan_duration_days ? `Duration: ${data.plan_duration_days} session(s)` : '',
+            qty: '1',
+            rate: formatCurrency(amount),
+            amount: formatCurrency(amount),
+          },
+        ],
+        totals: [
+          { label: 'Total Paid', value: formatCurrency(amount), emphasis: true },
+          { label: 'Paid Amount', value: formatCurrency(data.paid_amount) },
+          { label: 'Change', value: formatCurrency(data.return_amount) },
+        ],
+        notes: data.notes ? [{ label: 'Notes', value: data.notes }] : [],
+        footerPrimary: 'PT payment recorded successfully!',
+        footerSecondary: 'Please keep this receipt for verification.',
+      });
+    }
 
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
-          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
-            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Receipt Number</strong>
-            <span style="display: block; font-weight: 600;">#${data.receipt_number}</span>
-          </div>
-          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
-            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Date & Time</strong>
-            <span style="display: block; font-weight: 600;">${data.formatted_date || new Date(data.created_at).toLocaleString()}</span>
-          </div>
-          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
-            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Member Name</strong>
-            <span style="display: block; font-weight: 600;">${data.member_name || 'N/A'}</span>
-          </div>
-          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
-            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Contact</strong>
-            <span style="display: block; font-weight: 600;">${data.member_contact || data.contact || ''}</span>
-          </div>
-          ${data.buddy_name ? `
-          <div style="padding: 10px; background: #e8f5e9; border-radius: 4px; border: 1px solid #a5d6a7;">
-            <strong style="display: block; font-size: 0.75rem; color: #2e7d32; margin-bottom: 5px;">Gym Buddy</strong>
-            <span style="display: block; font-weight: 600;">${data.buddy_name}</span>
-          </div>
-          <div style="padding: 10px; background: #e8f5e9; border-radius: 4px; border: 1px solid #a5d6a7;">
-            <strong style="display: block; font-size: 0.75rem; color: #2e7d32; margin-bottom: 5px;">Contact</strong>
-            <span style="display: block; font-weight: 600;">${data.buddy_contact || 'N/A'}</span>
-          </div>
-          ` : ''}
-          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
-            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Payment Type</strong>
-            <span style="display: block; font-weight: 600;">${(data.payment_type || '').toUpperCase()}</span>
-          </div>
-          <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
-            <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Payment Method</strong>
-            <span style="display: block; font-weight: 600;">${data.payment_method || 'N/A'}</span>
-          </div>
-        </div>
+    const amount = Number(data.amount || 0);
+    const total = data.plan_type === 'GymBuddy' ? amount * 2 : amount;
 
-        <table class="receipt-table">
-          <thead>
-            <tr>
-              <th>Description</th>
-              <th style="text-align: right;">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${data.plan_type === 'GymBuddy' ? `
-            <tr>
-              <td>
-                <strong>Gym Buddy Rate</strong><br>
-                <small style="color: #666;">Duration: ${data.duration || 'N/A'} days | 2 Persons</small><br>
-                <small style="color: #0d6efd;">Member 1: ${data.member_name}</small><br>
-                <small style="color: #0d6efd;">Member 2: ${data.buddy_name || 'N/A'}</small>
-              </td>
-              <td style="text-align: right;">
-                <span style="display: block;">₱${parseFloat(data.amount || 0).toFixed(2)}/person</span>
-                <strong style="display: block; margin-top: 4px;">Total: ₱${(parseFloat(data.amount || 0) * 2).toFixed(2)}</strong>
-              </td>
-            </tr>
-            ` : `
-            <tr>
-              <td>
-                <strong>${data.plan_type || 'Membership'} Plan</strong><br>
-                <small style="color: #666;">Duration: ${data.duration || 'N/A'} days</small>
-              </td>
-              <td style="text-align: right;">₱${parseFloat(data.amount || 0).toFixed(2)}</td>
-            </tr>
-            `}
-          </tbody>
-        </table>
-
-        <div class="receipt-total">
-          <div class="receipt-row" style="font-size: 1.3rem;">
-            <span><strong>Total Paid:</strong></span>
-            <span><strong>₱${data.plan_type === 'GymBuddy' ? (parseFloat(data.amount || 0) * 2).toFixed(2) : parseFloat(data.amount || 0).toFixed(2)}</strong></span>
-          </div>
-        </div>
-
-        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed #ccc;">
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
-              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">Previous Due Date</strong>
-              <span style="display: block; font-weight: 600;">${data.previous_due_date || 'N/A'}</span>
-            </div>
-            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px;">
-              <strong style="display: block; font-size: 0.75rem; color: #666; margin-bottom: 5px;">New Due Date</strong>
-              <span style="display: block; font-weight: 600; color: #28a745;">${data.new_due_date || 'N/A'}</span>
-            </div>
-          </div>
-        </div>
-
-        ${data.notes ? `
-          <div style="margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 4px;">
-            <strong style="display: block; margin-bottom: 8px; color: #666;">Notes:</strong>
-            <p style="margin: 0; color: #333;">${data.notes}</p>
-          </div>
-        ` : ''}
-
-        <div class="receipt-footer">
-          <p><strong>Thank you for your membership!</strong></p>
-          <p style="font-size: 0.875rem;">Please keep this receipt for your records.</p>
-        </div>
-      </div>
-    `;
+    return buildUnifiedReceiptHTML({
+      title: 'Membership Payment Receipt',
+      transactionRows: [
+        { label: 'Receipt Number', value: data.receipt_number ? `#${data.receipt_number}` : 'N/A' },
+        { label: 'Date and Time', value: data.formatted_date || formatDateTime(data.created_at) },
+        { label: 'Payment Type', value: humanize(data.payment_type) },
+        { label: 'Payment Method', value: data.payment_method || 'N/A' },
+      ],
+      partyTitle: 'Member Information',
+      partyRows: [
+        { label: 'Member Name', value: data.member_name || 'N/A' },
+        { label: 'Contact', value: data.member_contact || data.contact || 'N/A' },
+        data.buddy_name ? { label: 'Gym Buddy', value: data.buddy_name, highlight: true } : null,
+        data.buddy_name ? { label: 'Buddy Contact', value: data.buddy_contact || 'N/A', highlight: true } : null,
+      ].filter(Boolean),
+      paymentRows: [
+        { label: 'Plan Type', value: data.plan_type || 'Membership' },
+        { label: 'Duration', value: `${data.duration || 'N/A'} day(s)` },
+        { label: 'Previous Due Date', value: data.previous_due_date || 'N/A' },
+        { label: 'New Due Date', value: data.new_due_date || 'N/A', highlight: true },
+      ],
+      lineItems: [
+        {
+          description: `${data.plan_type || 'Membership'} Plan`,
+          meta: data.plan_type === 'GymBuddy'
+            ? `Member 1: ${data.member_name || 'N/A'} | Member 2: ${data.buddy_name || 'N/A'}`
+            : `Duration: ${data.duration || 'N/A'} day(s)`,
+          qty: data.plan_type === 'GymBuddy' ? '2' : '1',
+          rate: formatCurrency(amount),
+          amount: formatCurrency(total),
+        },
+      ],
+      totals: [
+        { label: 'Total Paid', value: formatCurrency(total), emphasis: true },
+      ],
+      notes: data.notes ? [{ label: 'Notes', value: data.notes }] : [],
+      footerPrimary: 'Thank you for your membership!',
+      footerSecondary: 'Please keep this receipt for your records.',
+    });
   }
 
   window.closeViewReceiptModal = function() {
@@ -1387,18 +1312,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   window.printViewReceipt = function() {
     const content = document.getElementById('viewReceiptContent').innerHTML;
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Receipt</title>
-        <style>${getReceiptPrintStyles()}</style>
-      </head>
-      <body>${content}</body>
-      </html>`);
-    printWindow.document.close();
-    printWindow.print();
+    printUnifiedReceipt(content, 'Receipt');
   };
 
   document.addEventListener('keydown', function (event) {
