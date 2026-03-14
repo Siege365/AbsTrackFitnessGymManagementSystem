@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 
 class PTSchedule extends Model
 {
+    use SoftDeletes;
     protected $table = 'pt_schedules';
 
     protected $fillable = [
