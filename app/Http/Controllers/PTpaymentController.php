@@ -36,7 +36,7 @@ class PTpaymentController extends Controller
     }
 
     /**
-     * Store a new PT payment (New / Renew / Extend)
+     * Store a new PT payment (New / Renewal)
      */
     public function store(Request $request)
     {
@@ -48,7 +48,7 @@ class PTpaymentController extends Controller
         $isNewPtClient = $request->payment_type === 'new' || $request->boolean('is_new_pt_client');
 
         $rules = [
-            'payment_type' => 'required|in:new,renewal,extension',
+            'payment_type' => 'required|in:new,renewal',
             'plan_type'    => "required|in:{$validPlanTypes}",
             'payment_method' => 'required|in:Cash,Credit Card,Debit Card,GCash,PayMaya,Bank Transfer',
             'amount'       => 'required|numeric|min:0',
@@ -155,35 +155,19 @@ class PTpaymentController extends Controller
                 $newDueDate = $client->due_date; // already set during client creation above
 
             } elseif ($request->payment_type === 'renewal') {
-                // Renewal: starts from today
-                $newDueDate = now()->addDays($duration);
+                // Renewal now covers both expired and active clients.
+                $startFrom = ($client->due_date && Carbon::parse($client->due_date)->isFuture())
+                    ? Carbon::parse($client->due_date)
+                    : now();
+
+                $newDueDate = $startFrom->copy()->addDays($duration);
 
                 $client->update([
                     'plan_type'  => $planType,
-                    'start_date' => now(),
+                    'start_date' => ($client->due_date && Carbon::parse($client->due_date)->isFuture())
+                        ? $client->start_date
+                        : now(),
                     'due_date'   => $newDueDate,
-                ]);
-
-            } elseif ($request->payment_type === 'extension') {
-                if (!$client->due_date) {
-                    throw new \Exception('Cannot extend: Client has no due date.');
-                }
-
-                $previousPlanType = $client->plan_type;
-                $planChanged = $previousPlanType !== $planType;
-
-                if ($planChanged) {
-                    $startFrom = Carbon::parse($client->due_date)->isFuture()
-                        ? Carbon::parse($client->due_date)
-                        : now();
-                    $newDueDate = $startFrom->addDays($duration);
-                } else {
-                    $newDueDate = Carbon::parse($client->due_date)->addDays($duration);
-                }
-
-                $client->update([
-                    'plan_type' => $planType,
-                    'due_date'  => $newDueDate,
                 ]);
             }
 
@@ -215,7 +199,6 @@ class PTpaymentController extends Controller
             $messages = [
                 'new'       => 'New PT client enrolled successfully!',
                 'renewal'   => 'PT plan renewed successfully!',
-                'extension' => 'PT plan extended successfully!',
             ];
             $message = $messages[$request->payment_type] ?? 'PT Payment processed successfully!';
 
@@ -262,7 +245,7 @@ class PTpaymentController extends Controller
                 'member_name'      => $payment->member_name,
                 'member_contact'   => $payment->client?->contact ?? 'N/A',
                 'plan_type'        => $payment->plan_type,
-                'payment_type'     => $payment->payment_type,
+                'payment_type'     => $payment->payment_type === 'extension' ? 'renewal' : $payment->payment_type,
                 'payment_method'   => $payment->payment_method,
                 'amount'           => $payment->amount,
                 'duration'         => $payment->duration_days,

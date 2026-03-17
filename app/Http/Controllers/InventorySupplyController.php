@@ -7,7 +7,9 @@ use App\Models\InventoryTransaction;
 use App\Helpers\CategoryHelper;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use App\Services\NotificationService;
 
@@ -400,7 +402,7 @@ class InventorySupplyController extends Controller
                             $extension = 'jpg';
                         }
                         $filename = 'product-avatars/' . uniqid() . '.' . $extension;
-                        \Storage::disk('public')->put($filename, $imageContent);
+                        Storage::disk('public')->put($filename, $imageContent);
                         $validated['avatar'] = $filename;
                     }
                 } catch (\Exception $e) {
@@ -459,7 +461,7 @@ class InventorySupplyController extends Controller
                     'previous_stock' => 0,
                     'new_stock' => $validated['stock_qty'],
                     'notes' => 'Initial stock',
-                    'performed_by' => auth()->user()->name ?? 'System',
+                    'performed_by' => Auth::user()?->name ?? 'System',
                 ]);
             }
 
@@ -504,7 +506,7 @@ class InventorySupplyController extends Controller
                 try {
                     // Delete old avatar if exists
                     if ($item->avatar) {
-                        \Storage::disk('public')->delete($item->avatar);
+                        Storage::disk('public')->delete($item->avatar);
                     }
                     $validated['avatar'] = $request->file('avatar')->store('product-avatars', 'public');
                 } catch (\Exception $e) {
@@ -516,7 +518,7 @@ class InventorySupplyController extends Controller
                 try {
                     // Delete old avatar if exists
                     if ($item->avatar) {
-                        \Storage::disk('public')->delete($item->avatar);
+                        Storage::disk('public')->delete($item->avatar);
                     }
                     $imageContent = file_get_contents($validated['avatar_url']);
                     if ($imageContent !== false) {
@@ -525,7 +527,7 @@ class InventorySupplyController extends Controller
                             $extension = 'jpg';
                         }
                         $filename = 'product-avatars/' . uniqid() . '.' . $extension;
-                        \Storage::disk('public')->put($filename, $imageContent);
+                        Storage::disk('public')->put($filename, $imageContent);
                         $validated['avatar'] = $filename;
                     }
                 } catch (\Exception $e) {
@@ -671,7 +673,7 @@ class InventorySupplyController extends Controller
                 'previous_stock' => $previousStock,
                 'new_stock' => $newStock,
                 'notes' => $validated['notes'],
-                'performed_by' => auth()->user()->name ?? 'System',
+                'performed_by' => Auth::user()?->name ?? 'System',
             ]);
 
             DB::commit();

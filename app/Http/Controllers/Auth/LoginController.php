@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Rules\Turnstile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
@@ -18,9 +19,11 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
-            'cf-turnstile-response' => ['required', new Turnstile],
-        ]);
+        if ($this->turnstileEnabled()) {
+            $request->validate([
+                'cf-turnstile-response' => ['required', new Turnstile],
+            ]);
+        }
 
         $credentials = $request->validate([
             'email' => ['required', 'email'],
@@ -45,6 +48,12 @@ class LoginController extends Controller
         throw ValidationException::withMessages([
             'email' => __('The provided credentials do not match our records.'),
         ]);
+    }
+
+    private function turnstileEnabled(): bool
+    {
+        return filled(Config::get('services.turnstile.site_key'))
+            && filled(Config::get('services.turnstile.secret_key'));
     }
 
     public function logout(Request $request)

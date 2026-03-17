@@ -28,21 +28,6 @@
     </div>
   </div>
 
-  <!-- Flash Messages -->
-  @if(session('success'))
-    <div class="settings-alert settings-alert-success">
-      <i class="mdi mdi-check-circle"></i>
-      {{ session('success') }}
-    </div>
-  @endif
-
-  @if($errors->any())
-    <div class="settings-alert settings-alert-error">
-      <i class="mdi mdi-alert-circle"></i>
-      {{ $errors->first() }}
-    </div>
-  @endif
-
   <!-- Profile Section -->
   <div class="settings-section active" id="section-profile">
 

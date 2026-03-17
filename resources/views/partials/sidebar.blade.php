@@ -18,7 +18,7 @@
     <li class="nav-item menu-items">
       <a class="nav-link" data-toggle="collapse" href="#customers-menu" aria-expanded="false" aria-controls="customers-menu">
         <span class="menu-icon">
-          <i class="mdi mdi-account-multiple"></i>
+          <i class="mdi mdi-account-group"></i>
         </span>
         <span class="menu-title">Customers</span>
         <i class="menu-arrow mdi mdi-chevron-down"></i>
