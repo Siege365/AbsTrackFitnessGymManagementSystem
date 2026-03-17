@@ -38,8 +38,29 @@ Route::get('/', [DashboardController::class, 'index'])
 // Protected Routes (Require Authentication)
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [RegisterController::class, 'register']);
+    // ==========================================
+    // STAFF MANAGEMENT ROUTES (Admin Only)
+    // ==========================================
+    Route::middleware(['admin'])->group(function () {
+        Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+        Route::post('/register', [RegisterController::class, 'register']);
+
+        Route::prefix('staff-management/staff')->name('staff.')->group(function () {
+            Route::get('/', [StaffController::class, 'index'])->name('index');
+            Route::put('/{id}', [StaffController::class, 'update'])->name('update');
+            Route::delete('/{id}', [StaffController::class, 'destroy'])->name('destroy');
+            Route::patch('/{id}/toggle-status', [StaffController::class, 'toggleStatus'])->name('toggleStatus');
+        });
+
+        Route::prefix('staff-management/trainers')->name('trainers.')->group(function () {
+            Route::get('/', [TrainerController::class, 'index'])->name('index');
+            Route::post('/', [TrainerController::class, 'store'])->name('store');
+            Route::put('/{id}', [TrainerController::class, 'update'])->name('update');
+            Route::delete('/{id}', [TrainerController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::get('/staff-management/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+    });
 
     // Account Settings
     Route::get('/account/settings', [AccountSettingsController::class, 'show'])->name('account.settings');
@@ -237,25 +258,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/ReportAndBilling', function() {
         return redirect()->route('reports.index');
     })->name('ReportAndBilling');
-
-    // ==========================================
-    // STAFF MANAGEMENT ROUTES
-    // ==========================================
-    Route::prefix('staff-management/staff')->name('staff.')->group(function () {
-        Route::get('/', [StaffController::class, 'index'])->name('index');
-        Route::put('/{id}', [StaffController::class, 'update'])->name('update');
-        Route::delete('/{id}', [StaffController::class, 'destroy'])->name('destroy');
-        Route::patch('/{id}/toggle-status', [StaffController::class, 'toggleStatus'])->name('toggleStatus');
-    });
-
-    Route::prefix('staff-management/trainers')->name('trainers.')->group(function () {
-        Route::get('/', [TrainerController::class, 'index'])->name('index');
-        Route::post('/', [TrainerController::class, 'store'])->name('store');
-        Route::put('/{id}', [TrainerController::class, 'update'])->name('update');
-        Route::delete('/{id}', [TrainerController::class, 'destroy'])->name('destroy');
-    });
-
-    Route::get('/staff-management/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 
     // ==========================================
     // GYM CONFIGURATION ROUTES

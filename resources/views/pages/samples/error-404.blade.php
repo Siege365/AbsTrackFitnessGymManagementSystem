@@ -31,7 +31,7 @@
               </div>
               <div class="row mt-5">
                 <div class="col-12 mt-xl-2">
-                  <p class="text-white font-weight-medium text-center">Copyright &copy; {{ date(\'Y\') }} All rights reserved.</p>
+                  <p class="text-white font-weight-medium text-center">Copyright &copy; {{ date('Y') }} All rights reserved.</p>
                 </div>
               </div>
             </div>
@@ -43,16 +43,16 @@
     </div>
     <!-- container-scroller -->
     <!-- plugins:js -->
-    <script src="{{ asset(\'template/assets/vendors/js/vendor.bundle.base.js\') }}"></script>
+    <script src="{{ asset('template/assets/vendors/js/vendor.bundle.base.js') }}"></script>
     <!-- endinject -->
     <!-- Plugin js for this page -->
     <!-- End plugin js for this page -->
     <!-- inject:js -->
-    <script src="{{ asset(\'template/assets/js/off-canvas.js\') }}"></script>
-    <script src="{{ asset(\'template/assets/js/hoverable-collapse.js\') }}"></script>
-    <script src="{{ asset(\'template/assets/js/misc.js\') }}"></script>
-    <script src="{{ asset(\'template/assets/js/settings.js\') }}"></script>
-    <script src="{{ asset(\'template/assets/js/todolist.js\') }}"></script>
+    <script src="{{ asset('template/assets/js/off-canvas.js') }}"></script>
+    <script src="{{ asset('template/assets/js/hoverable-collapse.js') }}"></script>
+    <script src="{{ asset('template/assets/js/misc.js') }}"></script>
+    <script src="{{ asset('template/assets/js/settings.js') }}"></script>
+    <script src="{{ asset('template/assets/js/todolist.js') }}"></script>
     <!-- endinject -->
 </body>
 </html>

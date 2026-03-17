@@ -1,3 +1,11 @@
+import {
+  buildUnifiedReceiptHTML,
+  fitReceiptToViewport,
+  formatCurrency,
+  formatDateTime,
+  printUnifiedReceipt,
+} from '../common/unified-receipt';
+
 // Read server-provided config from data attributes
 const prodConfigEl = document.getElementById('productPaymentConfig');
 let cartItems = [];
@@ -621,6 +629,7 @@ function loadProductReceiptModal(paymentId) {
     .then(response => response.json())
     .then(data => {
       modalBody.innerHTML = generateProductReceiptHTML(data);
+      fitReceiptToViewport(modalBody);
     })
     .catch(error => {
       console.error('Error loading receipt:', error);
@@ -634,86 +643,48 @@ function loadProductReceiptModal(paymentId) {
 }
 
 function generateProductReceiptHTML(payment) {
-  const itemsHTML = payment.items.map(item => `
-    <tr>
-      <td>${item.product_name}</td>
-      <td style="text-align: center;">${item.quantity}</td>
-      <td style="text-align: right;">₱${parseFloat(item.unit_price).toFixed(2)}</td>
-      <td style="text-align: right;">₱${parseFloat(item.subtotal).toFixed(2)}</td>
-    </tr>
-  `).join('');
+  const items = Array.isArray(payment.items) ? payment.items : [];
 
-  return `
-    <div class="receipt-container">
-      <div class="receipt-header">
-        <h2>RECEIPT</h2>
-        <p>Abstrack Fitness Gym</p>
-        <p>Toril, Davao Del Sur</p>
-        <p>Phone: (123) 456-7890</p>
-      </div>
+  return buildUnifiedReceiptHTML({
+    title: 'Product Payment Receipt',
+    transactionRows: [
+      { label: 'Receipt Number', value: payment.receipt_number ? `#${payment.receipt_number}` : 'N/A' },
+      { label: 'Date and Time', value: payment.formatted_date || formatDateTime(payment.created_at) },
+      { label: 'Payment Method', value: payment.payment_method || 'N/A' },
+      { label: 'Cashier', value: payment.cashier_name || 'Admin' },
+    ],
+    partyTitle: 'Customer Information',
+    partyRows: [
+      { label: 'Customer Name', value: payment.customer_name || 'Walk-in Customer' },
+      { label: 'Member ID', value: payment.customer_id || payment.member_id || 'N/A' },
+    ],
+    paymentRows: [
+      { label: 'Item Count', value: String(items.length || 0) },
+      { label: 'Paid Amount', value: formatCurrency(payment.paid_amount) },
+      { label: 'Change', value: formatCurrency(payment.return_amount) },
+      { label: 'Transaction Type', value: 'Product Payment' },
+    ],
+    lineItems: items.map(function (item) {
+      const quantity = Number(item.quantity || 0);
+      const unitPrice = Number(item.unit_price || 0);
+      const subtotal = Number(item.subtotal ?? (unitPrice * quantity));
 
-      <div class="receipt-info">
-        <div class="receipt-info-item">
-          <strong>Receipt Number</strong>
-          <span>#${payment.receipt_number}</span>
-        </div>
-        <div class="receipt-info-item">
-          <strong>Date & Time</strong>
-          <span>${payment.formatted_date}</span>
-        </div>
-        <div class="receipt-info-item">
-          <strong>Customer Name</strong>
-          <span>${payment.customer_name}</span>
-        </div>
-        <div class="receipt-info-item">
-          <strong>Cashier</strong>
-          <span>${payment.cashier_name}</span>
-        </div>
-        <div class="receipt-info-item">
-          <strong>Payment Method</strong>
-          <span>${payment.payment_method}</span>
-        </div>
-      </div>
-
-      <table class="receipt-table">
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th style="text-align: center;">Quantity</th>
-            <th style="text-align: right;">Unit Price</th>
-            <th style="text-align: right;">Subtotal</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${itemsHTML}
-        </tbody>
-      </table>
-
-      <div class="receipt-total">
-        <div class="receipt-total-row">
-          <strong>Subtotal:</strong>
-          <span>₱${parseFloat(payment.total_amount).toFixed(2)}</span>
-        </div>
-        <div class="receipt-total-row grand-total">
-          <strong>Total:</strong>
-          <span>₱${parseFloat(payment.total_amount).toFixed(2)}</span>
-        </div>
-        <div class="receipt-total-row receipt-paid-section">
-          <strong>Paid Amount:</strong>
-          <span>₱${parseFloat(payment.paid_amount).toFixed(2)}</span>
-        </div>
-        <div class="receipt-total-row">
-          <strong>Change:</strong>
-          <span>₱${parseFloat(payment.return_amount).toFixed(2)}</span>
-        </div>
-      </div>
-
-      <div class="receipt-footer">
-        <p>Thank you for your purchase!</p>
-        <p class="receipt-footer-sub">Please come again!</p>
-      </div>
-    </div>
-  `;
+      return {
+        description: item.product_name || 'Product',
+        qty: String(quantity || 0),
+        rate: formatCurrency(unitPrice),
+        amount: formatCurrency(subtotal),
+      };
+    }),
+    totals: [
+      { label: 'Subtotal', value: formatCurrency(payment.total_amount) },
+      { label: 'Total', value: formatCurrency(payment.total_amount), emphasis: true },
+      { label: 'Paid Amount', value: formatCurrency(payment.paid_amount) },
+      { label: 'Change', value: formatCurrency(payment.return_amount) },
+    ],
+    footerPrimary: 'Thank you for your purchase!',
+    footerSecondary: 'Please come again!',
+  });
 }
 
 function closeProductReceiptModal() {
@@ -724,7 +695,8 @@ function closeProductReceiptModal() {
 window.closeProductReceiptModal = closeProductReceiptModal;
 
 function printProductReceipt() {
-  window.print();
+  const content = document.getElementById('productReceiptBody')?.innerHTML;
+  printUnifiedReceipt(content, 'Product Receipt');
 }
 window.printProductReceipt = printProductReceipt;
 

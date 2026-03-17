@@ -10,6 +10,7 @@ use App\Models\Membership;
 use App\Models\Trainer;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -1039,6 +1040,7 @@ class SessionController extends Controller
                         // Include client subscription info for PT modal
                         'client_plan_type' => $client?->plan_type,
                         'client_formatted_plan_type' => $client?->formatted_plan_type,
+                        'client_plan_key' => $client?->plan_type,
                     ];
                 });
 
@@ -1055,6 +1057,7 @@ class SessionController extends Controller
                     'sex' => $c->sex,
                     'contact' => $c->contact,
                     'plan_type' => $c->plan_type,
+                    'plan_key' => $c->plan_type,
                     'formatted_plan_type' => $c->formatted_plan_type,
                     'avatar' => $c->avatar,
                     'status' => $c->status,

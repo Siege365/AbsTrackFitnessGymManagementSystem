@@ -1,3 +1,12 @@
+import {
+  buildUnifiedReceiptHTML,
+  fitReceiptToViewport,
+  formatCurrency,
+  formatDateTime,
+  humanize,
+  printUnifiedReceipt,
+} from '../common/unified-receipt';
+
 document.addEventListener('DOMContentLoaded', function() {
   // ========================================
   // PERSONAL TRAINING PAYMENT LOGIC
@@ -518,6 +527,7 @@ function viewPtReceipt(paymentId) {
         return;
       }
       receiptBody.innerHTML = generatePtReceiptHTML(data);
+      fitReceiptToViewport(receiptBody);
     })
     .catch(error => {
       console.error('Error:', error);
@@ -527,36 +537,64 @@ function viewPtReceipt(paymentId) {
 }
 
 function generatePtReceiptHTML(data) {
-  let refundSection = '';
-  if (data.is_refunded) {
-    refundSection = '<div class="receipt-notes-section" style="background:#fff3cd;border:1px solid #ffc107;">' +
-      '<strong style="color:#856404;">⚠ REFUNDED</strong>' +
-      '<p>Amount: ₱' + parseFloat(data.refunded_amount || 0).toFixed(2) + '</p>' +
-      (data.refund_reason ? '<p>Reason: ' + data.refund_reason + '</p>' : '') +
-      (data.refunded_at ? '<p>Date: ' + data.refunded_at + '</p>' : '') +
-      (data.refunded_by ? '<p>By: ' + data.refunded_by + '</p>' : '') +
-      '</div>';
+  const amount = Number(data.amount || 0);
+  const notes = [];
+
+  if (data.notes) {
+    notes.push({ label: 'Notes', value: data.notes });
   }
 
-  return '<div class="receipt-container"><div class="receipt-header"><h2>PT PAYMENT RECEIPT</h2><p><strong>Abstrack Fitness Gym</strong></p><p>Toril, Davao Del Sur</p></div>' +
-    '<div class="receipt-info-grid">' +
-    '<div class="receipt-info-cell"><span class="receipt-info-label">Receipt Number</span><span class="receipt-info-value">#' + data.receipt_number + '</span></div>' +
-    '<div class="receipt-info-cell"><span class="receipt-info-label">Date & Time</span><span class="receipt-info-value">' + (data.formatted_date || 'N/A') + '</span></div>' +
-    '<div class="receipt-info-cell"><span class="receipt-info-label">Client Name</span><span class="receipt-info-value">' + (data.member_name || 'N/A') + '</span></div>' +
-    '<div class="receipt-info-cell"><span class="receipt-info-label">Contact</span><span class="receipt-info-value">' + (data.member_contact || 'N/A') + '</span></div>' +
-    '<div class="receipt-info-cell"><span class="receipt-info-label">Payment Type</span><span class="receipt-info-value">' + (data.payment_type || '').toUpperCase() + '</span></div>' +
-    '<div class="receipt-info-cell"><span class="receipt-info-label">Payment Method</span><span class="receipt-info-value">' + (data.payment_method || 'N/A') + '</span></div></div>' +
-    '<table class="receipt-table"><thead><tr><th>Description</th><th style="text-align: right;">Amount</th></tr></thead><tbody>' +
-    '<tr><td><strong>' + (data.plan_type || 'PT') + ' Plan</strong><br><small style="color: #666;">Duration: ' + (data.duration || 'N/A') + ' days</small></td>' +
-    '<td style="text-align: right;">₱' + parseFloat(data.amount || 0).toFixed(2) + '</td></tr>' +
-    '</tbody></table>' +
-    '<div class="receipt-total"><div class="receipt-row grand"><span><strong>Total Paid:</strong></span><span><strong>₱' + parseFloat(data.amount || 0).toFixed(2) + '</strong></span></div></div>' +
-    '<div class="receipt-due-section"><div class="receipt-info-grid">' +
-    '<div class="receipt-info-cell"><span class="receipt-info-label">Previous Due Date</span><span class="receipt-info-value">' + (data.previous_due_date || 'N/A') + '</span></div>' +
-    '<div class="receipt-info-cell"><span class="receipt-info-label">New Due Date</span><span class="receipt-info-value success">' + (data.new_due_date || 'N/A') + '</span></div></div></div>' +
-    (data.notes ? '<div class="receipt-notes-section"><strong>Notes:</strong><p>' + data.notes + '</p></div>' : '') +
-    refundSection +
-    '<div class="receipt-footer"><p><strong>Thank you for choosing our Personal Training!</strong></p><p>Please keep this receipt for your records.</p></div></div>';
+  if (data.is_refunded) {
+    notes.push({
+      label: 'Refund Details',
+      value: [
+        `Amount: ${formatCurrency(data.refunded_amount || amount)}`,
+        data.refund_reason ? `Reason: ${data.refund_reason}` : '',
+        data.refunded_at ? `Date: ${formatDateTime(data.refunded_at)}` : '',
+        data.refunded_by ? `Processed By: ${data.refunded_by}` : '',
+      ].filter(Boolean).join('\n'),
+    });
+  }
+
+  return buildUnifiedReceiptHTML({
+    title: 'Personal Training Receipt',
+    badge: data.is_refunded ? 'REFUNDED' : '',
+    transactionRows: [
+      { label: 'Receipt Number', value: data.receipt_number ? `#${data.receipt_number}` : 'N/A' },
+      { label: 'Date and Time', value: data.formatted_date || formatDateTime(data.created_at) },
+      { label: 'Payment Type', value: humanize(data.payment_type) },
+      { label: 'Payment Method', value: data.payment_method || 'N/A' },
+      { label: 'Cashier', value: data.processed_by || 'Admin' },
+    ],
+    partyTitle: 'Client Information',
+    partyRows: [
+      { label: 'Client Name', value: data.member_name || data.customer_name || 'N/A' },
+      { label: 'Contact', value: data.member_contact || data.customer_contact || 'N/A' },
+      { label: 'Trainer', value: data.trainer_name || 'N/A' },
+      { label: 'Schedule', value: data.session_schedule || 'N/A' },
+    ],
+    paymentRows: [
+      { label: 'PT Plan', value: data.plan_type || data.plan_name || 'PT Plan' },
+      { label: 'Duration', value: `${data.duration || data.plan_duration_days || 'N/A'} day(s)` },
+      { label: 'Previous Due Date', value: data.previous_due_date || 'N/A' },
+      { label: 'New Due Date', value: data.new_due_date || 'N/A', highlight: true },
+    ],
+    lineItems: [
+      {
+        description: `${data.plan_type || data.plan_name || 'PT'} Plan`,
+        meta: `Duration: ${data.duration || data.plan_duration_days || 'N/A'} day(s)`,
+        qty: '1',
+        rate: formatCurrency(amount),
+        amount: formatCurrency(amount),
+      },
+    ],
+    totals: [
+      { label: 'Total Paid', value: formatCurrency(amount), emphasis: true },
+    ],
+    notes: notes,
+    footerPrimary: 'Thank you for choosing our Personal Training!',
+    footerSecondary: 'Please keep this receipt for your records.',
+  });
 }
 
 function closePtReceiptModal() {
@@ -567,8 +605,6 @@ window.closePtReceiptModal = closePtReceiptModal;
 
 function printPtReceipt() {
   const content = document.getElementById('ptReceiptBody').innerHTML;
-  const pw = window.open('', '_blank');
-  pw.document.write('<!DOCTYPE html><html><head><title>PT Receipt</title><style>body{font-family:"Courier New",monospace}.receipt-container{max-width:600px;margin:0 auto;padding:20px}.receipt-header{text-align:center;margin-bottom:30px;padding-bottom:20px;border-bottom:2px dashed #333}.receipt-table{width:100%;border-collapse:collapse;margin:20px 0}.receipt-table th{background:#333;color:#fff;padding:10px;text-align:left}.receipt-table td{padding:10px;border-bottom:1px solid #ddd}.receipt-row{display:flex;justify-content:space-between;margin-bottom:8px}.receipt-total{margin-top:20px;padding-top:20px;border-top:2px solid #333}.receipt-footer{margin-top:30px;padding-top:20px;border-top:2px dashed #333;text-align:center}.receipt-info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}.receipt-info-cell{padding:10px;background:#f8f9fa;border-radius:4px}.receipt-info-label{display:block;font-size:.75rem;color:#666;margin-bottom:5px;font-weight:bold}.receipt-info-value{display:block;font-weight:600}.receipt-info-value.success{color:#28a745}.receipt-due-section{margin-top:20px;padding-top:20px;border-top:1px dashed #ccc}.receipt-notes-section{margin-top:20px;padding:15px;background:#f5f5f5;border-radius:4px}.receipt-notes-section strong{display:block;margin-bottom:8px;color:#666}.receipt-notes-section p{margin:0;color:#333}.receipt-row.grand{font-size:1.3rem}</style></head><body>' + content + '</body></html>');
-  pw.document.close(); pw.print();
+  printUnifiedReceipt(content, 'PT Receipt');
 }
 window.printPtReceipt = printPtReceipt;

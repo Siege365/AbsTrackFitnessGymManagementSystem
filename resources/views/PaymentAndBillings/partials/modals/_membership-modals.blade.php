@@ -22,13 +22,13 @@
 </div>
 
 <!-- Membership Receipt Modal -->
-<div id="receiptModal" class="modal-overlay" role="document">
-  <div class="modal-content">
+<div id="receiptModal" class="modal-overlay receipt-overlay" role="document">
+  <div class="modal-content receipt-modal-shell">
     <div class="modal-header">
       <h3 class="modal-title">Receipt Details</h3>
       <button class="modal-close" onclick="closeModal()">&times;</button>
     </div>
-    <div class="modal-body" id="receiptBody">
+    <div class="modal-body receipt-modal-body" id="receiptBody">
       <div class="loading-spinner"><div class="spinner"></div></div>
     </div>
     <div class="modal-footer">

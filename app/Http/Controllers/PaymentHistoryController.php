@@ -180,22 +180,6 @@ class PaymentHistoryController extends Controller
             ];
         })->all());
 
-        $refPtList = collect($refPt->get()->map(function ($pt) {
-            return (object)[
-                'id' => $pt->id,
-                'receipt_number' => $pt->receipt_number,
-                'name' => $pt->display_name,
-                'refunded_at' => $pt->refunded_at,
-                'amount' => $pt->amount,
-                'refunded_amount' => $pt->refunded_amount,
-                'refund_status' => $pt->refund_status,
-                'refund_reason' => $pt->refund_reason,
-                'refunded_by' => $pt->refunded_by,
-                'type' => 'PT',
-                'type_key' => 'pt',
-            ];
-        })->all());
-
         $refPTList = collect($refPT->get()->map(function($p) {
             return (object)[
                 'id' => $p->id,
@@ -207,7 +191,8 @@ class PaymentHistoryController extends Controller
                 'refund_status' => $p->refund_status,
                 'refund_reason' => $p->refund_reason,
                 'refunded_by' => $p->refunded_by,
-                'type' => 'PT'
+                'type' => 'PT',
+                'type_key' => 'pt',
             ];
         })->all());
 
@@ -319,62 +304,6 @@ class PaymentHistoryController extends Controller
             'buddy_name' => $payment->buddy_name,
             'buddy_contact' => $payment->buddy_contact,
         ]);
-    }
-
-    /**
-     * Get receipt data for PT payment (AJAX)
-     */
-    public function getPTReceipt($id)
-    {
-        $payment = PTSchedule::with(['client', 'membership'])->findOrFail($id);
-
-        return response()->json($this->formatPTReceiptData($payment));
-    }
-
-    /**
-     * Transform a PT payment into the receipt payload used by the Payment History UI.
-     */
-    private function formatPTReceiptData(PTSchedule $payment): array
-    {
-        $payment->loadMissing(['client', 'membership']);
-
-        $scheduledDate = $payment->scheduled_date?->format('F d, Y');
-        $scheduledTime = $payment->scheduled_time
-            ? Carbon::parse($payment->scheduled_time)->format('h:i A')
-            : null;
-        $sessionSchedule = trim(implode(' - ', array_filter([$scheduledDate, $scheduledTime])));
-
-        return [
-            'id' => $payment->id,
-            'receipt_number' => $payment->receipt_number,
-            'customer_name' => $payment->display_name,
-            'customer_contact' => $payment->resolved_contact,
-            'customer_source' => $payment->customer_source,
-            'plan_name' => $payment->plan_name ?: 'Personal Training',
-            'plan_key' => $payment->plan_key,
-            'plan_duration_days' => $payment->plan_duration_days,
-            'trainer_name' => $payment->trainer_name,
-            'scheduled_date' => $scheduledDate,
-            'scheduled_time' => $scheduledTime,
-            'session_schedule' => $sessionSchedule !== '' ? $sessionSchedule : null,
-            'amount' => $payment->amount,
-            'paid_amount' => $payment->paid_amount,
-            'return_amount' => $payment->return_amount,
-            'payment_method' => $payment->payment_type,
-            'processed_by' => $payment->processed_by,
-            'status' => $payment->status,
-            'notes' => $payment->notes,
-            'formatted_date' => $payment->created_at
-                ? $payment->created_at->copy()->setTimezone('Asia/Manila')->format('F d, Y - h:i A')
-                : null,
-            'created_at' => $payment->created_at,
-            'is_refunded' => $payment->is_refunded,
-            'refund_status' => $payment->refund_status,
-            'refunded_amount' => $payment->refunded_amount,
-            'refunded_at' => $payment->refunded_at,
-            'refund_reason' => $payment->refund_reason,
-            'refunded_by' => $payment->refunded_by,
-        ];
     }
 
     /**
@@ -528,26 +457,6 @@ class PaymentHistoryController extends Controller
             return back()->with('success', count($ids) . ' membership payment(s) deleted successfully.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to delete payments: ' . $e->getMessage()]);
-        }
-    }
-
-    /**
-     * Bulk delete PT payments.
-     */
-    public function bulkDeletePT(Request $request)
-    {
-        $ids = $request->input('ids', []);
-
-        if (!is_array($ids) || empty($ids)) {
-            return back()->withErrors(['error' => 'No PT payments selected.']);
-        }
-
-        try {
-            $count = PTSchedule::whereIn('id', $ids)->delete();
-
-            return back()->with('success', $count . ' PT payment(s) deleted successfully.');
-        } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to delete PT payments: ' . $e->getMessage()]);
         }
     }
 

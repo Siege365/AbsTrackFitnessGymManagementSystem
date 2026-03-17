@@ -24,6 +24,7 @@ export default defineConfig({
                 'resources/css/payment.css',
                 'resources/css/product-payment.css',
                 'resources/css/membership-payment.css',
+                'resources/css/unified-receipt.css',
                 'resources/css/reports.css',
                 'resources/css/payment-history.css',
                 'resources/css/activity-logs.css',

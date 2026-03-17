@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Customer;
 use App\Models\GymPlan;
+use App\Models\Membership;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -756,6 +757,7 @@ class ClientController extends Controller
     /**
      * Autocomplete API for customer suggestions
      * Used in client add modal to pre-fill data from existing customers
+     * Also searches memberships directly to find active members without a customer record
      */
     public function autocomplete(Request $request)
     {
@@ -765,6 +767,7 @@ class ClientController extends Controller
             return response()->json([]);
         }
 
+        // Search customers table
         $customers = Customer::where(function($q) use ($query) {
                 $q->where('name', 'LIKE', "%{$query}%")
                   ->orWhere('contact', 'LIKE', "%{$query}%");
@@ -789,9 +792,40 @@ class ClientController extends Controller
                     'avatar' => $customer->avatar,
                     'has_active_client' => $customer->hasActiveClient(),
                     'has_active_membership' => $customer->hasActiveMembership(),
+                    'source' => 'customer',
                 ];
             });
 
-        return response()->json($customers);
+        // Also search memberships directly (catches members whose name differs from their Customer record)
+        $customerNames = $customers->pluck('name')->toArray();
+        $memberships = Membership::where(function($q) use ($query) {
+                $q->where('name', 'LIKE', "%{$query}%")
+                  ->orWhere('contact', 'LIKE', "%{$query}%");
+            })
+            ->whereDate('due_date', '>=', now())
+            ->whereNotIn('name', $customerNames)
+            ->limit(10)
+            ->get()
+            ->map(function($m) {
+                return [
+                    'id' => $m->id,
+                    'name' => $m->name,
+                    'age' => $m->age,
+                    'sex' => $m->sex,
+                    'contact' => $m->contact,
+                    'avatar' => $m->avatar,
+                    'has_active_client' => false,
+                    'has_active_membership' => true,
+                    'source' => 'membership',
+                ];
+            });
+
+        $combined = $customers->concat($memberships)
+            ->unique('name')
+            ->sortBy('name')
+            ->values()
+            ->take(15);
+
+        return response()->json($combined);
     }
 }

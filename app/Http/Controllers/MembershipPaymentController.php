@@ -95,11 +95,6 @@ class MembershipPaymentController extends Controller
             $rules['new_member_contact'] = ['required', 'regex:/^(09\d{9}|\+639\d{9})$/'];
             $rules['new_member_avatar'] = 'nullable|image|max:2048';
 
-            // Student plan requires student_id
-            if ($request->plan_type === 'Student') {
-                $rules['student_id'] = 'required|string|max:100';
-            }
-
             // Gym Buddy plan requires buddy info
             if ($request->plan_type === 'GymBuddy') {
                 $rules['buddy_name'] = 'required|string|max:255';
@@ -170,7 +165,7 @@ class MembershipPaymentController extends Controller
                     'due_date' => now()->addDays($duration),
                     'status' => 'Active',
                     'is_student' => $isStudent,
-                    'student_id' => $isStudent ? $request->student_id : null,
+                    'student_id' => null,
                 ]);
 
                 $newDueDate = $member->due_date;
@@ -195,7 +190,7 @@ class MembershipPaymentController extends Controller
                         'due_date' => now()->addDays($duration),
                         'status' => 'Active',
                         'is_student' => $buddyIsStudent,
-                        'student_id' => $buddyIsStudent ? $request->buddy_student_id : null,
+                        'student_id' => null,
                     ]);
                 }
 

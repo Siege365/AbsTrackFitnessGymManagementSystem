@@ -22,13 +22,13 @@
 </div>
 
 <!-- PT Receipt Modal -->
-<div id="ptReceiptModal" class="modal-overlay" role="document">
-  <div class="modal-content">
+<div id="ptReceiptModal" class="modal-overlay receipt-overlay" role="document">
+  <div class="modal-content receipt-modal-shell">
     <div class="modal-header">
       <h3 class="modal-title">PT Payment Receipt</h3>
       <button class="modal-close" onclick="closePtReceiptModal()">&times;</button>
     </div>
-    <div class="modal-body" id="ptReceiptBody">
+    <div class="modal-body receipt-modal-body" id="ptReceiptBody">
       <div class="loading-spinner"><div class="spinner"></div></div>
     </div>
     <div class="modal-footer">
