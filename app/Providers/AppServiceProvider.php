@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
+use App\Models\User;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,6 +31,11 @@ class AppServiceProvider extends ServiceProvider
         // Register formatContact blade directive
         Blade::directive('formatContact', function ($expression) {
             return "<?php echo \App\Providers\AppServiceProvider::formatContactNumber($expression); ?>";
+        });
+
+        // Gate for Security Subsystem (Owner and Manager only)
+        Gate::define('access-security-center', function (User $user) {
+            return $user->canAccessSecurity();
         });
     }
 

@@ -12,8 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Alter the enum column to include 'in_progress'
-        DB::statement("ALTER TABLE pt_schedules MODIFY COLUMN status ENUM('upcoming', 'in_progress', 'done', 'cancelled') DEFAULT 'upcoming'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE pt_schedules MODIFY COLUMN status ENUM('upcoming', 'in_progress', 'done', 'cancelled') DEFAULT 'upcoming'");
+        }
     }
 
     /**
@@ -21,7 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Revert back to original enum values
-        DB::statement("ALTER TABLE pt_schedules MODIFY COLUMN status ENUM('upcoming', 'done', 'cancelled') DEFAULT 'upcoming'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE pt_schedules MODIFY COLUMN status ENUM('upcoming', 'done', 'cancelled') DEFAULT 'upcoming'");
+        }
     }
 };

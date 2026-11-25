@@ -100,7 +100,7 @@
         <span class="menu-title">Reports & Analytics</span>
       </a>
     </li>
-    @if(auth()->check() && auth()->user()->isAdmin())
+    @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isOwner() || auth()->user()->isManager()))
     <li class="nav-item menu-items">
       <a class="nav-link" data-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">
         <span class="menu-icon">
@@ -118,6 +118,17 @@
       </div>
     </li>
     @endif
+    @can('access-security-center')
+    <li class="nav-item menu-items {{ request()->is('security*') ? 'active' : '' }}">
+      <a class="nav-link" href="{{ route('security.assessment') }}">
+        <span class="menu-icon">
+          <i class="mdi mdi-shield-check"></i>
+        </span>
+        <span class="menu-title">CyberShield AI</span>
+        <span class="badge badge-outline-success ml-2" style="font-size: 0.65rem; padding: 2px 6px; letter-spacing: 0.5px;">AI SEC</span>
+      </a>
+    </li>
+    @endcan
     <li class="nav-item menu-items">
       <a class="nav-link" href="{{ route('configuration.index') }}">
         <span class="menu-icon">

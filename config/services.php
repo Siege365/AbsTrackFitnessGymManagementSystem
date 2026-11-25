@@ -36,8 +36,14 @@ return [
     ],
 
     'turnstile' => [
+        'enabled' => env('TURNSTILE_ENABLED', false),
         'site_key' => env('TURNSTILE_SITE_KEY'),
         'secret_key' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-1.5-flash'),
     ],
 
 ];

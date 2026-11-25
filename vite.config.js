@@ -32,6 +32,7 @@ export default defineConfig({
                 'resources/css/account-settings.css',
                 'resources/css/staff-management.css',
                 'resources/css/notifications-page.css',
+                'resources/css/security-assessment.css',
 
                 // Auth CSS
                 'resources/css/auth-login.css',
@@ -68,6 +69,7 @@ export default defineConfig({
                 'resources/js/pages/staff.js',
                 'resources/js/pages/trainers.js',
                 'resources/js/notifications/page.js',
+                'resources/js/pages/security-assessment.js',
 
                 // Auth JS
                 'resources/js/auth-login.js',

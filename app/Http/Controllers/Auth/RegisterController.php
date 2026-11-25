@@ -19,15 +19,20 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
-        $request->validate([
+        $rules = [
             'first_name' => ['required', 'string', 'max:255'],
             'last_name'  => ['required', 'string', 'max:255'],
             'email'      => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password'   => ['required', 'string', 'min:8'],
             'contact'    => ['nullable', 'string', 'max:255'],
             'address'    => ['nullable', 'string', 'max:500'],
-            'cf-turnstile-response' => ['required', new Turnstile],
-        ]);
+        ];
+
+        if (config('services.turnstile.enabled') && config('services.turnstile.secret_key')) {
+            $rules['cf-turnstile-response'] = ['required', new Turnstile];
+        }
+
+        $request->validate($rules);
 
         $user = User::create([
             'name'     => trim($request->first_name . ' ' . $request->last_name),

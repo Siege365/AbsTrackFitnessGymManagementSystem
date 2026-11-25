@@ -14,11 +14,11 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::updateOrCreate(
-            ['email' => 'admin@abstrack.com'],
+            ['email' => 'owner@abstrack.com'],
             [
-                'name' => 'Admin User',
+                'name' => 'Gym Owner',
                 'password' => bcrypt('password'),
-                'role' => 'admin',
+                'role' => 'owner',
             ]
         );
 
@@ -26,6 +26,15 @@ class DatabaseSeeder extends Seeder
             ['email' => 'manager@abstrack.com'],
             [
                 'name' => 'Gym Manager',
+                'password' => bcrypt('password'),
+                'role' => 'manager',
+            ]
+        );
+
+        User::updateOrCreate(
+            ['email' => 'admin@abstrack.com'],
+            [
+                'name' => 'Admin User',
                 'password' => bcrypt('password'),
                 'role' => 'admin',
             ]

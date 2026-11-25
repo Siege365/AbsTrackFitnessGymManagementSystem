@@ -48,11 +48,35 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is an owner.
+     */
+    public function isOwner(): bool
+    {
+        return $this->role === 'owner';
+    }
+
+    /**
+     * Check if user is a manager.
+     */
+    public function isManager(): bool
+    {
+        return $this->role === 'manager';
+    }
+
+    /**
+     * Check if user has permission to access the security subsystem.
+     */
+    public function canAccessSecurity(): bool
+    {
+        return in_array($this->role, ['owner', 'manager', 'admin']);
+    }
+
+    /**
      * Check if user is a staff member.
      */
     public function isStaff(): bool
     {
-        return $this->role === 'staff';
+        return in_array($this->role, ['staff', 'cashier']);
     }
 
     /**

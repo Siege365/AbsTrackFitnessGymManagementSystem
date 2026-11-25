@@ -1,0 +1,486 @@
+/* ==========================================================================
+   CyberShield AI - Security Assessment & Vulnerability Analysis Subsystem
+   Native AbsTrack Design System (Clean, Professional, Enterprise UI)
+   ========================================================================== */
+
+/* ─── Page Header Adjustments ─── */
+.security-page-header .page-header-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+.security-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.security-role-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    background: rgba(255, 167, 38, 0.12);
+    color: #FFA726;
+    border: 1px solid rgba(255, 167, 38, 0.25);
+    font-weight: 600;
+}
+
+/* ─── Standard AbsTrack Stats Cards ─── */
+.security-stats-card {
+    background: #191C24 !important;
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.security-stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.security-stats-card .card-body {
+    padding: 22px 24px !important;
+}
+
+.security-stats-value {
+    font-size: 2rem !important;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.security-stats-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 4px;
+    margin-bottom: 0;
+}
+
+.security-stats-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.security-stats-icon i {
+    font-size: 26px !important;
+}
+
+/* ─── Native Page Segmented Tabs (Matches AbsTrack Payment History) ─── */
+.security-tabs-container {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+    background: #191C24;
+    border-radius: 10px;
+    padding: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    overflow-x: auto;
+}
+
+.security-tab-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1.25rem;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #888888;
+    font-size: 0.92rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    outline: none;
+}
+
+.security-tab-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.security-tab-btn.active {
+    background: linear-gradient(135deg, #FFA726, #FFB84D);
+    color: #000000;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.security-tab-btn.active i {
+    color: #000000 !important;
+}
+
+.security-tab-btn i {
+    font-size: 1.15rem;
+    color: #888888;
+}
+
+.security-tab-btn .tab-count-pill {
+    font-size: 0.72rem;
+    padding: 2px 7px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    color: inherit;
+    font-weight: 600;
+}
+
+.security-tab-btn.active .tab-count-pill {
+    background: rgba(0, 0, 0, 0.18);
+    color: #000000;
+}
+
+/* ─── Tab Content Panes ─── */
+.security-tab-pane {
+    display: none;
+    animation: fadeInContent 0.25s ease forwards;
+}
+
+.security-tab-pane.active {
+    display: block;
+}
+
+@keyframes fadeInContent {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Standard Clean Cards ─── */
+.clean-security-card {
+    background: #191C24 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.clean-security-card .card-header {
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.clean-security-card .card-header h4 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.clean-security-card .card-body {
+    padding: 24px !important;
+}
+
+/* ─── Clean Table Styles (Matches AbsTrack System Tables) ─── */
+.security-table {
+    width: 100%;
+    margin-bottom: 0;
+    color: #ffffff;
+}
+
+.security-table thead th {
+    color: rgba(255, 255, 255, 0.55);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 14px 16px;
+    background: transparent;
+}
+
+.security-table tbody td {
+    padding: 16px 16px;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.security-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* ─── Pill Badges ─── */
+.badge-clean-pass {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: rgba(0, 210, 91, 0.12);
+    color: #00d25b;
+    border: 1px solid rgba(0, 210, 91, 0.25);
+}
+
+.badge-clean-warn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: rgba(255, 167, 38, 0.12);
+    color: #FFA726;
+    border: 1px solid rgba(255, 167, 38, 0.25);
+}
+
+.badge-clean-danger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: rgba(252, 66, 74, 0.12);
+    color: #fc424a;
+    border: 1px solid rgba(252, 66, 74, 0.25);
+}
+
+.badge-clean-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: rgba(0, 144, 231, 0.12);
+    color: #0090e7;
+    border: 1px solid rgba(0, 144, 231, 0.25);
+}
+
+/* ─── Threat Feed List ─── */
+.clean-threat-item {
+    background: #14171d;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: border-color 0.2s ease;
+}
+
+.clean-threat-item:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.clean-threat-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.clean-threat-desc {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.65);
+    margin-bottom: 10px;
+    line-height: 1.45;
+}
+
+.clean-threat-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.clean-threat-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ─── AI Advisor Terminal ─── */
+.advisor-prompt-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.advisor-prompt-btn {
+    background: #14171d;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.advisor-prompt-btn:hover {
+    background: rgba(255, 167, 38, 0.1);
+    color: #FFA726;
+    border-color: rgba(255, 167, 38, 0.35);
+}
+
+.advisor-chat-stream {
+    background: #14171d;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    min-height: 380px;
+    max-height: 480px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.advisor-chat-stream::-webkit-scrollbar {
+    width: 6px;
+}
+
+.advisor-chat-stream::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 3px;
+}
+
+.msg-ai, .chat-bubble-ai {
+    background: #191C24;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 16px 20px;
+    max-width: 85%;
+    align-self: flex-start;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+
+.msg-ai h3, .msg-ai h4, .chat-bubble-ai h3, .chat-bubble-ai h4 {
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.msg-ai ul, .msg-ai ol, .chat-bubble-ai ul, .chat-bubble-ai ol {
+    margin-bottom: 10px;
+    padding-left: 20px;
+}
+
+.msg-ai li, .chat-bubble-ai li {
+    margin-bottom: 4px;
+}
+
+.msg-ai pre, .chat-bubble-ai pre {
+    background: #0d0f14;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #8be9fd;
+    font-size: 0.82rem;
+    overflow-x: auto;
+}
+
+.msg-ai code, .chat-bubble-ai code {
+    color: #FFA726;
+    font-size: 0.85rem;
+}
+
+.msg-user, .chat-bubble-user {
+    background: #232834;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 12px 18px;
+    max-width: 75%;
+    align-self: flex-end;
+    font-size: 0.9rem;
+}
+
+.advisor-input-box {
+    display: flex;
+    gap: 10px;
+}
+
+.advisor-input-box input {
+    background: #14171d !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 12px 18px !important;
+    font-size: 0.9rem !important;
+    box-shadow: none !important;
+}
+
+.advisor-input-box input:focus {
+    border-color: #FFA726 !important;
+}
+
+.advisor-input-box button {
+    background: linear-gradient(135deg, #FFA726, #FFB84D) !important;
+    color: #000000 !important;
+    font-weight: 600 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 0 22px !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+}
+
+.advisor-input-box button:hover {
+    opacity: 0.9;
+}
+
+/* ─── Profile / Recommendation Cards ─── */
+.info-row-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.88rem;
+}
+
+.info-row-item:last-child {
+    border-bottom: none;
+}
+
+.info-row-label {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.info-row-val {
+    color: #ffffff;
+    font-weight: 500;
+}

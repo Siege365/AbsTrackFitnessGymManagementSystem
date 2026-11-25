@@ -18,14 +18,16 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
-            'cf-turnstile-response' => ['required', new Turnstile],
-        ]);
-
-        $credentials = $request->validate([
+        $rules = [
             'email' => ['required', 'email'],
             'password' => ['required'],
-        ]);
+        ];
+
+        if (config('services.turnstile.enabled') && config('services.turnstile.secret_key')) {
+            $rules['cf-turnstile-response'] = ['required', new Turnstile];
+        }
+
+        $credentials = $request->validate($rules);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();

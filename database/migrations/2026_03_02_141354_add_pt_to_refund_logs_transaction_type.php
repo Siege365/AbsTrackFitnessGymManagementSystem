@@ -12,7 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement("ALTER TABLE refund_logs MODIFY COLUMN transaction_type ENUM('product', 'membership', 'pt') NOT NULL");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE refund_logs MODIFY COLUMN transaction_type ENUM('product', 'membership', 'pt') NOT NULL");
+        }
     }
 
     /**
@@ -20,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement("ALTER TABLE refund_logs MODIFY COLUMN transaction_type ENUM('product', 'membership') NOT NULL");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE refund_logs MODIFY COLUMN transaction_type ENUM('product', 'membership') NOT NULL");
+        }
     }
 };

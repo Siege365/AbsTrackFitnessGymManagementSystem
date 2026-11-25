@@ -13,8 +13,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Add 'expired' to the status enum
-        DB::statement("ALTER TABLE pt_schedules MODIFY COLUMN status ENUM('upcoming', 'in_progress', 'done', 'cancelled', 'expired') DEFAULT 'upcoming'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE pt_schedules MODIFY COLUMN status ENUM('upcoming', 'in_progress', 'done', 'cancelled', 'expired') DEFAULT 'upcoming'");
+        }
 
         Schema::table('pt_schedules', function (Blueprint $table) {
             // Make client_id nullable for walk-in customers

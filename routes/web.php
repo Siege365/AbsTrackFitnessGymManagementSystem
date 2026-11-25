@@ -22,6 +22,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\TrainerController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\SecurityAssessmentController;
 
 
 
@@ -60,6 +61,18 @@ Route::middleware(['auth'])->group(function () {
         });
 
         Route::get('/staff-management/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+    });
+
+    // ==========================================
+    // CYBERSHIELD AI SECURITY ASSESSMENT (Owner & Manager Only)
+    // ==========================================
+    Route::middleware(['security.manager'])->prefix('security')->name('security.')->group(function () {
+        Route::get('/assessment', [SecurityAssessmentController::class, 'index'])->name('assessment');
+        Route::post('/scan/run', [SecurityAssessmentController::class, 'runScan'])->name('scan.run');
+        Route::post('/advisor/query', [SecurityAssessmentController::class, 'askAdvisor'])->name('advisor.query');
+        Route::post('/threats/analyze', [SecurityAssessmentController::class, 'analyzeLogs'])->name('threats.analyze');
+        Route::post('/alerts/{id}/resolve', [SecurityAssessmentController::class, 'resolveAlert'])->name('alerts.resolve');
+        Route::get('/export-report', [SecurityAssessmentController::class, 'exportPdfReport'])->name('export-report');
     });
 
     // Account Settings
